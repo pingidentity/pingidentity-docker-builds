@@ -11,7 +11,7 @@ RUN /get-bits.sh --product ldapsdk --version 4.0.9 \
 RUN rm -f /opt/tools/*.bat
 
 FROM openjdk:8-jre-alpine as ldapsdk
-LABEL	maintainer=docker@pingidentity.com \
+LABEL	maintainer=devops_program@pingidentity.com \
 		license="GPLv2, LGPLv2.1, Ping Identity UnboundID LDAP SDK Free Use" \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity LDAP SDK Tools (Alpine/OpenJDK8) Image"

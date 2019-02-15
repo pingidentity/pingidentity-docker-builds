@@ -16,7 +16,7 @@ COPY postStart.sh /opt
 # the final image 
 #
 FROM openjdk:8-jre-alpine as pingfederate
-LABEL	maintainer=docker@pingidentity.com \
+LABEL	maintainer=devops_program@pingidentity.com \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity PingAccess (Alpine/OpenJDK8) Image"
