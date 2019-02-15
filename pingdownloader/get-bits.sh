@@ -19,6 +19,7 @@ Usage: ${TOOL_NAME} {options}
     						pingdirectoryproxy
     						pingfederate
     						ldapsdk
+							delegator
     	*-v, --version:	the version of the product to download.
     	 -n, --dry-run:	this will cause the URL to be displayed but the
     					the bits not to be downloaded
@@ -63,7 +64,7 @@ shift
 done
 
 case "${providedValue}" in
-	pingaccess|pingdatagovernance|pingdatasync|pingdirectory|pingdirectoryproxy|pingfederate|ldapsdk)
+	pingaccess|pingdatagovernance|pingdatasync|pingdirectory|pingdirectoryproxy|pingfederate|ldapsdk|delegator)
 		product=${providedValue}
 		;;
 	*)
@@ -88,6 +89,9 @@ case "${product}" in
 		;;
 	pingdirectoryproxy)
 		url="${url}PingDirectoryProxy"
+		;;
+	delegator)
+		url="${url}pingdirectory-delegator"
 		;;
 	ldapsdk)
 		url="https://github.com/pingidentity/ldapsdk/releases/download/${version}/unboundid-ldapsdk"
