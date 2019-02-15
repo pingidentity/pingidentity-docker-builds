@@ -34,3 +34,4 @@ VOLUME ["/opt/out"]
 
 COPY --from=staging /opt /opt
 ENTRYPOINT ["/opt/entrypoint.sh"]
+CMD [ "start-server" ]
