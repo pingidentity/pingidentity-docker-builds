@@ -10,7 +10,7 @@ RUN /get-bits.sh --product pingdirectory --version 7.2.0.0 && \
 # the final image 
 #
 FROM tomcat:8-jre8-alpine
-LABEL	maintainer=docker@pingidentity.com \
+LABEL	maintainer=devops_program@pingidentity.com \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity PingDataConsole (Alpine/OpenJDK8) Image"

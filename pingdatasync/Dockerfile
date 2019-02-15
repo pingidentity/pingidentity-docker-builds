@@ -28,6 +28,11 @@ COPY configure-tools.sh /opt
 COPY wait-for /opt
 
 FROM openjdk:8-jre-alpine as pingdatasync
+LABEL	maintainer=devops_program@pingidentity.com \
+		license="Ping Identity Proprietary" \
+		vendor="Ping Identity Corp." \
+		name="Ping Identity PingDataSync (Alpine/OpenJDK8) Image"
+		
 # These are exposed as environment variables to the running containers. 
 # They may be overridden externally by "docker run" or some other 
 # orchestration framework like Kubernetes.

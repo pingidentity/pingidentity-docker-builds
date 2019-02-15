@@ -16,7 +16,7 @@ COPY run.sh /opt/server/bin/run.sh
 # the final image 
 #
 FROM openjdk:8-jre-alpine as pingfederate
-LABEL	maintainer=docker@pingidentity.com \
+LABEL	maintainer=devops_program@pingidentity.com \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity PingFederate (Alpine/OpenJDK8) Image"
