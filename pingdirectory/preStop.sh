@@ -1,0 +1,81 @@
+#!/bin/sh
+set -x
+
+LOG_FILE="${SERVER_ROOT_DIR}/logs/preStop.log"
+TOP_FILE="${IN_DIR}/topology.json"
+
+if [[ ! -f "${TOP_FILE}" ]]; then
+  echo "${TOP_FILE} not found" > $LOG_FILE
+  exit 0
+fi
+
+echo "Starting preStop script on $HOSTNAME" > $LOG_FILE
+
+echo "Disabling LDAP connection handler" >> $LOG_FILE
+dsconfig --no-prompt \
+  --useSSL --trustAll \
+  --hostname "${HOSTNAME}" --port ${LDAPS_PORT} \
+  set-connection-handler-prop \
+  --handler-name "LDAP Connection Handler" \
+  --set enabled:false >> "${LOG_FILE}" 2>&1
+
+echo "Forcing one of the servers as master" >> $LOG_FILE
+forcedMaster=
+
+for h in $(grep hostname "${TOP_FILE}" | cut -d':' -f 2 | tr -d '", '); do
+  echo "Trying search on ${h}:${LDAPS_PORT}" >> $LOG_FILE
+
+  if ldapsearch -h "${h}" -p ${LDAPS_PORT} -Z -X -b "" -s base "(&)"; then
+    echo "Forcing server ${h} as master" >> $LOG_FILE
+
+    if dsconfig --no-prompt \
+      --useSSL --trustAll \
+      --hostname "${h}" --port ${LDAPS_PORT} \
+      set-global-configuration-prop \
+      --set force-as-master-for-mirrored-data:true >> $LOG_FILE 2>&1; then
+
+      forcedMaster="${h}"
+      echo "Forced ${h} as master" >> $LOG_FILE
+
+      break
+    fi
+  fi
+done
+
+# Sleep for a couple of seconds for a master to be forced, if required
+sleep 2
+
+[[ -f "${ROOT_USER_PASSWORD_FILE}" ]] && \
+  ROOT_PASSWORD_ARGS="--bindPasswordFile ${ROOT_USER_PASSWORD_FILE}" || \
+  ROOT_PASSWORD_ARGS="--bindPassword ${ROOT_USER_PASSWORD}"
+
+echo "Removing local defunct server using ${TOP_FILE}" >> $LOG_FILE
+remove-defunct-server --serverInstanceName $HOSTNAME \
+  --topologyFilePath "${TOP_FILE}" \
+  --bindDN "${ROOT_USER_DN}" \
+  ${ROOT_PASSWORD_ARGS} \
+  --enableDebug --globalDebugLevel verbose \
+  --no-prompt >> $LOG_FILE 2>&1
+
+if grep "No existing server selected for removal" $LOG_FILE; then
+  echo "Removing local defunct server using config.ldif file" >> $LOG_FILE
+  remove-defunct-server --serverInstanceName $HOSTNAME \
+    --bindDN "${ROOT_USER_DN}" \
+    ${ROOT_PASSWORD_ARGS} \
+    --enableDebug --globalDebugLevel verbose \
+    --no-prompt >> $LOG_FILE 2>&1  
+fi
+
+if [[ -f "${SERVER_ROOT_DIR}"/config/config.ldif.init ]]; then
+  echo "Restoring init config" >> $LOG_FILE
+  cp "${SERVER_ROOT_DIR}"/config/config.ldif{.init,}
+fi
+
+if [[ ! -z "${forcedMaster}" ]]; then
+  echo "Unforcing server ${forcedMaster} as master" >> $LOG_FILE
+  dsconfig --no-prompt \
+    --useSSL --trustAll \
+    --hostname "${forcedMaster}" --port ${LDAPS_PORT} \
+    set-global-configuration-prop \
+    --set force-as-master-for-mirrored-data:false >> $LOG_FILE 2>&1
+fi
