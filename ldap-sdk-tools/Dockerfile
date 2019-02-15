@@ -1,7 +1,4 @@
 FROM pingidentity/pingdownloader as staging
-# place the software being delivered in a conspicuous, unix-correct location
-RUN mkdir /opt
-WORKDIR /opt
 
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ldapsdk --version 4.0.9 \
