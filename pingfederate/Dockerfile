@@ -1,10 +1,9 @@
 FROM pingidentity/pingdownloader as staging
-# place the software being delivered in a conspicuous, unix-correct location
-RUN mkdir /opt
-WORKDIR /opt
+ARG PRODUCT=pingfederate
+ARG VERSION=9.2.1
 
 # copy your product zip file into the staging image
-RUN /get-bits.sh --product pingfederate --version 9.2.0 \
+RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 	&& unzip /tmp/product.zip -d /tmp/ \
 	&& mv /tmp/pingfederate-*/pingfederate /opt/server
 COPY entrypoint.sh /opt
