@@ -1,4 +1,4 @@
-# Contributing to the UnboundID LDAP SDK for Java
+# Contributing to the Ping Identity Docker Builds
 
 Thanks for taking the time to contribute!
 
