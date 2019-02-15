@@ -1,0 +1,4 @@
+sut:
+  build: .
+  entrypoint: /bin/sh
+  command: echo "test"
