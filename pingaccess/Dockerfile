@@ -1,7 +1,5 @@
 FROM pingidentity/pingdownloader as staging
 # place the software being delivered in a conspicuous, unix-correct location
-RUN mkdir /opt
-WORKDIR /opt
 ARG PRODUCT
 ARG VERSION
 
