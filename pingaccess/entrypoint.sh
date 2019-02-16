@@ -8,6 +8,11 @@ if test "$1" = 'start-server' ; then
 		if ! test -z "${SERVER_PROFILE_URL}" ; then
 			# clone the server profile repo if provided
 			git clone ${SERVER_PROFILE_URL} /opt/server-profile
+			if ! test -z "${SERVER_PROFILE_BRANCH}" ; then
+				cd /opt/server-profile
+				git checkout ${SERVER_PROFILE_BRANCH}
+				cd -
+			fi
 			cp -rf /opt/server-profile/* /opt/in
 		fi
 
