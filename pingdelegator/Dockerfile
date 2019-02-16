@@ -12,6 +12,7 @@ LABEL	maintainer=devops_program@pingidentity.com \
 EXPOSE 80
 EXPOSE 443
 ENV SERVER_PROFILE_URL=""
+ENV SERVER_PROFILE_BRANCH=""
 
 RUN apk --no-cache add git curl ca-certificates
 VOLUME /opt/in
