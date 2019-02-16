@@ -16,7 +16,7 @@ if test "${1}" = "start-server" ; then
     cp -rf /opt/in/* /usr/share/nginx/html/delegator/
 
     # how do I start nginx ???
-    nginx -g 'daemon off;'
+    /usr/sbin/nginx -g 'daemon off;'
 else
     exec "$@"
 fi
