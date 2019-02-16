@@ -25,6 +25,7 @@ COPY liveness.sh /opt
 COPY postStart.sh /opt
 COPY preStop.sh /opt
 COPY configure-tools.sh /opt
+COPY wait-for /opt
 
 FROM openjdk:8-jre-alpine as pingdirectory
 # These are exposed as environment variables to the running containers. 
