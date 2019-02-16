@@ -7,7 +7,7 @@ RUN /get-bits.sh --product ldapsdk --version 4.0.9 \
 	&& mv /tmp/unboundid-ldapsdk-*/tools /opt/ \
 	&& mv /tmp/unboundid-ldapsdk-*/LICENSE* /opt/ \
 	&& mv /tmp/unboundid-ldapsdk-*/unboundid-ldapsdk.jar /opt/
-
+COPY wait-for /opt/tools/
 RUN rm -f /opt/tools/*.bat
 
 FROM openjdk:8-jre-alpine as ldapsdk
