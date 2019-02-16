@@ -8,8 +8,14 @@ if test "${1}" = "start-server" ; then
     test -d "${SERVER_ROOT_DIR}" || cp -rf /opt/server ${SERVER_ROOT_DIR}
 
     if ! test -z "${SERVER_PROFILE_URL}" ; then
-      # clone server profile if pro
-      git clone ${SERVER_PROFILE_URL} /opt/in
+      # deploy configuration if provided
+      git clone ${SERVER_PROFILE_URL} /opt/server-profile | tee -a ${LOG_FILE}
+      if ! test -z "${SERVER_PROFILE_BRANCH}" ; then
+        cd /opt/server-profile
+        git checkout ${SERVER_PROFILE_BRANCH}
+        cd -
+      fi
+      cp -rf /opt/server-profile/* /opt/in
     fi
 
     test -f /opt/in/env_vars && source /opt/in/env_vars
