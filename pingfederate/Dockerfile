@@ -23,6 +23,7 @@ EXPOSE 9031
 EXPOSE 9999
 
 ENV SERVER_PROFILE_URL=""
+ENV SERVER_PROFILE_BRANCH=""
 
 RUN apk --no-cache add git curl ca-certificates
 

@@ -6,7 +6,13 @@ if ! test -d /opt/out/instance ; then
 
 	if ! test -z "${SERVER_PROFILE_URL}" ; then
 		# clone server profile if provided
-		git clone ${SERVER_PROFILE_URL} /opt/in
+		git clone ${SERVER_PROFILE_URL} /opt/server-profile
+		if ! test -z "${SERVER_PROFILE_BRANCH}" ; then
+			cd /opt/server-profile
+			git checkout ${SERVER_PROFILE_BRANCH}
+			cd -
+		fi
+		cp -rf /opt/server-profile/* /opt/in
 	fi
 
 	if test -d /opt/in/instance ; then
