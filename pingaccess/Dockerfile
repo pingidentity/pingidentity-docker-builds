@@ -25,6 +25,8 @@ EXPOSE 9000
 EXPOSE 3000
 EXPOSE 443
 ENV SERVER_PROFILE_URL=""
+ENV SERVER_PROFILE_BRANCH=""
+
 RUN apk --no-cache add git curl ca-certificates
 
 VOLUME ["/opt/in"]
