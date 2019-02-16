@@ -15,7 +15,8 @@ if [[ "$1" = 'start-server' ]]; then
 
     if ! test -z "${SERVER_PROFILE_URL}" ; then
       # deploy configuration if provided
-      git clone ${SERVER_PROFILE_URL} /opt/in | tee -a ${LOG_FILE}
+      git clone ${SERVER_PROFILE_URL} /opt/server-profile | tee -a ${LOG_FILE}
+      cp -rf /opt/server-profile/* /opt/in
     fi
 
     test -f /opt/in/env_vars && source /opt/in/env_vars
