@@ -2,7 +2,7 @@
 # check if an instance has already been run
 if ! test -d /opt/out/instance ; then	
 	# if not, then we deploy the bits to /opt/out
-	cp -rf /opt/server/ /opt/out/instance
+	cp -af /opt/server/ /opt/out/instance
 
 	if ! test -z "${SERVER_PROFILE_URL}" ; then
 		# clone server profile if provided
@@ -12,12 +12,12 @@ if ! test -d /opt/out/instance ; then
 			git checkout ${SERVER_PROFILE_BRANCH}
 			cd -
 		fi
-		cp -rf /opt/server-profile/* /opt/in
+		cp -af /opt/server-profile/* /opt/in
 	fi
 
 	if test -d /opt/in/instance ; then
 		# lay the configuration on top of vanilla install if provided
-		cp -rf /opt/in/instance /opt/out/
+		cp -af /opt/in/instance /opt/out/
 	fi
 fi
 tail -F /opt/out/instance/log/server.log &

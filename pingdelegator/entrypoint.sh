@@ -10,10 +10,10 @@ if test "${1}" = "start-server" ; then
         git checkout ${SERVER_PROFILE_BRANCH}
         cd -
       fi
-      cp -rf /opt/server-profile/* /opt/in
+      cp -af /opt/server-profile/* /opt/in
     fi
 
-    cp -rf /opt/in/* /usr/share/nginx/html/delegator/
+    cp -af /opt/in/* /usr/share/nginx/html/delegator/
 
     # how do I start nginx ???
     /usr/sbin/nginx -g 'daemon off;'

@@ -7,7 +7,7 @@ echo "Starting entrypoint script" | tee -a $LOG_FILE
 
 if [[ "$1" = 'start-server' ]]; then
   # lay down the bits from the immutable volume to the runtime volume
-  test -d "${SERVER_ROOT_DIR}" || cp -rf /opt/server ${SERVER_ROOT_DIR}
+  test -d "${SERVER_ROOT_DIR}" || cp -af /opt/server ${SERVER_ROOT_DIR}
 
   # Only do the init stuff if this is the first time the container is starting
   if [[ ! -f "${SERVER_ROOT_DIR}/config/server.uuid" ]]; then
@@ -21,13 +21,13 @@ if [[ "$1" = 'start-server' ]]; then
         git checkout ${SERVER_PROFILE_BRANCH}
         cd -
       fi
-      cp -rf /opt/server-profile/* /opt/in
+      cp -af /opt/server-profile/* /opt/in
     fi
 
     test -f /opt/in/env_vars && source /opt/in/env_vars
 
     # Copy the provided file in the input volume
-    test -d ${IN_DIR}/instance && cp -rf ${IN_DIR}/instance ${OUT_DIR}
+    test -d ${IN_DIR}/instance && cp -af ${IN_DIR}/instance ${OUT_DIR}
 
     test -f "${LICENSE_KEY_FILE}" && cp -f "${LICENSE_KEY_FILE}" "${SERVER_ROOT_DIR}/${KEY_FILE_NAME}"
 

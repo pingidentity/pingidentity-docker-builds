@@ -5,7 +5,7 @@ if test "${1}" = "start-server" ; then
   # Only do the init stuff if this is the first time the container is starting
   if ! test -f "${SERVER_ROOT_DIR}/config/server.uuid" ; then
     # lay down the bits
-    test -d "${SERVER_ROOT_DIR}" || cp -rf /opt/server ${SERVER_ROOT_DIR}
+    test -d "${SERVER_ROOT_DIR}" || cp -af /opt/server ${SERVER_ROOT_DIR}
 
     if ! test -z "${SERVER_PROFILE_URL}" ; then
       # deploy configuration if provided
@@ -15,13 +15,13 @@ if test "${1}" = "start-server" ; then
         git checkout ${SERVER_PROFILE_BRANCH}
         cd -
       fi
-      cp -rf /opt/server-profile/* /opt/in
+      cp -af /opt/server-profile/* /opt/in
     fi
 
     test -f /opt/in/env_vars && source /opt/in/env_vars
 
     # Copy the provided file in the input volume
-    test -d ${IN_DIR}/instance && cp -rf ${IN_DIR}/instance ${OUT_DIR}
+    test -d ${IN_DIR}/instance && cp -af ${IN_DIR}/instance ${OUT_DIR}
 
     test -f "${LICENSE_KEY_FILE}" && cp "${LICENSE_KEY_FILE}" "${SERVER_ROOT_DIR}/${KEY_FILE_NAME}"
 
