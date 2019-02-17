@@ -12,12 +12,12 @@ if ! test -d /opt/out/instance ; then
 			git checkout ${SERVER_PROFILE_BRANCH}
 			cd -
 		fi
-		cp -rf /opt/server-profile/* /opt/in
+		cp -af /opt/server-profile/* /opt/in
 	fi
 
 	if test -d /opt/in/instance ; then
 		# lay the configuration on top of vanilla install if provided
-		cp -rf /opt/in/instance /opt/out/
+		cp -af /opt/in/instance /opt/out/
 	fi
 fi
 tail -F /opt/out/instance/log/server.log &
