@@ -3,7 +3,7 @@ if test "$1" = 'start-server' ; then
 	# check if an instance has already been run
 	if ! test -d /opt/out/instance ; then	
 		# if not, then we deploy the bits to /opt/out
-		cp -rf /opt/server/ /opt/out/instance
+		cp -af /opt/server/ /opt/out/instance
 
 		if ! test -z "${SERVER_PROFILE_URL}" ; then
 			# clone the server profile repo if provided
@@ -13,11 +13,11 @@ if test "$1" = 'start-server' ; then
 				git checkout ${SERVER_PROFILE_BRANCH}
 				cd -
 			fi
-			cp -rf /opt/server-profile/* /opt/in
+			cp -af /opt/server-profile/* /opt/in
 		fi
 
 		if test -d "/opt/in/instance" ; then
-			cp -rf /opt/in/instance /opt/out/
+			cp -af /opt/in/instance /opt/out/
 		fi
 	fi
 	sh /opt/postStart.sh &

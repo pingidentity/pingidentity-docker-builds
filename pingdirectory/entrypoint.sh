@@ -21,7 +21,7 @@ if [[ "$1" = 'start-server' ]]; then
         git checkout ${SERVER_PROFILE_BRANCH}
         cd -
       fi
-      cp -rf /opt/server-profile/* /opt/in
+      cp -af /opt/server-profile/* /opt/in
     fi
 
     test -f /opt/in/env_vars && source /opt/in/env_vars
