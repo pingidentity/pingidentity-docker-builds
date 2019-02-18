@@ -1,55 +1,51 @@
 #!/bin/sh
 set -ex
 
-LOG_FILE="${SERVER_ROOT_DIR}/logs/postStart.log"
 TOP_FILE="${IN_DIR}/topology.json"
 
-echo "Starting postStart script on ${HOSTNAME}" > $LOG_FILE
-
-if [[ ! -f "${TOP_FILE}" ]]; then
-  echo "${TOP_FILE} not found" >> $LOG_FILE
+if test ! -f "${TOP_FILE}" ; then
+  echo "${TOP_FILE} not found"
   exit 0
 fi
 
 FQDN=$(hostname -f)
-echo "Waiting until DNS lookup works for ${FQDN}" >> $LOG_FILE
+echo "Waiting until DNS lookup works for ${FQDN}" 
 while true; do
-  echo "Running nslookup test" >> $LOG_FILE
+  echo "Running nslookup test"
   nslookup "$FQDN" && break
 
-  echo "Sleeping for a few seconds" >> $LOG_FILE
+  echo "Sleeping for a few seconds"
   sleep 5
 done
 
-echo "Waiting until the server is up and running" >> $LOG_FILE
 while true; do
-  echo "Running ldapsearch test" >> $LOG_FILE
+  echo "Running ldapsearch test"
   ldapsearch -p ${LDAPS_PORT} -Z -X -b "" -s base "(&)" && break
 
-  echo "Sleeping for a few seconds" >> $LOG_FILE
+  echo "Sleeping for a few seconds"
   sleep 5
 done
 
-echo "Changing the cluster name to ${HOSTNAME}" >> $LOG_FILE
+echo "Changing the cluster name to ${HOSTNAME}"
 dsconfig --no-prompt \
   --useSSL --trustAll \
   --hostname "${HOSTNAME}" --port ${LDAPS_PORT} \
   set-server-instance-prop \
   --instance-name "${HOSTNAME}" \
-  --set cluster-name:"${HOSTNAME}" >> $LOG_FILE 2>&1
+  --set cluster-name:"${HOSTNAME}"
 
-echo "Checking if ${HOSTNAME} is already in replication topology" >> $LOG_FILE
+echo "Checking if ${HOSTNAME} is already in replication topology"
 if dsreplication --no-prompt status \
   --useSSL --trustAll \
   --port ${LDAPS_PORT} \
   --adminUID "${ADMIN_USER_NAME}" \
   --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
   grep "${HOSTNAME}"; then
-  echo "${HOSTNAME} is already in replication topology" >> $LOG_FILE
+  echo "${HOSTNAME} is already in replication topology"
   exit 0
 fi
 
-echo "Running dsreplication enable" >> $LOG_FILE
+echo "Running dsreplication enable"
 dsreplication enable \
   --topologyFilePath "${TOP_FILE}" \
   --bindDN1 "${ROOT_USER_DN}" \
@@ -63,9 +59,9 @@ dsreplication enable \
   --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
   --no-prompt --ignoreWarnings \
   --baseDN "${USER_BASE_DN}" \
-  --enableDebug --globalDebugLevel verbose >> $LOG_FILE 2>&1
+  --enableDebug --globalDebugLevel verbose
 
-echo "Running dsreplication initialize" >> $LOG_FILE
+echo "Running dsreplication initialize"
 dsreplication initialize \
   --topologyFilePath "${TOP_FILE}" \
   --useSSLDestination --trustAll \
@@ -75,4 +71,4 @@ dsreplication initialize \
   --adminUID "${ADMIN_USER_NAME}" \
   --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
   --no-prompt \
-  --enableDebug --globalDebugLevel verbose >> $LOG_FILE 2>&1
+  --enableDebug --globalDebugLevel verbose
