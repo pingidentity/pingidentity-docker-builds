@@ -224,6 +224,6 @@ if [[ "$1" = 'start-server' ]]; then
 
   tail -F "${SERVER_ROOT_DIR}/logs/access" &
   exec start-server "--nodetach" 
+else
+  exec "$@"
 fi
-
-exec "$@"
