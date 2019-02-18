@@ -73,7 +73,7 @@ function apply_server_profile ()
 {
   if ! test -z "${SERVER_PROFILE_URL}" ; then
     # deploy configuration if provided
-    git clone ${SERVER_PROFILE_URL} /opt/server-profile | tee -a ${LOG_FILE}
+    git clone ${SERVER_PROFILE_URL} /opt/server-profile
     if ! test -z "${SERVER_PROFILE_BRANCH}" ; then
       cd /opt/server-profile
       git checkout ${SERVER_PROFILE_BRANCH}
@@ -150,12 +150,12 @@ function setup_server_instance ()
     --rootUserDN "${ROOT_USER_DN}" \
     --rootUserPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
     --baseDN "${USER_BASE_DN}" \
-    --addBaseEntry --doNotStart 2>&1 | tee -a ${LOG_FILE}
+    --addBaseEntry --doNotStart 2>&1
 }
 
 function apply_tools_properties ()
 {
-    echo "Configuring tools.properties file" | tee -a ${LOG_FILE}
+    echo "Configuring tools.properties file"
     /opt/configure-tools.sh \
         ${LDAP_PORT} \
         "${ROOT_USER_DN}" \
@@ -168,7 +168,7 @@ function first_time_sequence ()
 {
   # Only do the init stuff if this is the first time the container is starting
   if test ! -f "${SERVER_ROOT_DIR}/config/server.uuid" ; then
-    echo "Initializing server for the first time" | tee -a $LOG_FILE
+    echo "Initializing server for the first time"
     run_if present ${IN_DIR}/hooks/10-before-copying-bits.sh
     # lay down the bits from the immutable volume to the runtime volume
     deploy_server_bits
