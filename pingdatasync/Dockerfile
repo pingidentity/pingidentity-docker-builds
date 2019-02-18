@@ -22,7 +22,6 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} && \
 COPY _script-util.sh /opt/server/lib/
 COPY entrypoint.sh /opt
 COPY liveness.sh /opt
-COPY postStart.sh /opt
 COPY preStop.sh /opt
 COPY configure-tools.sh /opt
 COPY wait-for /opt
