@@ -133,7 +133,7 @@ function setup_server_instance ()
   if test -f ${SERVER_ROOT_DIR}/config/truststore.pin ; then
     certificateOptions="${certificateOptions} --trustStorePasswordFile ${SERVER_ROOT_DIR}/config/truststore.pin"
   fi
-  certificateOptions="${certificateOptions} --certNickname ${CERTIFICATE_NICKNAME}"
+  certificateOptions="${certificateOptions} --certNickname ${CERTIFICATE_NICKNAME:-server-cert}"
 
   "${SERVER_ROOT_DIR}"/setup \
     --no-prompt \
