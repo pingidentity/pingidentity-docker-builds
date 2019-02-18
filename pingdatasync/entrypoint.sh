@@ -153,7 +153,7 @@ function setup_server_instance ()
 function first_time_sequence ()
 {
   # Only do the init stuff if this is the first time the container is starting
-  if [[ ! -f "${SERVER_ROOT_DIR}/config/server.uuid" ]]; then
+  if test ! -f "${SERVER_ROOT_DIR}/config/server.uuid" ; then
     echo "Initializing server for the first time" | tee -a $LOG_FILE
     run_if present ${IN_DIR}/hooks/10-before-copying-bits.sh
     # lay down the bits from the immutable volume to the runtime volume
@@ -187,7 +187,8 @@ function first_time_sequence ()
     apply_configuration
   fi
 }
-if [[ "$1" = 'start-server' ]]; then
+
+if test "$1" = 'start-server' ; then
   run_if present ${IN_DIR}/hooks/00-immediate-startup.sh
 
   first_time_sequence
@@ -199,9 +200,6 @@ if [[ "$1" = 'start-server' ]]; then
   # Kick off the post start script in the background.
   # this may be used to initialize sync sources and start pipes
   run_if present ${IN_DIR}/hooks/80-post-start.sh &
-
-  # if no custom post start hook is provided, run the default post start
-  run_if absent /opt/postStart.sh ${IN_DIR}/hooks/80-post-start.sh  &
 
   tail -F "${SERVER_ROOT_DIR}/logs/access" &
   exec start-server "--nodetach" 
