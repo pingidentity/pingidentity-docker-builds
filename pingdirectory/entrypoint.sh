@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 set -x
 
 # a function to base the execution of a script upon the presence or absence of a file
