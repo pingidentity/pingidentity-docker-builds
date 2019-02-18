@@ -49,7 +49,15 @@ ENV MAX_HEAP_SIZE=384m
 ENV LDAP_PORT=389
 ENV LDAPS_PORT=636
 ENV HTTPS_PORT=443
+ENV HTTP_PORT=80
+ENV JMX_PORT=689
 ENV REPLICATION_PORT=989
+
+EXPOSE ${LDAP_PORT}
+EXPOSE ${LDAPS_PORT}
+EXPOSE ${HTTPS_PORT}
+EXPOSE ${JMX_PORT}
+EXPOSE 5005
 
 ENV ROOT_USER_DN="cn=administrator"
 ENV ADMIN_USER_NAME=admin
@@ -58,6 +66,7 @@ ENV ROOT_PASSWORD_FILE_NAME=root-user-password
 ENV ROOT_USER_PASSWORD_FILE="${SECRETS_DIR}/${ROOT_PASSWORD_FILE_NAME}"
 ENV ADMIN_PASSWORD_FILE_NAME=admin-user-password
 ENV ADMIN_USER_PASSWORD_FILE="${SECRETS_DIR}/${ADMIN_PASSWORD_FILE_NAME}"
+ENV PING_DEBUG=""
 
 ENV PATH="${SERVER_ROOT_DIR}/bin:${PATH}"
 
@@ -65,8 +74,12 @@ ENV PATH="${SERVER_ROOT_DIR}/bin:${PATH}"
 VOLUME "${OUT_DIR}"
 VOLUME "${IN_DIR}"
 
-RUN apk --no-cache add git curl ca-certificates
-
+RUN apk --no-cache add git curl ca-certificates \
+    && apk add --update libintl \
+    && apk add --virtual build_deps gettext \
+    && cp /usr/bin/envsubst /usr/local/bin/envsubst \
+    && apk del build_deps
+	
 COPY --from=staging /opt /opt
 
 WORKDIR "${OUT_DIR}"
