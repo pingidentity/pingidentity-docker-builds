@@ -40,7 +40,7 @@ if dsreplication --no-prompt status \
   --port ${LDAPS_PORT} \
   --adminUID "${ADMIN_USER_NAME}" \
   --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
-  grep "${HOSTNAME}"; then
+  | grep "${HOSTNAME}"; then
   echo "${HOSTNAME} is already in replication topology"
   exit 0
 fi
