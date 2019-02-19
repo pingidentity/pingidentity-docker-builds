@@ -5,13 +5,18 @@ source /opt/utils.sh
 
 function import_data ()
 {
-  if test -d ${IN_DIR}/data && ! test -z "$( ls -A ${IN_DIR}/data/*.ldif 2>/dev/null )" ; then
-    for backend in $( find ${IN_DIR}/data/ -name \*.ldif -exec basename {} \; | sed 's/[0-9][0-9]-//' | sed 's/-.*$//' | sort | uniq ) ; do
+  if test -d ${IN_DIR}/data && ! test -z "$( ls -A ${IN_DIR}/data/*.ldif ${IN_DIR}/data/*.ldif.gz 2>/dev/null )" ; then
+    for backend in $( cd ${IN_DIR}/data/ ; ls -A1 *.ldif *.ldif.gz | sed 's/[0-9][0-9]-//' | sed 's/-.*$//' | sort | uniq ) ; do
         filesToImport=""
-        for ldifFile in $( ls ${IN_DIR}/data/??-${backend}-*.ldif ) ; do
+        for ldifFile in $( ls ${IN_DIR}/data/??-${backend}-*.ldif ${IN_DIR}/data/??-${backend}-*.ldif.gz | sort ) ; do
             filesToImport="${filesToImport} -l ${ldifFile}"
         done    
-        ${SERVER_ROOT_DIR}/bin/import-ldif -F -n ${backend} ${filesToImport}
+        ${SERVER_ROOT_DIR}/bin/import-ldif \
+          --rejectFile ${SERVER_ROOT_DIR}/logs/tools/import-ldif.rejected \
+          --skipFile ${SERVER_ROOT_DIR}/logs/tools/import-ldif.skipped \
+          --clearBackend \
+          --backendID ${backend} \
+          ${filesToImport}
     done
   fi
 }
@@ -123,7 +128,8 @@ function setup_server_instance ()
     --rootUserDN "${ROOT_USER_DN}" \
     --rootUserPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
     --baseDN "${USER_BASE_DN}" \
-    --addBaseEntry --doNotStart 2>&1
+    --addBaseEntry \
+    --doNotStart 2>&1
 
     die_on_error 77 "Instance setup unsuccessful"
 }
