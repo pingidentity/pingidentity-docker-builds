@@ -23,13 +23,16 @@ function import_data ()
 
 function apply_configuration ()
 {
-  if test -d ${IN_DIR}/config && ! test -z "$( ls -A ${IN_DIR}/config/*.dsconfig 2>/dev/null )" ; then
-    for batch in $( ls -A1 ${IN_DIR}/config/*.dsconfig 2>/dev/null | sort | uniq ) ; do
-        cat ${batch} >> ${SERVER_ROOT_DIR}/tmp/config.batch
-        # this guards against provided config batches that don't end with a blank line
-        echo >> ${SERVER_ROOT_DIR}/tmp/config.batch
-    done
-  fi 
+  for confDir in config dsconfig ; do 
+    confPath=${IN_DIR}/${confDir}
+    if test -d ${confPath} && ! test -z "$( ls -A ${confPath}/*.dsconfig 2>/dev/null )" ; then
+      for batch in $( ls -A1 ${confPath}/*.dsconfig 2>/dev/null | sort | uniq ) ; do
+          cat ${batch} >> ${SERVER_ROOT_DIR}/tmp/config.batch
+          # this guards against provided config batches that don't end with a blank line
+          echo >> ${SERVER_ROOT_DIR}/tmp/config.batch
+      done
+    fi 
+  done
 
   cat >>${SERVER_ROOT_DIR}/tmp/config.batch <<END
 
@@ -44,6 +47,7 @@ END
     --suppressMirroredDataChecks \
     --offline \
     --batch-file ${SERVER_ROOT_DIR}/tmp/config.batch
+  die_on_error 79 "Configuration could not be applied"
 }
 
 function apply_server_profile ()
