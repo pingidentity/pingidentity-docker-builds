@@ -1,35 +1,7 @@
 #!/usr/bin/env sh
 set -x
 
-# a function to base the execution of a script upon the presence or absence of a file
-function run_if ()
-{
-	mode=$1
-	shift
-
-	runFile=$1
-
-
-	if test -z "$2" ; then
-    if test "${mode}" = "absent" ; then
-      echo "error, when mode=absent a test file must be provide as a third argument"
-      exit 9
-    fi
-		testFile=$1
-	else
-		testFile=$2
-	fi
-
-	if test $mode = "present" ; then
-		if test -f "${testFile}" ; then
-			sh ${runFile}
-		fi
-	else
-		if ! test -f "${testFile}" ; then
-			sh ${runFile}
-		fi		
-	fi
-}
+source /opt/utils.sh
 
 function import_data ()
 {
@@ -74,6 +46,7 @@ function apply_server_profile ()
   if ! test -z "${SERVER_PROFILE_URL}" ; then
     # deploy configuration if provided
     git clone ${SERVER_PROFILE_URL} /opt/server-profile
+    die_on_error 78 "Git clone failure" 
     if ! test -z "${SERVER_PROFILE_BRANCH}" ; then
       cd /opt/server-profile
       git checkout ${SERVER_PROFILE_BRANCH}
@@ -151,6 +124,8 @@ function setup_server_instance ()
     --rootUserPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
     --baseDN "${USER_BASE_DN}" \
     --addBaseEntry --doNotStart 2>&1
+
+    die_on_error 77 "Instance setup unsuccessful"
 }
 
 function apply_tools_properties ()
@@ -223,7 +198,16 @@ if test "$1" = 'start-server' ; then
   run_if absent /opt/postStart.sh ${IN_DIR}/hooks/80-post-start.sh  &
 
   tail -F "${SERVER_ROOT_DIR}/logs/access" &
-  exec start-server "--nodetach" 
+  if test -z "${2}" ; then
+    # replace the shell with foreground server
+    exec start-server "--nodetach"
+  else
+    # start server in the background and execute the provided command (useful for self-test)
+    start-server
+    shift
+    exec "$@"
+  fi
 else
+  # in case the container should be run without the server instance
   exec "$@"
 fi
