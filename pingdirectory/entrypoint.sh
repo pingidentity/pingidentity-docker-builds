@@ -95,7 +95,8 @@ function apply_debug_configuration ()
 
 function check_for_license ()
 {
-  test -f "${SERVER_ROOT_DIR}/${KEY_FILE_NAME}" || (echo "License File absent" && exit 89)
+  ls ${SERVER_ROOT_DIR}/${KEY_FILE_NAME}
+  die_on_error 80 "License File absent"
 }
 
 function setup_server_instance ()
