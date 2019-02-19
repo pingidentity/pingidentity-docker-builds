@@ -75,7 +75,7 @@ ENV PATH="${SERVER_ROOT_DIR}/bin:${PATH}"
 VOLUME "${OUT_DIR}"
 VOLUME "${IN_DIR}"
 
-RUN apk --no-cache add git curl ca-certificates \
+RUN apk --no-cache add git curl ca-certificates jq \
     && apk add --update libintl \
     && apk add --virtual build_deps gettext \
     && cp /usr/bin/envsubst /usr/local/bin/envsubst \
