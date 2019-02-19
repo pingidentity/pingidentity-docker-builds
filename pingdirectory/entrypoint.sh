@@ -60,7 +60,7 @@ function apply_server_profile ()
       cd /opt/server-profile
       git checkout ${SERVER_PROFILE_BRANCH}
     fi
-    cp -af /opt/server-profile/* /opt/in
+    cp -af /opt/server-profile/${SERVER_PROFILE_PATH}/* /opt/in
   fi
   test -d ${IN_DIR}/instance && cp -af ${IN_DIR}/instance ${OUT_DIR}
 }
