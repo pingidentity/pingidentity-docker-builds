@@ -9,6 +9,7 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 COPY entrypoint.sh /opt
 COPY liveness.sh /opt
 COPY run.sh /opt/server/bin/run.sh
+COPY utils.sh /opt
 
 
 #
@@ -24,6 +25,7 @@ EXPOSE 9999
 
 ENV SERVER_PROFILE_URL=""
 ENV SERVER_PROFILE_BRANCH=""
+ENV SERVER_PROFILE_PATH=""
 
 RUN apk --no-cache add git curl ca-certificates
 

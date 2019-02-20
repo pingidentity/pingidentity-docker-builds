@@ -25,6 +25,7 @@ COPY liveness.sh /opt
 COPY preStop.sh /opt
 COPY configure-tools.sh /opt
 COPY wait-for /opt
+COPY utils.sh /opt
 
 FROM openjdk:8-jre-alpine as pingdatasync
 LABEL	maintainer=devops_program@pingidentity.com \
