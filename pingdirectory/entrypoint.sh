@@ -59,6 +59,7 @@ function apply_server_profile ()
     if ! test -z "${SERVER_PROFILE_BRANCH}" ; then
       cd /opt/server-profile
       git checkout ${SERVER_PROFILE_BRANCH}
+      cd -
     fi
     cp -af /opt/server-profile/${SERVER_PROFILE_PATH}/* /opt/in
   fi
@@ -214,7 +215,9 @@ if test "$1" = 'start-server' ; then
   # if no custom post start hook is provided, run the default post start
   run_if absent /opt/postStart.sh ${IN_DIR}/hooks/80-post-start.sh  &
 
-  tail -F "${SERVER_ROOT_DIR}/logs/access" &
+  cd ${SERVER_ROOT_DIR}/logs
+  tail -F ${TAIL_LOG_FILES} &
+
   if test -z "${2}" ; then
     # replace the shell with foreground server
     exec start-server "--nodetach"
