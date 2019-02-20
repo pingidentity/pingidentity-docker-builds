@@ -69,6 +69,8 @@ ENV ENCRYPTION_PASSWORD_FILE=${SECRETS_DIR}/encryption-password
 
 ENV PING_DEBUG=""
 
+ENV TAIL_LOG_FILES="access"
+
 ENV PATH="${SERVER_ROOT_DIR}/bin:${PATH}"
 
 # Allow input and output directories to be mounted as volumes
