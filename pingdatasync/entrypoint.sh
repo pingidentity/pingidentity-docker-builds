@@ -70,12 +70,14 @@ function apply_server_profile ()
 {
   if ! test -z "${SERVER_PROFILE_URL}" ; then
     # deploy configuration if provided
-    git clone ${SERVER_PROFILE_URL} /opt/server-profile | tee -a ${LOG_FILE}
+    git clone ${SERVER_PROFILE_URL} /opt/server-profile
+    die_on_error 78 "Git clone failure" 
     if ! test -z "${SERVER_PROFILE_BRANCH}" ; then
       cd /opt/server-profile
       git checkout ${SERVER_PROFILE_BRANCH}
+      cd -
     fi
-    cp -af /opt/server-profile/* /opt/in
+    cp -af /opt/server-profile/${SERVER_PROFILE_PATH}/* /opt/in
   fi
   test -d ${IN_DIR}/instance && cp -af ${IN_DIR}/instance ${OUT_DIR}
 }
