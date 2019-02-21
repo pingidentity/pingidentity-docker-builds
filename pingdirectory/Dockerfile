@@ -76,6 +76,7 @@ ENV PATH="${SERVER_ROOT_DIR}/bin:${PATH}"
 # Allow input and output directories to be mounted as volumes
 VOLUME "${OUT_DIR}"
 VOLUME "${IN_DIR}"
+VOLUME /opt/backup
 
 RUN apk --no-cache add git curl ca-certificates jq \
     && apk add --update libintl \
