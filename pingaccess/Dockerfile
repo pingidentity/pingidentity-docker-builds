@@ -11,6 +11,7 @@ COPY entrypoint.sh /opt
 COPY run.sh /opt/server/bin/run.sh
 COPY postStart.sh /opt
 COPY utils.sh /opt
+COPY wait-for /opt
 
 
 #
