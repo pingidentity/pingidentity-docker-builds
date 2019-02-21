@@ -77,3 +77,4 @@ COPY --from=staging /opt /opt
 WORKDIR "${OUT_DIR}"
 
 ENTRYPOINT [ "/opt/entrypoint.sh" ]
+CMD [ "start-server" ]
