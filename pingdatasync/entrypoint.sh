@@ -159,7 +159,8 @@ if test "$1" = 'start-server' ; then
   # this may be used to initialize sync sources and start pipes
   run_if present ${IN_DIR}/hooks/80-post-start.sh &
 
-  tail -F "${SERVER_ROOT_DIR}/logs/access" &
+  cd ${SERVER_ROOT_DIR}/logs
+  tail -F ${TAIL_LOG_FILES} &
   if test -z "${2}" ; then
     # replace the shell with foreground server
     exec start-server "--nodetach"
