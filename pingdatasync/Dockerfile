@@ -18,7 +18,8 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} && \
 	    lib/*.bat \
 	    lib/*.exe \
 	    lib/*.dll && \
-	mv /tmp/PingDataSync /opt/server
+	mv /tmp/PingDataSync /opt/server && \
+	mkdir -p /opt/tests
 COPY _script-util.sh /opt/server/lib/
 COPY entrypoint.sh /opt
 COPY liveness.sh /opt
@@ -26,6 +27,7 @@ COPY preStop.sh /opt
 COPY configure-tools.sh /opt
 COPY wait-for /opt
 COPY utils.sh /opt
+COPY build.test.sh /opt/tests
 
 FROM openjdk:8-jre-alpine as pingdatasync
 LABEL	maintainer=devops_program@pingidentity.com \
