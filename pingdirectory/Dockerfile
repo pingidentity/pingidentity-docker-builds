@@ -18,7 +18,8 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} && \
 	    lib/*.bat \
 	    lib/*.exe \
 	    lib/wrapper.dll && \
-	mv /tmp/PingDirectory /opt/server
+	mv /tmp/PingDirectory /opt/server && \
+	mkdir -p /opt/backup
 COPY _script-util.sh /opt/server/lib/
 COPY entrypoint.sh /opt
 COPY liveness.sh /opt
