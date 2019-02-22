@@ -20,10 +20,10 @@ done
 
 while true; do
   echo "Running ldapsearch test"
-  ldapsearch -p ${LDAPS_PORT} -Z -X -b "" -s base "(&)" && break
+  ldapsearch -T --terse -p ${LDAPS_PORT} -Z -X -b "" -s base "(&)" 1.1 && break
 
   echo "Sleeping for a few seconds"
-  sleep 5
+  sleep $(( $RANDOM % 15 ))
 done
 
 echo "Changing the cluster name to ${HOSTNAME}"
