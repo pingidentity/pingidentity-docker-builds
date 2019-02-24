@@ -7,7 +7,8 @@ ONBUILD RUN apk --no-cache add git curl ca-certificates jq \
     && apk add --update libintl \
     && apk add --virtual build_deps gettext \
     && cp /usr/bin/envsubst /usr/local/bin/envsubst \
-    && apk del build_deps
+    && apk del build_deps \
+    && mkdir -p ${BASE}/tests
 # the image base /might/ be changed at build-time but
 # be aware that the entrypoint will have to be
 # overridden to reflect the change
@@ -39,11 +40,42 @@ ONBUILD ENV SERVER_PROFILE_UPDATE="false"
 ONBUILD ENV SERVER_ROOT_DIR=${OUT_DIR}/instance
 # the command that the entrypoint will execute in the foreground to instantiate the container
 ONBUILD ENV STARTUP_COMMAND=""
+# the command-line options to provide to the the startup command
+# when the container starts with the server in the foreground
+# This is the normal start flow for the container
+ONBUILD ENV STARTUP_FOREGROUND_OPTS=""
+# the command-line options to provide to the the startup command
+# when the container starts with the server in the background
+# This is the debug start flow for the container
+ONBUILD ENV STARTUP_BACKGROUND_OPTS=""
+
 # a whitespace separated list of log files to tail to the container standard output
 ONBUILD ENV TAIL_LOG_FILES=""
+
+# the location default value
+ONBUILD ENV LOCATION=Docker
+
+# the heap size (for java products)
+ONBUILD ENV MAX_HEAP_SIZE=384m
+
+# this variable indicates to set the server in debug mode
+ONBUILD ENV PING_DEBUG="false"
+
+# the port over which to communicate for LDAP
+ONBUILD ENV LDAP_PORT=389
+# the port over which to communicate for LDAPS
+ONBUILD ENV LDAPS_PORT=636
+# the port over which to communicate for HTTPS
+ONBUILD ENV HTTPS_PORT=443
+
+# the default administrative user for PingData
+ONBUILD ENV ROOT_USER_DN="cn=administrator"
+
+ONBUILD ENV PATH="${SERVER_ROOT_DIR}/bin:${PATH}"
+
 # the method by which the framework can assess whether the container is viable or not
 ONBUILD HEALTHCHECK --interval=31s --timeout=30s --start-period=120s --retries=3 CMD [ "${BASE}/liveness.sh" ]
-ONBUILD ENV PATH="${SERVER_ROOT_DIR}/bin:${PATH}"
+
 ONBUILD VOLUME [ "${BAK_DIR}", "${IN_DIR}", "${OUT_DIR}" ]
 ONBUILD WORKDIR ${BASE}
 ### WARNING THE ENTRYPOINT WILL NEED TO BE UPDATED MANUALLY IF THE BASE IS CHANGED

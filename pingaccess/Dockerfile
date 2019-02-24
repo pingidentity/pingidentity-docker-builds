@@ -18,7 +18,7 @@ FROM pingidentity/pingbase
 EXPOSE 9000
 # pingaccess comes ootb listening on 3000 but it is more natural for https traffic to be listened for on 443
 EXPOSE 3000
-EXPOSE 443
+EXPOSE ${HTTPS_PORT}
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/pingaccess.log
 COPY --from=pingidentity/pingcommon ${BASE} ${BASE}
