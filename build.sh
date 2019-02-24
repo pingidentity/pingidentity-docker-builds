@@ -2,9 +2,11 @@
 c="ping"
 p="${c}identity"
 
-for r in common base federate ; do
+for r in common base federate access; do
     image=$p/${c}${r}
-    cd ${c}${r}
+    # https://github.com/koalaman/shellcheck/wiki/SC2103
+    (
+    cd ${c}${r} || exit 77
     docker image rm ${image}
     docker build --rm -t ${image} .
     if test $? -ne 0 ; then
@@ -12,5 +14,5 @@ for r in common base federate ; do
         echo ${image}
         exit 77
     fi
-    cd ..
+    )
 done
