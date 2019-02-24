@@ -41,11 +41,11 @@ if test "$1" = "start-server" ; then
             echo "*** NO CONTAINER STARTUP COMMAND PROVIDED ***"
             exit 90
         else
-            exec "${STARTUP_COMMAND}"
+            exec "${STARTUP_COMMAND}" "${STARTUP_FOREGROUND_OPTS}"
         fi
     else
         # start server in the background and execute the provided command (useful for self-test)
-        ${STARTUP_COMMAND} &
+        "${STARTUP_COMMAND}" "${STARTUP_BACKGROUND_OPTS}" &
         exec "$@"
     fi
 else
