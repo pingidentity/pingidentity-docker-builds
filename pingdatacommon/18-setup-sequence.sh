@@ -23,4 +23,7 @@ set -x
 
     # apply custom configuration provided
     run_if present "${HOOKS_DIR}/188-apply-configuration.sh"
+
+    # ingest data
+    run_if present "${HOOKS_DIR}/189-import-data.sh"
   fi
