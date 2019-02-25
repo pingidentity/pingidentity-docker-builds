@@ -20,7 +20,8 @@ done
 
 while true; do
   echo "Running ldapsearch test"
-  ldapsearch -T --terse -p ${LDAPS_PORT} -Z -X -b "" -s base "(&)" 1.1 && break
+  # shellcheck disable=SC2086
+  ldapsearch -T --terse --suppressPropertiesFileComment -p ${LDAPS_PORT} -Z -X -b "" -s base "(&)" 1.1 2>/dev/null && break
 
   echo "Sleeping for a few seconds"
   # RANDOM tested on Alpine
