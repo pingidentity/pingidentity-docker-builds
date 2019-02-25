@@ -10,7 +10,7 @@ Upon receiving your license file, please proceed with the docker run command, su
 ## How to
 To build the PingFederate Docker image
 ```
-docker build .
+docker build -t [image_name] .
 ```
 
 ## Documentation

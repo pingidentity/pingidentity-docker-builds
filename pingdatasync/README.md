@@ -10,7 +10,7 @@ Upon receiving your license file, please proceed with the ```docker run``` comma
 ## How to
 To build the PingDataSync Docker image
 ```
-docker build .
+docker build -t [image_name] .
 ```
 
 ## Running a PingDataSync container

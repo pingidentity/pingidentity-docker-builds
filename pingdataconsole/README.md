@@ -6,7 +6,7 @@ open https://localhost:8080/admin-console
 ## How to
 To build the PingDataConsole Docker image
 ```
-docker build .
+docker build -t [image_name] .
 ```
 
 ## Commercial Support
