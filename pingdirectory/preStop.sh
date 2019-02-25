@@ -30,7 +30,7 @@ for h in $(grep hostname "${TOP_FILE}" | cut -d':' -f 2 | tr -d '", '); do
   echo "Trying search on ${h}:${LDAPS_PORT}" >> "${LOG_FILE}"
 
   # shellcheck disable=SC2086
-  if ldapsearch -T --terse --suppressPropertiesFileComment -h "${h}" -p ${LDAPS_PORT} -Z -X -b "" -s base "(&)"; then
+  if ldapsearch -T --terse --suppressPropertiesFileComment -h "${h}" -p ${LDAPS_PORT} -Z -X -b "" -s base "(&)" 2>/dev/null ; then
     echo "Forcing server ${h} as master" >> "${LOG_FILE}"
 
     if dsconfig --no-prompt \
