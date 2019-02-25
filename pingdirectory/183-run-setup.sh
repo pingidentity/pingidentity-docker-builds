@@ -1,6 +1,10 @@
 #!/usr/bin/env sh
 set -x
 
+# shellcheck source=../pingcommon/lib.sh
+. "${BASE}/lib.sh"
+
+
 certificateOptions="--generateSelfSignedCertificate"
 if test -f "${SERVER_ROOT_DIR}/config/keystore" && test -f "${SERVER_ROOT_DIR}/config/keystore.pin" ; then
     certificateOptions="--useJavaKeystore ${SERVER_ROOT_DIR}/config/keystore --keyStorePasswordFile ${SERVER_ROOT_DIR}/config/keystore.pin"
@@ -23,6 +27,8 @@ if test -f "${ENCRYPTION_PASSWORD_FILE}" ; then
     encryptionArgument="--encryptDataWithPassphraseFromFile ${ENCRYPTION_PASSWORD_FILE}"
 fi
 
+# using ${HOSTNAME} always works on Docker
+# the ports variables don't need to be quoted they never have whitespaces
 # shellcheck disable=SC2039,SC2086
 "${SERVER_ROOT_DIR}"/setup \
     --no-prompt \
