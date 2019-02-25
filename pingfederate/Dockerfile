@@ -16,8 +16,7 @@ COPY [ "run.sh", "/opt/server/bin/run.sh" ]
 # the final image 
 #
 FROM pingidentity/pingbase
-EXPOSE 9031
-EXPOSE 9999
+EXPOSE 9031 9999
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/server.log
 COPY --from=pingidentity/pingcommon ${BASE} ${BASE}

@@ -25,11 +25,11 @@ COPY [ "build.test.sh", "${BASE}/tests/" ]
 # The final image
 #
 FROM pingidentity/pingbase
+EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT}
 ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/sync"
 ENV LICENSE_FILE_NAME="PingDirectory.lic"
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
 ENV STARTUP_FOREGROUND_OPTS="--nodetach"
-ENV ROOT_PASSWORD_FILE_NAME=root-user-password
-ENV ROOT_USER_PASSWORD_FILE="${SECRETS_DIR}/${ROOT_PASSWORD_FILE_NAME}"
+ENV ROOT_USER_PASSWORD_FILE="${SECRETS_DIR}/root-user-password"
 COPY --from=pingidentity/pingdatacommon ${BASE} ${BASE}
 COPY --from=staging ${BASE} ${BASE}

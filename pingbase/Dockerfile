@@ -67,6 +67,8 @@ ONBUILD ENV LDAP_PORT=389
 ONBUILD ENV LDAPS_PORT=636
 # the port over which to communicate for HTTPS
 ONBUILD ENV HTTPS_PORT=443
+# the port for monitoring over JMX protocol
+ONBUILD ENV JMX_PORT=689
 
 # the default administrative user for PingData
 ONBUILD ENV ROOT_USER_DN="cn=administrator"

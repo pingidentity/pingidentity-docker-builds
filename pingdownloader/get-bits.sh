@@ -1,7 +1,6 @@
-#!/bin/sh
-TOOL_NAME=$( basename $0 )
-cd $( dirname $0 )
-thisLocation=$( pwd )
+#!/user/bin/env sh
+TOOL_NAME=$( basename "${0}" )
+cd "$( dirname "${0}" )" || exit 1
 
 usage ()
 {
@@ -40,7 +39,7 @@ while ! test -z "${1}" ; do
 				usage
 			fi
 			# lowercase the argument value (the product name )
-			providedValue=$( echo ${1} | tr [A-Z] [a-z] )
+			providedValue=$( echo "${1}" | tr [A-Z] [a-z] )
 			;;
 		-v|--version)
 			if test -z "${1}" ; then
@@ -103,8 +102,8 @@ esac
 url="${url}-${version}.zip"
 
 if test -z "${dryRun}" ; then
-	cd /tmp
-	curl -kL ${url} ${output}
+	cd /tmp || exit 2
+	curl -kL "${url}" ${output}
 else
-	echo ${url}
+	echo "${url}"
 fi

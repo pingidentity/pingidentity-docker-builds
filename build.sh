@@ -2,7 +2,7 @@
 c="ping"
 p="${c}identity"
 
-for r in common datacommon base federate access datasync; do
+for r in common datacommon base federate access datasync directory ; do
     image=$p/${c}${r}
     # https://github.com/koalaman/shellcheck/wiki/SC2103
     (
