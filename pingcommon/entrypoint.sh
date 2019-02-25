@@ -21,12 +21,15 @@ if test "$1" = "start-server" ; then
     if ! test -d "${SERVER_ROOT_DIR}" ; then
         ## FIRST TIME EXECUTION OF THE CONTAINER
         run_if present "${HOOKS_DIR}/10-first-time-sequence.sh"
+        die_on_error 10 "First time sequence failed"
     else
         ## RESTART
         run_if present "${BASE}/19-update-server-profile.sh"
+        die_on_error 19 "Restart sequence failed"
     fi
 
-    run_if present "${HOOKS_DIR}/50-before-post-start.sh"
+    run_if present "${HOOKS_DIR}/50-before-post-start.sh" 
+    die_on_error 50 "Before post-start hook failed"
 
     run_if present "${HOOKS_DIR}/80-post-start.sh" &
 
@@ -41,11 +44,13 @@ if test "$1" = "start-server" ; then
             echo "*** NO CONTAINER STARTUP COMMAND PROVIDED ***"
             exit 90
         else
-            exec "${STARTUP_COMMAND}" "${STARTUP_FOREGROUND_OPTS}"
+            # shellcheck disable=SC2086
+            exec "${STARTUP_COMMAND}" ${STARTUP_FOREGROUND_OPTS}
         fi
     else
         # start server in the background and execute the provided command (useful for self-test)
-        "${STARTUP_COMMAND}" "${STARTUP_BACKGROUND_OPTS}" &
+        # shellcheck disable=SC2086
+        "${STARTUP_COMMAND}" ${STARTUP_BACKGROUND_OPTS} &
         exec "$@"
     fi
 else
