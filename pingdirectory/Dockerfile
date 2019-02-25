@@ -37,5 +37,6 @@ ENV ROOT_USER_PASSWORD_FILE=${SECRETS_DIR}/root-user-password
 ENV ADMIN_USER_PASSWORD_FILE=${SECRETS_DIR}/admin-user-password
 ENV ENCRYPTION_PASSWORD_FILE=${SECRETS_DIR}/encryption-password
 ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access"
+ENV MAKELDIF_USERS=0
 COPY --from=pingidentity/pingdatacommon ${BASE} ${BASE}
 COPY --from=staging ${BASE} ${BASE}
