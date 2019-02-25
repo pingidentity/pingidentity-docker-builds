@@ -7,6 +7,12 @@ Before running the pingdirectory docker image, you must obtain a Ping Directory 
 
 Upon receiving your license file, please proceed with the ```docker run``` command, substituting the license filename with the file that you've saved the license to.
 
+## How to
+To build the PingDirectory Docker image
+```
+docker build .
+```
+
 ## Documentation
 https://support.pingidentity.com/s/pingdirectory-help
 

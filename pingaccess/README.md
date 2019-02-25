@@ -4,7 +4,7 @@ This delivers PingAccess anywhere you need to protect resources.
 ## How to
 To build the PingAccess Docker image
 ```
-docker build .
+docker build -t [image_name] .
 ```
 
 ## Documentation
