@@ -10,6 +10,7 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
 	&& mv /tmp/pingaccess-* ${BASE}/server
 COPY [ "run.sh", "/opt/server/bin/run.sh" ]
+COPY [ "liveness.sh", "${BASE}/" ]
 
 #
 # the final image 
