@@ -15,8 +15,7 @@ LABEL	maintainer=devops_program@pingidentity.com \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity PingDataConsole (Alpine/OpenJDK8) Image"
-EXPOSE 8080
-EXPOSE 8443
+EXPOSE 8080 8443
 RUN apk --no-cache add ca-certificates
 COPY --from=staging /opt/admin-console.war /usr/local/tomcat/webapps/
 CMD ["catalina.sh","run"]

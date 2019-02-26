@@ -7,6 +7,12 @@ Before running the pingdirectory docker image, you must obtain a Ping Directory 
 
 Upon receiving your license file, please proceed with the ```docker run``` command, substituting the license filename with the file that you've saved the license to.
 
+## How to
+To build the PingDataSync Docker image
+```
+docker build -t [image_name] .
+```
+
 ## Running a PingDataSync container
 
 ```
@@ -17,4 +23,4 @@ These images are not currently considered stable and are subject to changes with
 Please contact devops_program@pingidentity.com for details
 
 ## Copyright
-Copyright © 2018 Ping Identity. All rights reserved.
+Copyright © 2019 Ping Identity. All rights reserved.
