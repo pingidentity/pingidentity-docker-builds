@@ -1,13 +1,13 @@
 #!/usr/bin/env sh
 set -x
 
-if test -d "${STAGING_DIR}/config" && ! test -z "$( ls -A "${STAGING_DIR}/config/"*.dsconfig 2>/dev/null )" ; then
-    for batch in $( find "${STAGING_DIR}/config/" -iname \*.dsconfig 2>/dev/null | sort | uniq ) ; do
+if test -d "${STAGING_DIR}/dsconfig" ; then
+    for batch in $( find "${STAGING_DIR}/dsconfig/" -iname \*.dsconfig 2>/dev/null | sort | uniq ) ; do
         envsubst < "${batch}" >> "${SERVER_ROOT_DIR}/tmp/config.batch"
         # this guards against provided config batches that don't end with a blank line
         echo >> "${SERVER_ROOT_DIR}/tmp/config.batch"
     done
-fi 
+fi
 
 cat >>"${SERVER_ROOT_DIR}/tmp/config.batch" <<END
 dsconfig set-connection-handler-prop \
