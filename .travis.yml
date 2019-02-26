@@ -1,23 +1,19 @@
 sudo: required
-# Build all branches, *including* gh-pages:
 branches:
   only:
   - gh-pages
-  - /.*/
-   
+  - "/.*/"
 services:
-  - docker
-
+- docker
 before_install:
-  - chmod +x ./ci_scripts/if_readme_only.sh
-  - ./ci_scripts/if_readme_only.sh
-
+- chmod +x ./ci_scripts/if_readme_only.sh
+- "./ci_scripts/if_readme_only.sh"
 script:
-  - docker image build -t pingidentity/pingdatacommon ./pingdatacommon
-  - docker-compose -f ./pingdirectory/build.test.yml up
-  - docker image build -t samirgandhi/pingfederate ./pingfederate
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - docker push samirgandhi/pingfederate
-
+- docker image build -t pingidentity/pingdatacommon ./pingdatacommon
+- docker-compose -f ./pingdirectory/build.test.yml up
+- docker image build -t samirgandhi/pingfederate ./pingfederate
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+- docker push samirgandhi/pingfederate
 notifications:
-  slack: pingidentity:FECD6DfLcWlWRsUR9xqeg1Ybs
+  slack:
+    secure: k001tlalAvzdhb1zUtGilsyXTJfF0FtOl0qjIMj57Fr6kSrZJMeHXzOpnKDdeo7oA+Yfr7Ca+xTUeCMC+3Fr5EjkI+mLfhC8agIA+n6c4mYfUfQTQ8NFiKIzG1LKEDXC6pQA1NiBG+OVMtx5YpCTf/mOyk49OJyiweboZwwmYPwEKJ9w3hI1stoRthIB+TdnGNdtM+P0lF3biX8aZ3WFGc+ZqgT1dKo9W9hvgJZg2GamQckIFVhTyyv2/nSlepqB/i/ctWtK0TbR+VJOmLFSedj/dnExPc5RIGm1IHMaToe6MbEZp7uYP/2Mf6m1NmjZaIPBEHGWNKUTbI9Bz1825K68tUhHlZyiWu0noyKOlLXiFtpaYxV6Hcyi44LExJkcAUWyrYPlso6x9DivOg1hcxHojoJdJSots71BHIy36GdeU3kjusPEX35VtfTABwgabbITp2S1jWDqUCFYhl8g4uKviW/ycONF938m/zrG+4veVcGeSW+m0M9klq0sFHHgC2hZ0t4gIaaf7b2xLEKKaLfg+L8KItF3oHH4E/T7v2sw0ZRsPxxNbbz2N6IiEmm02nSKtKG/HWdUrbT46+Gab1sZFlXwBdCiHtEz67w2RSbSJloNtgfiYOqp4tvdZRDYK7/lyYxZR3pi6C8eM9dgQf2qiUcBAuzRGp8v8QnGB2s=
