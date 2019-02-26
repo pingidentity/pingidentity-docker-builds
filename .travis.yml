@@ -1,0 +1,23 @@
+sudo: required
+# Build all branches, *including* gh-pages:
+branches:
+  only:
+  - gh-pages
+  - /.*/
+   
+services:
+  - docker
+
+before_install:
+  - chmod +x ./ci_scripts/if_readme_only.sh
+  - ./ci_scripts/if_readme_only.sh
+
+script:
+  - docker image build -t pingidentity/pingdatacommon ./pingdatacommon
+  - docker-compose -f ./pingdirectory/build.test.yml up
+  - docker image build -t samirgandhi/pingfederate ./pingfederate
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker push samirgandhi/pingfederate
+
+notifications:
+  slack: pingidentity:FECD6DfLcWlWRsUR9xqeg1Ybs
