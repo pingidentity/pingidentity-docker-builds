@@ -21,15 +21,15 @@ if test "$1" = "start-server" ; then
     if ! test -d "${SERVER_ROOT_DIR}" ; then
         ## FIRST TIME EXECUTION OF THE CONTAINER
         run_if present "${HOOKS_DIR}/10-first-time-sequence.sh"
-        die_on_error 10 "First time sequence failed"
+        die_on_error 10 "First time sequence failed" || exit ${?}
     else
         ## RESTART
         run_if present "${BASE}/19-update-server-profile.sh"
-        die_on_error 19 "Restart sequence failed"
+        die_on_error 19 "Restart sequence failed" || exit ${?}
     fi
 
     run_if present "${HOOKS_DIR}/50-before-post-start.sh" 
-    die_on_error 50 "Before post-start hook failed"
+    die_on_error 50 "Before post-start hook failed" || exit ${?}
 
     run_if present "${HOOKS_DIR}/80-post-start.sh" &
 

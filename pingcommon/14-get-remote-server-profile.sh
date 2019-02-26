@@ -6,7 +6,7 @@
 if ! test -z "${SERVER_PROFILE_URL}" ; then
     # deploy configuration if provided
     git clone "${SERVER_PROFILE_URL}" "${SERVER_PROFILE_DIR}"
-    die_on_error 14 "Git clone failure" 
+    die_on_error 14 "Git clone failure"  || exit ${?}
     if ! test -z "${SERVER_PROFILE_BRANCH}" ; then
         # https://github.com/koalaman/shellcheck/wiki/SC2103
         (

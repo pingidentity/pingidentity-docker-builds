@@ -46,6 +46,7 @@ die_on_error ()
   shift
   if test ${errorCode} -ne 0 ; then
     echo "CONTAINER FAILURE: $*"
+		# wipe the runtime
     rm -rf /opt/out/instance
 		# shellcheck disable=SC2086
     exit ${exitCode}
