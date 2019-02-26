@@ -12,7 +12,7 @@ https://support.pingidentity.com/s/PingFederate-help
 
 ## Commercial Support
 These images are not currently considered stable and are subject to changes without notification.
-Please contact docker@pingidentity.com for details
+Please contact devops_program@pingidentity.com for details
 
 ## Copyright
 Copyright © 2018 Ping Identity. All rights reserved.
