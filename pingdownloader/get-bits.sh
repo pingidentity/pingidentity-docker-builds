@@ -1,110 +1,190 @@
-#!/bin/sh
-TOOL_NAME=$( basename $0 )
-cd $( dirname $0 )
-thisLocation=$( pwd )
+#!/usr/bin/env sh
+TOOL_NAME=$( basename "${0}" )
+cd "$( dirname "${0}" )" || exit 1
 
-usage ()
+##########################################################################################
+function usage ()
 {
-	cat <<END_USAGE
+	if ! test -z "${1}" ; then
+	   echo "Error: ${1}"
+	fi
+
+	cat <<END_USAGE1
 Usage: ${TOOL_NAME} {options}
     where {options} include:
-		 -c, --conserve-name: use this option to conserve the original file name
-		 					  by default, the downloader will rename the file product.zip
-    	*-p, --product:	the name of the product to download
-    					one of:
-    						pingaccess
-    						pingdatagovernance
-    						pingdatasync
-    						pingdirectory
-    						pingdirectoryproxy
-    						pingfederate
-    						ldapsdk
-							delegator
-    	*-v, --version:	the version of the product to download.
-    	 -n, --dry-run:	this will cause the URL to be displayed but the
-    					the bits not to be downloaded
-END_USAGE
+        *-p, --product:	the name of the product to download
+                        one of:
+END_USAGE1
+
+	for prodName in ${availableProducts}; do
+	    echo "                            ${prodName}"
+	done
+    
+	cat <<END_USAGE2
+        -v, --version: the version of the product to download.
+		               by default, the downloader will pull the latest version
+        -c, --conserve-name: use this option to conserve the original file name
+                             by default, the downloader will rename the file product.zip
+        -n, --dry-run:	this will cause the URL to be displayed but the
+                        the bits not to be downloaded
+END_USAGE2
+# Future
+#        -i, --devops-id: future Use. Ping DevOps ID used to download product and license
+#		-s, --devops-secret: future Use. Ping DevOps Secret used to download product and license
 	exit 77
 }
+
+##########################################################################################
+# Get the properties used to provide the following items to this script:
+#
+#    Product Names - lowercase names used to request specific products (i.e. pingaccess)
+#
+#    Product Mappings - mapping from product name to filename used on server
+#                       i.e. pingdirectory --> PingDirectory
+#
+#    Product URL - URL used to download the filename.  In most cases, a defaultURL is
+#                  provided.  If a specific location is required, then a product URL 
+#                  is specified (i.e. ldapsdkURL --> https://somewhereelse.com/ldapsdk...)
+#
+#    Product Latest Version - If no specific version is requested, the latest version will
+#                             be retrieved (i.e. pingdirectoryLatestVersion=7.2.0.1)
+##########################################################################################
+function getProps ()
+{
+    propsURL="https://s3.amazonaws.com/gte-bits-repo/"
+    getBitsProps="get-bits.properties"
+
+    curl -kL ${propsURL}${getBitsProps} -o /tmp/${getBitsProps} 2>/dev/null
+    source /tmp/${getBitsProps}
+    rm /tmp/${getBitsProps}
+}
+
+##########################################################################################
+# Based on the productLatestVersion variable, evaluate the version from the 
+# properties file  
+# Example: ...LatestVersion=1.0.0.0
+##########################################################################################
+function getProductVersion ()
+{
+    if test -z "${version}" || test "${version}" = "latest" ; then
+        prodLatestVersionVar=\$${product}LatestVersion
+	    version=`eval echo $prodLatestVersionVar`
+        test -z "${version}" && usage "Unable to determine latest version for ${product}"
+    fi
+
+}
+
+##########################################################################################
+# Based on the productMapping variable, evaluate the mapping from the 
+# properties file  Note that there needs to be 2 consecutive evals
+# since there may be a variable encoding in the variable
+# Example: ...Mapping=productName-${version}.zip
+##########################################################################################
+function getProductFile ()
+{
+	prodMappingVar=\$${product}Mapping
+	prodFile=`eval echo "$prodMappingVar"`
+	prodFile=`eval echo "$prodFile"`
+    test -z "${prodFile}" && usage "Unable to determine download file for ${product}"
+}
+
+##########################################################################################
+# Based on the productURL variale, evaluate the URL from the
+# properties file  Note that there needs to be 2 consecutive evals
+# since there may be a variable encoding in the variable
+# Example: ...URL=https://.../${version}/
+##########################################################################################
+function getProductURL ()
+{
+	prodURLVar=\$${product}URL
+	prodURL=`eval echo "$prodURLVar"`
+	prodURL=`eval echo "$prodURL"`
+
+	# If a produtURL wasn't provide, we should use the defaultDownloadURL
+	test -z "${prodURL}" && prodURL=${defaultDownloadURL}
+
+	test -z "${prodURL}" && usage "Unable to determine download URL for ${product}"
+}
+
+getProps
 
 product=""
 version=""
 dryRun=""
-output="-o product.zip"
+output="product.zip"
 while ! test -z "${1}" ; do
     case "${1}" in
         -p|--product)
 			shift
-			if test -z "${1}" ; then
-				echo "Product argument missing"
-				usage
-			fi
+			test -z "${1}" && usage "Product argument missing"
+			
 			# lowercase the argument value (the product name )
-			providedValue=$( echo ${1} | tr [A-Z] [a-z] )
+			product=$( echo ${1} | tr [A-Z] [a-z] )
+
+	        for prodName in ${availableProducts}; do
+	            if test "${product}" = "${prodName}" ; then
+				    foundProduct=true
+				fi
+	        done
 			;;
 		-v|--version)
-			if test -z "${1}" ; then
-				echo "Product version missing"
-				usage
-			fi
 			shift
+			test -z "${1}" && usage "Product version missing"
 			version=${1}
 			;;
+#		-i|--devops-id)
+#			shift
+#			test -z "${1}" && usage "Ping DevOps ID missing"
+#			devopsID=${1}
+#			;;
+#		-s|--devops-secret)
+#			shift
+#			test -z "${1}" && usage "Ping DevOps Secret missing"
+#			devopsSecret=${1}
+#			;;
 		-c|--conserve-name)
-			output="-O"
+		    conserveName=true
 			;;
 		-n|--dry-run)
-			dryRun="true"
+			dryRun=true
 			;;
 		*)
 			usage
 			;;
 	esac
-shift
+    shift
 done
 
-case "${providedValue}" in
-	pingaccess|pingdatagovernance|pingdatasync|pingdirectory|pingdirectoryproxy|pingfederate|ldapsdk|delegator)
-		product=${providedValue}
-		;;
-	*)
-		echo "Invalid product name ${1}"
-		usage
-		;;
-esac
+# If we weren't passed a product option, then error
+test -z ${product} && usage "Option --product {product} required"
 
-test -z "${version}" && echo "Version must be provided" && usage
+# If we didn't find the product in the property file, then error
+! test ${foundProduct} && usage "Invalid product name ${product}"
 
-url="https://s3.amazonaws.com/gte-bits-repo/"
+getProductVersion
+getProductFile
+getProductURL
 
-case "${product}" in
-	pingdatagovernance)
-		url="${url}PingDataGovernance"
-		;;
-	pingdatasync)
-		url="${url}PingDataSync"
-		;;
-	pingdirectory)
-		url="${url}PingDirectory"
-		;;
-	pingdirectoryproxy)
-		url="${url}PingDirectoryProxy"
-		;;
-	delegator)
-		url="${url}pingdirectory-delegator"
-		;;
-	ldapsdk)
-		url="https://github.com/pingidentity/ldapsdk/releases/download/${version}/unboundid-ldapsdk"
-		;;
-	*)
-		url="${url}${product}"
-		;;
-esac
-url="${url}-${version}.zip"
+# Construct the url used to pull the product down
+url="${prodURL}${prodFile}"
+
+# If we should conserve the name of the download, set the output to the
+# productFile name
+test ${conserveName} && output=${prodFile}
+
+echo "
+######################################################################
+# Ping Downloader
+#
+#       PRODUCT: ${product}
+#       VERSION: ${version}"
 
 if test -z "${dryRun}" ; then
-	cd /tmp
-	curl -kL ${url} ${output}
+	echo "# DOWNLOAD FILE: ${output}"
+	echo "######################################################################"
+	cd /tmp || exit 2
+	curl -kL "${url}" -o "${output}"
 else
-	echo ${url}
+	echo "#           URL: ${url}"
+	echo "######################################################################"
 fi
