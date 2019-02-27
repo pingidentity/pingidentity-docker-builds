@@ -32,3 +32,4 @@ build:
     - docker push pingidentity/pingdataconsole
   tags:
     - devops_gte
+    - gte_devops_program
