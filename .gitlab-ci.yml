@@ -18,14 +18,8 @@ before_script:
   - chmod +x ./ci_scripts/if_readme_only.sh
   - sh ./ci_scripts/if_readme_only.sh 
   - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
-  #- echo $DOCKER_PASSWORD $DOCKER_USERNAME "$DOCKER_PASSWORD" 
+  
 
-pingcommon:
-  only:
-    - master
-  script:
-    - docker image build -t pingidentity/pingcommon ./pingcommon
-    - docker 
 
 build:
   stage: build
