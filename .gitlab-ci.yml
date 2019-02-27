@@ -17,8 +17,8 @@ before_script:
   - apk add git
   - chmod +x ./ci_scripts/if_readme_only.sh
   - sh ./ci_scripts/if_readme_only.sh 
-  #- echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
-  - echo $DOCKER_PASSWORD $DOCKER_USERNAME "$DOCKER_PASSWORD"
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  #- echo $DOCKER_PASSWORD $DOCKER_USERNAME "$DOCKER_PASSWORD"
 
 build:
   stage: build
