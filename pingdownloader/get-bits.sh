@@ -3,7 +3,7 @@ TOOL_NAME=$( basename "${0}" )
 cd "$( dirname "${0}" )" || exit 1
 
 ##########################################################################################
-function usage ()
+usage ()
 {
 	if ! test -z "${1}" ; then
 	   echo "Error: ${1}"
@@ -49,14 +49,18 @@ END_USAGE2
 #    Product Latest Version - If no specific version is requested, the latest version will
 #                             be retrieved (i.e. pingdirectoryLatestVersion=7.2.0.1)
 ##########################################################################################
-function getProps ()
+getProps ()
 {
     propsURL="https://s3.amazonaws.com/gte-bits-repo/"
-    getBitsProps="get-bits.properties"
+    getBitsProps="gte-bits-repo.json"
 
-    curl -kL ${propsURL}${getBitsProps} -o /tmp/${getBitsProps} 2>/dev/null
-    source /tmp/${getBitsProps}
-    rm /tmp/${getBitsProps}
+	outputProps="/${getBitsProps}"
+
+    curlResult=$( curl -kL -w '%{http_code}' ${propsURL}${getBitsProps} -o ${outputProps} 2>/dev/null )
+
+	! test $curlResult -eq 200 && usage "Unable to get bits metadata (${getBitsProps})"
+
+	availableProducts=$( jq -r '.products[].name' ${outputProps} )
 }
 
 ##########################################################################################
@@ -64,14 +68,16 @@ function getProps ()
 # properties file  
 # Example: ...LatestVersion=1.0.0.0
 ##########################################################################################
-function getProductVersion ()
+getProductVersion ()
 {
+	latestVersion=$( jq -r ".products[] | select(.name==\"${product}\").latestVersion" ${outputProps} )
+
     if test -z "${version}" || test "${version}" = "latest" ; then
-        prodLatestVersionVar=\$${product}LatestVersion
-	    version=`eval echo $prodLatestVersionVar`
-        test -z "${version}" && usage "Unable to determine latest version for ${product}"
+		version=${latestVersion}
+        test "${version}" = "null" && usage "Unable to determine latest version for ${product}"
     fi
 
+	test ${version} = ${latestVersion} && latestStr="(latest)"
 }
 
 ##########################################################################################
@@ -80,12 +86,11 @@ function getProductVersion ()
 # since there may be a variable encoding in the variable
 # Example: ...Mapping=productName-${version}.zip
 ##########################################################################################
-function getProductFile ()
+getProductFile ()
 {
-	prodMappingVar=\$${product}Mapping
-	prodFile=`eval echo "$prodMappingVar"`
-	prodFile=`eval echo "$prodFile"`
-    test -z "${prodFile}" && usage "Unable to determine download file for ${product}"
+	prodFile=$( jq -r ".products[] | select(.name==\"${product}\").mapping" ${outputProps} )
+	prodFile=$(eval echo "$prodFile")
+    test "${prodFile}" = "null" && usage "Unable to determine download file for ${product}"
 }
 
 ##########################################################################################
@@ -94,16 +99,18 @@ function getProductFile ()
 # since there may be a variable encoding in the variable
 # Example: ...URL=https://.../${version}/
 ##########################################################################################
-function getProductURL ()
+getProductURL ()
 {
-	prodURLVar=\$${product}URL
-	prodURL=`eval echo "$prodURLVar"`
-	prodURL=`eval echo "$prodURL"`
+	defaultURL=$( jq -r '.defaultURL' ${outputProps} ) 
+	
+	prodURL=$( jq -r ".products[] | select(.name==\"${product}\").url" ${outputProps} )
+	
+	prodURL=$( eval echo "$prodURL" )
 
 	# If a produtURL wasn't provide, we should use the defaultDownloadURL
-	test -z "${prodURL}" && prodURL=${defaultDownloadURL}
+	test "${prodURL}" = "null" && prodURL=${defaultURL}
 
-	test -z "${prodURL}" && usage "Unable to determine download URL for ${product}"
+	test "${prodURL}" = "null" && usage "Unable to determine download URL for ${product}"
 }
 
 getProps
@@ -176,16 +183,19 @@ echo "
 ######################################################################
 # Ping Downloader
 #
-#       PRODUCT: ${product}
-#       VERSION: ${version}"
+#          PRODUCT: ${product}
+#          VERSION: ${version} ${latestStr}"
 
 if test -z "${dryRun}" ; then
-	echo "# DOWNLOAD FILE: ${output}"
+	echo "#      DOWNLOADING: ${prodFile}"
+	echo "#               TO: ${output}" 
 	echo "######################################################################"
 	cd /tmp || exit 2
-	curl -kL "${url}" -o "${output}"
+	curlResult=$( curl -kL -w '%{http_code}' "${url}" -o "${output}" )
+
+	! test $curlResult -eq 200 && echo "Unable to download ${prodFile}"
 else
-	echo "#           URL: ${url}"
+	echo "#              URL: ${url}"
 	echo "######################################################################"
 
 fi
