@@ -2,7 +2,9 @@
 c="ping"
 p="${c}identity"
 
-for r in common datacommon base federate access datasync directory ; do
+productsToBuild="common datacommon base ${1:-federate access datasync directory}"
+
+for r in $productsToBuild ; do
     image=$p/${c}${r}
     # https://github.com/koalaman/shellcheck/wiki/SC2103
     (
@@ -16,3 +18,4 @@ for r in common datacommon base federate access datasync directory ; do
         exit 77
     fi
 done
+
