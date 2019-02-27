@@ -24,7 +24,8 @@ https://support.pingidentity.com/s/pingdirectory-help
            --publish 1389:389 \
            --publish 8443:443 \
            --detach \
-           --env SERVER_PROFILE_URL=https://github.com/pingidentity/server-profile-pingdirectory-basic.git \
+           --env SERVER_PROFILE_URL=https://github.com/pingidentity/server-profile-pingidentity-getting-started.git \
+           --env SERVER_PROFILE_PATH=pingdirectory \
            pingidentity/pingdirectory
 ```
 After approximately 30 seconds, the new license will be added, and the service will be stated.  If no license is provided, or an invalid/expired license is provided, the docker container will exit.  You may view the docker logs with the command:
