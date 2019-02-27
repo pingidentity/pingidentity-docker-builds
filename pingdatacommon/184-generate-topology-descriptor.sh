@@ -33,14 +33,14 @@ if ! test "${productString}" = "DIRECTORY" ; then
     exit 0
 fi
 
-cat <<END 
+cat >> "${STAGING_DIR}/topology.json" <<END 
 {
   "serverInstances" : [
 END
 
 # shellcheck disable=SC2086
 for i in $( seq 1 ${TOPOLOGY_SIZE}  ) ; do
-    instanceName=${TOPOLOGY_PREFIX}-${i}
+    instanceName=${TOPOLOGY_PREFIX}${i}
     containerHostName=${instanceName}
     if ! test -z "${TOPOLOGY_SUFFIX}" ; then
         containerHostName="${instanceName}.${TOPOLOGY_SUFFIX}"
@@ -53,7 +53,7 @@ for i in $( seq 1 ${TOPOLOGY_SIZE}  ) ; do
     fi
 
     # Write the server instance's content
-    cat <<____END 
+    cat >> "${STAGING_DIR}/topology.json" <<____END 
     {
         "instanceName" : "${instanceName}",
         "hostname" : "${containerHostName}",
@@ -68,7 +68,7 @@ for i in $( seq 1 ${TOPOLOGY_SIZE}  ) ; do
 ____END
 
 done
-cat <<END
+cat >> "${STAGING_DIR}/topology.json" <<END
   ]
 }
 END

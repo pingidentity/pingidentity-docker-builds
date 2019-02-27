@@ -8,6 +8,8 @@ fi
 
 # shellcheck source=/dev/null
 test -f "${STAGING_DIR}/env_vars" && . "${STAGING_DIR}/env_vars"
+# shellcheck source=../pingcommon/lib.sh
+test -f "${BASE}/lib.sh" && . "${BASE}/lib.sh"
 # shellcheck source=pingdirectory.lib.sh
 test -f "${BASE}/pingdirectory.lib.sh" && . "${BASE}/pingdirectory.lib.sh"
 
