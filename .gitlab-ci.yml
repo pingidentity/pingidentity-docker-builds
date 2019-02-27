@@ -25,8 +25,9 @@ build:
   stage: build
   script:
     - docker info
-    - docker image build -t pingidentity/pingdataconsole ./pingdataconsole
+    - docker image build -t pingidentity/pingcommon ./pingcommon
     - docker image build -t pingidentity/pingdatacommon ./pingdatacommon
+    - docker image build -t pingidentity/pingbase ./pingbase
     - docker-compose -f ./pingdirectory/build.test.yml up
     #- docker push pingidentity/pingdataconsole
   tags:
