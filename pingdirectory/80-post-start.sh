@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -x
 
-TOP_FILE="${IN_DIR}/topology.json"
+TOP_FILE="${STAGING_DIR}/topology.json"
 
 if test ! -f "${TOP_FILE}" ; then
   echo "${TOP_FILE} not found"
