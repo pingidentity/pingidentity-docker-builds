@@ -19,7 +19,7 @@ before_script:
   - sh ./ci_scripts/if_readme_only.sh 
   - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
   #- echo $DOCKER_PASSWORD $DOCKER_USERNAME "$DOCKER_PASSWORD" 
-  
+
 
 build:
   stage: build
@@ -27,10 +27,8 @@ build:
     - docker info
     - docker image build -t pingidentity/pingdataconsole ./pingdataconsole
     #- docker image build -t pingidentity/pingdatacommon ./pingdatacommon
-    #- docker-compose -f ./pingdirectory/build.test.yml up
-    #- docker image build -t samirgandhi/pingfederate ./pingfederate
-    #- echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
-    - docker push pingidentity/pingdataconsole
+    - docker-compose -f ./pingdirectory/build.test.yml up
+    #- docker push pingidentity/pingdataconsole
   tags:
     - devops_gte
     - gte_devops_program
