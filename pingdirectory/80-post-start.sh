@@ -11,15 +11,29 @@ fi
 # shellcheck source=/dev/null
 test -f "${STAGING_DIR}/env_vars" && . "${STAGING_DIR}/env_vars"
 
-FQDN=$(hostname -f)
+
+# jq -r '.|.serverInstances[]|select(.product=="DIRECTORY")|.hostname' < /opt/staging/topology.json
+FIRST_HOSTNAME=$( jq -r '.|[.serverInstances[]|select(.product=="DIRECTORY")]|.[0]|.hostname' < "${TOP_FILE}" )
+FQDN=$( hostname -f )
+
 echo "Waiting until DNS lookup works for ${FQDN}" 
 while true; do
   echo "Running nslookup test"
-  nslookup "$FQDN" && break
+  nslookup "${FQDN}" && break
 
   echo "Sleeping for a few seconds"
   sleep 5
 done
+
+MYIP=$( nslookup "${FQDN}"  2>/dev/null | awk '$0 ~ /^Address 1/ {print $3}'  )
+FIRST_IP=$( nslookup "${FIRST_HOSTNAME}"  2>/dev/null | awk '$0 ~ /^Address 1/ {print $3}' )
+
+if test "${MYIP}" = "${FIRST_IP}" ; then
+  echo "******************"
+  echo "Skipping replication on first container"
+  echo "******************"
+  exit 99
+fi
 
 while true; do
   echo "Running ldapsearch test"
@@ -46,10 +60,13 @@ dsconfig --no-prompt \
 echo "Checking if ${HOSTNAME} is already in replication topology"
 # shellcheck disable=SC2039,SC2086
 if dsreplication --no-prompt status \
-  --useSSL --trustAll \
+  --useSSL \
+  --trustAll \
+  --script-friendly \
   --port ${LDAPS_PORT} \
   --adminUID "${ADMIN_USER_NAME}" \
   --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
+  | awk '$1 ~ /^Server:$/ {print $2}' \
   | grep "${HOSTNAME}"; then
   echo "${HOSTNAME} is already in replication topology"
   exit 0
@@ -68,19 +85,23 @@ dsreplication enable \
   --replicationPort2 ${REPLICATION_PORT} \
   --adminUID "${ADMIN_USER_NAME}" \
   --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
-  --no-prompt --ignoreWarnings \
+  --no-prompt \
+  --ignoreWarnings \
   --baseDN "${USER_BASE_DN}" \
-  --enableDebug --globalDebugLevel verbose
+  --enableDebug \
+  --globalDebugLevel verbose
 
 echo "Running dsreplication initialize"
 # shellcheck disable=SC2039,SC2086
 dsreplication initialize \
   --topologyFilePath "${TOP_FILE}" \
-  --useSSLDestination --trustAll \
+  --useSSLDestination \
+  --trustAll \
   --hostDestination "${HOSTNAME}" \
   --portDestination ${LDAPS_PORT} \
   --baseDN "${USER_BASE_DN}" \
   --adminUID "${ADMIN_USER_NAME}" \
   --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
   --no-prompt \
-  --enableDebug --globalDebugLevel verbose
+  --enableDebug \
+  --globalDebugLevel verbose
