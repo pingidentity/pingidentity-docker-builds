@@ -29,7 +29,7 @@ END_USAGE1
                         the bits not to be downloaded
 END_USAGE2
 # Future
-#        -i, --devops-id: future Use. Ping DevOps ID used to download product and license
+#       -k, --devops-key: future Use. Ping DevOps ID used to download product and license
 #		-s, --devops-secret: future Use. Ping DevOps Secret used to download product and license
 	exit 77
 }
@@ -132,9 +132,9 @@ while ! test -z "${1}" ; do
 			test -z "${1}" && usage "Product version missing"
 			version=${1}
 			;;
-#		-i|--devops-id)
+#		-k|--devops-key)
 #			shift
-#			test -z "${1}" && usage "Ping DevOps ID missing"
+#			test -z "${1}" && usage "Ping DevOps Key missing"
 #			devopsID=${1}
 #			;;
 #		-s|--devops-secret)
