@@ -8,6 +8,9 @@ if test ! -f "${TOP_FILE}" ; then
   exit 0
 fi
 
+# shellcheck source=/dev/null
+test -f "${STAGING_DIR}/env_vars" && . "${STAGING_DIR}/env_vars"
+
 FQDN=$(hostname -f)
 echo "Waiting until DNS lookup works for ${FQDN}" 
 while true; do
