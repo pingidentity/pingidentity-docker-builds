@@ -19,6 +19,7 @@ before_script:
   - sh ./ci_scripts/if_readme_only.sh 
   - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
   #- echo $DOCKER_PASSWORD $DOCKER_USERNAME "$DOCKER_PASSWORD" 
+  
 
 build:
   stage: build
