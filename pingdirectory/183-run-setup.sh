@@ -22,10 +22,26 @@ if test -f "${SERVER_ROOT_DIR}/config/truststore.pin" ; then
 fi
 certificateOptions="${certificateOptions} --certNickname ${CERTIFICATE_NICKNAME:-server-cert}"
 
-encryptionArgument="--encryptDataWithRandomPassphrase"
+encryptionOption="--encryptDataWithRandomPassphrase"
 if test -f "${ENCRYPTION_PASSWORD_FILE}" ; then
-    encryptionArgument="--encryptDataWithPassphraseFromFile ${ENCRYPTION_PASSWORD_FILE}"
+    encryptionOption="--encryptDataWithPassphraseFromFile ${ENCRYPTION_PASSWORD_FILE}"
 fi
+
+jvmOptions=""
+if ! test "${MAX_HEAP_SIZE}" = "AUTO" ; then
+    jvmOptions="--maxHeapSize ${MAX_HEAP_SIZE}"
+fi
+case "${JVM_TUNING}" in
+    NONE|AGGRESSIVE|SEMI_AGGRESSIVE)
+        jvmOptions="${jvmOptions} --jvmTuningParameter ${JVM_TUNING}"
+        ;;
+    *)
+        echo "**********"
+        echo "Unsupported JVM_TUNING value [${JVM_TUNING}]"
+        echo "Value must be NONE, AGGRESSIVE or SEMI_AGGRESSIVE"
+        exit 75
+        ;;
+esac
 
 # using ${HOSTNAME} always works on Docker
 # the ports variables don't need to be quoted they never have whitespaces
@@ -36,13 +52,14 @@ fi
     --acceptLicense \
     --instanceName "${HOSTNAME}" \
     --location "${LOCATION}" \
-    --maxHeapSize "${MAX_HEAP_SIZE}" \
+    --skipPortCheck \
     --ldapPort ${LDAP_PORT} \
-    --enableStartTLS \
     --ldapsPort ${LDAPS_PORT} \
     --httpsPort ${HTTPS_PORT} \
+    --enableStartTLS \
+    ${jvmOptions} \
     ${certificateOptions} \
-    ${encryptionArgument} \
+    ${encryptionOption} \
     --rootUserDN "${ROOT_USER_DN}" \
     --rootUserPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
     --baseDN "${USER_BASE_DN}" \

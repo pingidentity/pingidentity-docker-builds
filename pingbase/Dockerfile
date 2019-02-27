@@ -61,6 +61,8 @@ ONBUILD ENV LOCATION=Docker
 # the heap size (for java products)
 ONBUILD ENV MAX_HEAP_SIZE=384m
 
+ONBUILD ENV JVM_TUNING="AGGRESSIVE"
+
 # this variable indicates to set the server in debug mode
 ONBUILD ENV PING_DEBUG="false"
 
