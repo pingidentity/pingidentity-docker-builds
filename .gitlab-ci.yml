@@ -17,9 +17,7 @@ before_script:
   - apk add git
   - chmod +x ./ci_scripts/if_readme_only.sh
   - sh ./ci_scripts/if_readme_only.sh 
-  - echo $TEST_PASSWORD
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  #- echo docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD" docker.io
 
 build:
   stage: build
@@ -30,6 +28,6 @@ build:
     #- docker-compose -f ./pingdirectory/build.test.yml up
     #- docker image build -t samirgandhi/pingfederate ./pingfederate
     #- echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
-    - docker push samirgandhi/pingcommon
+    #- docker push samirgandhi/pingcommon
   tags:
     - devops_gte
