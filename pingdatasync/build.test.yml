@@ -4,12 +4,12 @@ services:
   pingdirectory:
     image: pingidentity/pingdirectory
     environment:
-      - SERVER_PROFILE_URL=https://github.com/pingidentity/server-profile-group-pingidentity-simple-sync.git
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/server-profile-pingidentity-simple-sync.git
       - SERVER_PROFILE_PATH=pingdirectory
   sut:
     build: .
     environment:
-      - SERVER_PROFILE_URL=https://github.com/pingidentity/server-profile-group-pingidentity-simple-sync.git
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/server-profile-pingidentity-simple-sync.git
       - SERVER_PROFILE_PATH=pingdatasync
     command: start-server /opt/wait-for localhost:389 -t 300 -- /opt/tests/build.test.sh
     depends_on: ["pingdirectory"]

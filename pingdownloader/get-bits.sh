@@ -193,9 +193,11 @@ if test -z "${dryRun}" ; then
 	cd /tmp || exit 2
 	curlResult=$( curl -kL -w '%{http_code}' "${url}" -o "${output}" )
 
-	! test $curlResult -eq 200 && echo "Unable to download ${prodFile}"
+	! test $curlResult -eq 200 && echo "Unable to download ${prodFile}" && exit 1
 else
 	echo "#              URL: ${url}"
 	echo "######################################################################"
-
 fi
+
+# Need this exit of 0, since the last test of the curlResult will return a 1
+exit 0
