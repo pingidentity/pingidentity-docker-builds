@@ -11,6 +11,9 @@ set -x
     # setup the instance given all the provided data
     run_if present "${HOOKS_DIR}/183-run-setup.sh"
 
+    # generate the topology descriptor
+    run_if present "${HOOKS_DIR}/184-generate-topology-descriptor.sh"
+
     # apply the tools properties for convenience
     run_if present "${HOOKS_DIR}/185-apply-tools-properties.sh"
 

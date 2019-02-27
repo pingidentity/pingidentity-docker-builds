@@ -7,27 +7,32 @@ if test -z "${TOPOLOGY_SIZE}" || ! test ${TOPOLOGY_SIZE} -gt 1 ; then
     exit 0
 fi
 
-productString="DIRECTORY"
+productString=""
 case "${PING_PRODUCT}" in
     PingDirectory)
         productString="DIRECTORY"
         ;;
     PingDataSync)
-        productString="SYNC"
+        productString="SYNCHRONIZATION"
         ;;
     PingDirectoryProxy)
         productString="PROXY"
         ;;
     PingDataMetrics)
-        productString="METRICS"
+        productString="METRICS_ENGINE"
         ;;
     PingDataGovernance)
-        productString="DATAGOVERNANCE"
+        productString="BROKER"
         ;;
     *)
         echo "UNSUPPORTED PRODUCT ${PING_PRODUCT}"
         exit 187
 esac
+
+if ! test "${productString}" = "DIRECTORY" ; then
+    exit 0
+fi
+
 cat <<END 
 {
   "serverInstances" : [
