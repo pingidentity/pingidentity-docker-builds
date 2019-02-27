@@ -26,6 +26,8 @@ ONBUILD ENV SECRETS_DIR=/usr/local/secrets
 # the path to the staging area where the remote and local
 # server profiles can be merged
 ONBUILD ENV STAGING_DIR=${BASE}/staging
+# the path to the topology file
+ONBUILD ENV TOPOLOGY_FILE=${STAGING_DIR}/topology.json
 # the path where all the hooks scripts are stored
 ONBUILD ENV HOOKS_DIR=${STAGING_DIR}/hooks
 # the path where the remote server profile is checked out or cloned

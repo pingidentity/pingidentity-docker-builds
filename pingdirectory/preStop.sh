@@ -2,10 +2,10 @@
 set -x
 
 LOG_FILE="${SERVER_ROOT_DIR}/logs/preStop.log"
-TOP_FILE="${IN_DIR}/topology.json"
+TOPOLOGY_FILE="${IN_DIR}/topology.json"
 
-if ! test  -f "${TOP_FILE}" ; then
-  echo "${TOP_FILE} not found" > "${LOG_FILE}"
+if ! test  -f "${TOPOLOGY_FILE}" ; then
+  echo "${TOPOLOGY_FILE} not found" > "${LOG_FILE}"
   exit 0
 fi
 
@@ -26,7 +26,7 @@ dsconfig --no-prompt \
 echo "Forcing one of the servers as master" >> "${LOG_FILE}"
 forcedMaster=
 
-for h in $(grep hostname "${TOP_FILE}" | cut -d':' -f 2 | tr -d '", '); do
+for h in $(grep hostname "${TOPOLOGY_FILE}" | cut -d':' -f 2 | tr -d '", '); do
   echo "Trying search on ${h}:${LDAPS_PORT}" >> "${LOG_FILE}"
 
   # shellcheck disable=SC2086
@@ -54,10 +54,10 @@ test -f "${ROOT_USER_PASSWORD_FILE}"  \
   && ROOT_PASSWORD_ARGS="--bindPasswordFile ${ROOT_USER_PASSWORD_FILE}" \
   || ROOT_PASSWORD_ARGS="--bindPassword ${ROOT_USER_PASSWORD}"
 
-echo "Removing local defunct server using ${TOP_FILE}" >> "${LOG_FILE}"
+echo "Removing local defunct server using ${TOPOLOGY_FILE}" >> "${LOG_FILE}"
 # shellcheck disable=SC2039,SC2086
 remove-defunct-server --serverInstanceName ${HOSTNAME} \
-  --topologyFilePath "${TOP_FILE}" \
+  --topologyFilePath "${TOPOLOGY_FILE}" \
   --bindDN "${ROOT_USER_DN}" \
   ${ROOT_PASSWORD_ARGS} \
   --enableDebug --globalDebugLevel verbose \

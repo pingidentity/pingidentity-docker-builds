@@ -17,7 +17,7 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 	    webapps \
 	    resource/*.zip \
 	&& mv /tmp/PingDirectory ${BASE}/server 
-COPY [ "liveness.sh", "${BASE}/" ]
+COPY [ "liveness.sh", "pingdirectory.lib.sh", "${BASE}/" ]
 COPY [ "80-post-start.sh", "183-run-setup.sh","189-import-data.sh","${BASE}/staging/hooks/" ]
 
 #

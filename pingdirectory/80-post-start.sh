@@ -1,19 +1,19 @@
 #!/usr/bin/env sh
 set -x
 
-TOP_FILE="${STAGING_DIR}/topology.json"
-
-if test ! -f "${TOP_FILE}" ; then
-  echo "${TOP_FILE} not found"
+if test ! -f "${TOPOLOGY_FILE}" ; then
+  echo "${TOPOLOGY_FILE} not found"
   exit 0
 fi
 
 # shellcheck source=/dev/null
 test -f "${STAGING_DIR}/env_vars" && . "${STAGING_DIR}/env_vars"
+# shellcheck source=pingdirectory.lib.sh
+test -f "${BASE}/pingdirectory.lib.sh" && . "${BASE}/pingdirectory.lib.sh"
 
 
 # jq -r '.|.serverInstances[]|select(.product=="DIRECTORY")|.hostname' < /opt/staging/topology.json
-FIRST_HOSTNAME=$( jq -r '.|[.serverInstances[]|select(.product=="DIRECTORY")]|.[0]|.hostname' < "${TOP_FILE}" )
+FIRST_HOSTNAME=$( getFirstHostInTopology )
 FQDN=$( hostname -f )
 
 echo "Waiting until DNS lookup works for ${FQDN}" 
@@ -25,8 +25,8 @@ while true; do
   sleep 5
 done
 
-MYIP=$( nslookup "${FQDN}"  2>/dev/null | awk '$0 ~ /^Address 1/ {print $3}'  )
-FIRST_IP=$( nslookup "${FIRST_HOSTNAME}"  2>/dev/null | awk '$0 ~ /^Address 1/ {print $3}' )
+MYIP=$( getIP ${FQDN}  )
+FIRST_IP=$( getIP "${FIRST_HOSTNAME}" )
 
 if test "${MYIP}" = "${FIRST_IP}" ; then
   echo "******************"
@@ -41,9 +41,7 @@ while true; do
   ldapsearch -T --terse --suppressPropertiesFileComment -p ${LDAPS_PORT} -Z -X -b "" -s base "(&)" 1.1 2>/dev/null && break
 
   echo "Sleeping for a few seconds"
-  # RANDOM tested on Alpine
-  # shellcheck disable=SC2039
-  sleep $(( RANDOM % 15 ))
+  sleep_at_most 15
 done
 
 # shellcheck disable=SC2039
@@ -75,7 +73,7 @@ fi
 echo "Running dsreplication enable"
 # shellcheck disable=SC2039,SC2086
 dsreplication enable \
-  --topologyFilePath "${TOP_FILE}" \
+  --topologyFilePath "${TOPOLOGY_FILE}" \
   --bindDN1 "${ROOT_USER_DN}" \
   --bindPasswordFile1 "${ROOT_USER_PASSWORD_FILE}" \
   --useSSL2 --trustAll \
@@ -94,7 +92,7 @@ dsreplication enable \
 echo "Running dsreplication initialize"
 # shellcheck disable=SC2039,SC2086
 dsreplication initialize \
-  --topologyFilePath "${TOP_FILE}" \
+  --topologyFilePath "${TOPOLOGY_FILE}" \
   --useSSLDestination \
   --trustAll \
   --hostDestination "${HOSTNAME}" \
