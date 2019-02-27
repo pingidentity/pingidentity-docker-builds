@@ -64,6 +64,11 @@ ONBUILD ENV MAX_HEAP_SIZE=384m
 # this variable indicates to set the server in debug mode
 ONBUILD ENV PING_DEBUG="false"
 
+# the name of Ping product
+# this can be useful for displaying or sending user messages
+# or branching programmatically
+ONBUILD ENV PING_PRODUCT ""
+
 # the port over which to communicate for LDAP
 ONBUILD ENV LDAP_PORT=389
 # the port over which to communicate for LDAPS
@@ -72,6 +77,10 @@ ONBUILD ENV LDAPS_PORT=636
 ONBUILD ENV HTTPS_PORT=443
 # the port for monitoring over JMX protocol
 ONBUILD ENV JMX_PORT=689
+
+ONBUILD ENV TOPOLOGY_SIZE=1
+ONBUILD ENV TOPOLOGY_PREFIX=""
+ONBUILD ENV TOPOLOGY_SUFFIX=""
 
 # the default administrative user for PingData
 ONBUILD ENV ROOT_USER_DN="cn=administrator"
