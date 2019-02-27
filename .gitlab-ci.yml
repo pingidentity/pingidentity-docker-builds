@@ -1,0 +1,34 @@
+image:
+  name: docker/compose:1.22.0 # update tag to whatever version you want to use.
+  entrypoint: [""]
+
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  # use the overlayfs driver for improved performance.
+  DOCKER_DRIVER: overlay2
+
+services:
+  - docker:dind
+
+before_script:
+  - docker info
+  - docker-compose version
+  - apk update
+  - apk add git
+  - chmod +x ./ci_scripts/if_readme_only.sh
+  - sh ./ci_scripts/if_readme_only.sh 
+  - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+  #- echo $DOCKER_PASSWORD $DOCKER_USERNAME "$DOCKER_PASSWORD" 
+
+
+build:
+  stage: build
+  script:
+    - docker info
+    - docker image build -t pingidentity/pingdataconsole ./pingdataconsole
+    #- docker image build -t pingidentity/pingdatacommon ./pingdatacommon
+    - docker-compose -f ./pingdirectory/build.test.yml up
+    #- docker push pingidentity/pingdataconsole
+  tags:
+    - devops_gte
+    - gte_devops_program
