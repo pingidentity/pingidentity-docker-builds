@@ -20,6 +20,9 @@ ONBUILD ENV IN_DIR=${BASE}/in
 ONBUILD ENV OUT_DIR=${BASE}/out
 # the path to a volume generically used to export or backup data
 ONBUILD ENV BAK_DIR=${BASE}/backup
+# the default path to the secrets
+ONBUILD ENV SECRETS_DIR=/usr/local/secrets
+
 # the path to the staging area where the remote and local
 # server profiles can be merged
 ONBUILD ENV STAGING_DIR=${BASE}/staging
