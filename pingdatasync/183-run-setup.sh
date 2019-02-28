@@ -16,7 +16,7 @@ fi
 if test -f "${SERVER_ROOT_DIR}/config/truststore.pin" ; then
     certificateOptions="${certificateOptions} --trustStorePasswordFile ${SERVER_ROOT_DIR}/config/truststore.pin"
 fi
-certificateOptions="${certificateOptions} --certNickname ${CERTIFICATE_NICKNAME}"
+certificateOptions="${certificateOptions} --certNickname ${CERTIFICATE_NICKNAME:-server-cert}"
 
 jvmOptions=""
 if ! test "${MAX_HEAP_SIZE}" = "AUTO" ; then
