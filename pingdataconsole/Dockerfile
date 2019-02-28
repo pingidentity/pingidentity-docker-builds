@@ -17,7 +17,8 @@ LABEL	maintainer=devops_program@pingidentity.com \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity PingDataConsole (Alpine/OpenJDK8) Image"
 EXPOSE 8080 8443
-HEALTHCHECK --interval=31s --timeout=30s --start-period=5s --retries=3 CMD [ "/opt/liveness.sh" ]
+HEALTHCHECK --interval=31s --timeout=30s --start-period=5s --retries=3 CMD [ "/usr/local/bin/liveness.sh" ]
 RUN apk --no-cache add curl ca-certificates
 COPY --from=staging /opt/admin-console.war /usr/local/tomcat/webapps/
+COPY [ "liveness.sh", "/usr/local/bin" ]
 CMD ["catalina.sh","run"]
