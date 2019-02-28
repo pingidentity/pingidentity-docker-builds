@@ -24,7 +24,7 @@ while true; do
   nslookup "${FQDN}" && break
 
   echo "Sleeping for a few seconds"
-  sleep 5
+  sleep_at_most 5
 done
 
 MYIP=$( getIP ${FQDN}  )
@@ -38,9 +38,21 @@ if test "${MYIP}" = "${FIRST_IP}" ; then
 fi
 
 while true; do
-  echo "Running ldapsearch test"
+  echo "Running ldapsearch test on this container"
   # shellcheck disable=SC2086
   ldapsearch -T --terse --suppressPropertiesFileComment -p ${LDAPS_PORT} -Z -X -b "" -s base "(&)" 1.1 2>/dev/null && break
+
+  echo "Sleeping for a few seconds"
+  sleep_at_most 15
+done
+
+# this container is going to need to initialize over the network
+# if all containers start at the same time then the fisrt container
+# will import the data which takes some time
+while true; do
+  echo "Running ldapsearch test on first container"
+  # shellcheck disable=SC2086
+  ldapsearch -T --terse --suppressPropertiesFileComment -h ${FIRST_HOSTNAME} -p ${LDAPS_PORT} -Z -X -b "${USER_BASE_DN}" -s base "(&)" 1.1 2>/dev/null && break
 
   echo "Sleeping for a few seconds"
   sleep_at_most 15
@@ -71,6 +83,30 @@ if dsreplication --no-prompt status \
   echo "${HOSTNAME} is already in replication topology"
   exit 0
 fi
+
+####
+# cleanup the replication topology in case it has some defunct servers
+###
+status=$( dsreplication status --script-friendly )
+firstLiveServer=$( echo "${status}" | awk 'BEGIN {s=""} $1~/Server:/{s=$2} $1~/Entries:/ && $2!~/N\/A/{print s;exit 0}' )
+# shellcheck disable=2086,2039
+dsconfig \
+    --no-prompt \
+    --useSSL \
+    --trustAll \
+    --hostname "${firstLiveServer}" \
+    --port ${LDAPS_PORT} \
+    set-global-configuration-prop \
+    --set force-as-master-for-mirrored-data:true    
+for defunctServer in $( echo "${status}" | awk '$0 ~ /^Error on/ {split($3,a,":");print a[1]}' ) ; do
+    remove-defunct-server \
+        --serverInstanceName "${defunctServer}" \
+        --bindDN "${ROOT_USER_DN}" \
+        --bindPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
+        --enableDebug \
+        --globalDebugLevel verbose \
+        --no-prompt
+done
 
 echo "Running dsreplication enable"
 # shellcheck disable=SC2039,SC2086
