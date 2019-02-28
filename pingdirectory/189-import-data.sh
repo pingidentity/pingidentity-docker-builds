@@ -8,22 +8,28 @@ test -f "${BASE}/lib.sh" && . "${BASE}/lib.sh"
 test -f "${BASE}/pingdirectory.lib.sh" && . "${BASE}/pingdirectory.lib.sh"
 
 
-# jq -r '.|.serverInstances[]|select(.product=="DIRECTORY")|.hostname' < /opt/staging/topology.json
-FIRST_HOSTNAME=$( getFirstHostInTopology )
-FQDN=$( hostname -f )
-echo "Waiting until DNS lookup works for ${FQDN}" 
-while true; do
-  echo "Running nslookup test"
-  nslookup "${FQDN}" && break
+proceedWithImport="true"
 
-  echo "Sleeping for a few seconds"
-  sleep_at_most 5
-done
+if test -f ${STAGING_DIR}/topology.json ; then
+    # jq -r '.|.serverInstances[]|select(.product=="DIRECTORY")|.hostname' < /opt/staging/topology.json
+    FIRST_HOSTNAME=$( getFirstHostInTopology )
+    FQDN=$( hostname -f )
+    echo "Waiting until DNS lookup works for ${FQDN}" 
+    while true; do
+    echo "Running nslookup test"
+    nslookup "${FQDN}" && break
 
-MYIP=$( getIP ${FQDN}  )
-FIRST_IP=$( getIP "${FIRST_HOSTNAME}" )
+    echo "Sleeping for a few seconds"
+    sleep_at_most 5
+    done
+    MYIP=$( getIP ${FQDN}  )
+    FIRST_IP=$( getIP "${FIRST_HOSTNAME}" )
+    if ! test "${MYIP}" = "${FIRST_IP}" ; then
+        proceedWithImport="false"
+    fi
+fi
 
-if test "${MYIP}" = "${FIRST_IP}"  && test -d "${STAGING_DIR}/data" ; then
+if  test "${proceedWithImport}" = "true" && test -d "${STAGING_DIR}/data" ; then
     # stage 1, we check if there are make-ldif template to generate synthetic data
     if test ${MAKELDIF_USERS} -gt 0 && ! test -z "$( find "${STAGING_DIR}/data" -type f -iname \*.template 2>/dev/null )" ; then
         # shellcheck disable=SC2044
