@@ -6,6 +6,11 @@ variables:
   DOCKER_HOST: tcp://docker:2375/
   # use the overlayfs driver for improved performance.
   DOCKER_DRIVER: overlay2
+stages: 
+  - build_foundation
+  - build
+  - test
+  - deploy
 
 services:
   - docker:dind
@@ -15,21 +20,118 @@ before_script:
   - docker-compose version
   - apk update
   - apk add git
-  - chmod +x ./ci_scripts/if_readme_only.sh
   - sh ./ci_scripts/if_readme_only.sh 
   - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
-  
 
-
-build:
-  stage: build
+pingfoundation:
+  stage: build_foundation
   script:
-    - docker info
     - docker image build -t pingidentity/pingcommon ./pingcommon
     - docker image build -t pingidentity/pingdatacommon ./pingdatacommon
     - docker image build -t pingidentity/pingbase ./pingbase
+    - mkdir images
+    - docker save pingidentity/pingcommon > images/pingcommon.tar
+    - docker save pingidentity/pingdatacommon > images/pingdatacommon.tar
+    - docker save pingidentity/pingbase > images/pingbase.tar
+  artifacts:
+    paths:
+      - images
+    expire_in: 30 minutes
+
+pingdataconsole:
+  stage: build
+  script:
+    - docker load -i images/pingcommon.tar
+    - docker load -i images/pingdatacommon.tar
+    - docker load -i images/pingbase.tar
+    - docker image ls
+    - docker image build -t pingidentity/pingdataconsole ./pingdataconsole
+    - docker push pingidentity/pingdataconsole
+  only:
+    changes:
+      - pingdataconsole/*
+
+pingaccess:
+  stage: build
+  script:
+    - docker load -i images/pingcommon.tar
+    - docker load -i images/pingdatacommon.tar
+    - docker load -i images/pingbase.tar
+    - docker image build -t pingidentity/pingaccess ./pingaccess
+    - docker push pingidentity/pingaccess
+  only:
+    changes:
+      - pingaccess/*
+
+pingdatasync:
+  stage: build
+  script:
+    - docker load -i images/pingcommon.tar
+    - docker load -i images/pingdatacommon.tar
+    - docker load -i images/pingbase.tar
+    - docker image build -t pingidentity/pingdatasync ./pingdatasync
+    - docker push pingidentity/pingdatasync
+  only:
+    changes:
+      - pingdatasync/*
+
+pingdelegator:
+  stage: build
+  script:
+    - docker load -i images/pingcommon.tar
+    - docker load -i images/pingdatacommon.tar
+    - docker load -i images/pingbase.tar
+    - docker image build -t pingidentity/pingdelegator ./pingdelegator
+    - docker push pingidentity/pingdelegator
+  only:
+    changes:
+      - pingdelegator/*
+
+pingdirectory:
+  stage: build
+  script:
+    - docker load -i images/pingcommon.tar
+    - docker load -i images/pingdatacommon.tar
+    - docker load -i images/pingbase.tar
+    - docker image build -t pingidentity/pingdirectory ./pingdirectory
     - docker-compose -f ./pingdirectory/build.test.yml up
-    #- docker push pingidentity/pingdataconsole
-  tags:
-    - devops_gte
-    - gte_devops_program
+    - docker push pingidentity/pingdirectory
+  only:
+    changes:
+      - pingdirectory/*
+
+pingdirectoryproxy:
+  stage: build
+  script:
+    - docker load -i images/pingcommon.tar
+    - docker load -i images/pingdatacommon.tar
+    - docker load -i images/pingbase.tar
+    - docker image build -t pingidentity/pingdirectoryproxy ./pingdirectoryproxy
+    - docker push pingidentity/pingdirectoryproxy
+  only:
+    changes:
+      - pingdirectoryproxy/*
+
+pingdownloader:
+  stage: build
+  script:
+    - docker load -i images/pingcommon.tar
+    - docker load -i images/pingdatacommon.tar
+    - docker load -i images/pingbase.tar
+    - docker image build -t pingidentity/pingdownloader ./pingdownloader
+    - docker push pingidentity/pingdownloader
+  only:
+    changes:
+      - pingdownloader/*
+
+pingfederate:
+  stage: build
+  script:
+    - docker load -i images/pingcommon.tar
+    - docker load -i images/pingdatacommon.tar
+    - docker load -i images/pingbase.tar
+    - docker image build -t pingidentity/pingfederate ./pingfederate
+    - docker push pingidentity/pingfederate
+  only:
+    changes:
+      - pingfederate/*
