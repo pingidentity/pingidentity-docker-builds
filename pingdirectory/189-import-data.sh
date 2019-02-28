@@ -1,7 +1,29 @@
 #!/usr/bin/env sh
 set -x
+# shellcheck source=/dev/null
+test -f "${STAGING_DIR}/env_vars" && . "${STAGING_DIR}/env_vars"
+# shellcheck source=../pingcommon/lib.sh
+test -f "${BASE}/lib.sh" && . "${BASE}/lib.sh"
+# shellcheck source=pingdirectory.lib.sh
+test -f "${BASE}/pingdirectory.lib.sh" && . "${BASE}/pingdirectory.lib.sh"
 
-if test -d "${STAGING_DIR}/data" ; then
+
+# jq -r '.|.serverInstances[]|select(.product=="DIRECTORY")|.hostname' < /opt/staging/topology.json
+FIRST_HOSTNAME=$( getFirstHostInTopology )
+FQDN=$( hostname -f )
+echo "Waiting until DNS lookup works for ${FQDN}" 
+while true; do
+  echo "Running nslookup test"
+  nslookup "${FQDN}" && break
+
+  echo "Sleeping for a few seconds"
+  sleep_at_most 5
+done
+
+MYIP=$( getIP ${FQDN}  )
+FIRST_IP=$( getIP "${FIRST_HOSTNAME}" )
+
+if test "${MYIP}" = "${FIRST_IP}"  && test -d "${STAGING_DIR}/data" ; then
     # stage 1, we check if there are make-ldif template to generate synthetic data
     if test ${MAKELDIF_USERS} -gt 0 && ! test -z "$( find "${STAGING_DIR}/data" -type f -iname \*.template 2>/dev/null )" ; then
         # shellcheck disable=SC2044
