@@ -31,7 +31,7 @@ fi
 
 if  test "${proceedWithImport}" = "true" && test -d "${STAGING_DIR}/data" ; then
     # stage 1, we check if there are make-ldif template to generate synthetic data
-    if test ${MAKELDIF_USERS} -gt 0 && ! test -z "$( find "${STAGING_DIR}/data" -type f -iname \*.template 2>/dev/null )" ; then
+    if ! test -z "${MAKELDIF_USERS}" && test ${MAKELDIF_USERS} -gt 0 && ! test -z "$( find "${STAGING_DIR}/data" -type f -iname \*.template 2>/dev/null )" ; then
         # shellcheck disable=SC2044
         for template in $( find "${STAGING_DIR}/data" -type f -iname \*.template 2>/dev/null ) ; do 
             envsubst < "${template}" > /tmp/make-ldif.template
