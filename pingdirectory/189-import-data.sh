@@ -45,7 +45,7 @@ if  test "${proceedWithImport}" = "true" && test -d "${STAGING_DIR}/data" ; then
     # stage 2, we check if there are LDIF templates that we have to run through env subst
     # shellcheck disable=SC2044
     for template in $( find "${STAGING_DIR}/data" -type f -iname \*.ldif.subst ) ; do 
-        envsubst <"${template}" >"${template%.*}.ldif"
+        envsubst <"${template}" >"${template%.*}"
     done
 
     # stage 3, we build the list of all the eligible candidate data files
