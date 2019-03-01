@@ -11,7 +11,6 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 COPY [ "liveness.sh", "${BASE}/"]
 COPY [ "run.sh", "/opt/server/bin/run.sh" ]
 
-
 #
 # the final image 
 #

@@ -131,6 +131,7 @@ pingfederate:
     - docker load -i images/pingdatacommon.tar
     - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingfederate ./pingfederate
+    - docker-compose -f ./pingfederate/build.test.yml up
     - docker push pingidentity/pingfederate
   only:
     changes:
