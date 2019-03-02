@@ -31,24 +31,20 @@ fi
 
 if  test "${proceedWithImport}" = "true" && test -d "${STAGING_DIR}/data" ; then
     # stage 1, we check if there are make-ldif template to generate synthetic data
-    if ! test -z "${MAKELDIF_USERS}" && test ${MAKELDIF_USERS} -gt 0 && ! test -z "$( find "${STAGING_DIR}/data" -type f -iname \*.template 2>/dev/null )" ; then
+    if ! test -z "${MAKELDIF_USERS}" \
+        && test ${MAKELDIF_USERS} -gt 0 \
+        && ! test -z "$( find "${STAGING_DIR}/data" -type f -iname \*.template 2>/dev/null )" ; then
         # shellcheck disable=SC2044
         for template in $( find "${STAGING_DIR}/data" -type f -iname \*.template 2>/dev/null ) ; do 
-            envsubst < "${template}" > /tmp/make-ldif.template
             "${SERVER_ROOT_DIR}/bin/make-ldif" \
-                --templateFile /tmp/make-ldif.template  \
+                --templateFile "${template}"  \
                 --ldifFile "${template%.*}.ldif.gz" \
                 --numThreads 3 \
                 --compress
         done
     fi
-    # stage 2, we check if there are LDIF templates that we have to run through env subst
-    # shellcheck disable=SC2044
-    for template in $( find "${STAGING_DIR}/data" -type f -iname \*.ldif.subst ) ; do 
-        envsubst <"${template}" >"${template%.*}"
-    done
 
-    # stage 3, we build the list of all the eligible candidate data files
+    # stage 2, we build the list of all the eligible candidate data files
     # and import them
     if ! test -z "$( find "${STAGING_DIR}/data" -type f \( -iname \*.ldif -o -iname \*.ldif.gz \) 2>/dev/null )" ; then
         for backend in $( find "${STAGING_DIR}/data/" -type f \( -iname \*.ldif -o -iname \*.ldif.gz \) -exec basename {} \; | sed 's/[0-9][0-9]-//' | sed 's/-.*$//' | sort | uniq ) ; do
