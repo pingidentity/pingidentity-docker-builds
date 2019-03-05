@@ -1,5 +1,4 @@
 FROM pingidentity/pingdownloader as staging
-ARG BASE=/opt
 ARG PRODUCT=pingdatasync
 ARG VERSION=7.2.0.1
 
@@ -16,10 +15,10 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 	    uninstall \
 	    webapps \
 	    resource/*.zip \
-	&& mv /tmp/PingDataSync ${BASE}/server 
-COPY [ "liveness.sh", "${BASE}/" ]
-COPY [ "183-run-setup.sh", "${BASE}/staging/hooks/" ]
-COPY [ "build.test.sh", "${BASE}/tests/" ]
+	&& mv /tmp/PingDataSync /opt/server 
+COPY [ "liveness.sh", "/opt/" ]
+COPY [ "183-run-setup.sh", "/opt/staging/hooks/" ]
+COPY [ "build.test.sh", "/opt/tests/" ]
 
 #
 # The final image
@@ -32,5 +31,5 @@ ENV PING_PRODUCT=PingDirectory
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
 ENV STARTUP_FOREGROUND_OPTS="--nodetach"
 ENV ROOT_USER_PASSWORD_FILE="${SECRETS_DIR}/root-user-password"
-COPY --from=pingidentity/pingdatacommon ${BASE} ${BASE}
-COPY --from=staging ${BASE} ${BASE}
+COPY --from=pingidentity/pingdatacommon "/opt" "${BASE}"
+COPY --from=staging "/opt" "${BASE}"

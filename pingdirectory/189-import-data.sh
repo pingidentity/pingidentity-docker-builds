@@ -11,7 +11,7 @@ test -f "${BASE}/pingdirectory.lib.sh" && . "${BASE}/pingdirectory.lib.sh"
 proceedWithImport="true"
 
 if test -f ${STAGING_DIR}/topology.json ; then
-    # jq -r '.|.serverInstances[]|select(.product=="DIRECTORY")|.hostname' < /opt/staging/topology.json
+    # jq -r '.|.serverInstances[]|select(.product=="DIRECTORY")|.hostname' < ${BASE}/staging/topology.json
     FIRST_HOSTNAME=$( getFirstHostInTopology )
     FQDN=$( hostname -f )
     echo "Waiting until DNS lookup works for ${FQDN}" 

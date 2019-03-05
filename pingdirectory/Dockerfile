@@ -1,5 +1,4 @@
 FROM pingidentity/pingdownloader as staging
-ARG BASE=/opt
 ARG PRODUCT=pingdirectory
 ARG VERSION=7.2.0.1
 
@@ -16,9 +15,9 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 	    uninstall \
 	    webapps \
 	    resource/*.zip \
-	&& mv /tmp/PingDirectory ${BASE}/server 
-COPY [ "liveness.sh", "pingdirectory.lib.sh", "${BASE}/" ]
-COPY [ "80-post-start.sh", "81-repair-topology.sh", "183-run-setup.sh","189-import-data.sh","${BASE}/staging/hooks/" ]
+	&& mv /tmp/PingDirectory /opt/server 
+COPY [ "liveness.sh", "pingdirectory.lib.sh", "/opt/" ]
+COPY [ "80-post-start.sh", "81-repair-topology.sh", "183-run-setup.sh","189-import-data.sh","/opt/staging/hooks/" ]
 
 #
 # The final image
@@ -39,5 +38,5 @@ ENV ADMIN_USER_PASSWORD_FILE=${SECRETS_DIR}/admin-user-password
 ENV ENCRYPTION_PASSWORD_FILE=${SECRETS_DIR}/encryption-password
 ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access"
 ENV MAKELDIF_USERS=0
-COPY --from=pingidentity/pingdatacommon ${BASE} ${BASE}
-COPY --from=staging ${BASE} ${BASE}
+COPY --from=pingidentity/pingdatacommon /opt ${BASE}
+COPY --from=staging /opt ${BASE}

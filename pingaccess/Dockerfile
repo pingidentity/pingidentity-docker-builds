@@ -1,5 +1,4 @@
 FROM pingidentity/pingdownloader as staging
-ARG BASE=/opt
 # place the software being delivered in a conspicuous, unix-correct location
 ARG PRODUCT=pingaccess
 ARG VERSION=5.2.0
@@ -8,9 +7,9 @@ ARG VERSION=5.2.0
 RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 	&& unzip /tmp/product.zip -d /tmp/ \
 	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
-	&& mv /tmp/pingaccess-* ${BASE}/server
+	&& mv /tmp/pingaccess-* /opt/server
 COPY [ "run.sh", "/opt/server/bin/run.sh" ]
-COPY [ "liveness.sh", "${BASE}/" ]
+COPY [ "liveness.sh", "/opt/" ]
 
 #
 # the final image 
@@ -20,5 +19,5 @@ FROM pingidentity/pingbase
 EXPOSE 9000 3000 ${HTTPS_PORT}
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/pingaccess.log
-COPY --from=pingidentity/pingcommon ${BASE} ${BASE}
-COPY --from=staging ${BASE} ${BASE}
+COPY --from=pingidentity/pingcommon "/opt" "${BASE}"
+COPY --from=staging "/opt" "${BASE}"
