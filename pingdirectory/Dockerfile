@@ -17,7 +17,7 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 	    resource/*.zip \
 	&& mv /tmp/PingDirectory /opt/server 
 COPY [ "liveness.sh", "pingdirectory.lib.sh", "/opt/" ]
-COPY [ "80-post-start.sh", "81-repair-topology.sh", "183-run-setup.sh","189-import-data.sh","/opt/staging/hooks/" ]
+COPY [ "hooks/","/opt/staging/hooks/" ]
 
 #
 # The final image

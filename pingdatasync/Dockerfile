@@ -17,7 +17,7 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 	    resource/*.zip \
 	&& mv /tmp/PingDataSync /opt/server 
 COPY [ "liveness.sh", "/opt/" ]
-COPY [ "183-run-setup.sh", "/opt/staging/hooks/" ]
+COPY [ "hooks/", "/opt/staging/hooks/" ]
 COPY [ "build.test.sh", "/opt/tests/" ]
 
 #

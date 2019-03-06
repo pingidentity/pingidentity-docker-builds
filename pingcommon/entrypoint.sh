@@ -16,15 +16,15 @@ if test "$1" = "start-server" ; then
     # or a previous run of the container that would then checkout
     # hence the name on-restart
     #
-    run_if present "${HOOKS_DIR}/00-on-restart.sh"
+    run_if present "${HOOKS_DIR}/00-start-server.sh"
 
     if ! test -d "${SERVER_ROOT_DIR}" ; then
         ## FIRST TIME EXECUTION OF THE CONTAINER
-        run_if present "${HOOKS_DIR}/10-first-time-sequence.sh"
+        run_if present "${HOOKS_DIR}/10-start-sequence.sh"
         die_on_error 10 "First time sequence failed" || exit ${?}
     else
         ## RESTART
-        run_if present "${HOOKS_DIR}/19-update-server-profile.sh"
+        run_if present "${HOOKS_DIR}/20-restart-sequence.sh"
         die_on_error 19 "Restart sequence failed" || exit ${?}
     fi
 
