@@ -38,6 +38,17 @@ pingfoundation:
       - images
     expire_in: 30 minutes
 
+pingdownloader:
+  stage: build_foundation
+  script:
+    - docker load -i images/pingcommon.tar
+    - docker load -i images/pingbase.tar
+    - docker image build -t pingidentity/pingdownloader ./pingdownloader
+    - docker push pingidentity/pingdownloader
+  only:
+    changes:
+      - pingdownloader/*
+
 pingdataconsole:
   stage: build
   script:
@@ -53,6 +64,7 @@ pingdataconsole:
       - pingcommon/*
       - pingdatacommon/*
       - pingbase/*
+      - pingdownloader/*
 
 pingaccess:
   stage: build
@@ -66,6 +78,7 @@ pingaccess:
       - pingaccess/*
       - pingcommon/*
       - pingbase/*
+      - pingdownloader/*
 
 pingdatasync:
   stage: build
@@ -81,6 +94,7 @@ pingdatasync:
       - pingcommon/*
       - pingdatacommon/*
       - pingbase/*
+      - pingdownloader/*
 
 pingdelegator:
   stage: build
@@ -94,6 +108,7 @@ pingdelegator:
       - pingdelegator/*
       - pingcommon/*
       - pingbase/*
+      - pingdownloader/*
 
 pingdirectory:
   stage: build
@@ -110,6 +125,7 @@ pingdirectory:
       - pingcommon/*
       - pingdatacommon/*
       - pingbase/*
+      - pingdownloader/*
 
 pingdirectoryproxy:
   stage: build
@@ -125,16 +141,6 @@ pingdirectoryproxy:
       - pingcommon/*
       - pingdatacommon/*
       - pingbase/*
-
-pingdownloader:
-  stage: build
-  script:
-    - docker load -i images/pingcommon.tar
-    - docker load -i images/pingbase.tar
-    - docker image build -t pingidentity/pingdownloader ./pingdownloader
-    - docker push pingidentity/pingdownloader
-  only:
-    changes:
       - pingdownloader/*
 
 pingfederate:
@@ -150,3 +156,4 @@ pingfederate:
       - pingfederate/*
       - pingcommon/*
       - pingbase/*
+      - pingdownloader/*
