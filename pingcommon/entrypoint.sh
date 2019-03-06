@@ -24,7 +24,7 @@ if test "$1" = "start-server" ; then
         die_on_error 10 "First time sequence failed" || exit ${?}
     else
         ## RESTART
-        run_if present "${BASE}/19-update-server-profile.sh"
+        run_if present "${HOOKS_DIR}/19-update-server-profile.sh"
         die_on_error 19 "Restart sequence failed" || exit ${?}
     fi
 
