@@ -50,6 +50,9 @@ pingdataconsole:
   only:
     changes:
       - pingdataconsole/*
+      - pingcommon/*
+      - pingdatacommon/*
+      - pingbase/*
 
 pingaccess:
   stage: build
@@ -62,6 +65,8 @@ pingaccess:
   only:
     changes:
       - pingaccess/*
+      - pingcommon/*
+      - pingbase/*
 
 pingdatasync:
   stage: build
@@ -74,6 +79,9 @@ pingdatasync:
   only:
     changes:
       - pingdatasync/*
+      - pingcommon/*
+      - pingdatacommon/*
+      - pingbase/*
 
 pingdelegator:
   stage: build
@@ -86,6 +94,8 @@ pingdelegator:
   only:
     changes:
       - pingdelegator/*
+      - pingcommon/*
+      - pingbase/*
 
 pingdirectory:
   stage: build
@@ -99,6 +109,9 @@ pingdirectory:
   only:
     changes:
       - pingdirectory/*
+      - pingcommon/*
+      - pingdatacommon/*
+      - pingbase/*
 
 pingdirectoryproxy:
   stage: build
@@ -111,6 +124,9 @@ pingdirectoryproxy:
   only:
     changes:
       - pingdirectoryproxy/*
+      - pingcommon/*
+      - pingdatacommon/*
+      - pingbase/*
 
 pingdownloader:
   stage: build
@@ -136,3 +152,5 @@ pingfederate:
   only:
     changes:
       - pingfederate/*
+      - pingcommon/*
+      - pingbase/*
