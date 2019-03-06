@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+${VERBOSE} && set -x
+
 # shellcheck source=lib.sh
 . "${BASE}/lib.sh"
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -x
+${VERBOSE} && set -x
 
 # shellcheck source=/dev/null
 test -f "${STAGING_DIR}/env_vars" && . "${STAGING_DIR}/env_vars"

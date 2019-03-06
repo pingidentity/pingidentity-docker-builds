@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+${VERBOSE} && set -x
 
 # we check if there are templates that we have to run through env subst
 # shellcheck disable=SC2044

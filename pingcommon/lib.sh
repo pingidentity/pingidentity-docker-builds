@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -x
+${VERBOSE} && set -x
 
 # a function to base the execution of a script upon the presence or absence of a file
 run_if ()
@@ -8,6 +8,9 @@ run_if ()
     shift
 
     runFile=${1}
+
+    commandSet="sh"
+    ${VERBOSE} && commandSet="${commandSet} -x"
 
     if test -z "${2}" ; then
         if test "${mode}" = "absent" ; then
@@ -21,11 +24,11 @@ run_if ()
 
     if test "${mode}" = "present" ; then
         if test -f "${testFile}" ; then
-            sh -x "${runFile}"
+            ${commandSet} "${runFile}"
         fi
     else
         if ! test -f "${testFile}" ; then
-            sh -x "${runFile}"
+            ${commandSet} "${runFile}"
         fi		
     fi
 }
@@ -47,7 +50,7 @@ die_on_error ()
     if test ${errorCode} -ne 0 ; then
         echo "CONTAINER FAILURE: $*"
         # wipe the runtime
-        rm -rf ${BASE}/out/instance
+        rm -rf "${BASE}/out/instance"
         # shellcheck disable=SC2086
         exit ${exitCode}
     fi

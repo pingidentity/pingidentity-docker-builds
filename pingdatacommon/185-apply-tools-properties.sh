@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
-set -x
+${VERBOSE} && set -x
+
 "${BASE}/configure-tools.sh" \
         "${LDAP_PORT}" \
         "${ROOT_USER_DN}" \

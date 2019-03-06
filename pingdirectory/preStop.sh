@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -x
+${VERBOSE} && set -x
 
 LOG_FILE="${SERVER_ROOT_DIR}/logs/preStop.log"
 TOPOLOGY_FILE="${IN_DIR}/topology.json"

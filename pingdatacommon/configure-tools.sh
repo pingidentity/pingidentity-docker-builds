@@ -1,4 +1,5 @@
 #!/bin/sh
+${VERBOSE} && set -x
 
 # ARG1 => port; ARG2 => bindDN; ARG3 => bindPasswordFile
 # ARG4 => adminUID; ARG5 => adminPassword
@@ -19,6 +20,7 @@ if grep "bindPassword=" "${TOOLS_PROPERTIES_FILE}" >/dev/null; then
   sed -i.bak "s/^\(bindPassword=.*\)$/#\1/" "${TOOLS_PROPERTIES_FILE}"
 fi
 
+# shellcheck disable=2129
 echo "bindPasswordFile=$3" >> "$TOOLS_PROPERTIES_FILE"
 
 echo "adminUID=$4" >> "$TOOLS_PROPERTIES_FILE"

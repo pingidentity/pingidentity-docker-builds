@@ -65,8 +65,11 @@ ONBUILD ENV MAX_HEAP_SIZE=384m
 
 ONBUILD ENV JVM_TUNING="AGGRESSIVE"
 
+# the verbose variable will trigger set -x in scripts
+ONBUILD ENV VERBOSE=false
+
 # this variable indicates to set the server in debug mode
-ONBUILD ENV PING_DEBUG="false"
+ONBUILD ENV PING_DEBUG=false
 
 # the name of Ping product
 # this can be useful for displaying or sending user messages

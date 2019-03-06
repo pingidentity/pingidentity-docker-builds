@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -x
+${VERBOSE} && set -x
 
 certificateOptions="      --generateSelfSignedCertificate"
 if test -f "${SERVER_ROOT_DIR}/config/keystore" && test -f "${SERVER_ROOT_DIR}/config/keystore.pin" ; then

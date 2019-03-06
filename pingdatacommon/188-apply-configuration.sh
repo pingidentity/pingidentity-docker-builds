@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -x
+${VERBOSE} && set -x
 
 if test -d "${STAGING_DIR}/dsconfig" ; then
     for batch in $( find "${STAGING_DIR}/dsconfig/" -iname \*.dsconfig 2>/dev/null | sort | uniq ) ; do

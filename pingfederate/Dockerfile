@@ -1,5 +1,4 @@
 FROM pingidentity/pingdownloader as staging
-ARG BASE=/opt
 ARG PRODUCT=pingfederate
 ARG VERSION=9.2.1
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+${VERBOSE} && set -x
 
 # Once both the GIT server-profile and the local server-profile have been merged
 # then we can push that out to the instance

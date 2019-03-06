@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
+${VERBOSE} && set -x
+
 # shellcheck source=/dev/null
-test -f "${STAGING_DIR}/env_vars" || . "${STAGING_DIR}/env_vars"
+test -f "${STAGING_DIR}/env_vars" && . "${STAGING_DIR}/env_vars"
 
 # shellcheck disable=SC2086
 if test -z "${TOPOLOGY_SIZE}" || ! test ${TOPOLOGY_SIZE} -gt 0 ; then

@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -x
+${VERBOSE} && set -x
 
 if test ! -f "${TOPOLOGY_FILE}" ; then
   echo "${TOPOLOGY_FILE} not found"
