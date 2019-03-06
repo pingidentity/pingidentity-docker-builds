@@ -58,7 +58,6 @@ pingaccess:
   stage: build
   script:
     - docker load -i images/pingcommon.tar
-    - docker load -i images/pingdatacommon.tar
     - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingaccess ./pingaccess
     - docker push pingidentity/pingaccess
@@ -87,7 +86,6 @@ pingdelegator:
   stage: build
   script:
     - docker load -i images/pingcommon.tar
-    - docker load -i images/pingdatacommon.tar
     - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingdelegator ./pingdelegator
     - docker push pingidentity/pingdelegator
@@ -132,7 +130,6 @@ pingdownloader:
   stage: build
   script:
     - docker load -i images/pingcommon.tar
-    - docker load -i images/pingdatacommon.tar
     - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingdownloader ./pingdownloader
     - docker push pingidentity/pingdownloader
@@ -144,7 +141,6 @@ pingfederate:
   stage: build
   script:
     - docker load -i images/pingcommon.tar
-    - docker load -i images/pingdatacommon.tar
     - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingfederate ./pingfederate
     - docker-compose -f ./pingfederate/build.test.yml up
