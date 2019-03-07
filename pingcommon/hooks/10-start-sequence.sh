@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 ${VERBOSE} && set -x
 
-# shellcheck source=lib.sh
+# shellcheck source=../lib.sh
 . "${BASE}/lib.sh"
 
 deploy_server_bits ()
@@ -14,6 +14,7 @@ echo "Initializing server for the first time"
 
 # if this hook is provided it can be executed early on
 run_if present "${HOOKS_DIR}/11-before-copying-bits.sh"
+die_on_error 11 "Error running 11-before-copying-bits.sh" || exit ${?}
 
 # lay down the bits to the runtime volume
 deploy_server_bits
