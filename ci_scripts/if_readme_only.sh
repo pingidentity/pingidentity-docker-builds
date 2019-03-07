@@ -4,6 +4,7 @@ set -e
 
 CHANGED_FILES=`git diff --name-only master HEAD^`
 echo $(git diff --name-only master HEAD^)
+git remote -v
 ONLY_READMES=True
 MD=".md"
 
