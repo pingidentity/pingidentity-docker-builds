@@ -41,9 +41,8 @@ pingfoundation:
 pingdownloader:
   stage: build_foundation
   script:
-    - docker load -i images/pingcommon.tar
-    - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingdownloader ./pingdownloader
+    - docker-compose -f pingdownloader/build.test.yaml up
     - docker push pingidentity/pingdownloader
   only:
     changes:
@@ -52,9 +51,6 @@ pingdownloader:
 pingdataconsole:
   stage: build
   script:
-    - docker load -i images/pingcommon.tar
-    - docker load -i images/pingdatacommon.tar
-    - docker load -i images/pingbase.tar
     - docker image ls
     - docker image build -t pingidentity/pingdataconsole ./pingdataconsole
     - docker push pingidentity/pingdataconsole
