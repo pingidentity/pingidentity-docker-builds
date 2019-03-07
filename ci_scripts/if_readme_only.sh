@@ -7,15 +7,15 @@ set -e
 # echo "edited files: " $(git diff --name-only master HEAD^)
 
 CHANGED_FILES=$(git diff --name-only "$CI_COMMIT_SHA"  "$CI_COMMIT_BEFORE_SHA")
-echo "CHANGED_FILES: " $(git diff --name-only $CI_COMMIT_SHA  $CI_COMMIT_BEFORE_SHA)
-ONLY_READMES=True
+echo "CHANGED_FILES: " $CHANGED_FILES
+ONLY_READMES=False
 MD=".md"
 
 for CHANGED_FILE in $CHANGED_FILES; do
   echo $CHANGED_FILE
   if test $(expr $CHANGED_FILE : '.md') ; then
     echo "changed"
-    ONLY_READMES=False
+    ONLY_READMES=True
     break
   fi
 done
