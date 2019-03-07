@@ -2,10 +2,8 @@
 
 set -e
 
-CHANGED_FILES=`git diff --name-only master HEAD^`
-echo $(git diff --name-only $CI_COMMIT_SHA  $CI_COMMIT_BEFORE_SHA)
-echo "CI_COMMIT_SHA= " $CI_COMMIT_SHA 
-echo "CI_COMMIT_BEFORE_SHA= " $CI_COMMIT_BEFORE_SHA
+CHANGED_FILES=$(git diff --name-only "$CI_COMMIT_SHA"  "$CI_COMMIT_BEFORE_SHA")
+echo "edited files: " $(git diff --name-only $CI_COMMIT_SHA  $CI_COMMIT_BEFORE_SHA)
 
 git remote -v
 ONLY_READMES=True
