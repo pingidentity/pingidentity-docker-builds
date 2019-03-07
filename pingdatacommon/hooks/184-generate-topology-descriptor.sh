@@ -5,7 +5,7 @@ ${VERBOSE} && set -x
 test -f "${STAGING_DIR}/env_vars" && . "${STAGING_DIR}/env_vars"
 
 # shellcheck disable=SC2086
-if test -z "${TOPOLOGY_SIZE}" || ! test ${TOPOLOGY_SIZE} -gt 0 ; then
+if test -z "${TOPOLOGY_PREFIX}" || test -z "${TOPOLOGY_SIZE}" || ! test ${TOPOLOGY_SIZE} -gt 0 ; then
     exit 0
 fi
 
