@@ -3,6 +3,7 @@
 set -e
 
 CHANGED_FILES=`git diff --name-only master HEAD^`
+echo $(git diff --name-only master HEAD^)
 ONLY_READMES=True
 MD=".md"
 
