@@ -3,11 +3,11 @@
 set -e 
 
 #for local, uncomment:
-CHANGED_FILES=$(git diff --name-only master HEAD^)
-echo "edited files: " $CHANGED_FILES
+# CHANGED_FILES=$(git diff --name-only master HEAD^)
+# echo "edited files: " $CHANGED_FILES
 
-# CHANGED_FILES=$(git diff --name-only "$CI_COMMIT_SHA"  "$CI_COMMIT_BEFORE_SHA")
-# echo "CHANGED_FILES: " $CHANGED_FILES
+CHANGED_FILES=$(git diff --name-only "$CI_COMMIT_SHA"  "$CI_COMMIT_BEFORE_SHA")
+echo "CHANGED_FILES: " $CHANGED_FILES
 ONLY_READMES=True
 MD="\.md"
 
