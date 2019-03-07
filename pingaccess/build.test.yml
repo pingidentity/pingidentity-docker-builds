@@ -1,5 +1,6 @@
 sut:
   build: .
+  image: pingidentity/pingaccess
   environment:
     - SERVER_PROFILE_URL=https://github.com/pingidentity/server-profile-group-pingidentity-getting-started.git
     - SERVER_PROFILE_PATH=pingaccess
