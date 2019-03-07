@@ -20,7 +20,7 @@ before_script:
   - docker-compose version
   - apk update
   - apk add git
-  - sh ./ci_scripts/if_readme_only.sh 
+  - sh ci_scripts/if_readme_only.sh 
   - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
 
 pingfoundation:
@@ -41,29 +41,33 @@ pingfoundation:
 pingdownloader:
   stage: build_foundation
   script:
-    - docker load -i images/pingcommon.tar
-    - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingdownloader ./pingdownloader
+    - docker-compose -f pingdownloader/build.test.yml up --exit-code-from sut
     - docker push pingidentity/pingdownloader
   only:
     changes:
       - pingdownloader/*
 
+ldap-sdk-tools:
+  stage: build
+  script:
+    - docker image build -t pingidentity/ldap-sdk-tools ./ldap-sdk-tools
+    - docker-compose -f ldap-sdk-tools/build.test.yml up --exit-code-from sut
+    - docker push pingidentity/ldap-sdk-tools
+  only:
+    changes:
+      - pingdownloader/*
+      - ldap-sdk-tools/*
+
 pingdataconsole:
   stage: build
   script:
-    - docker load -i images/pingcommon.tar
-    - docker load -i images/pingdatacommon.tar
-    - docker load -i images/pingbase.tar
     - docker image ls
     - docker image build -t pingidentity/pingdataconsole ./pingdataconsole
     - docker push pingidentity/pingdataconsole
   only:
     changes:
       - pingdataconsole/*
-      - pingcommon/*
-      - pingdatacommon/*
-      - pingbase/*
       - pingdownloader/*
 
 pingaccess:
@@ -72,6 +76,7 @@ pingaccess:
     - docker load -i images/pingcommon.tar
     - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingaccess ./pingaccess
+    - docker-compose -f pingaccess/build.test.yml up --exit-code-from sut
     - docker push pingidentity/pingaccess
   only:
     changes:
@@ -87,6 +92,7 @@ pingdatasync:
     - docker load -i images/pingdatacommon.tar
     - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingdatasync ./pingdatasync
+    - docker-compose -f pingdatasync/build.test.yml up --exit-code-from sut
     - docker push pingidentity/pingdatasync
   only:
     changes:
@@ -96,19 +102,20 @@ pingdatasync:
       - pingbase/*
       - pingdownloader/*
 
-pingdelegator:
-  stage: build
-  script:
-    - docker load -i images/pingcommon.tar
-    - docker load -i images/pingbase.tar
-    - docker image build -t pingidentity/pingdelegator ./pingdelegator
-    - docker push pingidentity/pingdelegator
-  only:
-    changes:
-      - pingdelegator/*
-      - pingcommon/*
-      - pingbase/*
-      - pingdownloader/*
+# pingdelegator:
+#   stage: build
+#   script:
+#     - docker load -i images/pingcommon.tar
+#     - docker load -i images/pingdatacommon.tar
+#     - docker load -i images/pingbase.tar
+#     - docker image build -t pingidentity/pingdelegator ./pingdelegator
+#     - docker push pingidentity/pingdelegator
+#   only:
+#     changes:
+#       - pingdelegator/*
+#       - pingcommon/*
+#       - pingbase/*
+#       - pingdownloader/*
 
 pingdirectory:
   stage: build
@@ -117,7 +124,7 @@ pingdirectory:
     - docker load -i images/pingdatacommon.tar
     - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingdirectory ./pingdirectory
-    - docker-compose -f ./pingdirectory/build.test.yml up
+    - docker-compose -f ./pingdirectory/build.test.yml up --exit-code-from sut
     - docker push pingidentity/pingdirectory
   only:
     changes:
@@ -149,7 +156,7 @@ pingfederate:
     - docker load -i images/pingcommon.tar
     - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingfederate ./pingfederate
-    - docker-compose -f ./pingfederate/build.test.yml up
+    - docker-compose -f ./pingfederate/build.test.yml up --exit-code-from sut
     - docker push pingidentity/pingfederate
   only:
     changes:

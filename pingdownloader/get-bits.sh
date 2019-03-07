@@ -58,7 +58,7 @@ getProps ()
 
     curlResult=$( curl -kL -w '%{http_code}' ${propsURL}${getBitsProps} -o ${outputProps} 2>/dev/null )
 
-	! test $curlResult -eq 200 && usage "Unable to get bits metadata (${getBitsProps})"
+	! test $curlResult -eq 200 && usage "Unable to get bits metadata. Network Issue?"
 
 	availableProducts=$( jq -r '.products[].name' ${outputProps} )
 }

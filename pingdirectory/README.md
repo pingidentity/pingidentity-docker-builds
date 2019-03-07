@@ -1,11 +1,11 @@
 An example Ping Identity PingDirectory container, running in Alpine Linux using OpenJDK8, loaded up with a few sample users.
 
 ## PingDirectory License
-Before running the pingdirectory docker image, you must obtain a Ping Directory License.  Please visit:
+Before running the PingDirectory Docker image, you must obtain a Ping Directory License.  Please visit:
 
    https://www.pingidentity.com/en/account/request-license-key.html
 
-Upon receiving your license file, please proceed with the ```docker run``` command, substituting the license filename with the file that you've saved the license to.
+Upon receiving your license file, run the ```docker run``` command, substituting the license filename with the file that you've saved the license to.
 
 ## How to
 To build the PingDirectory Docker image
@@ -28,7 +28,7 @@ https://support.pingidentity.com/s/pingdirectory-help
            --env SERVER_PROFILE_PATH=pingdirectory \
            pingidentity/pingdirectory
 ```
-After approximately 30 seconds, the new license will be added, and the service will be stated.  If no license is provided, or an invalid/expired license is provided, the docker container will exit.  You may view the docker logs with the command:
+After approximately 30 seconds, the new license will be added and the service will be started.  If no license is provided, or an invalid or expired license is provided, the Docker container will exit.  You can view the Docker logs with the command:
 
 ```
   docker logs -f pingdirectory
@@ -54,7 +54,7 @@ docker exec -it pingdirectory \
 ```
 
 ## LDAP Client
-Connect an LDAP Client (i.e. Apache Directory Studio) to this container:
+Connect an LDAP Client (such as Apache Directory Studio) to this container:
 
 * LDAP Port: 1389 (mapped to 1389)
 * HTTPS Port: 8443 (mapped to 8443)
@@ -71,7 +71,7 @@ From Postman or a browser.
 
 ## Commercial Support
 These images are not currently considered stable and are subject to changes without notification.
-Please contact docker@pingidentity.com for details
+Please contact devops_program@pingidentity.com for details.
 
 ## Copyright
 Copyright © 2019 Ping Identity. All rights reserved.
