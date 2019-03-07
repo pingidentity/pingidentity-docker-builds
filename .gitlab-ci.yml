@@ -42,11 +42,22 @@ pingdownloader:
   stage: build_foundation
   script:
     - docker image build -t pingidentity/pingdownloader ./pingdownloader
-    - docker-compose -f pingdownloader/build.test.yaml up
+    - docker-compose -f pingdownloader/build.test.yml up
     - docker push pingidentity/pingdownloader
   only:
     changes:
       - pingdownloader/*
+
+ldap-sdk-tools:
+  stage: build
+  script:
+    - docker image build -t pingidentity/ldap-sdk-tools ./ldap-sdk-tools
+    - docker-compose -f ldap-sdk-tools/build.test.yml up
+    - docker push pingidentity/ldap-sdk-tools
+  only:
+    changes:
+      - pingdownloader/*
+      - ldap-sdk-tools/*
 
 pingdataconsole:
   stage: build
@@ -57,9 +68,6 @@ pingdataconsole:
   only:
     changes:
       - pingdataconsole/*
-      - pingcommon/*
-      - pingdatacommon/*
-      - pingbase/*
       - pingdownloader/*
 
 pingaccess:
@@ -68,6 +76,7 @@ pingaccess:
     - docker load -i images/pingcommon.tar
     - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingaccess ./pingaccess
+    - docker-compose -f pingaccess/build.test.yml up
     - docker push pingidentity/pingaccess
   only:
     changes:
@@ -83,6 +92,7 @@ pingdatasync:
     - docker load -i images/pingdatacommon.tar
     - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingdatasync ./pingdatasync
+    - docker-compose -f pingdatasync/build.test.yml up
     - docker push pingidentity/pingdatasync
   only:
     changes:
