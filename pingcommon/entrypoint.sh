@@ -16,7 +16,8 @@ if test "$1" = "start-server" ; then
     # or a previous run of the container that would then checkout
     # hence the name on-restart
     #
-    run_if present "${HOOKS_DIR}/00-start-server.sh"
+    run_if present "${HOOKS_DIR}/01-start-server.sh"
+    die_on_error 01 "Start script failed" || exit ${?} 
 
     if ! test -d "${SERVER_ROOT_DIR}" ; then
         ## FIRST TIME EXECUTION OF THE CONTAINER
