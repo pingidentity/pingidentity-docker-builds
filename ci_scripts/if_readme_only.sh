@@ -2,21 +2,24 @@
 
 set -e
 
-CHANGED_FILES=$(git diff --name-only "$CI_COMMIT_SHA"  "$CI_COMMIT_BEFORE_SHA")
+#CHANGED_FILES=$(git diff --name-only "$CI_COMMIT_SHA"  "$CI_COMMIT_BEFORE_SHA")
+CHANGED_FILES=$(git diff --name-only master HEAD^)
 echo "edited files: " $(git diff --name-only $CI_COMMIT_SHA  $CI_COMMIT_BEFORE_SHA)
-
+echo $CHANGED_FILES
 git remote -v
-ONLY_READMES=True
+ONLY_READMES=False
 MD=".md"
 
 for CHANGED_FILE in $CHANGED_FILES; do
-  if ! [[ $CHANGED_FILE =~ $MD ]]; then
-    ONLY_READMES=False
+  echo CHANGED_FILE
+  if ! test $CHANGED_FILE | grep $MD ; then
+    echo "changed"
+    ONLY_READMES=True
     break
   fi
 done
 
-if [[ $ONLY_READMES == True ]]; then
+if [ $ONLY_READMES = True ]; then
   echo "Only .md files found, exiting."
   travis_terminate 0
   exit 1
