@@ -20,7 +20,7 @@ before_script:
   - docker-compose version
   - apk update
   - apk add git
-  #- sh ci_scripts/if_readme_only.sh 
+  - sh ci_scripts/if_readme_only.sh 
   - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
 
 pingfoundation:
