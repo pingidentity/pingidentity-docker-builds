@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+${VERBOSE} && set -x
+
 #
 # This script is started in the background immediately before 
 # the server within the container is started
