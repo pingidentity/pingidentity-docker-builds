@@ -1,6 +1,4 @@
 #!/usr/bin/env sh
-${VERBOSE} && set -x
-
 #
 # This script is called after the product bits have been copied over to the runtime location
 # and before the remote server profile gets applied on to the staging area

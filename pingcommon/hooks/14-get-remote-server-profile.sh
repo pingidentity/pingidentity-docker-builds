@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 ${VERBOSE} && set -x
 
-# shellcheck source=lib.sh
+# shellcheck source=../lib.sh
 . "${BASE}/lib.sh"
 
 if ! test -z "${SERVER_PROFILE_URL}" ; then
