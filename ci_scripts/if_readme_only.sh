@@ -1,10 +1,17 @@
 #!/usr/bin/env sh
 
-set -e 
 
 #for local, uncomment:
-# CHANGED_FILES=$(git diff --name-only master HEAD^)
+#CHANGED_FILES=$(git diff --name-only master HEAD^)
 # echo "edited files: " $CHANGED_FILES
+echo $CI_COMMIT_BEFORE_SHA
+# (: "${CHANGED_FILES?}")
+if ${CI_COMMIT_BEFORE_SHA+"false"}
+then
+   echo "var is unset"
+else 
+  echo "found"
+fi
 
 CHANGED_FILES=$(git diff --name-only "$CI_COMMIT_SHA"  "$CI_COMMIT_BEFORE_SHA")
 echo "CHANGED_FILES: " $CHANGED_FILES
@@ -27,7 +34,6 @@ if test $ONLY_READMES = True ; then
 else
   echo "Non-.md files found, continuing with build."
 fi
-
 
 
 
