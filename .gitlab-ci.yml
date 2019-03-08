@@ -1,25 +1,13 @@
-image:
-  name: docker/compose:1.22.0 # update tag to whatever version you want to use.
-  entrypoint: [""]
-
-variables:
-  DOCKER_HOST: tcp://docker:2375/
-  # use the overlayfs driver for improved performance.
-  DOCKER_DRIVER: overlay2
 stages: 
   - build_foundation
   - build
   - test
   - deploy
 
-services:
-  - docker:dind
-
 before_script:
   - docker info
   - docker-compose version
-  - apk update
-  - apk add git
+  - git --version
   - sh ci_scripts/if_readme_only.sh 
   - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
 
@@ -29,14 +17,9 @@ pingfoundation:
     - docker image build -t pingidentity/pingcommon ./pingcommon
     - docker image build -t pingidentity/pingdatacommon ./pingdatacommon
     - docker image build -t pingidentity/pingbase ./pingbase
-    - mkdir images
-    - docker save pingidentity/pingcommon > images/pingcommon.tar
-    - docker save pingidentity/pingdatacommon > images/pingdatacommon.tar
-    - docker save pingidentity/pingbase > images/pingbase.tar
-  artifacts:
-    paths:
-      - images
-    expire_in: 30 minutes
+  tags:
+    - docker
+
 
 pingdownloader:
   stage: build_foundation
@@ -73,8 +56,6 @@ pingdataconsole:
 pingaccess:
   stage: build
   script:
-    - docker load -i images/pingcommon.tar
-    - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingaccess ./pingaccess
     - docker-compose -f pingaccess/build.test.yml up --exit-code-from sut
     - docker push pingidentity/pingaccess
@@ -88,9 +69,6 @@ pingaccess:
 pingdatasync:
   stage: build
   script:
-    - docker load -i images/pingcommon.tar
-    - docker load -i images/pingdatacommon.tar
-    - docker load -i images/pingbase.tar
     - docker image build -t pingidentity/pingdatasync ./pingdatasync
     - docker-compose -f pingdatasync/build.test.yml up --exit-code-from sut
     - docker push pingidentity/pingdatasync
@@ -99,6 +77,46 @@ pingdatasync:
       - pingdatasync/*
       - pingcommon/*
       - pingdatacommon/*
+      - pingbase/*
+      - pingdownloader/*
+
+pingdirectory:
+  stage: build
+  script:
+    - docker image build -t pingidentity/pingdirectory ./pingdirectory
+    - docker-compose -f ./pingdirectory/build.test.yml up --exit-code-from sut
+    - docker push pingidentity/pingdirectory
+  only:
+    changes:
+      - pingdirectory/*
+      - pingcommon/*
+      - pingdatacommon/*
+      - pingbase/*
+      - pingdownloader/*
+
+# pingdirectoryproxy:
+#   stage: build
+#   script:
+#     - docker image build -t pingidentity/pingdirectoryproxy ./pingdirectoryproxy
+#     - docker push pingidentity/pingdirectoryproxy
+#   only:
+#     changes:
+#       - pingdirectoryproxy/*
+#       - pingcommon/*
+#       - pingdatacommon/*
+#       - pingbase/*
+#       - pingdownloader/*
+
+pingfederate:
+  stage: build
+  script:
+    - docker image build -t pingidentity/pingfederate ./pingfederate
+    - docker-compose -f ./pingfederate/build.test.yml up --exit-code-from sut
+    - docker push pingidentity/pingfederate
+  only:
+    changes:
+      - pingfederate/*
+      - pingcommon/*
       - pingbase/*
       - pingdownloader/*
 
@@ -116,51 +134,3 @@ pingdatasync:
 #       - pingcommon/*
 #       - pingbase/*
 #       - pingdownloader/*
-
-pingdirectory:
-  stage: build
-  script:
-    - docker load -i images/pingcommon.tar
-    - docker load -i images/pingdatacommon.tar
-    - docker load -i images/pingbase.tar
-    - docker image build -t pingidentity/pingdirectory ./pingdirectory
-    - docker-compose -f ./pingdirectory/build.test.yml up --exit-code-from sut
-    - docker push pingidentity/pingdirectory
-  only:
-    changes:
-      - pingdirectory/*
-      - pingcommon/*
-      - pingdatacommon/*
-      - pingbase/*
-      - pingdownloader/*
-
-pingdirectoryproxy:
-  stage: build
-  script:
-    - docker load -i images/pingcommon.tar
-    - docker load -i images/pingdatacommon.tar
-    - docker load -i images/pingbase.tar
-    - docker image build -t pingidentity/pingdirectoryproxy ./pingdirectoryproxy
-    - docker push pingidentity/pingdirectoryproxy
-  only:
-    changes:
-      - pingdirectoryproxy/*
-      - pingcommon/*
-      - pingdatacommon/*
-      - pingbase/*
-      - pingdownloader/*
-
-pingfederate:
-  stage: build
-  script:
-    - docker load -i images/pingcommon.tar
-    - docker load -i images/pingbase.tar
-    - docker image build -t pingidentity/pingfederate ./pingfederate
-    - docker-compose -f ./pingfederate/build.test.yml up --exit-code-from sut
-    - docker push pingidentity/pingfederate
-  only:
-    changes:
-      - pingfederate/*
-      - pingcommon/*
-      - pingbase/*
-      - pingdownloader/*
