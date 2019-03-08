@@ -141,3 +141,5 @@ clean_containers:
   script:
     - docker container stop $(docker container ls -aq)
     - docker container rm $(docker container ls -aq)
+    - docker image prune -f
+    - docker volume prune -f
