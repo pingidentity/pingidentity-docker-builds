@@ -3,6 +3,7 @@ stages:
   - build
   - test
   - deploy
+  - cleanup
 
 before_script:
   - docker info
@@ -134,3 +135,9 @@ pingfederate:
 #       - pingcommon/*
 #       - pingbase/*
 #       - pingdownloader/*
+
+clean_containers:
+  stage: cleanup
+  script:
+    - docker container stop $(docker container ls -aq)
+    - docker container rm $(docker container ls -aq)
