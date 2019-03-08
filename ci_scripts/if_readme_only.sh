@@ -29,6 +29,7 @@ check_if_mds()
 if [ "$CI_COMMIT_BEFORE_SHA" = "0000000000000000000000000000000000000000" ]
 then
    echo "no previous commit"
+   exit 0
 else 
   echo "found"
   check_if_mds
