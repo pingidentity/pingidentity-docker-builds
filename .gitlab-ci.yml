@@ -139,7 +139,4 @@ pingfederate:
 clean_containers:
   stage: cleanup
   script:
-    - docker container stop $(docker container ls -aq)
-    - docker container rm $(docker container ls -aq)
-    - docker image prune -f
-    - docker volume prune -f
+    - sh docker-cleanup.sh
