@@ -139,4 +139,4 @@ pingfederate:
 clean_containers:
   stage: cleanup
   script:
-    - sh docker-cleanup.sh
+    - sh ci-scripts/docker-cleanup.sh
