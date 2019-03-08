@@ -40,8 +40,18 @@ cat >> "${STAGING_DIR}/topology.json" <<END
   "serverInstances" : [
 END
 
+if test -z "${TOPOLOGY_SUFFIX}" ; then
+    # 1-based numbering in docker swarm and docker compose
+    countFrom=1
+    countTo=${TOPOLOGY_SIZE}
+else
+    # 0-based numbering in kubernetes
+    countFrom=0
+    countTo=$( TOPOLOGY_SIZE - 1 )
+fi
+
 # shellcheck disable=SC2086
-for i in $( seq 1 ${TOPOLOGY_SIZE}  ) ; do
+for i in $( seq ${countFrom} ${countTo}  ) ; do
     instanceName=${TOPOLOGY_PREFIX}${i}
     containerHostName=${instanceName}
     if ! test -z "${TOPOLOGY_SUFFIX}" ; then
@@ -50,7 +60,7 @@ for i in $( seq 1 ${TOPOLOGY_SIZE}  ) ; do
     # Write the beginning of the "serverInstances" array
     SEPARATOR=","
     # shellcheck disable=SC2086
-    if test $i -eq ${TOPOLOGY_SIZE} ; then
+    if test $i -eq ${countTo} ; then
         SEPARATOR=""
     fi
 
