@@ -25,7 +25,6 @@ COPY [ "hooks/","/opt/staging/hooks/" ]
 FROM pingidentity/pingbase
 ENV LICENSE_FILE_NAME=PingDirectory.lic
 # This is a candidate to move to pingbase
-ENV USER_BASE_DN=dc=example,dc=com
 ENV REPLICATION_PORT=8989
 ENV PING_PRODUCT=PingDirectory
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT} 5005

@@ -3,7 +3,7 @@ ONBUILD LABEL	maintainer=devops_program@pingidentity.com \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity (Alpine/OpenJDK8) Image"
-ONBUILD RUN apk --no-cache add git curl ca-certificates jq \
+ONBUILD RUN apk --no-cache add git curl ca-certificates jq zip \
     && apk add --update libintl \
     && apk add --virtual build_deps gettext \
     && cp /usr/bin/envsubst /usr/local/bin/envsubst \
@@ -88,6 +88,14 @@ ONBUILD ENV JMX_PORT=689
 ONBUILD ENV TOPOLOGY_SIZE=1
 ONBUILD ENV TOPOLOGY_PREFIX=""
 ONBUILD ENV TOPOLOGY_SUFFIX=""
+
+ONBUILD ENV USER_BASE_DN=dc=example,dc=com
+ONBUILD ENV DOLLAR='$'
+ONBUILD ENV PD_ENGINE_PUBLIC_HOSTNAME="localhost"
+ONBUILD ENV PF_ENGINE_PUBLIC_HOSTNAME="localhost"
+ONBUILD ENV PF_ADMIN_PUBLIC_HOSTNAME="localhost"
+ONBUILD ENV PA_ENGINE_PUBLIC_HOSTNAME="localhost"
+ONBUILD ENV PA_ADMIN_PUBLIC_HOSTNAME="localhost"
 
 # the default administrative user for PingData
 ONBUILD ENV ROOT_USER_DN="cn=administrator"
