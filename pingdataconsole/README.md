@@ -9,6 +9,7 @@ To build the PingDataConsole Docker image
 docker build -t [image_name] .
 ```
 
+
 ## Commercial Support
 These images are not currently considered stable and are subject to changes without notification.
 Please contact devops_program@pingidentity.com for details
