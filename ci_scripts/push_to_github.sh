@@ -11,7 +11,7 @@ else
   cd docker-builds
 fi
 
-git remote add gh_location https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-devops-getting-started.git
+git remote add gh_location https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/docker-builds.git
 
 #don't put CI stuff on public. 
 git checkout -b CI 
