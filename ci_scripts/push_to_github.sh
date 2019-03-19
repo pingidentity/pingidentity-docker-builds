@@ -7,7 +7,7 @@ if [ -d "${docker-builds}" ]; then
   cd docker-builds
 else 
   rm -rf docker-builds
-  git clone https://${GITHUB}:${GITLAB_TOKEN}@gitlab.corp.pingidentity.com/devops-program/docker-builds
+  git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.corp.pingidentity.com/devops-program/docker-builds
   cd docker-builds
 fi
 
