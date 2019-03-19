@@ -19,6 +19,8 @@ git pull origin CI
 
 git rm -r ci_scripts/ .gitlab-ci.yml
 
+git commit --amend --no-edit
+
 git push gh_location CI
 
 cd ..
