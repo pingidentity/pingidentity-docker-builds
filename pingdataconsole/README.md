@@ -1,17 +1,24 @@
-```
-docker network create pingnet
-docker run -d --network pingnet -p 8080:8080 --name pingdataconsole pingidentity/pingdataconsole
-open https://localhost:8080/admin-console
-```
-## How to
-To build the PingDataConsole Docker image
-```
-docker build -t [image_name] .
-```
+# Ping Identity PingDataConsole Docker Image
+
+## Documentation
+
+* [PingDataConsole Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-builds/ping_data_console) - Information on this image
+
+* [DevOps Program Documentation](https://pingidentity-devops.gitbook.io/devops) - Getting started with Ping Identity DevOps Program
+
+* [DevOps Github Repos]((https://github.com/topics/ping-devops)) - Docker Builds, Getting Started and Server Profiles
+
+## License
+Before running this image, you must obtain an evaluation [license](https://www.pingidentity.com/en/account/request-license-key.html). 
+
 
 ## Commercial Support
-These images are not currently considered stable and are subject to changes without notification.
+This image is currently under development and is not officially 
+supported by Ping Identity.  It should not be used for any 
+production use cases.
+
 Please contact devops_program@pingidentity.com for details
 
 ## Copyright
 Copyright © 2019 Ping Identity. All rights reserved.
+

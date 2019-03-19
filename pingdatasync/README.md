@@ -1,26 +1,24 @@
-An example Ping Identity PingDataSync container, running in Alpine Linux using OpenJDK8.
+# Ping Identity PingDataSync Docker Image
 
-## PingDirectory License
-Before running the PingDirectory Docker image, you must obtain a PingDirectory License.  Please visit:
+## Documentation
 
-   https://www.pingidentity.com/en/account/request-license-key.html
+* [PingDataSync Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-builds/ping_datasync) - Information on this image
 
-Upon receiving your license file, run the ```docker run``` command, substituting the license filename with the file that you've saved the license to.
+* [DevOps Program Documentation](https://pingidentity-devops.gitbook.io/devops) - Getting started with Ping Identity DevOps Program
 
-## How to
-To build the PingDataSync Docker image
-```
-docker build -t [image_name] .
-```
+* [DevOps Github Repos]((https://github.com/topics/ping-devops)) - Docker Builds, Getting Started and Server Profiles
 
-## Running a PingDataSync container
+## License
+Before running this image, you must obtain an evaluation [license](https://www.pingidentity.com/en/account/request-license-key.html). 
 
-```
-```
 
 ## Commercial Support
-These images are not currently considered stable and are subject to changes without notification.
-Please contact devops_program@pingidentity.com for details.
+This image is currently under development and is not officially 
+supported by Ping Identity.  It should not be used for any 
+production use cases.
+
+Please contact devops_program@pingidentity.com for details
 
 ## Copyright
 Copyright © 2019 Ping Identity. All rights reserved.
+

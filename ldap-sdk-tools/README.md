@@ -1,50 +1,24 @@
-## List all available tools
-`docker run -it --rm pingidentity/ldap-sdk-tools ls`
+# Ping Identity LDAP SDK Tools Docker Image
 
-## Use LDAPSearch
-### Get some help
-`docker run -it --rm pingidentity/ldap-sdk-tools ldapsearch --help`
+## Documentation
 
-### Simple search
-```Bash
-docker run -it --rm pingidentity/ldap-sdk-tools \
-    ldapsearch \
-        -b dc=example,dc=com \
-        -p 1389 "(objectClass=*)"
-```
+* [LDAP SDK Tools Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-builds/ldap_sdk_tools) - Information on this image
 
-### Save output to host file
-```Bash
-docker run -it --rm \
-    -v /tmp:/opt/out \
-    pingidentity/ldap-sdk-tools \
-    ldapsearch \
-        --baseDN dc=example,dc=com \
-        --port 1389 \
-        --outputFormat json "(objectClass=*)" >/tmp/search-result.json
-```
+* [DevOps Program Documentation](https://pingidentity-devops.gitbook.io/devops) - Getting started with Ping Identity DevOps Program
 
-## Use manage-certificates
-### trusting certificates
-```Bash
-PWD=2FederateM0re
-mkdir -p /tmp/hibp
-docker run -it --rm \
-  -v /tmp/hibp:/opt/out \
-  pingidentity/ldap-sdk-tools \
-  manage-certificates trust-server-certificate \
-    --hostname haveibeenpwned.com \
-    --port 443 \
-    --keystore /opt/out/hibp-2019.jks \
-    --keystore-password ${PWD}
-ls -all /tmp/hibp
-keytool -list \
-  -keystore /tmp/hibp/hibp-2019.jks \
-  -storepass ${PWD}
-```
+* [DevOps Github Repos]((https://github.com/topics/ping-devops)) - Docker Builds, Getting Started and Server Profiles
+
+## License
+Before running this image, you must obtain an evaluation [license](https://www.pingidentity.com/en/account/request-license-key.html). 
+
+
 ## Commercial Support
-These images are not currently considered stable and are subject to changes without notification.
+This image is currently under development and is not officially 
+supported by Ping Identity.  It should not be used for any 
+production use cases.
+
 Please contact devops_program@pingidentity.com for details
 
 ## Copyright
 Copyright © 2019 Ping Identity. All rights reserved.
+
