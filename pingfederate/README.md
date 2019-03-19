@@ -1,24 +1,24 @@
-An example Ping Identity PingFederate container, running in Alpine Linux using OpenJDK8.
-
-## PingFederate License
-Before running the PingFederate Docker image, you must obtain a PingFederate License. Please visit:
-
-https://www.pingidentity.com/en/account/request-license-key.html
-
-Upon receiving your license file, run the ```docker run``` command, substituting the license filename with the file that you've saved the license to.
-
-## How to
-To build the PingFederate Docker image
-```
-docker build -t [image_name] .
-```
+# Ping Identity PingFederate Docker Image
 
 ## Documentation
-https://support.pingidentity.com/s/PingFederate-help
+
+* [PingFederate Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-builds/ping_federate) - Information on this image
+
+* [DevOps Program Documentation](https://pingidentity-devops.gitbook.io/devops) - Getting started with Ping Identity DevOps Program
+
+* [DevOps Github Repos]((https://github.com/topics/ping-devops)) - Docker Builds, Getting Started and Server Profiles
+
+## License
+Before running this image, you must obtain an evaluation [license](https://www.pingidentity.com/en/account/request-license-key.html). 
+
 
 ## Commercial Support
-These images are not currently considered stable and are subject to changes without notification.
+This image is currently under development and is not officially 
+supported by Ping Identity.  It should not be used for any 
+production use cases.
+
 Please contact devops_program@pingidentity.com for details
 
 ## Copyright
 Copyright © 2019 Ping Identity. All rights reserved.
+
