@@ -11,8 +11,8 @@ else
   rm -rf docker-builds
   git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.corp.pingidentity.com/devops-program/docker-builds
   cd docker-builds
-  git config user.email "samirgandhi@pingidentity.com"
-  git config user.name "samirgandhi"
+  git config user.email "devops_program@pingidentity.com"
+  git config user.name "devops_program"
 fi
 
 git remote add gh_location https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/docker-builds.git
