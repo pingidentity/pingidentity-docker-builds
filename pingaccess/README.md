@@ -1,12 +1,12 @@
-# Ping Identity PingFederate Docker Image
+# Ping Identity PingAccess Docker Image
 
 ## Documentation
 
-* [PingFederate Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-builds/ping_federate) - Information on this image
+* [PingAccess Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-builds/ping_access) - Information on this image
 
 * [DevOps Program Documentation](https://pingidentity-devops.gitbook.io/devops) - Getting started with Ping Identity DevOps Program
 
-* [DevOps Github Repos]((https://github.com/topics/ping-devops)) - Docker Builds, Getting Started and Server Profiles
+* [DevOps Github Repos](https://github.com/topics/ping-devops) - Docker Builds, Getting Started and Server Profiles
 
 ## License
 Before running this image, you must obtain an evaluation [license](https://www.pingidentity.com/en/account/request-license-key.html). 
