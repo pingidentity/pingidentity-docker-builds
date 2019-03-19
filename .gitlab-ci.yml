@@ -21,127 +21,127 @@ pingfoundation:
   tags:
     - docker
 
-# pingdownloader:
-#   stage: build_foundation
-#   script:
-#     - docker image build -t pingidentity/pingdownloader ./pingdownloader
-#     - docker-compose -f pingdownloader/build.test.yml up --exit-code-from sut
-#     - docker push pingidentity/pingdownloader
-#   only:
-#     changes:
-#       - pingdownloader/*
+pingdownloader:
+  stage: build_foundation
+  script:
+    - docker image build -t pingidentity/pingdownloader ./pingdownloader
+    - docker-compose -f pingdownloader/build.test.yml up --exit-code-from sut
+    - docker push pingidentity/pingdownloader
+  only:
+    changes:
+      - pingdownloader/*
 
-# ldap-sdk-tools:
+ldap-sdk-tools:
+  stage: build
+  script:
+    - docker image build -t pingidentity/ldap-sdk-tools ./ldap-sdk-tools
+    - docker-compose -f ldap-sdk-tools/build.test.yml up --exit-code-from sut
+    - docker push pingidentity/ldap-sdk-tools
+  only:
+    changes:
+      - pingdownloader/*
+      - ldap-sdk-tools/*
+
+pingdataconsole:
+  stage: build
+  script:
+    - docker image ls
+    - docker image build -t pingidentity/pingdataconsole ./pingdataconsole
+    - docker push pingidentity/pingdataconsole
+  only:
+    changes:
+      - pingdataconsole/*
+      - pingdownloader/*
+
+pingaccess:
+  stage: build
+  script:
+    - docker image build -t pingidentity/pingaccess ./pingaccess
+    - docker-compose -f pingaccess/build.test.yml up --exit-code-from sut
+    - docker push pingidentity/pingaccess
+  only:
+    changes:
+      - pingaccess/*
+      - pingcommon/*
+      - pingbase/*
+      - pingdownloader/*
+
+pingdatasync:
+  stage: build
+  script:
+    - docker image build -t pingidentity/pingdatasync ./pingdatasync
+    - docker-compose -f pingdatasync/build.test.yml up --exit-code-from sut
+    - docker push pingidentity/pingdatasync
+  only:
+    changes:
+      - pingdatasync/*
+      - pingcommon/*
+      - pingdatacommon/*
+      - pingbase/*
+      - pingdownloader/*
+
+pingdirectory:
+  stage: build
+  script:
+    - docker image build -t pingidentity/pingdirectory ./pingdirectory
+    - docker-compose -f ./pingdirectory/build.test.yml up --exit-code-from sut
+    - docker push pingidentity/pingdirectory
+  only:
+    changes:
+      - pingdirectory/*
+      - pingcommon/*
+      - pingdatacommon/*
+      - pingbase/*
+      - pingdownloader/*
+
+pingfederate:
+  stage: build
+  script:
+    - docker image build -t pingidentity/pingfederate ./pingfederate
+    - docker-compose -f ./pingfederate/build.test.yml up --exit-code-from sut
+    - docker push pingidentity/pingfederate
+  only:
+    changes:
+      - pingfederate/*
+      - pingcommon/*
+      - pingbase/*
+      - pingdownloader/*
+
+# pingdirectoryproxy:
 #   stage: build
 #   script:
-#     - docker image build -t pingidentity/ldap-sdk-tools ./ldap-sdk-tools
-#     - docker-compose -f ldap-sdk-tools/build.test.yml up --exit-code-from sut
-#     - docker push pingidentity/ldap-sdk-tools
+#     - docker image build -t pingidentity/pingdirectoryproxy ./pingdirectoryproxy
+#     - docker push pingidentity/pingdirectoryproxy
 #   only:
 #     changes:
-#       - pingdownloader/*
-#       - ldap-sdk-tools/*
-
-# pingdataconsole:
-#   stage: build
-#   script:
-#     - docker image ls
-#     - docker image build -t pingidentity/pingdataconsole ./pingdataconsole
-#     - docker push pingidentity/pingdataconsole
-#   only:
-#     changes:
-#       - pingdataconsole/*
-#       - pingdownloader/*
-
-# pingaccess:
-#   stage: build
-#   script:
-#     - docker image build -t pingidentity/pingaccess ./pingaccess
-#     - docker-compose -f pingaccess/build.test.yml up --exit-code-from sut
-#     - docker push pingidentity/pingaccess
-#   only:
-#     changes:
-#       - pingaccess/*
-#       - pingcommon/*
-#       - pingbase/*
-#       - pingdownloader/*
-
-# pingdatasync:
-#   stage: build
-#   script:
-#     - docker image build -t pingidentity/pingdatasync ./pingdatasync
-#     - docker-compose -f pingdatasync/build.test.yml up --exit-code-from sut
-#     - docker push pingidentity/pingdatasync
-#   only:
-#     changes:
-#       - pingdatasync/*
+#       - pingdirectoryproxy/*
 #       - pingcommon/*
 #       - pingdatacommon/*
 #       - pingbase/*
 #       - pingdownloader/*
 
-# pingdirectory:
+# pingdelegator:
 #   stage: build
 #   script:
-#     - docker image build -t pingidentity/pingdirectory ./pingdirectory
-#     - docker-compose -f ./pingdirectory/build.test.yml up --exit-code-from sut
-#     - docker push pingidentity/pingdirectory
+#     - docker load -i images/pingcommon.tar
+#     - docker load -i images/pingdatacommon.tar
+#     - docker load -i images/pingbase.tar
+#     - docker image build -t pingidentity/pingdelegator ./pingdelegator
+#     - docker push pingidentity/pingdelegator
 #   only:
 #     changes:
-#       - pingdirectory/*
-#       - pingcommon/*
-#       - pingdatacommon/*
-#       - pingbase/*
-#       - pingdownloader/*
-
-# pingfederate:
-#   stage: build
-#   script:
-#     - docker image build -t pingidentity/pingfederate ./pingfederate
-#     - docker-compose -f ./pingfederate/build.test.yml up --exit-code-from sut
-#     - docker push pingidentity/pingfederate
-#   only:
-#     changes:
-#       - pingfederate/*
+#       - pingdelegator/*
 #       - pingcommon/*
 #       - pingbase/*
 #       - pingdownloader/*
-
-# # pingdirectoryproxy:
-# #   stage: build
-# #   script:
-# #     - docker image build -t pingidentity/pingdirectoryproxy ./pingdirectoryproxy
-# #     - docker push pingidentity/pingdirectoryproxy
-# #   only:
-# #     changes:
-# #       - pingdirectoryproxy/*
-# #       - pingcommon/*
-# #       - pingdatacommon/*
-# #       - pingbase/*
-# #       - pingdownloader/*
-
-# # pingdelegator:
-# #   stage: build
-# #   script:
-# #     - docker load -i images/pingcommon.tar
-# #     - docker load -i images/pingdatacommon.tar
-# #     - docker load -i images/pingbase.tar
-# #     - docker image build -t pingidentity/pingdelegator ./pingdelegator
-# #     - docker push pingidentity/pingdelegator
-# #   only:
-# #     changes:
-# #       - pingdelegator/*
-# #       - pingcommon/*
-# #       - pingbase/*
-# #       - pingdownloader/*
 
 push_to_github:
   stage: deploy
   script:
     - git --version
     - sh ci_scripts/push_to_github.sh
-  # only:
-  #   - master
+  only:
+    - master
 
 clean_containers:
   stage: cleanup

@@ -18,9 +18,6 @@ fi
 git remote add gh_location https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/docker-builds.git
 
 #don't put CI stuff on public. 
-git checkout CI
-git pull origin CI
-
 git rm -r ci_scripts/ .gitlab-ci.yml
 
 git commit --amend --no-edit
