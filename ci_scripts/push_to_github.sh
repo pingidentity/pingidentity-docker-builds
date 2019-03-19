@@ -22,7 +22,7 @@ git rm -r ci_scripts/ .gitlab-ci.yml
 
 git commit --amend --no-edit
 
-git push gh_location CI
+git push gh_location master
 
 cd ..
 rm -rf docker-builds
