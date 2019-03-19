@@ -16,6 +16,7 @@ git remote add gh_location https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pin
 #don't put CI stuff on public. 
 git checkout -b CI 
 
+
 git rm -r ci_scripts/ .gitlab-ci.yml
 
 git push gh_location CI
