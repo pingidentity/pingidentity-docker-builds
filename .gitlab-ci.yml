@@ -139,7 +139,7 @@ push_to_github:
   stage: deploy
   script:
     - git --version
-    - sh push_to_github.sh
+    - sh ci_scripts/push_to_github.sh
   # only:
   #   - master
 
