@@ -8,6 +8,11 @@ if test -f "${STAGING_DIR}/env_vars" ; then
     set +o allexport
 fi
 
+# Allows the forcing a shell variable to be used in any template
+# Example: ${_DOLLAR_}{username} ==> ${username} 
+# shellcheck disable=SC2034
+export _DOLLAR_="$"
+
 # expand templates that are bundled together in zip files
 # (useful for pingfederate for example with data.zip)
 # shellcheck disable=SC2044
@@ -27,6 +32,7 @@ for bundle in $( find "${STAGING_DIR}/" -type f -iname \*.zip.subst ) ; do
     rm -rf "${base}"
     rm -f "${bundle}"
 done
+
 
 # we check if there are templates that we have to run through env subst
 # shellcheck disable=SC2044
