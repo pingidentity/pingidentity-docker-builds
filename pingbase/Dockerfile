@@ -3,6 +3,7 @@ ONBUILD LABEL	maintainer=devops_program@pingidentity.com \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity (Alpine/OpenJDK8) Image"
+        
 ONBUILD RUN apk --no-cache add git curl ca-certificates jq zip \
     && apk add --update libintl \
     && apk add --virtual build_deps gettext \

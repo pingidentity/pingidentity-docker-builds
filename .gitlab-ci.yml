@@ -5,12 +5,14 @@ stages:
   - deploy
   - cleanup
 
-before_script:
-  - docker info
-  - docker-compose version
-  - git --version
-  - sh ci_scripts/if_readme_only.sh 
-  - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+ci_setup:
+  stage: build_foundation
+  script:
+    - docker info
+    - docker-compose version
+    - git --version
+    - sh ci_scripts/if_readme_only.sh 
+    - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
 
 pingfoundation:
   stage: build_foundation
@@ -18,9 +20,6 @@ pingfoundation:
     - docker image build -t pingidentity/pingcommon ./pingcommon
     - docker image build -t pingidentity/pingdatacommon ./pingdatacommon
     - docker image build -t pingidentity/pingbase ./pingbase
-  tags:
-    - docker
-
 
 pingdownloader:
   stage: build_foundation
@@ -31,35 +30,37 @@ pingdownloader:
   only:
     changes:
       - pingdownloader/*
-
-ldap-sdk-tools:
+   
+build_ldap-sdk-tools:
   stage: build
   script:
     - docker image build -t pingidentity/ldap-sdk-tools ./ldap-sdk-tools
-    - docker-compose -f ldap-sdk-tools/build.test.yml up --exit-code-from sut
-    - docker push pingidentity/ldap-sdk-tools
   only:
     changes:
       - pingdownloader/*
       - ldap-sdk-tools/*
 
-pingdataconsole:
-  stage: build
+test_ldap-sdk-tools:
+  stage: test
   script:
-    - docker image ls
-    - docker image build -t pingidentity/pingdataconsole ./pingdataconsole
-    - docker push pingidentity/pingdataconsole
+    - docker-compose -f ldap-sdk-tools/build.test.yml up --exit-code-from sut
   only:
     changes:
-      - pingdataconsole/*
       - pingdownloader/*
+      - ldap-sdk-tools/*
 
-pingaccess:
+deploy_ldap-sdk-tools:
+  stage: deploy
+  script:
+    - docker push pingidentity/ldap-sdk-tools
+  only:
+    changes:
+      - ldap-sdk-tools/*
+
+build_pingaccess:
   stage: build
   script:
     - docker image build -t pingidentity/pingaccess ./pingaccess
-    - docker-compose -f pingaccess/build.test.yml up --exit-code-from sut
-    - docker push pingidentity/pingaccess
   only:
     changes:
       - pingaccess/*
@@ -67,12 +68,83 @@ pingaccess:
       - pingbase/*
       - pingdownloader/*
 
-pingdatasync:
+test_pingaccess:
+  stage: test
+  script:
+    - docker-compose -f pingaccess/build.test.yml up --exit-code-from sut
+  only:
+    changes:
+      - pingaccess/*
+      - pingcommon/*
+      - pingbase/*
+      - pingdownloader/*
+      
+deploy_pingaccess:
+  stage: deploy
+  script:
+    - docker push pingidentity/pingaccess
+  only:
+    changes:
+      - pingaccess/*
+      - pingcommon/*
+      - pingbase/*
+
+build_pingdirectory:
+  stage: build
+  script:
+    - docker image build -t pingidentity/pingdirectory ./pingdirectory
+  only:
+    changes:
+      - pingdirectory/*
+      - pingcommon/*
+      - pingdatacommon/*
+      - pingbase/*
+      - pingdownloader/*
+
+test_pingdirectory:
+  stage: test
+  script:
+    - docker-compose -f ./pingdirectory/build.test.yml up --exit-code-from sut
+  only:
+    changes:
+      - pingdirectory/*
+      - pingcommon/*
+      - pingdatacommon/*
+      - pingbase/*
+      - pingdownloader/*
+
+deploy_pingdirectory:
+  stage: deploy
+  script:
+    - docker push pingidentity/pingdirectory
+  only:
+    changes:
+      - pingdirectory/*
+      - pingcommon/*
+      - pingdatacommon/*
+      - pingbase/*
+
+build_pingdataconsole:
+  stage: build
+  script:
+    - docker image build -t pingidentity/pingdataconsole ./pingdataconsole
+  only:
+    changes:
+      - pingdataconsole/*
+      - pingdownloader/*
+
+deploy_pingdataconsole:
+  stage: deploy
+  script:
+    - docker push pingidentity/pingdataconsole
+  only:
+    changes:
+      - pingdataconsole/*
+      
+build_pingdatasync:
   stage: build
   script:
     - docker image build -t pingidentity/pingdatasync ./pingdatasync
-    - docker-compose -f pingdatasync/build.test.yml up --exit-code-from sut
-    - docker push pingidentity/pingdatasync
   only:
     changes:
       - pingdatasync/*
@@ -81,19 +153,60 @@ pingdatasync:
       - pingbase/*
       - pingdownloader/*
 
-pingdirectory:
-  stage: build
+test_pingdatasync:
+  stage: test
   script:
-    - docker image build -t pingidentity/pingdirectory ./pingdirectory
-    - docker-compose -f ./pingdirectory/build.test.yml up --exit-code-from sut
-    - docker push pingidentity/pingdirectory
+    - docker-compose -f pingdatasync/build.test.yml up --exit-code-from sut
   only:
     changes:
-      - pingdirectory/*
+      - pingdatasync/*
       - pingcommon/*
       - pingdatacommon/*
       - pingbase/*
       - pingdownloader/*
+
+deploy_pingdatasync:
+  stage: deploy
+  script:
+    - docker push pingidentity/pingdatasync
+  only:
+    changes:
+      - pingdatasync/*
+      - pingcommon/*
+      - pingdatacommon/*
+      - pingbase/*
+
+build_pingfederate:
+  stage: build
+  script:
+    - docker image build -t pingidentity/pingfederate ./pingfederate
+  only:
+    changes:
+      - pingfederate/*
+      - pingcommon/*
+      - pingbase/*
+      - pingdownloader/*
+
+test_pingfederate:
+  stage: test
+  script:
+    - docker-compose -f ./pingfederate/build.test.yml up --exit-code-from sut
+  only:
+    changes:
+      - pingfederate/*
+      - pingcommon/*
+      - pingbase/*
+      - pingdownloader/*
+
+deploy_pingfederate:
+  stage: build
+  script:
+    - docker push pingidentity/pingfederate
+  only:
+    changes:
+      - pingfederate/*
+      - pingcommon/*
+      - pingbase/*
 
 # pingdirectoryproxy:
 #   stage: build
@@ -107,20 +220,6 @@ pingdirectory:
 #       - pingdatacommon/*
 #       - pingbase/*
 #       - pingdownloader/*
-
-pingfederate:
-  stage: build
-  script:
-    - docker image build -t pingidentity/pingfederate ./pingfederate
-    - docker-compose -f ./pingfederate/build.test.yml up --exit-code-from sut
-    - docker push pingidentity/pingfederate
-  only:
-    changes:
-      - pingfederate/*
-      - pingcommon/*
-      - pingbase/*
-      - pingdownloader/*
-
 # pingdelegator:
 #   stage: build
 #   script:
@@ -140,3 +239,4 @@ clean_containers:
   stage: cleanup
   script:
     - sh ci_scripts/docker-cleanup.sh
+  when: always
