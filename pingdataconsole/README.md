@@ -2,7 +2,7 @@
 
 ## Documentation
 
-* [PingDataConsole Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-builds/ping_data_console) - Information on this image
+* [PingDataConsole Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-images/ping_data_console) - Information on this image
 
 * [DevOps Program Documentation](https://pingidentity-devops.gitbook.io/devops) - Getting started with Ping Identity DevOps Program
 

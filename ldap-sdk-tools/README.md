@@ -2,7 +2,7 @@
 
 ## Documentation
 
-* [LDAP SDK Tools Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-builds/ldap_sdk_tools) - Information on this image
+* [LDAP SDK Tools Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-images/ldap_sdk_tools) - Information on this image
 
 * [DevOps Program Documentation](https://pingidentity-devops.gitbook.io/devops) - Getting started with Ping Identity DevOps Program
 

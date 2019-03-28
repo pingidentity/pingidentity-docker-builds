@@ -199,7 +199,7 @@ test_pingfederate:
       - pingdownloader/*
 
 deploy_pingfederate:
-  stage: build
+  stage: deploy
   script:
     - docker push pingidentity/pingfederate
   only:

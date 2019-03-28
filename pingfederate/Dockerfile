@@ -15,6 +15,8 @@ COPY [ "run.sh", "/opt/server/bin/run.sh" ]
 #
 FROM pingidentity/pingbase
 EXPOSE 9031 9999
+ENV OPERATIONAL_MODE="STANDALONE"
+ENV CLUSTER_BIND_ADDRESS="NON_LOOPBACK"
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/server.log
 COPY --from=pingidentity/pingcommon /opt ${BASE}
