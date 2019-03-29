@@ -23,6 +23,7 @@ if test  -f "${product}"/versions; then
       if ${is_latest} ; then
         docker tag pingidentity/"${product}":"${version}"-edge pingidentity/"${product}":latest
         docker tag pingidentity/"${product}":"${version}"-edge pingidentity/"${product}":edge
+        docker tag pingidentity/"${product}":"${version}"-edge pingidentity/"${product}":"${sprint}"
         is_latest=false
       fi
     fi
