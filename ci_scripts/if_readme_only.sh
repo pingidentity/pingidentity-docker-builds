@@ -6,9 +6,9 @@
 # echo "edited files: " $CHANGED_FILES
 
 # for gitlab: 
-echo $CI_COMMIT_BEFORE_SHA
+echo "$CI_COMMIT_BEFORE_SHA"
 CHANGED_FILES=$(git diff --name-only "$CI_COMMIT_SHA"  "$CI_COMMIT_BEFORE_SHA")
-echo "CHANGED_FILES: " $CHANGED_FILES
+echo "CHANGED_FILES: " "$CHANGED_FILES"
 
 ONLY_READMES=True
 MD="\.md"
@@ -16,7 +16,7 @@ MD="\.md"
 check_if_mds()
 {
   for CHANGED_FILE in $CHANGED_FILES; do
-    echo $CHANGED_FILE
+    echo "$CHANGED_FILE"
     echo "TESTING - ${CHANGED_FILE#*$MD} != ${CHANGED_FILE}"
     if test "${CHANGED_FILE#*$MD}" = "${CHANGED_FILE}" ; then
       echo "found non-readme"

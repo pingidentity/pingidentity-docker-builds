@@ -1,3 +1,4 @@
 sut:
   build: .
+  image: pingidentity/ldap-sdk-tools
   command: ldapsearch --help
