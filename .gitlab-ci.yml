@@ -247,13 +247,13 @@ deploy_pingfederate:
 #       - pingbase/*
 #       - pingdownloader/*
 
-# push_to_github:
-#   stage: deploy
-#   script:
-#     - git --version
-#     - sh ci_scripts/push_to_github.sh
-#   only:
-#     - master
+push_to_github:
+  stage: deploy
+  script:
+    - git --version
+    - sh ci_scripts/push_to_github.sh
+  only:
+    - master
 
 clean_containers:
   stage: cleanup
