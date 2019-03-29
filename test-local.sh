@@ -14,6 +14,7 @@ usage ()
 END
 }
 
+summary=false
 while ! test -z "${1}" ; do
     case "${1}" in
         access|federate|directory|datasync)
@@ -51,55 +52,37 @@ if test ${summary} ; then
 "
 
 fi
-
+# this is required to locally test against the edge version
+export TAG=edge
 p=ping
 line='----------------------------------------'
 for product in ${testsToRun} ; do
-
     fullProduct="${p}${product}"
     testCmd="docker-compose -f "${fullProduct}/build.test.yml" up --exit-code-from sut"
     cleanCmd="docker-compose -f "${fullProduct}/build.test.yml" down"
 
     startTest=$( date +%s )
-    if test $summary ; then
+    if $summary ; then
         msg="Testing ${fullProduct}"
         printf "%s %s " "${msg}" "${line:${#msg}}"
-        
-
         $testCmd > "${summaryOutputDir}/${fullProduct}.log" 2> /dev/null
+        testExitCode=${?}
     else
         $testCmd
+        testExitCode=${?}
     fi
     endTest=$( date +%s )
 
-
-    if test ${?} -ne 0 ; then
-        if test $summary ; then
-            testResult="FAILED"
-        else
-            echo "TEST FAILURE for ${fullProduct}"
-            exit 1
-        fi
-    else 
-        if test $summary ; then
-            testResult="PASSED"
-        else
-            echo "TEST PASSED for ${fullProduct}"
-        fi
-    fi
-
-    if test $summary ; then
-        if test "${testResult}" = "PASSED" ; then
-            printf '\e[1;32m%s\e[m (%5d sec)\n' "${testResult}" $((endTest-startTest))
-        else
-            printf '\e[1;31m%s\e[m (%5d sec)\n' "${testResult}" $((endTest-startTest))
-        fi
-    fi
-
-    if test $summary ; then
-        ${cleanCmd}  > "${summaryOutputDir}/${fullProduct}.log" 2> /dev/null
+    if test ${testExitCode} -eq 0 ; then
+        $summary && printf '\e[1;32m%s\e[m (%5d sec)\n' "${testResult}" $((endTest-startTest))
+        ! $summary && echo "TEST PASSED for ${fullProduct}"
     else
-        ${cleanCmd}
+        $summary && printf '\e[1;31m%s\e[m (%5d sec)\n' "${testResult}" $((endTest-startTest))
+        ! $summary && echo "TEST FAILURE for ${fullProduct}"
     fi
-    
+    $summary && ${cleanCmd}  > "${summaryOutputDir}/${fullProduct}.log" 2> /dev/null
+    if ! ${summary} ; then
+        ${cleanCmd}
+        test $testExitCode -ne 0 && exit 1
+    fi
 done
