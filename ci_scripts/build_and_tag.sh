@@ -27,6 +27,11 @@ if test  -f "${product}"/versions; then
         is_latest=false
       fi
     fi
+    #if it's latest product version but no sprint, it's still "edge"
+    if ${is_latest} ; then
+      docker tag pingidentity/"${product}":"${version}"-edge pingidentity/"${product}":edge
+      is_latest=false
+    fi
   done
 else
   docker build -t pingidentity/"${product}":edge "${product}"/
