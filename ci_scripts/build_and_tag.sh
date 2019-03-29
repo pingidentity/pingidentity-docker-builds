@@ -10,7 +10,7 @@ sprint=${sprint}
 echo building "${product}"
 if test  -f "${product}"/versions; then
   is_latest=true
-  versions=$(cat "${product}"/versions)
+  versions=$(grep -v "^#" "${product}"/versions)
   for version in ${versions}; do      
     #build the edge version of this product
     docker build -t pingidentity/"${product}":"${version}"-edge --build-arg VERSION="${version}" "${product}"/

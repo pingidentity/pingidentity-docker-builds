@@ -5,7 +5,7 @@ product=${1}
 
 echo testing "${product}"
 if test  -f "${product}"/versions; then
-  versions=$(cat "${product}"/versions)
+  versions=$(grep -v "^#" "${product}"/versions)
   for version in ${versions}; do      
     #test this version of this product
     TAG=${version}-edge docker-compose -f ./"${product}"/build.test.yml up --exit-code-from sut
