@@ -54,6 +54,8 @@ deploy_ldap-sdk-tools:
   script:
     - sh ci_scripts/deploy_to_docker_hub.sh ldap-sdk-tools
   only:
+    refs:
+      - master
     changes:
       - ldap-sdk-tools/*
 
@@ -84,6 +86,8 @@ deploy_pingaccess:
   script:
     - sh ci_scripts/deploy_to_docker_hub.sh pingaccess
   only:
+    refs:
+      - master
     changes:
       - pingaccess/*
       - pingcommon/*
@@ -118,6 +122,8 @@ deploy_pingdirectory:
   script:
     - sh ci_scripts/deploy_to_docker_hub.sh pingdirectory
   only:
+    refs:
+      - master
     changes:
       - pingdirectory/*
       - pingcommon/*
@@ -138,6 +144,8 @@ deploy_pingdataconsole:
   script:
     - sh ci_scripts/deploy_to_docker_hub.sh pingdataconsole
   only:
+    refs:
+      - master
     changes:
       - pingdataconsole/*
       
@@ -170,6 +178,8 @@ deploy_pingdatasync:
   script:
     - sh ci_scripts/deploy_to_docker_hub.sh pingdatasync
   only:
+    refs:
+      - master
     changes:
       - pingdatasync/*
       - pingcommon/*
@@ -203,6 +213,8 @@ deploy_pingfederate:
   script:
     - sh ci_scripts/deploy_to_docker_hub.sh pingfederate
   only:
+    refs:
+      - master
     changes:
       - pingfederate/*
       - pingcommon/*
