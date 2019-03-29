@@ -144,7 +144,7 @@ deploy_pingdataconsole:
 build_pingdatasync:
   stage: build
   script:
-    - sh ci_scripts/build_and_tag.sh pingdatasyne
+    - sh ci_scripts/build_and_tag.sh pingdatasync
   only:
     changes:
       - pingdatasync/*
@@ -156,7 +156,7 @@ build_pingdatasync:
 test_pingdatasync:
   stage: test
   script:
-    - sh ci_scripts/run_tests.sh pingdatasyne
+    - sh ci_scripts/run_tests.sh pingdatasync
   only:
     changes:
       - pingdatasync/*
@@ -168,7 +168,7 @@ test_pingdatasync:
 deploy_pingdatasync:
   stage: deploy
   script:
-    - sh ci_scripts/deploy_to_docker_hub.sh pingdatasyne
+    - sh ci_scripts/deploy_to_docker_hub.sh pingdatasync
   only:
     changes:
       - pingdatasync/*
