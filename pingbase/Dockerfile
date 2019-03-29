@@ -104,7 +104,7 @@ ONBUILD ENV ROOT_USER_DN="cn=administrator"
 ONBUILD ENV PATH="${BASE}:${SERVER_ROOT_DIR}/bin:${PATH}"
 
 # the method by which the framework can assess whether the container is viable or not
-ONBUILD HEALTHCHECK --interval=31s --timeout=30s --start-period=120s --retries=3 CMD [ "liveness.sh" ]
+ONBUILD HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
 
 ONBUILD VOLUME [ "${BAK_DIR}", "${IN_DIR}", "${OUT_DIR}" ]
 ONBUILD WORKDIR ${BASE}
