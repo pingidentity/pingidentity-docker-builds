@@ -4,7 +4,7 @@ set -x
 product=${1}
 #uncomment for local
 #sprint=$(git tag --points-at HEAD | sed 's/sprint-//')
-sprint=$(git tag --points-at "$CI_COMMIT" | sed 's/sprint-//')
+sprint=$(git tag --points-at "$CI_COMMIT_SHA" | sed 's/sprint-//')
 sprint=${sprint}
 
 echo building "${product}"
