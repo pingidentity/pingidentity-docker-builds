@@ -56,6 +56,7 @@ deploy_ldap-sdk-tools:
   only:
     refs:
       - master
+      - tags
     changes:
       - ldap-sdk-tools/*
 
@@ -88,6 +89,7 @@ deploy_pingaccess:
   only:
     refs:
       - master
+      - tags
     changes:
       - pingaccess/*
       - pingcommon/*
@@ -124,6 +126,7 @@ deploy_pingdirectory:
   only:
     refs:
       - master
+      - tags
     changes:
       - pingdirectory/*
       - pingcommon/*
@@ -146,6 +149,7 @@ deploy_pingdataconsole:
   only:
     refs:
       - master
+      - tags
     changes:
       - pingdataconsole/*
       
@@ -180,6 +184,7 @@ deploy_pingdatasync:
   only:
     refs:
       - master
+      - tags
     changes:
       - pingdatasync/*
       - pingcommon/*
@@ -215,6 +220,7 @@ deploy_pingfederate:
   only:
     refs:
       - master
+      - tags
     changes:
       - pingfederate/*
       - pingcommon/*
@@ -254,6 +260,7 @@ push_to_github:
     - sh ci_scripts/push_to_github.sh
   only:
     - master
+    - tags
 
 clean_containers:
   stage: cleanup
