@@ -1,6 +1,6 @@
 FROM pingidentity/pingdownloader as staging
 ARG PRODUCT=pingdatasync
-ARG VERSION=7.2.0.1
+ARG VERSION=7.2.1.0
 
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
