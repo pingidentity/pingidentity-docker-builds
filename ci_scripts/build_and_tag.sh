@@ -14,7 +14,12 @@ if test  -f "${product}"/versions; then
   for version in ${versions}; do      
     #build the edge version of this product
     docker build -t pingidentity/"${product}":"${version}"-edge --build-arg VERSION="${version}" "${product}"/
-    #if it relates to a sprint, tag the spring and as latest for version. 
+    if test ${?} -ne 0 ; then
+        echo "*** BUILD BREAK ***"
+        echo "error on version: ${version}" 
+        exit 76
+    fi
+    #if it relates to a sprint, tag the sprint and as latest for version. 
     if test -n "${sprint}"; then
       docker tag pingidentity/"${product}":"${version}"-edge pingidentity/"${product}":"${sprint}"-"${version}"
       docker tag pingidentity/"${product}":"${version}"-edge pingidentity/"${product}":"${version}"-latest
@@ -35,6 +40,10 @@ if test  -f "${product}"/versions; then
   done
 else
   docker build -t pingidentity/"${product}":edge "${product}"/
+  if test ${?} -ne 0 ; then
+        echo "*** BUILD BREAK ***"
+        exit 76
+  fi
   #tag if sprint, and then also latest
   if test -n "${sprint}"; then
     docker tag pingidentity/"${product}":edge pingidentity/"${product}":latest
