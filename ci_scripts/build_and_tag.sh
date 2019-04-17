@@ -45,7 +45,13 @@ if test  -f "${product}/versions" ; then
                 fi
             fi
         fi
+
+        if test "${os}" = "${defaultOS}" ; then
+            docker tag "${image}:${fullTag}" "${image}:${version}-edge"
+        fi
+    
         if ${is_latest} ; then
+            docker tag "${image}:${fullTag}" "${image}:${os}-edge"
             if test "${os}" = "${defaultOS}" ; then
                 docker tag "${image}:${fullTag}" "${image}:edge"
             fi
