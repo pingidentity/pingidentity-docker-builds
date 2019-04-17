@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-
+set -x
 
 #for local, uncomment:
 # CHANGED_FILES=$(git diff --name-only master HEAD)

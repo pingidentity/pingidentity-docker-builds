@@ -1,4 +1,6 @@
 #!/usr/bin/env  
+set -x
+
 rm -rf /tmp/build
 mkdir -p /tmp/build && cd /tmp/build || exit 9
 
