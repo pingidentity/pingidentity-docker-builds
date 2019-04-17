@@ -8,13 +8,13 @@ sprint=$(git tag --points-at "$CI_COMMIT_SHA" | sed 's/sprint-//')
 sprint=${sprint}
 
 echo building "${product}"
+image="pingidentity/${product}"
 for os in alpine ubuntu centos ; do
     if test  -f "${product}"/versions; then
         is_latest=true
         versions=$(grep -v "^#" "${product}"/versions)
         for version in ${versions}; do
             fullTag="${version}-${os}-edge"
-            image="pingidentity/${product}"
             #build the edge version of this product
             docker build -t "${image}:${fullTag}" --build-arg SHIM=${os} --build-arg VERSION="${version}" "${product}"/
             if test ${?} -ne 0 ; then
