@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 set -x
-H=$( dirname ${0} ; pwd )
+H=$( cd $( dirname ${0} ) ; pwd )
 
 exitCode=0
 for os in alpine ubuntu centos ; do
