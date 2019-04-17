@@ -10,7 +10,6 @@ RUN /get-bits.sh --product ldapsdk --version 4.0.10 \
 COPY wait-for /opt/tools/
 RUN rm -f /opt/tools/*.bat
 
-
 FROM openjdk:8-jre-alpine as ldapsdk
 LABEL	maintainer=devops_program@pingidentity.com \
 		license="GPLv2, LGPLv2.1, Ping Identity UnboundID LDAP SDK Free Use" \
