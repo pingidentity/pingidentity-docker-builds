@@ -1,18 +1,27 @@
 stages: 
+  - ci_setup
   - build_foundation
   - build
   - test
   - deploy
   - cleanup
 
-ci_setup:
-  stage: build_foundation
+env_setup:
+  stage: ci_setup
   script:
     - docker info
     - docker-compose version
     - git --version
     - sh ci_scripts/if_readme_only.sh 
     - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+
+refresh_external_images:
+  stage: ci_setup
+  script:
+    - docker image prune -f
+    - docker rmi -f $(docker images -q)
+  only:
+    - schedules
 
 pingfoundation:
   stage: build_foundation
@@ -29,7 +38,9 @@ pingdownloader:
     - docker push pingidentity/pingdownloader
   only:
     changes:
-      - pingdownloader/*
+      - pingdownloader/**/*
+  except:
+    - schedules
    
 build_ldap-sdk-tools:
   stage: build
@@ -37,8 +48,10 @@ build_ldap-sdk-tools:
     - sh ci_scripts/build_and_tag.sh ldap-sdk-tools
   only:
     changes:
-      - pingdownloader/*
-      - ldap-sdk-tools/*
+      - pingdownloader/**/*
+      - ldap-sdk-tools/**/*
+  except:
+    - schedules
 
 test_ldap-sdk-tools:
   stage: test
@@ -46,19 +59,24 @@ test_ldap-sdk-tools:
     - sh ci_scripts/run_tests.sh ldap-sdk-tools
   only:
     changes:
-      - pingdownloader/*
-      - ldap-sdk-tools/*
+      - pingdownloader/**/*
+      - ldap-sdk-tools/**/*
+  except:
+    - schedules
 
 deploy_ldap-sdk-tools:
   stage: deploy
   script:
     - sh ci_scripts/deploy_to_docker_hub.sh ldap-sdk-tools
+    - sh ci_scripts/deploy_to_gcr.sh ldap-sdk-tools
   only:
     refs:
       - master
       - tags
     changes:
-      - ldap-sdk-tools/*
+      - ldap-sdk-tools/**/*
+  except:
+    - schedules
 
 build_pingaccess:
   stage: build
@@ -66,10 +84,12 @@ build_pingaccess:
     - sh ci_scripts/build_and_tag.sh pingaccess
   only:
     changes:
-      - pingaccess/*
-      - pingcommon/*
-      - pingbase/*
-      - pingdownloader/*
+      - pingaccess/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+  except:
+    - schedules
 
 test_pingaccess:
   stage: test
@@ -77,10 +97,12 @@ test_pingaccess:
     - sh ci_scripts/run_tests.sh pingaccess
   only:
     changes:
-      - pingaccess/*
-      - pingcommon/*
-      - pingbase/*
-      - pingdownloader/*
+      - pingaccess/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+  except:
+    - schedules
       
 deploy_pingaccess:
   stage: deploy
@@ -91,9 +113,11 @@ deploy_pingaccess:
       - master
       - tags
     changes:
-      - pingaccess/*
-      - pingcommon/*
-      - pingbase/*
+      - pingaccess/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+  except:
+    - schedules
 
 build_pingdirectory:
   stage: build
@@ -101,11 +125,13 @@ build_pingdirectory:
     - sh ci_scripts/build_and_tag.sh pingdirectory
   only:
     changes:
-      - pingdirectory/*
-      - pingcommon/*
-      - pingdatacommon/*
-      - pingbase/*
-      - pingdownloader/*
+      - pingdirectory/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+  except:
+    - schedules
 
 test_pingdirectory:
   stage: test
@@ -113,11 +139,13 @@ test_pingdirectory:
     - sh ci_scripts/run_tests.sh pingdirectory
   only:
     changes:
-      - pingdirectory/*
-      - pingcommon/*
-      - pingdatacommon/*
-      - pingbase/*
-      - pingdownloader/*
+      - pingdirectory/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+  except:
+    - schedules
 
 deploy_pingdirectory:
   stage: deploy
@@ -128,10 +156,12 @@ deploy_pingdirectory:
       - master
       - tags
     changes:
-      - pingdirectory/*
-      - pingcommon/*
-      - pingdatacommon/*
-      - pingbase/*
+      - pingdirectory/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+  except:
+    - schedules
 
 build_pingdataconsole:
   stage: build
@@ -139,8 +169,10 @@ build_pingdataconsole:
     - sh ci_scripts/build_and_tag.sh pingdataconsole
   only:
     changes:
-      - pingdataconsole/*
-      - pingdownloader/*
+      - pingdataconsole/**/*
+      - pingdownloader/**/*
+  except:
+    - schedules
 
 deploy_pingdataconsole:
   stage: deploy
@@ -151,7 +183,9 @@ deploy_pingdataconsole:
       - master
       - tags
     changes:
-      - pingdataconsole/*
+      - pingdataconsole/**/*
+  except:
+    - schedules
       
 build_pingdatasync:
   stage: build
@@ -159,11 +193,13 @@ build_pingdatasync:
     - sh ci_scripts/build_and_tag.sh pingdatasync
   only:
     changes:
-      - pingdatasync/*
-      - pingcommon/*
-      - pingdatacommon/*
-      - pingbase/*
-      - pingdownloader/*
+      - pingdatasync/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+  except:
+    - schedules
 
 test_pingdatasync:
   stage: test
@@ -171,11 +207,13 @@ test_pingdatasync:
     - sh ci_scripts/run_tests.sh pingdatasync
   only:
     changes:
-      - pingdatasync/*
-      - pingcommon/*
-      - pingdatacommon/*
-      - pingbase/*
-      - pingdownloader/*
+      - pingdatasync/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+  except:
+    - schedules
 
 deploy_pingdatasync:
   stage: deploy
@@ -186,10 +224,12 @@ deploy_pingdatasync:
       - master
       - tags
     changes:
-      - pingdatasync/*
-      - pingcommon/*
-      - pingdatacommon/*
-      - pingbase/*
+      - pingdatasync/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+  except:
+    - schedules
 
 build_pingfederate:
   stage: build
@@ -197,10 +237,12 @@ build_pingfederate:
     - sh ci_scripts/build_and_tag.sh pingfederate
   only:
     changes:
-      - pingfederate/*
-      - pingcommon/*
-      - pingbase/*
-      - pingdownloader/*
+      - pingfederate/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+  except:
+    - schedules
 
 test_pingfederate:
   stage: test
@@ -208,10 +250,12 @@ test_pingfederate:
     - sh ci_scripts/run_tests.sh pingfederate
   only:
     changes:
-      - pingfederate/*
-      - pingcommon/*
-      - pingbase/*
-      - pingdownloader/*
+      - pingfederate/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+  except:
+    - schedules
 
 deploy_pingfederate:
   stage: deploy
@@ -222,9 +266,11 @@ deploy_pingfederate:
       - master
       - tags
     changes:
-      - pingfederate/*
-      - pingcommon/*
-      - pingbase/*
+      - pingfederate/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+  except:
+    - schedules
 
 # pingdirectoryproxy:
 #   stage: build
@@ -233,11 +279,11 @@ deploy_pingfederate:
 #     - docker push pingidentity/pingdirectoryproxy
 #   only:
 #     changes:
-#       - pingdirectoryproxy/*
-#       - pingcommon/*
-#       - pingdatacommon/*
-#       - pingbase/*
-#       - pingdownloader/*
+#       - pingdirectoryproxy/**/*
+#       - pingcommon/**/*
+#       - pingdatacommon/**/*
+#       - pingbase/**/*
+#       - pingdownloader/**/*
 # pingdelegator:
 #   stage: build
 #   script:
@@ -248,10 +294,10 @@ deploy_pingfederate:
 #     - docker push pingidentity/pingdelegator
 #   only:
 #     changes:
-#       - pingdelegator/*
-#       - pingcommon/*
-#       - pingbase/*
-#       - pingdownloader/*
+#       - pingdelegator/**/*
+#       - pingcommon/**/*
+#       - pingbase/**/*
+#       - pingdownloader/**/*
 
 push_to_github:
   stage: deploy
@@ -261,8 +307,10 @@ push_to_github:
   only:
     - master
     - tags
+  except:
+    - schedules
 
-clean_containers:
+clean_environment:
   stage: cleanup
   script:
     - sh ci_scripts/docker-cleanup.sh
