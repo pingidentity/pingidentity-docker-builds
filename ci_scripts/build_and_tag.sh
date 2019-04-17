@@ -50,7 +50,7 @@ if test  -f "${product}"/versions; then
     done
 else
     fullTag="${os}-edge"
-    docker build -t "${image}:${fullTag}" --build-tag SHIM=${os} "${product}"/
+    docker build -t "${image}:${fullTag}" --build-arg SHIM=${os} "${product}"/
     if test ${?} -ne 0 ; then
             echo "*** BUILD BREAK ***"
             exit 76
