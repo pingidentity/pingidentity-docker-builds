@@ -4,3 +4,4 @@ services:
     build: .
     image: pingidentity/ldap-sdk-tools:${TAG}
     command: ldapsearch --help
+    
