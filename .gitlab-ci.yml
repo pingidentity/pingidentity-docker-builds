@@ -26,10 +26,7 @@ refresh_external_images:
 pingfoundation:
   stage: build_foundation
   script:
-    - docker image prune -f
-    - docker rmi -f pingidentity/pingcommon
-    - docker rmi -f pingidentity/pingcdataommon
-    - docker rmi -f $(docker images "pingidentity/pingbase*" -q)
+    - sh ci_scripts/prep_build_foundation.sh
     - docker image build -t pingidentity/pingcommon ./pingcommon
     - docker image build -t pingidentity/pingdatacommon ./pingdatacommon
     - for os in alpine ubuntu centos ; do docker image build --build-arg SHIM=${os} -t pingidentity/pingbase:${os} ./pingbase ; done
