@@ -81,7 +81,7 @@ deploy_ldap-sdk-tools:
 build_pingaccess:
   stage: build
   script:
-    - sh ci_scripts/build_and_tag.sh pingaccess
+    - ci_scripts/build_product.sh pingaccess
   only:
     changes:
       - pingaccess/**/*
@@ -122,7 +122,7 @@ deploy_pingaccess:
 build_pingdirectory:
   stage: build
   script:
-    - sh ci_scripts/build_and_tag.sh pingdirectory
+    - sh ci_scripts/build_product.sh pingdirectory
   only:
     changes:
       - pingdirectory/**/*
@@ -190,7 +190,7 @@ deploy_pingdataconsole:
 build_pingdatasync:
   stage: build
   script:
-    - sh ci_scripts/build_and_tag.sh pingdatasync
+    - sh ci_scripts/build_product.sh pingdatasync
   only:
     changes:
       - pingdatasync/**/*
@@ -234,7 +234,7 @@ deploy_pingdatasync:
 build_pingfederate:
   stage: build
   script:
-    - sh ci_scripts/build_and_tag.sh pingfederate
+    - sh ci_scripts/build_product.sh pingfederate
   only:
     changes:
       - pingfederate/**/*
