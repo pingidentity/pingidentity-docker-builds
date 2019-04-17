@@ -1,3 +1,6 @@
+# Default to Alpine
+ARG SHIM=alpine
+
 FROM pingidentity/pingdownloader as staging
 # place the software being delivered in a conspicuous, unix-correct location
 ARG PRODUCT=pingaccess
@@ -14,7 +17,7 @@ COPY [ "liveness.sh", "/opt/" ]
 #
 # the final image 
 #
-FROM pingidentity/pingbase
+FROM pingidentity/pingbase:${SHIM}
 # pingaccess comes ootb listening on 3000 but it is more natural for https traffic to be listened for on 443
 EXPOSE 9000 3000 ${HTTPS_PORT}
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"

@@ -1,4 +1,41 @@
-FROM openjdk:8-jre-alpine
+# Default to Alpine
+ARG SHIM=alpine
+
+#
+# Ubuntu disco OpenJDK11 shim
+#
+FROM ubuntu:disco as shim-ubuntu
+ONBUILD LABEL	maintainer=devops_program@pingidentity.com \
+		license="Ping Identity Proprietary" \
+		vendor="Ping Identity Corp." \
+		name="Ping Identity (Ubuntu/OpenJDK11) Image"
+
+ONBUILD RUN apt update -y \
+        && apt upgrade -y \
+        && apt install -y openjdk-11-jdk curl gettext-base git jq unzip \
+        && mkdir -p ${BASE}/tests
+
+
+#
+# Centos shim
+#
+FROM centos as shim-centos
+ONBUILD LABEL	maintainer=devops_program@pingidentity.com \
+		license="Ping Identity Proprietary" \
+		vendor="Ping Identity Corp." \
+		name="Ping Identity (CentOS/OpenJDK11) Image"
+
+ONBUILD RUN yum update -y \
+        && yum upgrade -y \
+        && yum -y install epel-release \
+        && yum -y install java-11-openjdk-devel git jq unzip \
+        && mkdir -p ${BASE}/tests
+        
+
+#
+# The good shim
+# 
+FROM openjdk:8-jre-alpine as shim-alpine
 ONBUILD LABEL	maintainer=devops_program@pingidentity.com \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp." \
@@ -10,6 +47,9 @@ ONBUILD RUN apk --no-cache add git curl ca-certificates jq zip \
     && cp /usr/bin/envsubst /usr/local/bin/envsubst \
     && apk del build_deps \
     && mkdir -p ${BASE}/tests
+
+
+FROM shim-${SHIM} 
 # the image base /might/ be changed at build-time but
 # be aware that the entrypoint will have to be
 # overridden to reflect the change

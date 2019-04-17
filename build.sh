@@ -18,36 +18,47 @@ buildAndTag ()
 }
 
 productsToBuild="${1:-federate access datasync directory}"
-for product in common datacommon base ; do
+
+for product in common datacommon ; do
     buildAndTag ${product} latest
     if test ${?} -ne 0 ; then
         echo "*** BUILD BREAK ***"
-        echo ${image}
-        exit 76
+        echo "${image}"
+        exit 75
     fi
 done
 
-for product in $productsToBuild ; do
-    if ! test -f ${c}${product}/versions ; then
-        buildAndTag ${product} edge
-        if test ${?} -ne 0 ; then
-            echo "*** BUILD BREAK ***"
-            echo ${image}
-            exit 77
-        fi
-    else
-        firstImage=true
-        for VERSION in $( cat ${c}${product}/versions | grep -v '^#' ) ; do
-            buildAndTag ${product} ${VERSION}-edge --build-arg VERSION=${VERSION}
+for shim in alpine ubuntu centos ; do
+    # docker image rm -f ${p}/${c}base
+    buildAndTag base ${shim} --build-arg SHIM=${shim}
+    if test ${?} -ne 0 ; then
+        echo "*** BUILD BREAK ***"
+        echo "${image}"
+        exit 76
+    fi
+
+    for product in $productsToBuild ; do
+        if ! test -f ${c}${product}/versions ; then
+            buildAndTag ${product} edge --build-arg SHIM=${shim}
             if test ${?} -ne 0 ; then
                 echo "*** BUILD BREAK ***"
-                echo ${image}
-                exit 78
+                echo "${image}"
+                exit 77
             fi
-            if ${firstImage} ; then
-                docker tag ${p}/${c}${product}:${VERSION}-edge ${p}/${c}${product}:edge
-                firstImage=false
-            fi
-        done
-    fi
+        else
+            firstImage=true
+            for VERSION in $( cat ${c}${product}/versions | grep -v '^#' ) ; do
+                buildAndTag ${product} ${VERSION}-${shim}-edge --build-arg VERSION=${VERSION}  --build-arg SHIM=${shim}
+                if test ${?} -ne 0 ; then
+                    echo "*** BUILD BREAK ***"
+                    echo "${image}"
+                    exit 78
+                fi
+                if ${firstImage} && test "${shim}" = "alpine" ; then
+                    docker tag ${p}/${c}${product}:${VERSION}-${shim}-edge ${p}/${c}${product}:edge
+                    firstImage=false
+                fi
+            done
+        fi
+    done
 done

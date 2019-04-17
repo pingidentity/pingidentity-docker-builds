@@ -1,3 +1,6 @@
+# Default to Alpine
+ARG SHIM=alpine
+
 FROM pingidentity/pingdownloader as staging
 ARG PRODUCT=pingdatasync
 ARG VERSION=7.2.1.0
@@ -23,7 +26,7 @@ COPY [ "build.test.sh", "/opt/tests/" ]
 #
 # The final image
 #
-FROM pingidentity/pingbase
+FROM pingidentity/pingbase:${SHIM}
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT}
 ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/sync"
 ENV LICENSE_FILE_NAME="PingDirectory.lic"

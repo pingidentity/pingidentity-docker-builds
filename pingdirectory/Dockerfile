@@ -1,3 +1,6 @@
+# Default to Alpine
+ARG SHIM=alpine
+
 FROM pingidentity/pingdownloader as staging
 ARG PRODUCT=pingdirectory
 ARG VERSION=7.2.1.0
@@ -22,7 +25,7 @@ COPY [ "hooks/","/opt/staging/hooks/" ]
 #
 # The final image
 #
-FROM pingidentity/pingbase
+FROM pingidentity/pingbase:${SHIM}
 ENV LICENSE_FILE_NAME=PingDirectory.lic
 # This is a candidate to move to pingbase
 ENV REPLICATION_PORT=8989

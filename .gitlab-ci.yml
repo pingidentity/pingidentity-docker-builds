@@ -28,7 +28,7 @@ pingfoundation:
   script:
     - docker image build -t pingidentity/pingcommon ./pingcommon
     - docker image build -t pingidentity/pingdatacommon ./pingdatacommon
-    - docker image build -t pingidentity/pingbase ./pingbase
+    - for os in alpine ubuntu centos ; do docker image build --build-arg SHIM=${os} -t pingidentity/pingbase:alpine ./pingbase ; done
 
 pingdownloader:
   stage: build_foundation

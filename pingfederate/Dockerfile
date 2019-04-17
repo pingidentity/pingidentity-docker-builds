@@ -1,3 +1,6 @@
+# Default to Alpine
+ARG SHIM=alpine
+
 FROM pingidentity/pingdownloader as staging
 ARG PRODUCT=pingfederate
 ARG VERSION=9.2.1
@@ -13,7 +16,7 @@ COPY [ "run.sh", "/opt/server/bin/run.sh" ]
 #
 # the final image 
 #
-FROM pingidentity/pingbase
+FROM pingidentity/pingbase:${SHIM}
 EXPOSE 9031 9999
 ENV OPERATIONAL_MODE="STANDALONE"
 ENV CLUSTER_BIND_ADDRESS="NON_LOOPBACK"
