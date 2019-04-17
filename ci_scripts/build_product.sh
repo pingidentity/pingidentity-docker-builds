@@ -2,6 +2,8 @@
 set -x
 H=$( cd $( dirname ${0} ) ; pwd )
 
+test -z "${1}" && exit 199
+
 exitCode=0
 for os in alpine ubuntu centos ; do
     "${H}/build_and_tag.sh" "${1}" "${os}"

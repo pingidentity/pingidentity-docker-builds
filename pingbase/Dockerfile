@@ -10,9 +10,11 @@ ONBUILD LABEL	maintainer=devops_program@pingidentity.com \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity (Ubuntu/OpenJDK11) Image"
 
-ONBUILD RUN apt update -y \
-        && apt upgrade -y \
-        && apt install -y openjdk-11-jdk curl gettext-base git jq unzip \
+ONBUILD RUN apt -y update \
+        && apt -y  upgrade \
+        && apt -y install apt-utils \
+        && apt -y install  openjdk-11-jdk curl git jq unzip \
+        && apt-get -y automremove \ 
         && mkdir -p ${BASE}/tests
 
 

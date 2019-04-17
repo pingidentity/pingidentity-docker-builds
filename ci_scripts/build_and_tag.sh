@@ -3,6 +3,9 @@ set -x
 defaultOS=alpine
 product=${1}
 os=${2:-${defaultOS}}
+
+test -z "${product}" && exit 199
+
 #uncomment for local
 #sprint=$(git tag --points-at HEAD | sed 's/sprint-//')
 sprint=$(git tag --points-at "$CI_COMMIT_SHA" | sed 's/sprint-//')
@@ -10,10 +13,11 @@ sprint=${sprint}
 
 echo building "${product}"
 image="pingidentity/${product}"
-if test  -f "${product}"/versions; then
-    is_latest=true
+if test  -f "${product}/versions" ; then
     versions=$(grep -v "^#" "${product}"/versions)
-    for version in ${versions}; do
+    echo "Buildind versions: ${versions}"
+    is_latest=true
+    for version in ${versions} ; do
         fullTag="${version}-${os}-edge"
         #build the edge version of this product
         docker build -t "${image}:${fullTag}" --build-arg SHIM=${os} --build-arg VERSION="${version}" "${product}"/
@@ -24,7 +28,7 @@ if test  -f "${product}"/versions; then
             exit 76
         fi
         #if it relates to a sprint, tag the sprint and as latest for version. 
-        if test -n "${sprint}"; then
+        if test -n "${sprint}" ; then
             docker tag "${image}:${fullTag}" "${image}:${sprint}-${os}-${version}"
             if ${is_latest} ; then
                 docker tag "${image}:${fullTag}" "${image}:${sprint}-${os}-latest"
@@ -49,6 +53,7 @@ if test  -f "${product}"/versions; then
         fi
     done
 else
+    echo "Version-less build"
     fullTag="${os}-edge"
     docker build -t "${image}:${fullTag}" --build-arg SHIM=${os} "${product}"/
     if test ${?} -ne 0 ; then
