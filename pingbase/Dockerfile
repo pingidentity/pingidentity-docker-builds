@@ -14,7 +14,7 @@ ONBUILD RUN apt -y update \
         && apt -y  upgrade \
         && apt -y install apt-utils \
         && apt -y install  openjdk-11-jdk curl git jq unzip \
-        && apt-get -y automremove \ 
+        && apt-get -y autoremove \ 
         && mkdir -p ${BASE}/tests
 
 
