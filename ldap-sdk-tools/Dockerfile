@@ -1,7 +1,7 @@
 FROM pingidentity/pingdownloader as staging
 
 # copy your product zip file into the staging image
-RUN /get-bits.sh --product ldapsdk --version 4.0.9 \
+RUN /get-bits.sh --product ldapsdk --version 4.0.10 \
 	&& unzip /tmp/product.zip -d /tmp/ \
 	&& rm /tmp/unboundid-ldapsdk-*/tools/*.bat \
 	&& mv /tmp/unboundid-ldapsdk-*/tools /opt/ \
