@@ -9,3 +9,4 @@ services:
       - SERVER_PROFILE_PATH=pingfederate
     command: start-server /opt/wait-for localhost:9031 -t 300 -- /opt/liveness.sh
 
+    

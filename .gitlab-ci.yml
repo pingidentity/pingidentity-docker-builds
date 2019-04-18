@@ -26,9 +26,16 @@ refresh_external_images:
 pingfoundation:
   stage: build_foundation
   script:
+    - sh ci_scripts/prep_build_foundation.sh
     - docker image build -t pingidentity/pingcommon ./pingcommon
     - docker image build -t pingidentity/pingdatacommon ./pingdatacommon
     - for os in alpine ubuntu centos ; do docker image build --build-arg SHIM=${os} -t pingidentity/pingbase:${os} ./pingbase ; done
+  only:
+    changes:
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      
 
 pingdownloader:
   stage: build_foundation
@@ -108,6 +115,7 @@ deploy_pingaccess:
   stage: deploy
   script:
     - sh ci_scripts/deploy_to_docker_hub.sh pingaccess
+    - sh ci_scripts/deploy_to_gcr.sh pingaccess
   only:
     refs:
       - master
@@ -151,6 +159,7 @@ deploy_pingdirectory:
   stage: deploy
   script:
     - sh ci_scripts/deploy_to_docker_hub.sh pingdirectory
+    - sh ci_scripts/deploy_to_gcr.sh pingdirectory
   only:
     refs:
       - master
@@ -178,6 +187,7 @@ deploy_pingdataconsole:
   stage: deploy
   script:
     - sh ci_scripts/deploy_to_docker_hub.sh pingdataconsole
+    - sh ci_scripts/deploy_to_gcr.sh pingdataconsole
   only:
     refs:
       - master
@@ -219,6 +229,7 @@ deploy_pingdatasync:
   stage: deploy
   script:
     - sh ci_scripts/deploy_to_docker_hub.sh pingdatasync
+    - sh ci_scripts/deploy_to_gcr.sh pingdatasync
   only:
     refs:
       - master
@@ -261,6 +272,7 @@ deploy_pingfederate:
   stage: deploy
   script:
     - sh ci_scripts/deploy_to_docker_hub.sh pingfederate
+    - sh ci_scripts/deploy_to_gcr.sh pingfederate
   only:
     refs:
       - master
