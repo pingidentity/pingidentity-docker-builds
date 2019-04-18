@@ -14,6 +14,9 @@ env_setup:
     - git --version
     - sh ci_scripts/if_readme_only.sh 
     - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 refresh_external_images:
   stage: ci_setup
@@ -21,7 +24,11 @@ refresh_external_images:
     - docker image prune -f
     - docker rmi -f $(docker images -q)
   only:
-    - schedules
+    refs:
+      - schedules
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 pingfoundation:
   stage: build_foundation
@@ -35,6 +42,9 @@ pingfoundation:
       - pingbase/**/*
       - pingcommon/**/*
       - pingdatacommon/**/*
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       
 
 pingdownloader:
@@ -47,7 +57,10 @@ pingdownloader:
     changes:
       - pingdownloader/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
    
 build_ldap-sdk-tools:
   stage: build
@@ -58,7 +71,10 @@ build_ldap-sdk-tools:
       - pingdownloader/**/*
       - ldap-sdk-tools/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 test_ldap-sdk-tools:
   stage: test
@@ -69,7 +85,10 @@ test_ldap-sdk-tools:
       - pingdownloader/**/*
       - ldap-sdk-tools/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 deploy_ldap-sdk-tools:
   stage: deploy
@@ -83,7 +102,10 @@ deploy_ldap-sdk-tools:
     changes:
       - ldap-sdk-tools/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 build_pingaccess:
   stage: build
@@ -96,7 +118,10 @@ build_pingaccess:
       - pingbase/**/*
       - pingdownloader/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 test_pingaccess:
   stage: test
@@ -109,7 +134,10 @@ test_pingaccess:
       - pingbase/**/*
       - pingdownloader/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       
 deploy_pingaccess:
   stage: deploy
@@ -125,7 +153,10 @@ deploy_pingaccess:
       - pingcommon/**/*
       - pingbase/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 build_pingdirectory:
   stage: build
@@ -139,7 +170,10 @@ build_pingdirectory:
       - pingbase/**/*
       - pingdownloader/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 test_pingdirectory:
   stage: test
@@ -153,7 +187,10 @@ test_pingdirectory:
       - pingbase/**/*
       - pingdownloader/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 deploy_pingdirectory:
   stage: deploy
@@ -170,7 +207,10 @@ deploy_pingdirectory:
       - pingdatacommon/**/*
       - pingbase/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 build_pingdataconsole:
   stage: build
@@ -181,7 +221,10 @@ build_pingdataconsole:
       - pingdataconsole/**/*
       - pingdownloader/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 deploy_pingdataconsole:
   stage: deploy
@@ -195,7 +238,10 @@ deploy_pingdataconsole:
     changes:
       - pingdataconsole/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       
 build_pingdatasync:
   stage: build
@@ -209,7 +255,10 @@ build_pingdatasync:
       - pingbase/**/*
       - pingdownloader/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 test_pingdatasync:
   stage: test
@@ -223,7 +272,10 @@ test_pingdatasync:
       - pingbase/**/*
       - pingdownloader/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 deploy_pingdatasync:
   stage: deploy
@@ -240,7 +292,10 @@ deploy_pingdatasync:
       - pingdatacommon/**/*
       - pingbase/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 build_pingfederate:
   stage: build
@@ -253,7 +308,10 @@ build_pingfederate:
       - pingbase/**/*
       - pingdownloader/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 test_pingfederate:
   stage: test
@@ -266,7 +324,10 @@ test_pingfederate:
       - pingbase/**/*
       - pingdownloader/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 deploy_pingfederate:
   stage: deploy
@@ -282,7 +343,10 @@ deploy_pingfederate:
       - pingcommon/**/*
       - pingbase/**/*
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 # pingdirectoryproxy:
 #   stage: build
@@ -296,6 +360,9 @@ deploy_pingfederate:
 #       - pingdatacommon/**/*
 #       - pingbase/**/*
 #       - pingdownloader/**/*
+#     except:
+#       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+
 # pingdelegator:
 #   stage: build
 #   script:
@@ -310,6 +377,8 @@ deploy_pingfederate:
 #       - pingcommon/**/*
 #       - pingbase/**/*
 #       - pingdownloader/**/*
+#     except:
+#       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 push_to_github:
   stage: deploy
@@ -317,13 +386,20 @@ push_to_github:
     - git --version
     - sh ci_scripts/push_to_github.sh
   only:
-    - master
-    - tags
+    refs:
+      - master
+      - tags
   except:
-    - schedules
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 clean_environment:
   stage: cleanup
   script:
     - sh ci_scripts/docker-cleanup.sh
   when: always
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
