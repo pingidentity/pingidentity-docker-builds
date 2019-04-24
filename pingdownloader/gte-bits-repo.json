@@ -14,7 +14,7 @@
         {
             "name": "pingaccess",
             "mapping": "pingaccess-${version}.zip",
-            "latestVersion": "5.2.0"
+            "latestVersion": "5.2.2"
         },
         {
             "name": "pingdatagovernance",
