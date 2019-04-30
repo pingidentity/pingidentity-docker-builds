@@ -13,23 +13,22 @@ getProfile ()
 {
     serverProfileUrl=$( getValue "${1}_URL" )
     serverProfileBranch=$( getValue "${1}_BRANCH" )
-    serverProfileTag=$( getValue "${1}_TAG" )
     serverProfilePath=$( getValue "${1}_PATH" )
 
     # this is a precaution because git clone needs an empty target
     rm -rf "${SERVER_PROFILE_DIR}"
     if test -n "${serverProfileUrl}" ; then
         # deploy configuration if provided
-        git clone "${serverProfileUrl}" "${SERVER_PROFILE_DIR}"
+        git clone --depth 1 ${serverProfileBranch:+--branch} ${serverProfileBranch} "${serverProfileUrl}" "${SERVER_PROFILE_DIR}"
         die_on_error 141 "Git clone failure"  || exit ${?}
-        if test -n "${serverProfileBranch}" ; then
-            # https://github.com/koalaman/shellcheck/wiki/SC2103
-            (
-            cd "${SERVER_PROFILE_DIR}" || return
-            git checkout "${serverProfileBranch}"
-            die_on_error 14 "Git checkout failure (bad branch name?)"
-            )
-        fi
+        # if test -n "${serverProfileBranch}" ; then
+        #     # https://github.com/koalaman/shellcheck/wiki/SC2103
+        #     (
+        #     cd "${SERVER_PROFILE_DIR}" || return
+        #     git checkout "${serverProfileBranch}"
+        #     die_on_error 14 "Git checkout failure (bad branch name?)"
+        #     )
+        # fi
         # shellcheck disable=SC2086
         cp -af ${SERVER_PROFILE_DIR}/${serverProfilePath}/* "${STAGING_DIR}"
         die_on_error 142 "Copy to staging failure"  || exit ${?}
