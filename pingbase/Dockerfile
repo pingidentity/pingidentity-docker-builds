@@ -79,7 +79,7 @@ ONBUILD ENV TOPOLOGY_FILE=${STAGING_DIR}/topology.json
 ONBUILD ENV HOOKS_DIR=${STAGING_DIR}/hooks
 # the path where the remote server profile is checked out or cloned
 # before being staged prior to being applied on the runtime
-ONBUILD ENV SERVER_PROFILE_DIR=${BASE}/server-profile
+ONBUILD ENV SERVER_PROFILE_DIR=/tmp/server-profile
 # A valid git HTTPS URL (not ssh)
 ONBUILD ENV SERVER_PROFILE_URL=""
 # the branch
