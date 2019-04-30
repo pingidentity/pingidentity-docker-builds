@@ -4,7 +4,7 @@ services:
     build: .
     image: pingidentity/pingaccess:${TAG}
     environment:
-      - SERVER_PROFILE_URL=https://github.com/pingidentity/server-profile-pingidentity-getting-started.git
-      - SERVER_PROFILE_PATH=pingaccess
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=getting-started/pingaccess
       - VERBOSE=true
     command: start-server /opt/wait-for localhost:9000 -t 180 -- curl -k https://localhost:9000/
