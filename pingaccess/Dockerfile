@@ -20,6 +20,10 @@ COPY [ "liveness.sh", "/opt/" ]
 FROM pingidentity/pingbase:${SHIM}
 # pingaccess comes ootb listening on 3000 but it is more natural for https traffic to be listened for on 443
 EXPOSE 9000 3000 ${HTTPS_PORT}
+ENV LICENSE_DIR="${SERVER_ROOT_DIR}/conf"
+ENV LICENSE_FILE_NAME=pingaccess.lic
+ENV LICENSE_SHORT_NAME=PA
+ENV LICENSE_VERSION=5.2
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/pingaccess.log
 COPY --from=pingidentity/pingcommon "/opt" "${BASE}"

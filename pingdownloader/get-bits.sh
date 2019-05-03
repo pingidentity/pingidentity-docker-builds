@@ -12,25 +12,53 @@ usage ()
 	cat <<END_USAGE1
 Usage: ${TOOL_NAME} {options}
     where {options} include:
-        *-p, --product:	the name of the product to download
-                        one of:
+
+This tool can be used to download either product binaries (.zip) files or 
+product evaluation licenses (.lic).  By default, the product binaries will
+be downlaoded.  If the -l option is provided then only a license will be 
+downloaded.  If a license is pulled, a Ping DevOps Key/User is required.
+
+Options include:
+    *-p, --product {product-name}    The name of the product bits/license to download
+    -v, --version {version-num}      The version of the product bits/license to download.
+                                     by default, the downloader will pull the 
+                                     latest version
+
+For product downloads:
+    -c, --conserve-name              Use this option to conserve the original 
+                                     file name by default, the downloader will
+                                     rename the file product.zip
+    -n, --dry-run:                   This will cause the URL to be displayed 
+                                     but the the bits not to be downloaded
+
+
+For license downloads:
+    *-l, --license                   Download a license file
+    *-u, --devops-user {devops-user} Your Ping DevOps Username
+    *-k, --devops-key {devops-key}   Your Ping DevOps Key
+    -a, --devops-app {app-name}      Your App Name
+    
+Where {product-name} is one of:
 END_USAGE1
 
 	for prodName in ${availableProducts}; do
-	    echo "                            ${prodName}"
+	    echo "   ${prodName}"
 	done
     
 	cat <<END_USAGE2
-        -v, --version: the version of the product to download.
-		               by default, the downloader will pull the latest version
-        -c, --conserve-name: use this option to conserve the original file name
-                             by default, the downloader will rename the file product.zip
-        -n, --dry-run:	this will cause the URL to be displayed but the
-                        the bits not to be downloaded
+
+Example:
+
+    Pull the latest version of PingDirectory down to a product.zip file
+
+        ${TOOL_NAME} -p pingdirectory
+
+    Pull the 9.3 version of PingFederate eval license file down to a product.lic
+
+        ${TOOL_NAME} -p pingfederate -v 9.3 -l -u john@example.com \\
+                    -k 94019ea5-ecca-49a4-8962-990130df3815 -a pingdownloader
+
 END_USAGE2
-# Future
-#       -k, --devops-key: future Use. Ping DevOps ID used to download product and license
-#		-s, --devops-secret: future Use. Ping DevOps Secret used to download product and license
 	exit 77
 }
 
@@ -51,11 +79,6 @@ END_USAGE2
 ##########################################################################################
 getProps ()
 {
-    propsURL="https://s3.amazonaws.com/gte-bits-repo/"
-    getBitsProps="gte-bits-repo.json"
-
-	outputProps="/${getBitsProps}"
-
     curlResult=$( curl -kL -w '%{http_code}' ${propsURL}${getBitsProps} -o ${outputProps} 2>/dev/null )
 
 	! test $curlResult -eq 200 && usage "Unable to get bits metadata. Network Issue?"
@@ -113,12 +136,16 @@ getProductURL ()
 	test "${prodURL}" = "null" && usage "Unable to determine download URL for ${product}"
 }
 
+propsURL="https://s3.amazonaws.com/gte-bits-repo/"
+getBitsProps="gte-bits-repo.json"
+
+outputProps="/tmp/${getBitsProps}"
+
 getProps
 
 product=""
 version=""
 dryRun=""
-output="product.zip"
 while ! test -z "${1}" ; do
     case "${1}" in
         -p|--product)
@@ -139,16 +166,24 @@ while ! test -z "${1}" ; do
 			test -z "${1}" && usage "Product version missing"
 			version=${1}
 			;;
-#		-k|--devops-key)
-#			shift
-#			test -z "${1}" && usage "Ping DevOps Key missing"
-#			devopsID=${1}
-#			;;
-#		-s|--devops-secret)
-#			shift
-#			test -z "${1}" && usage "Ping DevOps Secret missing"
-#			devopsSecret=${1}
-#			;;
+		-l|--license)
+		    pullLicense=true
+			;;
+		-k|--devops-key)
+			shift
+			test -z "${1}" && usage "Ping DevOps Key missing"
+			devopsKey=${1}
+			;;
+		-u|--devops-user)
+			shift
+			test -z "${1}" && usage "Ping DevOps Username missing"
+			devopsUser=${1}
+			;;
+		-a|--devops-app)
+			shift
+			test -z "${1}" && usage "Ping DevOps AppName missing"
+			devopsApp=${1}
+			;;
 		-c|--conserve-name)
 		    conserveName=true
 			;;
@@ -172,12 +207,42 @@ getProductVersion
 getProductFile
 getProductURL
 
-# Construct the url used to pull the product down
-url="${prodURL}${prodFile}"
+if test ${pullLicense} ; then
+    test -z ${devopsKey} && usage "Option --devops-key {devops-key} required for eval license"
+    test -z ${devopsUser} && usage "Option --devops-user {devops-user} required for eval license"
+    test -z ${devopsApp} && devopsApp="pingdownloader"
 
-# If we should conserve the name of the download, set the output to the
-# productFile name
-test ${conserveName} && output=${prodFile}
+    case "${product}" in
+        pingdirectory|pingdatasync|pingdirectoryproxy|pingdatametrics)
+           productShortName="PD"
+           ;;
+        pingaccess)
+           productShortName="PA"
+           ;;
+        pingdatagovernance)
+           productShortName="PDG"
+           ;;
+        pingfederate)
+           productShortName="PF"
+           ;;
+        *)
+           usage "No license files available for $product"
+        ;;
+    esac
+    url="https://license.pingidentity.com/devops/licensekey"
+    
+    output="product.lic"
+else
+    # Construct the url used to pull the product down
+    url="${prodURL}${prodFile}"
+
+    # If we should conserve the name of the download, set the output to the
+    # productFile name
+    output="product.zip"
+
+    test ${conserveName} && output=${prodFile}
+fi
+
 
 echo "
 ######################################################################
@@ -186,18 +251,33 @@ echo "
 #          PRODUCT: ${product}
 #          VERSION: ${version} ${latestStr}"
 
-if test -z "${dryRun}" ; then
-	echo "#      DOWNLOADING: ${prodFile}"
-	echo "#               TO: ${output}" 
-	echo "######################################################################"
-	cd /tmp || exit 2
-	curlResult=$( curl -kL -w '%{http_code}' "${url}" -o "${output}" )
+if test ${pullLicense} ; then
+        echo "#      DOWNLOADING: product.lic"  
+    	echo "#               TO: ${output}" 
+	    cd /tmp || exit 2
+	    curlResult=$( curl -kL -w '%{http_code}' -G \
+          --data-urlencode "product=${productShortName}" \
+          --data-urlencode "version=${version}" \
+          --data-urlencode "user=${devopsUser}" \
+          --data-urlencode "devops-key=${devopsKey}" \
+          --data-urlencode "devops-app=${devopsApp}" \
+          "${url}" -o "${output}" )
 
-	! test $curlResult -eq 200 && echo "Unable to download ${prodFile}" && exit 1
+	    ! test $curlResult -eq 200 && echo "Unable to download product.lic" && exit 1
 else
-	echo "#              URL: ${url}"
-	echo "######################################################################"
+    if test -z "${dryRun}" ; then
+    	echo "#      DOWNLOADING: ${prodFile}"
+    	echo "#               TO: ${output}" 
+	    cd /tmp || exit 2
+	    curlResult=$( curl -kL -w '%{http_code}' "${url}" -o "${output}" )
+
+	    ! test $curlResult -eq 200 && echo "Unable to download ${prodFile}" && exit 1
+    else
+	    echo "#              URL: ${url}"
+    fi
 fi
+
+echo "######################################################################"
 
 # Need this exit of 0, since the last test of the curlResult will return a 1
 exit 0

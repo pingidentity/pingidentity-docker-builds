@@ -90,6 +90,8 @@ ONBUILD ENV SERVER_PROFILE_PATH=""
 ONBUILD ENV SERVER_PROFILE_UPDATE="false"
 # the path from which the runtime executes
 ONBUILD ENV SERVER_ROOT_DIR=${OUT_DIR}/instance
+# license directory and filename
+ONBUILD ENV LICENSE_DIR="${SERVER_ROOT_DIR}"
 # the command that the entrypoint will execute in the foreground to instantiate the container
 ONBUILD ENV STARTUP_COMMAND=""
 # the command-line options to provide to the the startup command
