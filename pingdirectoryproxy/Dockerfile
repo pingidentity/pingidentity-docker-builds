@@ -27,6 +27,8 @@ COPY [ "hooks/","/opt/staging/hooks/" ]
 #
 FROM pingidentity/pingbase:${SHIM}
 ENV LICENSE_FILE_NAME=PingDirectory.lic
+ENV LICENSE_SHORT_NAME=PD
+ENV LICENSE_VERSION=7.2
 # This is a candidate to move to pingbase
 ENV REPLICATION_PORT=8989
 ENV PING_PRODUCT=PingDirectory

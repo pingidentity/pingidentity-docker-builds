@@ -35,5 +35,8 @@ die_on_error 15 "Error running hook 15-expand-templates.sh" || exit ${?}
 run_if present "${HOOKS_DIR}/16-apply-server-profile.sh"
 die_on_error 16 "Error running hook 16-apply-server-profile.sh" || exit ${?}
 
+run_if present "${HOOKS_DIR}/17-check-license.sh"
+die_on_error 17 "Error running hook 17-check-license.sh" || exit ${?}
+
 run_if present "${HOOKS_DIR}/18-setup-sequence.sh"
 die_on_error 18 "Error running hook 18-setup-sequence.sh" || exit ${?}
