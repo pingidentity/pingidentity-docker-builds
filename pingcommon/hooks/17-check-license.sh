@@ -44,5 +44,7 @@ fi
 
 if test ! "${licenseFound}" = "true" ; then
     echo "License File absent"
+    echo "More info on Product Licenses at:"
+    echo "     https://pingidentity-devops.gitbook.io/devops/prod-license"
     exit 89
 fi
