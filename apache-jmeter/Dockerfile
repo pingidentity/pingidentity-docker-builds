@@ -6,6 +6,7 @@ RUN apk --no-cache add curl ca-certificates zip \
     && cd ${BASE} \
     && unzip jmeter.zip \
     && mv apache-jmeter-* apache-jmeter \
+    && find apache-jmeter \( -iname \*.bat -o -iname \*.exe -o -iname \*.dll \) -exec rm -f {} \; \
     && rm -f jmeter.zip \
     && addgroup --system --gid 77783 apache \
     && adduser --system --uid 77797 --ingroup apache --disabled-password --gecos "" --no-create-home --home ${BASE}/apache-jmeter jmeter \
