@@ -8,8 +8,28 @@ test -z "${product}" && exit 199
 
 #uncomment for local
 #sprint=$(git tag --points-at HEAD | sed 's/sprint-//')
-sprint=$(git tag --points-at "$CI_COMMIT_SHA" | sed 's/sprint-//')
-sprint=${sprint}
+# sprint=$(git tag --points-at "$CI_COMMIT_SHA" | sed 's/sprint-//')
+
+#
+# The previous mechanism did not factor into account the possibility
+# that multiple tags may point to the same commit SHA
+#
+# Also, we have changed the release tag naming convention to be
+# just 4 digits YYMM
+# To test for this, we remove 4 digits from the and 
+# check that the result is empty
+#
+# This is still not perfect because we will select the first
+# tag that happens to be 4 consecutive digits so we will have to
+# make sure we never point 2 4-digit tags to the same commit
+#
+for tag in $(git tag --points-at "$CI_COMMIT_SHA") ; do
+    if test -z "$(echo ${tag} | sed 's/^[0-9]\{4\}$//')" ; then
+        sprint=${tag}
+        break
+    fi
+done
+# sprint=${sprint}
 
 echo building "${product}"
 image="pingidentity/${product}"
