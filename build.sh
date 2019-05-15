@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-${VERBOSE} && set -x
+test ! -z "${VERBOSE}" && ${VERBOSE} && set -x
 
 c="ping"
 p="${c}identity"
