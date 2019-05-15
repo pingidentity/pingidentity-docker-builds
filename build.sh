@@ -4,6 +4,10 @@ ${VERBOSE} && set -x
 c="ping"
 p="${c}identity"
 
+red='\033[0;31m'
+green='\033[0;32m'
+normal=$(tput sgr0)
+
 #
 # Usage printing function
 #
@@ -28,7 +32,9 @@ END_USAGE
 exit 99
 }
 
-
+#
+# Build and Tag a new docker image
+#
 buildAndTag ()
 {
     product=${1}
@@ -36,11 +42,57 @@ buildAndTag ()
     tag=${1}
     shift
     image=${p}/${c}${product}:${tag}
-    ${dryRun} docker image rm ${image} > /dev/null 2>/dev/null
-    ${dryRun} docker build --no-cache --rm $* -t ${image} ${c}${product}
-    return ${?}
+
+    docker image rm ${image} > /dev/null 2>/dev/null
+    
+    dockerCmd="docker build --no-cache --rm $* -t ${image} ${c}${product}"
+
+    echo ""
+    echo "###########################################################################"
+    echo "# Building: $image"
+    echo "#  Command: $dockerCmd"
+
+    if test -z "${dryRun}" ; then
+        $dockerCmd > /dev/null 2> /dev/null
+    fi
+    resCode=$?
+
+    if test ${resCode} -eq 0 ; then
+        resultMessage="#   Result: ${green}Successful build${normal}\n"
+        resultMessage+="#           $( docker images "${image}" | grep -v "REPOSITORY" )"
+        
+    else
+        resultMessage="#   Result: ${red}Error during build ($resCode)${normal}"
+    fi
+
+    echo "$resultMessage"
+
+    return "${resCode}"
 }
 
+#
+# Build and Tag a new docker image
+#
+tagImage ()
+{
+    image=${1}
+    shift
+    newTag=${1}
+    
+    echo "# Addl Tag: ${newTag}"
+    ${dryRun} docker tag ${image} ${newTag}
+}
+
+errorExit ()
+{
+    msg=${1} && shift
+    errorCode=${1}
+
+
+    echo "${red}*** BUILD BREAK ***{normal}"
+    echo "${red}$msg${normal}"
+    exit "${errorCode}"
+}
 
 productsToBuild="federate access datasync directory"
 OSesToBuild="alpine centos ubuntu"
@@ -93,49 +145,67 @@ while ! test -z "${1}" ; do
 done
 
 
+echo "
+###########################################################################
+#                 Ping Identity DevOps Docker Builds
+#
+#        Date: `date`
+#     Product: ${productsToBuild}
+#    Versions: ${versionsToBuild}
+#         OSs: ${OSesToBuild}
+#
+###########################################################################
+"
+
 for product in common datacommon ; do
     buildAndTag ${product} latest
-    if test ${?} -ne 0 ; then
-        echo "*** BUILD BREAK ***"
-        echo "${image}"
-        exit 75
-    fi
+    test ${?} -ne 0 && errorExit "${image}" 75
 done
 
 for shim in ${OSesToBuild} ; do
     # docker image rm -f ${p}/${c}base
     buildAndTag base ${shim} --build-arg SHIM=${shim}
-    if test ${?} -ne 0 ; then
-        echo "*** BUILD BREAK ***"
-        echo "${image}"
-        exit 76
-    fi
+    test ${?} -ne 0 && errorExit "${image}" 76
 
     for product in ${productsToBuild} ; do
         if ! test -f "${c}${product}/versions" ; then
             buildAndTag ${product} edge --build-arg SHIM=${shim}
-            if test ${?} -ne 0 ; then
-                echo "*** BUILD BREAK ***"
-                echo "${image}"
-                exit 77
-            fi
+            test ${?} -ne 0 && errorExit "${image}" 77
         else
             firstImage=true
             if test -z "${versionsToBuild}" ; then
-                versionsToBuild=$( cat ${c}${product}/versions | grep -v '^#' )
+                prodVersionsToBuild=$( cat ${c}${product}/versions | grep -v '^#' )
+            else
+                prodVersionsToBuild="${versionsToBuild}"
             fi
-            for VERSION in ${versionsToBuild} ; do
+            for VERSION in ${prodVersionsToBuild} ; do
+
                 buildAndTag ${product} ${VERSION}-${shim}-edge --build-arg VERSION=${VERSION}  --build-arg SHIM=${shim}
-                if test ${?} -ne 0 ; then
-                    echo "*** BUILD BREAK ***"
-                    echo "${image}"
-                    exit 78
-                fi
-                if ${firstImage} && test "${shim}" = "alpine" ; then
-                    ${dryRun} docker tag ${p}/${c}${product}:${VERSION}-${shim}-edge ${p}/${c}${product}:edge
+                test ${?} -ne 0 && errorExit "${image}" 78
+
+                if ${firstImage} ; then
+                    tagImage "${p}/${c}${product}:${VERSION}-${shim}-edge" "${p}/${c}${product}:${shim}-edge"
+                      #${dryRun} docker tag ${p}/${c}${product}:${VERSION}-${shim}-edge ${p}/${c}${product}:${shim}-edge
+
+                    if test "${shim}" = "alpine" ; then
+                      tagImage "${p}/${c}${product}:${VERSION}-${shim}-edge" "${p}/${c}${product}:edge"
+                      #${dryRun} docker tag ${p}/${c}${product}:${VERSION}-${shim}-edge ${p}/${c}${product}:edge
+                    fi
                     firstImage=false
                 fi
-            done
+
+                done
         fi
     done
 done
+
+
+echo "
+###########################################################################
+#               Images Built
+#
+#        Date: `date`
+#
+###########################################################################"
+
+docker images -f since=pingidentity/pingcommon:latest -f dangling=false | sed 's/^/#   /'
