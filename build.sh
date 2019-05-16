@@ -184,12 +184,11 @@ for shim in ${OSesToBuild} ; do
                 test ${?} -ne 0 && errorExit "${image}" 78
 
                 if ${firstImage} ; then
+                    tagImage "${p}/${c}${product}:${VERSION}-${shim}-edge" "${p}/${c}${product}:${shim}"
                     tagImage "${p}/${c}${product}:${VERSION}-${shim}-edge" "${p}/${c}${product}:${shim}-edge"
-                      #${dryRun} docker tag ${p}/${c}${product}:${VERSION}-${shim}-edge ${p}/${c}${product}:${shim}-edge
 
                     if test "${shim}" = "alpine" ; then
                       tagImage "${p}/${c}${product}:${VERSION}-${shim}-edge" "${p}/${c}${product}:edge"
-                      #${dryRun} docker tag ${p}/${c}${product}:${VERSION}-${shim}-edge ${p}/${c}${product}:edge
                     fi
                     firstImage=false
                 fi
