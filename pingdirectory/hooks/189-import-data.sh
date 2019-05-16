@@ -17,11 +17,11 @@ if test -f ${STAGING_DIR}/topology.json ; then
     FQDN=$( hostname -f )
     echo "Waiting until DNS lookup works for ${FQDN}" 
     while true; do
-    echo "Running nslookup test"
-    nslookup "${FQDN}" && break
-
-    echo "Sleeping for a few seconds"
-    sleep_at_most 5
+        echo "Running nslookup test"
+        nslookup "${FQDN}" && break
+        
+        echo "Sleeping for a few seconds"
+        sleep_at_most 5
     done
     MYIP=$( getIP ${FQDN}  )
     FIRST_IP=$( getIP "${FIRST_HOSTNAME}" )
