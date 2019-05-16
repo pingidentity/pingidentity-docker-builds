@@ -13,7 +13,7 @@ ONBUILD LABEL	maintainer=devops_program@pingidentity.com \
 ONBUILD RUN apt -y update \
         && apt -y  upgrade \
         && apt -y install apt-utils \
-        && apt -y install  openjdk-11-jdk curl git jq unzip \
+        && apt -y install  openjdk-11-jdk curl gettext-base dnsutils git jq unzip \
         && apt-get -y autoremove \
         && rm -rf /var/lib/apt/lists/* \ 
         && mkdir -p ${BASE}/tests
@@ -31,7 +31,7 @@ ONBUILD LABEL	maintainer=devops_program@pingidentity.com \
 ONBUILD RUN yum update -y \
         && yum upgrade -y \
         && yum -y install epel-release \
-        && yum -y install java-11-openjdk-devel git jq unzip \
+        && yum -y install java-11-openjdk-devel gettext bind-utils git jq unzip \
         && yum -y autoremove \
         && yum -y clean all \
         && rm -rf /var/cache/yum \
