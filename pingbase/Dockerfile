@@ -151,6 +151,10 @@ ONBUILD ENV ROOT_USER_DN="cn=administrator"
 
 ONBUILD ENV PATH="${BASE}:${SERVER_ROOT_DIR}/bin:${PATH}"
 
+# the default evaluation user/key for obtaining DevOps License
+ONBUILD ENV PING_IDENTITY_EVAL_USER="PingIdentityDevOpsEval"
+ONBUILD ENV PING_IDENTITY_EVAL_KEY="e30a780b-481b-46dc-a47e-ac26d9457221"
+
 # the method by which the framework can assess whether the container is viable or not
 ONBUILD HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
 
