@@ -1,6 +1,13 @@
 #!/usr/bin/env sh
 ${VERBOSE} && set -x
 
+# echo colorization options
+RED_COLOR='\033[0;31m'
+GREEN_COLOR='\033[0;32m'
+BLUE_COLOR='\033[0;34m'
+PURPLE_COLOR='\033[0;35m'
+NORMAL_COLOR='\033[0m'
+
 # a function to base the execution of a script upon the presence or absence of a file
 run_if ()
 {
@@ -48,7 +55,9 @@ die_on_error ()
     exitCode=${1}
     shift
     if test ${errorCode} -ne 0 ; then
+        echo -e "${RED_COLOR}"
         echo "CONTAINER FAILURE: $*"
+        echo -e "${NORMAL_COLOR}"
         # wipe the runtime
         rm -rf "${BASE}/out/instance"
         # shellcheck disable=SC2086
