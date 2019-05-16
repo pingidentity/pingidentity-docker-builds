@@ -47,7 +47,7 @@ if test -z "${TOPOLOGY_SUFFIX}" ; then
 else
     # 0-based numbering in kubernetes
     countFrom=0
-    countTo=$( TOPOLOGY_SIZE - 1 )
+    countTo=$((TOPOLOGY_SIZE - 1 ))
 fi
 
 # shellcheck disable=SC2086
