@@ -1,12 +1,29 @@
 #!/usr/bin/env sh
 ${VERBOSE} && set -x
 
+# used to echo the calling shell
+CALLING_HOOK=${0}
+
 # echo colorization options
 RED_COLOR='\033[0;31m'
 GREEN_COLOR='\033[0;32m'
-BLUE_COLOR='\033[0;34m'
-PURPLE_COLOR='\033[0;35m'
+# BLUE_COLOR='\033[0;34m'
+# PURPLE_COLOR='\033[0;35m'
 NORMAL_COLOR='\033[0m'
+
+# a function to echo a message in the color red
+echo_red ()
+{
+    # shellcheck disable=SC2039
+    echo -e "${RED_COLOR}$*${NORMAL_COLOR}"
+}
+
+# a function to echo a message in the color green
+echo_green ()
+{
+    # shellcheck disable=SC2039
+    echo -e "${GREEN_COLOR}$*${NORMAL_COLOR}"
+}
 
 # a function to base the execution of a script upon the presence or absence of a file
 run_if ()
@@ -21,7 +38,7 @@ run_if ()
 
     if test -z "${2}" ; then
         if test "${mode}" = "absent" ; then
-            echo "error, when mode=absent a test file must be provide as a third argument"
+            echo_red "run_if error, when mode=absent a test file must be provide as a third argument"
             exit 9
         fi
         testFile=${1}
@@ -55,9 +72,7 @@ die_on_error ()
     exitCode=${1}
     shift
     if test ${errorCode} -ne 0 ; then
-        echo -e "${RED_COLOR}"
-        echo "CONTAINER FAILURE: $*"
-        echo -e "${NORMAL_COLOR}"
+        echo_red "CONTAINER FAILURE: $*"
         # wipe the runtime
         rm -rf "${BASE}/out/instance"
         # shellcheck disable=SC2086
@@ -88,3 +103,5 @@ sleep_at_most ()
     duration=$(( result + 1))
     sleep ${duration}
 }
+
+echo_green "----- Starting hook: ${CALLING_HOOK}"
