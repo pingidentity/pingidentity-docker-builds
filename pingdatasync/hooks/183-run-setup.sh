@@ -18,9 +18,9 @@ case "${JVM_TUNING}" in
         jvmOptions="${jvmOptions} --jvmTuningParameter ${JVM_TUNING}"
         ;;
     *)
-        echo "**********"
-        echo "Unsupported JVM_TUNING value [${JVM_TUNING}]"
-        echo "Value must be NONE, AGGRESSIVE or SEMI_AGGRESSIVE"
+        echo_red "**********"
+        echo_red "Unsupported JVM_TUNING value [${JVM_TUNING}]"
+        echo_red "Value must be NONE, AGGRESSIVE or SEMI_AGGRESSIVE"
         exit 75
         ;;
 esac

@@ -9,6 +9,9 @@ test -f "${STAGING_DIR}/env_vars" && . "${STAGING_DIR}/env_vars"
 
 # shellcheck disable=SC2086
 if test -z "${TOPOLOGY_PREFIX}" || test -z "${TOPOLOGY_SIZE}" || ! test ${TOPOLOGY_SIZE} -gt 0 ; then
+    echo "No topology will be created due to lack of TOPOLOGY Information"
+    echo "   TOPOLOGY_PREFIX: ${TOPOLOGY_PREFIX}"
+    echo "     TOPOLOGY_SIZE: ${TOPOLOGY_SIZE}"
     exit 0
 fi
 
@@ -30,7 +33,7 @@ case "${PING_PRODUCT}" in
         productString="BROKER"
         ;;
     *)
-        echo "UNSUPPORTED PRODUCT ${PING_PRODUCT}"
+        echo_red "UNSUPPORTED PRODUCT ${PING_PRODUCT}"
         exit 187
 esac
 
@@ -38,7 +41,7 @@ if ! test "${productString}" = "DIRECTORY" ; then
     exit 0
 fi
 
-cat >> "${STAGING_DIR}/topology.json" <<END 
+cat >> "${TOPOLOGY_FILE}" <<END 
 {
   "serverInstances" : [
 END
@@ -68,7 +71,7 @@ for i in $( seq ${countFrom} ${countTo}  ) ; do
     fi
 
     # Write the server instance's content
-    cat >> "${STAGING_DIR}/topology.json" <<____END 
+    cat >> "${TOPOLOGY_FILE}" <<____END 
     {
         "instanceName" : "${instanceName}",
         "hostname" : "${containerHostName}",
@@ -83,7 +86,10 @@ for i in $( seq ${countFrom} ${countTo}  ) ; do
 ____END
 
 done
-cat >> "${STAGING_DIR}/topology.json" <<END
+cat >> "${TOPOLOGY_FILE}" <<END
   ]
 }
 END
+
+echo "Created ${TOPOLOGY_FILE}"
+cat_indent "${TOPOLOGY_FILE}"

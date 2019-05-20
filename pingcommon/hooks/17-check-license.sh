@@ -54,7 +54,7 @@ else
             -o "${LICENSE_FILE}" 2> /dev/null )
         if test $licenseCurlResult -eq 200 ; then
             echo "Successfully pulled evaluation license from Ping Identity"
-            cat "${LICENSE_FILE}" | sed 's/^/    /'
+            cat_indent "${LICENSE_FILE}"
             echo ""
             licenseFound="true"
         else

@@ -12,8 +12,8 @@ test -f "${BASE}/pingdirectory.lib.sh" && . "${BASE}/pingdirectory.lib.sh"
 
 proceedWithImport="true"
 
-if test -f ${STAGING_DIR}/topology.json ; then
-    # jq -r '.|.serverInstances[]|select(.product=="DIRECTORY")|.hostname' < ${BASE}/staging/topology.json
+if test -f ${TOPOLOGY_FILE} ; then
+    # jq -r '.|.serverInstances[]|select(.product=="DIRECTORY")|.hostname' < ${TOPOLOGY_FILE}
     FIRST_HOSTNAME=$( getFirstHostInTopology )
     FQDN=$( hostname -f )
     echo "Waiting until DNS lookup works for ${FQDN}" 
@@ -21,7 +21,6 @@ if test -f ${STAGING_DIR}/topology.json ; then
         echo "Running nslookup test"
         nslookup "${FQDN}" && break
         
-        echo "Sleeping for a few seconds"
         sleep_at_most 5
     done
     MYIP=$( getIP ${FQDN}  )

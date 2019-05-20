@@ -15,7 +15,7 @@ test -f "${STAGING_DIR}/env_vars" && . "${STAGING_DIR}/env_vars"
 test -f "${BASE}/pingdirectory.lib.sh" && . "${BASE}/pingdirectory.lib.sh"
 
 
-# jq -r '.|.serverInstances[]|select(.product=="DIRECTORY")|.hostname' < ${BASE}/staging/topology.json
+# jq -r '.|.serverInstances[]|select(.product=="DIRECTORY")|.hostname' < ${TOPOLOGY_FILE}
 FIRST_HOSTNAME=$( getFirstHostInTopology )
 FQDN=$( hostname -f )
 
@@ -24,7 +24,6 @@ while true; do
   echo "Running nslookup test"
   nslookup "${FQDN}" && break
 
-  echo "Sleeping for a few seconds"
   sleep_at_most 5
 done
 
@@ -43,7 +42,6 @@ while true; do
   # shellcheck disable=SC2086
   ldapsearch -T --terse --suppressPropertiesFileComment -p ${LDAPS_PORT} -Z -X -b "" -s base "(&)" 1.1 2>/dev/null && break
 
-  echo "Sleeping for a few seconds"
   sleep_at_most 15
 done
 
@@ -55,7 +53,6 @@ while true; do
   # shellcheck disable=SC2086
   ldapsearch -T --terse --suppressPropertiesFileComment -h ${FIRST_HOSTNAME} -p ${LDAPS_PORT} -Z -X -b "${USER_BASE_DN}" -s base "(&)" 1.1 2>/dev/null && break
 
-  echo "Sleeping for a few seconds"
   sleep_at_most 15
 done
 

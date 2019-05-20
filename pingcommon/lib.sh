@@ -25,6 +25,12 @@ echo_green ()
     echo -e "${GREEN_COLOR}$*${NORMAL_COLOR}"
 }
 
+# cat a file to stdout and indent 4 spaces
+cat_indent ()
+{
+    test -f "${1}" && sed 's/^/    /' < "${1}"
+}
+
 # a function to base the execution of a script upon the presence or absence of a file
 run_if ()
 {
@@ -101,6 +107,9 @@ sleep_at_most ()
     # shellcheck disable=SC2039
     result=$(( RANDOM % modulus ))
     duration=$(( result + 1))
+
+    echo "Sleeping up to ${max} seconds (${duration})"
+  
     sleep ${duration}
 }
 
