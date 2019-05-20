@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 ${VERBOSE} && set -x
 
+# shellcheck source=../lib.sh disable=SC2153
+. "${BASE}/lib.sh"
+
 # shellcheck source=/dev/null
 if test -f "${STAGING_DIR}/env_vars" ; then
     set -o allexport

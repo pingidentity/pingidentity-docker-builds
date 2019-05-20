@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 ${VERBOSE} && set -x
 
+# shellcheck source=../lib.sh
+. "${BASE}/lib.sh"
+
 "${BASE}/configure-tools.sh" \
         "${LDAP_PORT}" \
         "${ROOT_USER_DN}" \

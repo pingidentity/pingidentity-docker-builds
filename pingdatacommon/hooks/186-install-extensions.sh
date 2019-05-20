@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 ${VERBOSE} && set -x
 
+# shellcheck source=../lib.sh
+. "${BASE}/lib.sh"
+
 EXTENSIONS_DIR="${STAGING_DIR}/extensions"
 if test -d "${EXTENSIONS_DIR}" ; then
     AUTO_INSTALL_FILE="${EXTENSIONS_DIR}/autoinstall.list"

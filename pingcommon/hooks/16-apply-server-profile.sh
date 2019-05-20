@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 ${VERBOSE} && set -x
 
+# shellcheck source=../lib.sh
+. "${BASE}/lib.sh"
+
 # Once both the GIT server-profile and the local server-profile have been merged
 # then we can push that out to the instance
 # this allows files provided locally to override those provided via the repo

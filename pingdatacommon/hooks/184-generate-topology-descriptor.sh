@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 ${VERBOSE} && set -x
 
+# shellcheck source=../lib.sh
+. "${BASE}/lib.sh"
+
 # shellcheck source=/dev/null
 test -f "${STAGING_DIR}/env_vars" && . "${STAGING_DIR}/env_vars"
 

@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 ${VERBOSE} && set -x
 
+# shellcheck source=../lib.sh
+. "${BASE}/lib.sh"
+
 # shellcheck source=../pingdatacommon/pingdata.lib.sh
 test -f "${BASE}/pingdata.lib.sh" && . "${BASE}/pingdata.lib.sh"
 
