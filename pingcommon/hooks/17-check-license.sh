@@ -1,9 +1,8 @@
 #!/usr/bin/env sh
 ${VERBOSE} && set -x
 
-# echo colorization options
-RED_COLOR='\033[0;31m'
-NORMAL_COLOR='\033[0m'
+# shellcheck source=../lib.sh
+. "${BASE}/lib.sh"
 
 ##################################################################
 # Check for license file
@@ -20,22 +19,21 @@ if test -f "${LICENSE_FILE}" ; then
    licenseFound="true"
 else
    if test -z "${PING_IDENTITY_DEVOPS_USER}" && test -z "${PING_IDENTITY_DEVOPS_KEY}" ; then
-       echo -e "${RED_COLOR}"
-       echo "##################################################################################"
-       echo "############################        ALERT        #################################"
-       echo "##################################################################################"
-       echo "# "
-       echo "# No Ping Identity DevOps User or Key was passed.  Obtaining a generic short term"
-       echo "# eval license."
-       echo "# "
-       echo "# This automatic eval license will be deprecated soon, requiring your own"
-       echo "# personal DevOps User and Key."
-       echo "# "
-       echo "# More info on Product Licenses at:"
-       echo "#      https://pingidentity-devops.gitbook.io/devops/prod-license"
-       echo "# "
-       echo "##################################################################################"
-       echo -e "${NORMAL_COLOR}"
+       echo_red "
+##################################################################################
+############################        ALERT        #################################
+##################################################################################
+# 
+# No Ping Identity DevOps User or Key was passed.  Obtaining a generic short term
+# eval license.
+# 
+# This automatic eval license will be deprecated soon, requiring your own
+# personal DevOps User and Key.
+# 
+# More info on Product Licenses at:
+#      https://pingidentity-devops.gitbook.io/devops/prod-license
+# 
+##################################################################################"
        PING_IDENTITY_DEVOPS_USER="${PING_IDENTITY_EVAL_USER}"
        PING_IDENTITY_DEVOPS_KEY="${PING_IDENTITY_EVAL_KEY}"
     fi
@@ -69,16 +67,15 @@ else
 fi
 
 if test ! "${licenseFound}" = "true" ; then
-    echo -e "${RED_COLOR}"
-    echo "##################################################################################"
-    echo "############################        ALERT        #################################"
-    echo "##################################################################################"
-    echo "# "
-    echo "# License File absent"
-    echo "# More info on Product Licenses at:"
-    echo "#      https://pingidentity-devops.gitbook.io/devops/prod-license"
-    echo "# "
-    echo "################################################################################"
-    echo -e "${NORMAL_COLOR}"
+    echo "
+##################################################################################
+############################        ALERT        #################################
+##################################################################################
+# 
+# License File absent
+# More info on Product Licenses at:
+#      https://pingidentity-devops.gitbook.io/devops/prod-license
+# 
+################################################################################"
     exit 89
 fi
