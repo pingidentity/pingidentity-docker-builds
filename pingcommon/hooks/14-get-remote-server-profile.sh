@@ -4,17 +4,12 @@ ${VERBOSE} && set -x
 # shellcheck source=../lib.sh
 . "${BASE}/lib.sh"
 
-getValue ()
-{
-    eval printf '%s' "\${${1}}"
-}
-
 # performs a git clone on the server profile passed
 getProfile ()
 {
-    serverProfileUrl=$( getValue "${1}_URL" )
-    serverProfileBranch=$( getValue "${1}_BRANCH" )
-    serverProfilePath=$( getValue "${1}_PATH" )
+    serverProfileUrl=$( get_value "${1}_URL" )
+    serverProfileBranch=$( get_value "${1}_BRANCH" )
+    serverProfilePath=$( get_value "${1}_PATH" )
 
     # this is a precaution because git clone needs an empty target
     rm -rf "${SERVER_PROFILE_DIR}"
@@ -51,9 +46,9 @@ serverProfileList=""
 
 # creates a spaced separated list of server profiles starting with the parent most
 # profile and moving down.
-while test -n "$( getValue ${serverProfileParent} )" ; do
+while test -n "$( get_value ${serverProfileParent} )" ; do
     # echo "Profile parent variable: ${serverProfileParent}"
-    serverProfileName=$( getValue ${serverProfileParent} )
+    serverProfileName=$( get_value ${serverProfileParent} )
     serverProfileList="${serverProfileName}${serverProfileList:+ }${serverProfileList}"
     # echo "Profile parent value   : ${serverProfileName}"
     serverProfileParent=$( getParent )
