@@ -113,4 +113,41 @@ sleep_at_most ()
     sleep ${duration}
 }
 
+# get the value of a variable passed
+get_value ()
+{
+    # the following will preserve spaces in the printf
+    IFS="%%"
+    eval printf '%s' "\${${1}}"
+    unset IFS
+}
+
+# echo a header
+echo_header()
+{
+  echo "##################################################################################"
+
+  while (test ! -z "${1}")
+  do
+    _msg=${1} && shift
+
+    echo "#    ${_msg}"
+  done
+
+  echo "##################################################################################"
+}
+
+# echo a formatted list of variables and their value
+echo_vars()
+{
+  while (test ! -z ${1})
+  do
+    _var=${1} && shift
+    _val=$( get_value "${_var}" )
+
+    printf "    %30s : %s\n" "${_var}" "${_val:---- empty ---}"
+  done
+}
+
+
 echo_green "----- Starting hook: ${CALLING_HOOK}"
