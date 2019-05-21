@@ -54,16 +54,37 @@ if  test "${proceedWithImport}" = "true" && test -d "${STAGING_DIR}/data" ; then
             for ldifFile in $( ls "${STAGING_DIR}"/data/??-${backend}-*.ldif "${STAGING_DIR}"/data/??-${backend}-*.ldif.gz 2>/dev/null | sort ) ; do
                 filesToImport="${filesToImport} -l ${ldifFile}"
             done
+
+
+            if test "${PING_DEBUG}" == "true" ; then
+                IMPORT_OPT="--script-friendly"
+            else
+                IMPORT_OPT="--quiet"
+                echo "Running import-ldif in QUIET mode (because PING_DEBUG=${PING_DEBUG})."
+                echo "Please refer to ${SERVER_ROOT_DIR}/logs/tools/import* files for details."
+            fi
+
             # shellcheck disable=SC2086
             # if we double quote filesToImport the import command will fail
             "${SERVER_ROOT_DIR}/bin/import-ldif" \
-            --rejectFile "${SERVER_ROOT_DIR}/logs/tools/import-ldif.rejected" \
-            --skipFile "${SERVER_ROOT_DIR}/logs/tools/import-ldif.skipped" \
-            --clearBackend \
-            --backendID "${backend}" \
-            --addMissingRdnAttributes \
-            --overwriteExistingEntries \
-            ${filesToImport}
+                --rejectFile "${SERVER_ROOT_DIR}/logs/tools/import-ldif.rejected" \
+                --skipFile "${SERVER_ROOT_DIR}/logs/tools/import-ldif.skipped" \
+                --clearBackend \
+                --backendID "${backend}" \
+                --addMissingRdnAttributes \
+                --overwriteExistingEntries \
+                --countRejects \
+                ${IMPORT_OPT} \
+                ${filesToImport} \
+                2>/dev/null
+            
+            numRejections=$?
+
+            if test ${numRejections} -gt 0 ; then
+                echo_red "Import resulted in ${numRejections} rejected entries"
+            fi
         done
     fi
+else
+    echo "Will not import data, as this instance will be added to a replication topology"
 fi

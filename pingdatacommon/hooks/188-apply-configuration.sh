@@ -19,8 +19,17 @@ dsconfig set-connection-handler-prop \
 
 END
 
+if test "${PING_DEBUG}" == "true" ; then
+  DSCONFIG_OPT="--verbose"
+else
+  DSCONFIG_OPT="--quiet"
+  echo "Running dsconfig in QUIET mode (because PING_DEBUG=${PING_DEBUG})."
+  echo "Please refer to ${SERVER_ROOT_DIR}/logs/config-audit.log for audit."
+fi
+
 "${SERVER_ROOT_DIR}/bin/dsconfig" \
     --no-prompt \
     --suppressMirroredDataChecks \
     --offline \
+    ${DSCONFIG_OPT} \
     --batch-file "${SERVER_ROOT_DIR}/tmp/config.batch"
