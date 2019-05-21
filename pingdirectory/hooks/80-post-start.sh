@@ -6,6 +6,7 @@ ${VERBOSE} && set -x
 
 if test ! -f "${TOPOLOGY_FILE}" ; then
   echo "${TOPOLOGY_FILE} not found"
+  echo "Replication will not be enabled"
   exit 0
 fi
 
@@ -27,7 +28,7 @@ while true; do
   sleep_at_most 5
 done
 
-MYIP=$( getIP ${FQDN}  )
+MYIP=$( getIP "${FQDN}"  )
 FIRST_IP=$( getIP "${FIRST_HOSTNAME}" )
 
 if test "${MYIP}" = "${FIRST_IP}" ; then
@@ -46,7 +47,7 @@ while true; do
 done
 
 # this container is going to need to initialize over the network
-# if all containers start at the same time then the fisrt container
+# if all containers start at the same time then the first container
 # will import the data which takes some time
 while true; do
   echo "Running ldapsearch test on first container"
