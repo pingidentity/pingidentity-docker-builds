@@ -1,10 +1,7 @@
 #!/usr/bin/env sh
-${VERBOSE} && set -x
-
-# shellcheck source=../lib.sh
-. "${BASE}/lib.sh"
-
-##################################################################
+#
+# Ping Identity DevOps - Docker Build Hooks
+#
 # Check for license file
 #  1. If in SERVER_ROOT_DIR, good
 #  2. If PING_IDENTITY_DEVOPS_USER and PING_IDENTITY_DEVOPS_KEY
@@ -12,7 +9,12 @@ ${VERBOSE} && set -x
 #
 #  TODO - Should probably add more mechanisms to pull from other
 #         locations (i.e. vaults/secrets)
-##################################################################
+#
+${VERBOSE} && set -x
+
+# shellcheck source=../lib.sh
+. "${BASE}/lib.sh"
+
 LICENSE_FILE="${LICENSE_DIR}/${LICENSE_FILE_NAME}"
 
 if test -f "${LICENSE_FILE}" ; then
@@ -67,9 +69,7 @@ else
 fi
 
 if test ! "${licenseFound}" = "true" ; then
-    echo "
-##################################################################################
-############################        ALERT        #################################
+    echo_red "
 ##################################################################################
 # 
 # License File absent
@@ -77,5 +77,5 @@ if test ! "${licenseFound}" = "true" ; then
 #      https://pingidentity-devops.gitbook.io/devops/prod-license
 # 
 ################################################################################"
-    exit 89
+    container_failure 17 "License File absent"
 fi

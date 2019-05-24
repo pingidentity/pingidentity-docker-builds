@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
+#
+# Ping Identity DevOps
+#
 test ! -z "${VERBOSE}" && ${VERBOSE} && set -x
 
 c="ping"

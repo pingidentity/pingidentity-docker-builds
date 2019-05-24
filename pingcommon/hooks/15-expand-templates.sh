@@ -1,4 +1,15 @@
 #!/usr/bin/env sh
+#
+# Ping Identity DevOps - Docker Build Hooks
+#
+# Using the envsubst command, this will look through any files that end in 
+# substr and substitute any variables the files with the the value of those
+# variables.
+#
+# Variables may come from:
+#  - The container's os
+#  - The environment variables or env-file passed to continaer on startup
+#  - The 'env_vars' file from the profiles
 ${VERBOSE} && set -x
 
 # shellcheck source=../lib.sh disable=SC2153

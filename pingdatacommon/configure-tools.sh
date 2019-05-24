@@ -1,4 +1,7 @@
 #!/bin/sh
+#
+# Ping Identity DevOps - Docker Build Hooks
+#
 ${VERBOSE} && set -x
 
 # ARG1 => port; ARG2 => bindDN; ARG3 => bindPasswordFile

@@ -1,13 +1,18 @@
 #!/usr/bin/env sh
 #
-# This stub is called on the first start of the container AND every other start
+# Ping Identity DevOps - Docker Build
+#
+# Prints out variables and startup information when the server is started.
+#
 # This may be useful to "call home" or send a notification of startup to a command and control center
 #
 
 # shellcheck source=../lib.sh
 . "${BASE}/lib.sh"
 
-echo_header "Ping Identity DevOps Docker Image" " STARTED: `date`" "HOSTNAME: ${HOSTNAME}"
+HOSTNAME=$(hostname)
+
+echo_header "Ping Identity DevOps Docker Image" " STARTED: $(date)" "HOSTNAME: ${HOSTNAME}"
 
 echo_header "Directory Variables"
 echo_vars   BASE IN_DIR OUT_DIR SERVER_ROOT_DIR STAGING_DIR HOOKS_DIR SERVER_PROFILE_DIR BAK_DIR SECRETS_DIR LICENSE_DIR
@@ -28,8 +33,11 @@ echo_header "Product Startup"
 echo_vars   STARTUP_COMMAND STARTUP_FOREGROUND_OPTS STARTUP_FOREGROUND_OPTS VERBOSE PING_DEBUG
 
 echo_header "Ping Product Info"
-echo_vars   PING_PRODUCT LOCATION LDAP_PORT LDAPS_PORT HTTPS_PORT JMX_PORT TOPOLOGY_SIZE TOPOLOGY_PREFIX TOPOLOGY_SUFFIX USER_BASE_DN
-echo_vars   PD_ENGINE_PUBLIC_HOSTNAME PF_ENGINE_PUBLIC_HOSTNAME PF_ADMIN_PUBLIC_HOSTNAME PA_ENGINE_PUBLIC_HOSTNAME  PA_ADMIN_PUBLIC_HOSTNAME
+echo_vars   PING_PRODUCT LOCATION LDAP_PORT LDAPS_PORT HTTPS_PORT JMX_PORT 
+echo_vars   TOPOLOGY_SIZE TOPOLOGY_PREFIX TOPOLOGY_SUFFIX USER_BASE_DN
+echo_vars   PD_ENGINE_PUBLIC_HOSTNAME 
+echo_vars   PF_ADMIN_PUBLIC_HOSTNAME PF_ENGINE_PUBLIC_HOSTNAME
+echo_vars   PA_ADMIN_PUBLIC_HOSTNAME PA_ENGINE_PUBLIC_HOSTNAME
 echo_vars   ROOT_USER_DN
 
 echo_header "JVM Details"

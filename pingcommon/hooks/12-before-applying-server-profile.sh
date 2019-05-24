@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 #
+# Ping Identity DevOps - Docker Build Hooks
+#
 # This script is called after the product bits have been copied over to the runtime location
 # and before the remote server profile gets applied on to the staging area
 #

@@ -1,10 +1,22 @@
 #!/usr/bin/env sh
+#
+# Ping Identity DevOps - Docker Build Hooks
+#
+# This hook will get bits from a git repo based on SERVER_PROFILE_* variables
+# passed to the container.  If no SERVER_PROFILES are passed, then nothing will
+# occur when running this hook.
+#
+# If other source maintenance repositories are used instead (i.e. bitbucket, ...)
+# then this hook could be overridden by a different hook
+#
 ${VERBOSE} && set -x
 
 # shellcheck source=../lib.sh
 . "${BASE}/lib.sh"
 
+########################################################################################
 # performs a git clone on the server profile passed
+########################################################################################
 getProfile ()
 {
     serverProfileUrl=$( get_value "${1}_URL" )
@@ -29,9 +41,11 @@ getProfile ()
     fi    
 }
 
+########################################################################################
 # takes the current server profile name and appends _PARENT to the end
 #   Example: SERVER_PROFILE          returns SERVER_PROFILE_PARENT
 #            SERVER_PROFILE_LICENSE  returns SERVER_PROFILE_LICENSE_PARENT
+########################################################################################
 getParent ()
 {
     echo ${serverProfilePrefix}${serverProfileName:+_}${serverProfileName}"_PARENT"
@@ -54,7 +68,11 @@ while test -n "$( get_value ${serverProfileParent} )" ; do
     serverProfileParent=$( getParent )
 done
 
+# now, take that spaced separated list of servers and get the profiles for each
+# one until exhausted.  
 for serverProfileName in ${serverProfileList} ; do
     getProfile "${serverProfilePrefix}_${serverProfileName}"
 done
+
+#Finally after all are processed, get the final top level SERVER_PROFILE
 getProfile ${serverProfilePrefix}

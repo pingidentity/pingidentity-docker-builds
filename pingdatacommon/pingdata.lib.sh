@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
+#
+# Ping Identity DevOps - Docker Build Hooks
+#
 ${VERBOSE} && set -x
 
 getCertificateOptions ()

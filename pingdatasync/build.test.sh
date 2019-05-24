@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
+#
+# Ping Identity DevOps - Docker Build Hooks
+#
 attempts=10
 interval=30
 errorCode=88

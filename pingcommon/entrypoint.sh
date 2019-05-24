@@ -16,23 +16,23 @@ if test "$1" = "start-server" ; then
     # or a previous run of the container that would then checkout
     # hence the name on-restart
     #
-    run_if present "${HOOKS_DIR}/01-start-server.sh"
+    run_if_present "${HOOKS_DIR}/01-start-server.sh"
     die_on_error 01 "Start script failed" || exit ${?} 
 
     if ! test -d "${SERVER_ROOT_DIR}" ; then
         ## FIRST TIME EXECUTION OF THE CONTAINER
-        run_if present "${HOOKS_DIR}/10-start-sequence.sh"
+        run_if_present "${HOOKS_DIR}/10-start-sequence.sh"
         die_on_error 10 "First time sequence failed" || exit ${?}
     else
         ## RESTART
-        run_if present "${HOOKS_DIR}/20-restart-sequence.sh"
+        run_if_present "${HOOKS_DIR}/20-restart-sequence.sh"
         die_on_error 19 "Restart sequence failed" || exit ${?}
     fi
 
-    run_if present "${HOOKS_DIR}/50-before-post-start.sh" 
+    run_if_present "${HOOKS_DIR}/50-before-post-start.sh" 
     die_on_error 50 "Before post-start hook failed" || exit ${?}
 
-    run_if present "${HOOKS_DIR}/80-post-start.sh" &
+    run_if_present "${HOOKS_DIR}/80-post-start.sh" &
 
     if ! test -z "${TAIL_LOG_FILES}" ; then
         # shellcheck disable=SC2086

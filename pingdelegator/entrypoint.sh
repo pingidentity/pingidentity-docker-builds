@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
+#
+# Ping Identity DevOps - Docker Build Hooks
+#
 
 if test "${1}" = "start-server" ; then
     ${PINGFEDERATE_PUBLIC_HOSTNAME:=localhost}
@@ -30,11 +33,12 @@ if test "${1}" = "start-server" ; then
 ##################################################################################
 "
 
-    cd /usr/share/nginx/html/delegator
+    cd /usr/share/nginx/html/delegator || echo "Unable to cd to the delegator html directory"
 
     sed -e "s/PF_HOST = 'localhost'/PF_HOST = '${PINGFEDERATE_PUBLIC_HOSTNAME}'/" \
         -e "s/PF_PORT = '9031'/PF_PORT = '${PINGFEDERATE_PUBLIC_PORT}'/" \
         -e "s/DADMIN_CLIENT_ID = 'dadmin'/DADMIN_CLIENT_ID = '${PINGFEDERATE_DELEGATOR_CLIENTID}'/" \
+        -e "s/^\/\/ window.DS_HOST = undefined;/window.DS_HOST = '${VAR to DS HOST}'/" \
         "example.config.js" > "config.js"
 
     chmod 644 "config.js"

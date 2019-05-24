@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
+#
+# Ping Identity DevOps - Docker Build Hooks
+#
 TOOL_NAME=$( basename "${0}" )
 cd "$( dirname "${0}" )" || exit 1
 
