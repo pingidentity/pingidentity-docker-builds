@@ -25,7 +25,7 @@ COPY [ "liveness.sh", "/opt/"]
 COPY [ "run.sh", "/opt/server/bin/run.sh" ]
 
 #
-# the final image 
+# The final image 
 #
 FROM pingidentity/pingbase:${SHIM}
 EXPOSE 9031 9999
