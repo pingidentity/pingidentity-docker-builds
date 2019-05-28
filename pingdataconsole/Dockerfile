@@ -1,3 +1,13 @@
+#- # Ping Identity Docker Image - `pingdataconsole`
+#- 
+#- This docker image provides a tomcat image with the PingDataConsole
+#- deployed to be used in configuration of the PingData products.
+#-
+#- ## Related Docker Images
+#- - `pingidentity/pingdownloader` - Image used to download ping product
+#- - `tomcat:8-jre8-alpine` - Tomcat engine to serve PingDataConsole .war file
+#-
+
 FROM pingidentity/pingdownloader as staging
 ARG PRODUCT=pingdirectory
 ARG VERSION=7.2.0.1
@@ -24,3 +34,30 @@ COPY server.xml /usr/local/tomcat/conf/
 COPY [ "liveness.sh", "/usr/local/bin/" ]
 HEALTHCHECK --interval=31s --timeout=30s --start-period=5s --retries=3 CMD [ "/usr/local/bin/liveness.sh" ]
 CMD ["catalina.sh","run"]
+
+#- ## Run
+#- To run a PingDataConsole container: 
+#- 
+#- ```shell
+#-   docker run \
+#-            --name pingdataconsole \
+#-            --publish 8080:8080 \
+#-            --detach \
+#-            pingidentity/pingdataconsole
+#- ```
+#- 
+#- 
+#- Follow Docker logs with:
+#- 
+#- ```
+#- docker logs -f pingdataconsole
+#- ```
+#- 
+#- If using the command above with the embedded [server profile](../server-profiles/README.md), log in with: 
+#- * http://localhost:8080/console/login
+#- ```
+#- Server: pingdirectory
+#- Username: administrator
+#- Password: 2FederateM0re
+#- ```
+#- >make sure you have a PingDirectory running

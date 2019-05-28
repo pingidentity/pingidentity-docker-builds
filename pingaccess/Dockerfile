@@ -1,3 +1,14 @@
+#- # Ping Identity DevOps Docker Image - `pingaccess`
+#- 
+#- This docker image includes the Ping Identity PingAccess product binaries
+#- and associated hook scripts to create and run both PingAccess Admin and
+#- Engine nodes. 
+#-
+#- ## Related Docker Images
+#- - pingidentity/pingbase - Parent Image
+#- - pingidentity/pingcommon - Common Ping files (i.e. hook scripts)
+#- - pingidentity/pingdownloader - Used to download product bits
+#-
 # Default to Alpine
 ARG SHIM=alpine
 
@@ -29,3 +40,29 @@ ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/pingaccess.log
 COPY --from=pingidentity/pingcommon "/opt" "${BASE}"
 COPY --from=staging "/opt" "${BASE}"
+
+#- ## Running a PingDirectory container
+#- To run a PingAccess container: 
+#- 
+#- ```shell
+#-   docker run \
+#-            --name pingaccess \
+#-            --publish 9000:9000 \
+#-            --publish 443:443 \
+#-            --detach \
+#-            --env SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git \
+#-            --env SERVER_PROFILE_PATH=getting-started/pingaccess \
+#-            pingidentity/pingaccess
+#- ```
+#- 
+#- 
+#- Follow Docker logs with:
+#- 
+#- ```
+#- docker logs -f pingaccess
+#- ```
+#- 
+#- If using the command above with the embedded [server profile](../server-profiles/README.md), log in with: 
+#- * https://localhost:9000
+#-   * Username: Administrator
+#-   * Password: 2Access
