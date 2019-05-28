@@ -1,3 +1,19 @@
+#- # Ping Identity Docker Image - `pingbase`
+#- 
+#- This docker image provides a base image for all Ping Identity DevOps 
+#- product images.  Primarly, the builder can provide an argument, `SHIM`,
+#- that will be used to determine the base OS used when building.  The options
+#- include:
+#- - alpine (default)
+#- - centos
+#- - ubuntu
+#-
+#- ## Related Docker Images
+#- - `openjdk:8-jre-alpine` - Parent Image for `SHIM=alpine`
+#- - `centos` - Parent Image for `SHIM=cenots`
+#- - `ubuntu:disco` - Parent Image for `SHIM=ubuntu`
+#-
+
 # Default to Alpine
 ARG SHIM=alpine
 
@@ -56,82 +72,85 @@ ONBUILD RUN apk --no-cache add git curl ca-certificates jq zip \
 
 
 FROM shim-${SHIM} 
+
 # the image base /might/ be changed at build-time but
 # be aware that the entrypoint will have to be
 # overridden to reflect the change
+#-- Location of the top level directory where everything is located in 
+#-- image/container
 ONBUILD ARG BASE
 ONBUILD ENV BASE=${BASE:-/opt}
-# the path to the local server-profile volume
+#-- Location of a local server-profile volume
 ONBUILD ENV IN_DIR=${BASE}/in
-# the path to the runtime volume
+#-- Path to the runtime volume
 ONBUILD ENV OUT_DIR=${BASE}/out
-# the path to a volume generically used to export or backup data
+#-- Path to a volume generically used to export or backup data
 ONBUILD ENV BAK_DIR=${BASE}/backup
-# the default path to the secrets
+#-- Default path to the secrets
 ONBUILD ENV SECRETS_DIR=/usr/local/secrets
 
-# the path to the staging area where the remote and local
-# server profiles can be merged
+#-- Path to the staging area where the remote and local server profiles
+#-- can be merged
 ONBUILD ENV STAGING_DIR=${BASE}/staging
-# the path to the topology file
+#-- Path to the topology file
 ONBUILD ENV TOPOLOGY_FILE=${STAGING_DIR}/topology.json
-# the path where all the hooks scripts are stored
+#-- Path where all the hooks scripts are stored
 ONBUILD ENV HOOKS_DIR=${STAGING_DIR}/hooks
-# the path where the remote server profile is checked out or cloned
-# before being staged prior to being applied on the runtime
+#-- Path where the remote server profile is checked out or cloned before
+#-- being staged prior to being applied on the runtime
 ONBUILD ENV SERVER_PROFILE_DIR=/tmp/server-profile
-# A valid git HTTPS URL (not ssh)
+#-- A valid git HTTPS URL (not ssh)
 ONBUILD ENV SERVER_PROFILE_URL=""
-# the branch
+#-- A valid git branch (optional)
 ONBUILD ENV SERVER_PROFILE_BRANCH=""
-# the subdirectory in the repo
+#-- The subdirectory in the git repo
 ONBUILD ENV SERVER_PROFILE_PATH=""
-# whether to update the server profile upon container restart
+#-- Whether to update the server profile upon container restart
 ONBUILD ENV SERVER_PROFILE_UPDATE="false"
-# the path from which the runtime executes
+#-- Path from which the runtime executes
 ONBUILD ENV SERVER_ROOT_DIR=${OUT_DIR}/instance
-# license directory and filename
+#-- License directory and filename
 ONBUILD ENV LICENSE_DIR="${SERVER_ROOT_DIR}"
-# the command that the entrypoint will execute in the foreground to instantiate the container
+#-- The command that the entrypoint will execute in the foreground to 
+#-- instantiate the container
 ONBUILD ENV STARTUP_COMMAND=""
-# the command-line options to provide to the the startup command
-# when the container starts with the server in the foreground
-# This is the normal start flow for the container
+#-- The command-line options to provide to the the startup command when 
+#-- the container starts with the server in the foreground. This is the 
+#-- normal start flow for the container
 ONBUILD ENV STARTUP_FOREGROUND_OPTS=""
-# the command-line options to provide to the the startup command
-# when the container starts with the server in the background
-# This is the debug start flow for the container
+#-- The command-line options to provide to the the startup command when 
+#-- the container starts with the server in the background. This is the 
+#-- debug start flow for the container
 ONBUILD ENV STARTUP_BACKGROUND_OPTS=""
 
-# a whitespace separated list of log files to tail to the container standard output
+#-- A whitespace separated list of log files to tail to the container 
+#-- standard output
 ONBUILD ENV TAIL_LOG_FILES=""
 
-# the location default value
+#-- Location default value
 ONBUILD ENV LOCATION=Docker
 
-# the heap size (for java products)
+#-- Heap size (for java products)
 ONBUILD ENV MAX_HEAP_SIZE=384m
 
 ONBUILD ENV JVM_TUNING="AGGRESSIVE"
 
-# the verbose variable will trigger set -x in scripts
+#-- Triggers verbose messages in scripts using the set -x option.
 ONBUILD ENV VERBOSE=false
 
-# this variable indicates to set the server in debug mode
+#-- Set the server in debug mode, with increased output
 ONBUILD ENV PING_DEBUG=false
 
-# the name of Ping product
-# this can be useful for displaying or sending user messages
-# or branching programmatically
-ONBUILD ENV PING_PRODUCT ""
+#-- The name of Ping product.  Should be overridden by child images.
+ONBUILD ENV PING_PRODUCT=""
 
-# the port over which to communicate for LDAP
+#-- Port over which to communicate for LDAP
 ONBUILD ENV LDAP_PORT=389
-# the port over which to communicate for LDAPS
+#-- Port over which to communicate for LDAPS
 ONBUILD ENV LDAPS_PORT=636
-# the port over which to communicate for HTTPS
+#-- Port over which to communicate for HTTPS
 ONBUILD ENV HTTPS_PORT=443
-# the port for monitoring over JMX protocol
+#-- Port for monitoring over JMX protocol
 ONBUILD ENV JMX_PORT=689
 
 ONBUILD ENV TOPOLOGY_SIZE=1
@@ -146,7 +165,7 @@ ONBUILD ENV PF_ADMIN_PUBLIC_HOSTNAME="localhost"
 ONBUILD ENV PA_ENGINE_PUBLIC_HOSTNAME="localhost"
 ONBUILD ENV PA_ADMIN_PUBLIC_HOSTNAME="localhost"
 
-# the default administrative user for PingData
+#-- the default administrative user for PingData
 ONBUILD ENV ROOT_USER_DN="cn=administrator"
 
 ONBUILD ENV PATH="${BASE}:${SERVER_ROOT_DIR}/bin:${PATH}"

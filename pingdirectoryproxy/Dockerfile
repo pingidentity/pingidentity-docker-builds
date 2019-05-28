@@ -1,4 +1,15 @@
-# Default to Alpine
+#- # Ping Identity DevOps Docker Image - `pingdirectoryproxy`
+#- 
+#- This docker image includes the Ping Identity PingDirectoryProxy product binaries
+#- and associated hook scripts to create and run a PingDirectoryProxy instance or 
+#- instances.
+#-
+#- ## Related Docker Images
+#- - pingidentity/pingbase - Parent Image
+#- - pingidentity/pingdatacommon - Common PingData files (i.e. hook scripts)
+#- - pingidentity/pingdownloader - Used to download product bits
+#-
+
 ARG SHIM=alpine
 
 FROM pingidentity/pingdownloader as staging
@@ -32,7 +43,6 @@ ENV LICENSE_VERSION=7.2
 # This is a candidate to move to pingbase
 ENV REPLICATION_PORT=8989
 ENV PING_PRODUCT="PingDirectoryProxy"
-EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT} 5005
 # the replication administrative user
 ENV ADMIN_USER_NAME="admin"
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
@@ -42,5 +52,6 @@ ENV ADMIN_USER_PASSWORD_FILE="${SECRETS_DIR}/admin-user-password"
 ENV ENCRYPTION_PASSWORD_FILE="${SECRETS_DIR}/encryption-password"
 ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access"
 ENV MAKELDIF_USERS=0
+EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT} 5005
 COPY --from=pingidentity/pingdatacommon /opt ${BASE}
 COPY --from=staging /opt ${BASE}

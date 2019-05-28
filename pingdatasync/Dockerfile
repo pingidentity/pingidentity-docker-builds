@@ -1,4 +1,13 @@
-# Default to Alpine
+#- # Ping Identity DevOps Docker Image - `pingdatasync`
+#- 
+#- This docker image includes the Ping Identity PingDataSync product binaries
+#- and associated hook scripts to create and run a PingDataSync instance.
+#-
+#- ## Related Docker Images
+#- - pingidentity/pingbase - Parent Image
+#- - pingidentity/pingdatacommon - Common PingData files (i.e. hook scripts)
+#- - pingidentity/pingdownloader - Used to download product bits
+
 ARG SHIM=alpine
 
 FROM pingidentity/pingdownloader as staging
@@ -27,7 +36,7 @@ COPY [ "build.test.sh", "/opt/tests/" ]
 # The final image
 #
 FROM pingidentity/pingbase:${SHIM}
-EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT}
+
 ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/sync"
 ENV LICENSE_FILE_NAME="PingDirectory.lic"
 ENV LICENSE_SHORT_NAME=PD
@@ -36,5 +45,20 @@ ENV PING_PRODUCT=PingDataSync
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
 ENV STARTUP_FOREGROUND_OPTS="--nodetach"
 ENV ROOT_USER_PASSWORD_FILE="${SECRETS_DIR}/root-user-password"
+
+EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT}
+
 COPY --from=pingidentity/pingdatacommon "/opt" "${BASE}"
 COPY --from=staging "/opt" "${BASE}"
+
+#- ## Running a PingDataSync container
+#- ```
+#-   docker run \
+#-            --name pingdatasync \
+#-            --publish 1389:389 \
+#-            --publish 8443:443 \
+#-            --detach \
+#-            --env SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git \
+#-            --env SERVER_PROFILE_PATH=simple-sync/pingdatasync \
+#-            pingidentity/pingdatasync
+#- ```

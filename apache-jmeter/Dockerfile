@@ -1,3 +1,10 @@
+#- # Ping Identity Docker Image - `apache-jmeter`
+#- 
+#- This docker image provides an alpine Apache JMeter image
+#-
+#- ## Related Docker Images
+#- - `openjdk:8-jre-alpine` - Alpine with OpenJDK to run Apache JMeter
+#-
 FROM openjdk:8-jre-alpine
 ARG JMETER_VERSION
 ENV BASE "/opt"
