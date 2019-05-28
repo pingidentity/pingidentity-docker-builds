@@ -2,7 +2,7 @@
 
 ## Documentation
 
-* [PingDirectory Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-images/ping_directory) - Information on this image
+* [PingDirectory Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-images/pingdirectory) - Information on this image
 
 * [DevOps Program Documentation](https://pingidentity-devops.gitbook.io/devops) - Getting started with Ping Identity DevOps Program
 
