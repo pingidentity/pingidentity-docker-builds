@@ -12,9 +12,8 @@
 Before running this image, you must obtain an evaluation [license](https://www.pingidentity.com/en/account/request-license-key.html). 
 
 ## Commercial Support
-This image is currently under development and is not officially 
-supported by Ping Identity.  It should not be used for any 
-production use cases.
+THE SOFTWARE PROVIDED HEREUNDER IS PROVIDED ON AN "AS IS" BASIS, WITHOUT
+ANY WARRANTIES OR REPRESENTATIONS EXPRESS, IMPLIED OR STATUTORY
 
 Please contact devops_program@pingidentity.com for details
 
