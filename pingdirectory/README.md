@@ -13,7 +13,7 @@ Before running this image, you must obtain an evaluation [license](https://www.p
 
 ## Commercial Support
 THE SOFTWARE PROVIDED HEREUNDER IS PROVIDED ON AN "AS IS" BASIS, WITHOUT
-ANY WARRANTIES OR REPRESENTATIONS EXPRESS, IMPLIED OR STATUTORY
+ANY WARRANTIES OR REPRESENTATIONS EXPRESS, IMPLIED OR STATUTORY.
 
 Please contact devops_program@pingidentity.com for details
 
