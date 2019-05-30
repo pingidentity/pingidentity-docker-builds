@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 #
-# Ping Identity DevOps - Docker Build
+# Ping Identity DevOps - Docker Build Hooks
 #
 # Prints out variables and startup information when the server is started.
 #
