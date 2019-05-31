@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-
+rm -rf /tmp/docker-images
 cd ../"$( dirname "${0}" )"
 THIS="$( basename "${0}" )"
 OUTPUT_DIR=/tmp
@@ -274,6 +274,7 @@ do
 done
 
 cd /tmp
+rm -rf pingidentity-devops-getting-started
 git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-devops-getting-started.git
 cp -r docker-images pingidentity-devops-getting-started/docs
 cd pingidentity-devops-getting-started
