@@ -274,11 +274,11 @@ do
 done
 
 cd /tmp
-git config user.email "devops_program@pingidentity.com"
-git config user.name "devops_program"
 git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-devops-getting-started.git
 cp -r docker-images pingidentity-devops-getting-started/docs
 cd pingidentity-devops-getting-started
+git config user.email "devops_program@pingidentity.com"
+git config user.name "devops_program"
 git add .
 git commit -m "updated from docker-builds"
 git push origin master
