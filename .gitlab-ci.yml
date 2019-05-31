@@ -17,7 +17,6 @@ env_setup:
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /.*[test_only].*/
 
 refresh_external_images:
   stage: ci_setup
@@ -31,7 +30,6 @@ refresh_external_images:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       
-
 
 pingfoundation:
   stage: build_foundation
@@ -48,7 +46,6 @@ pingfoundation:
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /.*[test_only].*/
       
 
 pingdownloader:
@@ -113,6 +110,7 @@ deploy_ldap-sdk-tools:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ *[test_only]*
       
 
 build_pingaccess:
@@ -167,6 +165,7 @@ deploy_pingaccess:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ *[test_only]*
       
 
 build_pingdirectory:
@@ -409,6 +408,7 @@ push_to_github:
   script:
     - git --version
     - sh ci_scripts/push_to_github.sh
+    - sh ci_scripts/deploy_docs.sh
   only:
     refs:
       - master

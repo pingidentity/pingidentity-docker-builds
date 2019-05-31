@@ -8,7 +8,6 @@ contains() {
     if test "${string#*$substring}" != "$string"
     then
         eval "$1"=true
-        echo "it's true"
     else
         return 1    # $substring is not in $string
     fi
