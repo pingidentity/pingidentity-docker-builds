@@ -17,6 +17,7 @@ env_setup:
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /.*[test_only].*/
 
 refresh_external_images:
   stage: ci_setup
