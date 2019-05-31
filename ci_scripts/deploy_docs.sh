@@ -274,9 +274,9 @@ do
 done
 
 cd /tmp
-git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-devops-getting-started.git
 git config user.email "devops_program@pingidentity.com"
 git config user.name "devops_program"
+git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-devops-getting-started.git
 cp -r docker-images pingidentity-devops-getting-started/docs
 cd pingidentity-devops-getting-started
 git add .
