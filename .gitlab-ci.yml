@@ -47,7 +47,7 @@ pingfoundation:
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ .*[test_only].*
+      - $CI_COMMIT_MESSAGE =~ /.*[test_only].*/
       
 
 pingdownloader:
