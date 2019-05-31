@@ -110,7 +110,7 @@ deploy_ldap-sdk-tools:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ *[test_only]*
+      
       
 
 build_pingaccess:
@@ -165,7 +165,7 @@ deploy_pingaccess:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ *[test_only]*
+      
       
 
 build_pingdirectory:
