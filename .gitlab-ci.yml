@@ -29,7 +29,7 @@ refresh_external_images:
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 
 pingfoundation:
@@ -64,7 +64,7 @@ pingdownloader:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
    
 build_ldap-sdk-tools:
   stage: build
@@ -79,7 +79,7 @@ build_ldap-sdk-tools:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 test_ldap-sdk-tools:
   stage: test
@@ -94,7 +94,7 @@ test_ldap-sdk-tools:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 deploy_ldap-sdk-tools:
   stage: deploy
@@ -112,7 +112,7 @@ deploy_ldap-sdk-tools:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 build_pingaccess:
   stage: build
@@ -129,7 +129,7 @@ build_pingaccess:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 test_pingaccess:
   stage: test
@@ -146,7 +146,7 @@ test_pingaccess:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
       
 deploy_pingaccess:
   stage: deploy
@@ -166,7 +166,7 @@ deploy_pingaccess:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 build_pingdirectory:
   stage: build
@@ -184,7 +184,7 @@ build_pingdirectory:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 test_pingdirectory:
   stage: test
@@ -202,7 +202,7 @@ test_pingdirectory:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 deploy_pingdirectory:
   stage: deploy
@@ -223,7 +223,7 @@ deploy_pingdirectory:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 build_pingdataconsole:
   stage: build
@@ -238,7 +238,7 @@ build_pingdataconsole:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 deploy_pingdataconsole:
   stage: deploy
@@ -256,7 +256,7 @@ deploy_pingdataconsole:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
       
 build_pingdatasync:
   stage: build
@@ -274,7 +274,7 @@ build_pingdatasync:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 test_pingdatasync:
   stage: test
@@ -292,7 +292,7 @@ test_pingdatasync:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 deploy_pingdatasync:
   stage: deploy
@@ -313,7 +313,7 @@ deploy_pingdatasync:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 build_pingfederate:
   stage: build
@@ -330,7 +330,7 @@ build_pingfederate:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 test_pingfederate:
   stage: test
@@ -347,7 +347,7 @@ test_pingfederate:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 deploy_pingfederate:
   stage: deploy
@@ -367,7 +367,7 @@ deploy_pingfederate:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 # pingdirectoryproxy:
 #   stage: build
@@ -383,7 +383,7 @@ deploy_pingfederate:
 #       - pingdownloader/**/*
 #     except:
 #       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-#       - $test_only = "true"
+#       
 
 # pingdelegator:
 #   stage: build
@@ -401,7 +401,7 @@ deploy_pingfederate:
 #       - pingdownloader/**/*
 #     except:
 #       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-#       - $test_only = "true"
+#       
 
 push_to_github:
   stage: deploy
@@ -417,7 +417,7 @@ push_to_github:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $test_only = "true"
+      
 
 clean_environment:
   stage: cleanup
