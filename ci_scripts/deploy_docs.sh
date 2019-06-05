@@ -226,7 +226,7 @@ parse_dockerfile()
     done
 
     append_doc "## Docker Container Hook Scripts"
-    append_doc "Please go [here](https://github.com/pingidentity/pingidentity-devops-getting-started/tree/master/docs/docker-images/${_dockerImgage}/hooks/README.md) for details on all ${_dockerImage} hook scripts"
+    append_doc "Please go [here](https://github.com/pingidentity/pingidentity-devops-getting-started/tree/master/docs/docker-images/${_dockerImage}/hooks/README.md) for details on all ${_dockerImage} hook scripts"
     append_footer "${_dockerImage}/Dockerfile"
 }
 
