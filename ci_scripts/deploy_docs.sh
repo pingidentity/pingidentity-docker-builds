@@ -226,7 +226,7 @@ parse_dockerfile()
     done
 
     append_doc "## Docker Container Hook Scripts"
-    append_doc "Please go [here](hooks/README.md) for details on all ${_dockerImage} hook scripts"
+    append_doc "Please go [here](https://github.com/pingidentity/pingidentity-devops-getting-started/tree/master/docs/docker-images/${_dockerImgage}/hooks/README.md) for details on all ${_dockerImage} hook scripts"
     append_footer "${_dockerImage}/Dockerfile"
 }
 
@@ -272,7 +272,7 @@ do
     parse_dockerfile "${dockerImage}"
     parse_hooks "${dockerImage}"
 done
-
+set -x
 cd /tmp
 rm -rf pingidentity-devops-getting-started
 git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-devops-getting-started.git
@@ -283,3 +283,4 @@ git config user.name "devops_program"
 git add .
 git commit -m "updated from docker-builds"
 git push origin master
+set +x
