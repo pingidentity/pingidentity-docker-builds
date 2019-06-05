@@ -2,14 +2,15 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-# Using the envsubst command, this will look through any files that end in 
-# substr and substitute any variables the files with the the value of those
-# variables.
-#
-# Variables may come from:
-#  - The container's os
-#  - The environment variables or env-file passed to continaer on startup
-#  - The 'env_vars' file from the profiles
+#- Using the envsubst command, this will look through any files that end in 
+#- `substr` and substitute any variables the files with the the value of those
+#- variables.
+#-
+#- Variables may come from (in order of precedence):
+#-  - The 'env_vars' file from the profiles
+#-  - The environment variables or env-file passed to continaer on startup
+#-  - The container's os
+#-
 ${VERBOSE} && set -x
 
 # shellcheck source=../lib.sh disable=SC2153
@@ -22,34 +23,58 @@ if test -f "${STAGING_DIR}/env_vars" ; then
     set +o allexport
 fi
 
-# Allows the forcing a shell variable to be used in any template
-# Example: ${_DOLLAR_}{username} ==> ${username} 
+#- >Note: If a string of $name is sould be ignored during a substitution, then 
+#- A special vabiable ${_DOLLAR_} should be used.
+#-
+#- >Example: ${_DOLLAR_}{username} ==> ${username}
+#-  
 # shellcheck disable=SC2034
 export _DOLLAR_="$"
 
-# expand templates that are bundled together in zip files
-# (useful for pingfederate for example with data.zip)
-# shellcheck disable=SC2044
-for bundle in $( find "${STAGING_DIR}/" -type f -iname \*.zip.subst ) ; do
-    base="/tmp/zip"
-    mkdir -p ${base} || exit 151
-    unzip -d "${base}" "${bundle}" || exit 152
+#- If a .zip file ends with `.zip.subst` then:
+#- - file will be unzipped 
+#- - any files ending in `.subst` will be processed to substiture variables
+#- - zipped back up in to the same file without the `.substr` suffix
+#- This is especially useful for pingfederate for example with data.zip
+#-
+
+#
+# exapend files in current directory
+# we check if there are templates that we have to run through env subst
+#
+expandFiles()
+{
     # shellcheck disable=SC2044
-    for template in $( find "${base}/" -type f -iname \*.subst ) ; do
-        ${VERBOSE} && echo "envsubst < ${template} > ${template%.subst}"
+    for template in $( find "." -type f -iname \*.subst ) ; do
+        echo "  - ${template}"
         envsubst < "${template}" > "${template%.subst}"
         rm -f "${template}"
     done
-    cd "${base}" || exit 153
-    # shellcheck disable=2035
-    zip -r "${bundle%.subst}" * || exit 154
-    rm -rf "${base}"
-    rm -f "${bundle}"
+}
+
+# main
+cd "${STAGING_DIR}"
+for _zipBundle in $( find "." -type f -iname \*.zip.subst ) ; do
+    echo "exapanding .zip file - ${_zipBundle}"
+
+    # create a temporary zip directory and unzip the .zip.subst artifacts there
+    _zipBase="/tmp/zip"
+    mkdir -p ${_zipBase} || exit 151
+    unzip -qd "${_zipBase}" "${STAGING_DIR}/${_zipBundle}" || exit 152
+    
+    # change directory to the expanded .zip and expand all files
+    cd "${_zipBase}" || exit 153
+    
+    expandFiles
+
+    # zip up the newly expanded files into a new zip
+    zip -qr "${STAGING_DIR}/${_zipBundle%.subst}" * || exit 154
+
+    # cleanup temporary zip directory and old .subst file
+    rm -rf "${_zipBase}"
+    rm -f "${STAGING_DIR}/${_zipBundle}"
 done
 
-
-# we check if there are templates that we have to run through env subst
-# shellcheck disable=SC2044
-for template in $( find "${STAGING_DIR}/" -type f -iname \*.subst ) ; do 
-    envsubst < "${template}" > "${template%.*}"
-done
+echo "exapanding files..."
+cd "${STAGING_DIR}"
+expandFiles

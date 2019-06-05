@@ -2,8 +2,8 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-# Quarterbacks all the scripts associated with the setup of a
-# PingData product
+#- Quarterbacks all the scripts associated with the setup of a
+#- PingData product
 #
 ${VERBOSE} && set -x
 

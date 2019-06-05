@@ -2,6 +2,14 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
+# TODO A lot needs to be done here
+# TODO 1. Rather than a git pull, we might need to do a git clone/branch/tag based on server profile.
+# TODO    i.e. what if it chagnes
+# TODO
+# TODO 2. expansion of templates?
+# TODO
+# TODO For PingData products, a lot of this will change with native server-profiles
+#
 ${VERBOSE} && set -x
 
 # shellcheck source=lib.sh

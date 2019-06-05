@@ -2,10 +2,10 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-# Check for license file
-#  1. If in SERVER_ROOT_DIR, good
-#  2. If PING_IDENTITY_DEVOPS_USER and PING_IDENTITY_DEVOPS_KEY
-#     provided then pull eval license from license server
+#- Check for license file
+#- - If in SERVER_ROOT_DIR, good
+#- - If PING_IDENTITY_DEVOPS_USER and PING_IDENTITY_DEVOPS_KEY
+#- provided then pull eval license from license server
 #
 #  TODO - Should probably add more mechanisms to pull from other
 #         locations (i.e. vaults/secrets)

@@ -2,10 +2,10 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-# This hook can be called to run the actual setup command line tool.
-#
-# It should be overridden by all the PingData product images.
-#
+#- This hook can be called to run the actual setup command line tool.
+#-
+#- It should be overridden by all the PingData product images.
+#-
 
 # shellcheck source=../lib.sh
 . "${BASE}/lib.sh"

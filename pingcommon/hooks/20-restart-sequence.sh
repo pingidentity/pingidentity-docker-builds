@@ -2,8 +2,8 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-# This hook is called when the container has been built in a prior startup
-# and a configuration has been found.
+#- This hook is called when the container has been built in a prior startup
+#- and a configuration has been found.
 #
 ${VERBOSE} && set -x
 

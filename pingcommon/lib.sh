@@ -107,8 +107,11 @@ die_on_error ()
 apply_local_server_profile()
 {
     if ! test -z "$( ls -A ${IN_DIR} )" ; then
-      # shellcheck disable=SC2086
-      cp -af ${IN_DIR}/* "${STAGING_DIR}"
+        echo "copying local IN_DIR files (${IN_DIR}) to STAGING_DIR (${STAGING_DIR})"
+        # shellcheck disable=SC2086
+        cp -af ${IN_DIR}/* "${STAGING_DIR}"
+    else
+        echo "no local IN_DIR files (${IN_DIR}) found."
     fi
 }
 
@@ -127,7 +130,7 @@ sleep_at_most ()
     result=$(( RANDOM % modulus ))
     duration=$(( result + 1))
 
-    echo "Sleeping up to ${duration} seconds (max: ${max})"
+    echo "Sleeping ${duration} seconds (max: ${max})"
   
     sleep ${duration}
 }
