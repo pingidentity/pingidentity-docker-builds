@@ -3,7 +3,7 @@
 # Ping Identity DevOps - Docker Build Hooks
 #
 #- Using the envsubst command, this will look through any files that end in 
-#- `substr` and substitute any variables the files with the the value of those
+#- `subst` and substitute any variables the files with the the value of those
 #- variables.
 #-
 #- Variables may come from (in order of precedence):
@@ -34,7 +34,7 @@ export _DOLLAR_="$"
 #- If a .zip file ends with `.zip.subst` then:
 #- - file will be unzipped 
 #- - any files ending in `.subst` will be processed to substiture variables
-#- - zipped back up in to the same file without the `.substr` suffix
+#- - zipped back up in to the same file without the `.subst` suffix
 #- This is especially useful for pingfederate for example with data.zip
 #-
 
