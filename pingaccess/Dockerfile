@@ -5,9 +5,10 @@
 #- Engine nodes. 
 #-
 #- ## Related Docker Images
-#- - pingidentity/pingbase - Parent Image
-#- - pingidentity/pingcommon - Common Ping files (i.e. hook scripts)
-#- - pingidentity/pingdownloader - Used to download product bits
+#- - `pingidentity/pingbase` - Parent Image
+#- 	>**This image inherits, and can use, Environment Variables from [pingidentity/pingbase](https://pingidentity-devops.gitbook.io/devops/docker-images/pingbase)**
+#- - `pingidentity/pingcommon` - Common Ping files (i.e. hook scripts)
+#- - `pingidentity/pingdownloader` - Used to download product bits
 #-
 # Default to Alpine
 ARG SHIM=alpine
