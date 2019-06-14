@@ -39,7 +39,7 @@ export _DOLLAR_="$"
 #-
 
 #
-# exapend files in current directory
+# expand files in current directory
 # we check if there are templates that we have to run through env subst
 #
 expandFiles()

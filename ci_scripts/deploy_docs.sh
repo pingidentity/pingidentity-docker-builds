@@ -60,6 +60,21 @@ append_footer()
 #
 append_env_table_header()
 {
+    case ${dockerImage} in pingaccess|pingdirectory|pingdatasync|pingfederate)
+    if test "${ENV_TABLE_ACTIVE}" != "true" ; then
+        ENV_TABLE_ACTIVE="true"
+
+        append_doc "## Environment Variables"
+        append_doc "In addition to environment variables inherited from **[pingidentity/pingbase](https://pingidentity-devops.gitbook.io/devops/docker-images/pingbase)**," 
+        append_doc "the following environment \`ENV\` variables can be used with "
+        append_doc "this image. "
+        append_doc ""
+
+        append_doc "| ENV Variable  | Default     | Description"
+        append_doc "| ------------: | ----------- | ---------------------------------"
+    fi
+    ;;
+    * )
     if test "${ENV_TABLE_ACTIVE}" != "true" ; then
         ENV_TABLE_ACTIVE="true"
 
@@ -71,6 +86,8 @@ append_env_table_header()
         append_doc "| ENV Variable  | Default     | Description"
         append_doc "| ------------: | ----------- | ---------------------------------"
     fi
+    ;;
+    esac
 }
 
 #
