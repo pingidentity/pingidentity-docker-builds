@@ -67,24 +67,52 @@ if  test "${proceedWithImport}" = "true" && test -d "${STAGING_DIR}/data" ; then
                 echo "Please refer to ${SERVER_ROOT_DIR}/logs/tools/import* files for details."
             fi
 
+            # Capture rejected, skipped and an import log
+            _rejectedFile="${SERVER_ROOT_DIR}/logs/tools/import-ldif.rejected"
+            _skippedFile="${SERVER_ROOT_DIR}/logs/tools/import-ldif.skipped"
+            _importLogFile="${SERVER_ROOT_DIR}/logs/tools/import-ldif.log"
+
+            _numSkipped=0
+            _numRejected=0
+
             # shellcheck disable=SC2086
             # if we double quote filesToImport the import command will fail
             "${SERVER_ROOT_DIR}/bin/import-ldif" \
-                --rejectFile "${SERVER_ROOT_DIR}/logs/tools/import-ldif.rejected" \
-                --skipFile "${SERVER_ROOT_DIR}/logs/tools/import-ldif.skipped" \
+                --rejectFile "${_rejectedFile}" \
+                --skipFile "${_skippedFile}" \
                 --clearBackend \
                 --backendID "${backend}" \
                 --addMissingRdnAttributes \
                 --overwriteExistingEntries \
-                --countRejects \
+                --logFilePath "${_importLogFile}" \
                 ${IMPORT_OPT} \
                 ${filesToImport} \
                 2>/dev/null
             
-            numRejections=$?
+            # Check to see if there are any skipped entries.  If so, then echo those errors
+            if test -s ${_skippedFile} ; then
+                grep "^# " ${_skippedFile} > /tmp/skipped
+                _numSkipped=$(wc -l < /tmp/skipped)
+                echo_red "Import resulted in ${_numSkipped} skipped entries"
+                cat_indent /tmp/skipped
+            fi
 
-            if test ${numRejections} -gt 0 ; then
-                echo_red "Import resulted in ${numRejections} rejected entries"
+            # Check to see if there are any refected entries.  If so, then echo those errors
+            if test -s ${_rejectedFile} ; then
+                grep "^# " ${_rejectedFile} > /tmp/rejected
+                _numRejected=$(wc -l < /tmp/rejected)
+                echo_red "Import resulted in ${_numRejected} rejected entries"
+                cat_indent /tmp/rejected
+            fi
+
+            # If there are any skipped/rejected entreis and there isn't a flag to conitnue on
+            # error, then create a container failure
+            if test $((_numSkipped + _numRejected)) -gt 0 ; then
+                if test "${PD_IMPORT_CONTINUE_ON_ERROR}" == "true" ; then
+                    echo_red "Import issues found!  Continuing based on envionment variable PD_IMPORT_CONTINUE_ON_ERROR=true"
+                else
+                    container_failure 189 "Unable to import .ldif data.  Resolve issues above or pass environmnet variable PD_IMPORT_CONTINUE_ON_ERROR=true."
+                fi
             fi
         done
     fi
