@@ -193,7 +193,7 @@ build_pingdirectory:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /[skip build]/
+      #- $CI_COMMIT_MESSAGE =~ /[skip build]/
       
 
 test_pingdirectory:
@@ -212,7 +212,7 @@ test_pingdirectory:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /[skip build]/
+      #- $CI_COMMIT_MESSAGE =~ /[skip build]/
       
 
 deploy_pingdirectory:
@@ -234,7 +234,7 @@ deploy_pingdirectory:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /[skip build]/
+      #- $CI_COMMIT_MESSAGE =~ /[skip build]/
       
 
 build_pingdataconsole:

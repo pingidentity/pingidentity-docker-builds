@@ -12,7 +12,6 @@
 #-
 ARG SHIM=alpine
 
-
 FROM pingidentity/pingdownloader as staging
 ARG PRODUCT=pingdirectory
 ARG VERSION=7.2.1.0
