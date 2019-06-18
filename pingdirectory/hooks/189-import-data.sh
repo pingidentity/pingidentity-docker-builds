@@ -2,6 +2,16 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
+#- This hook will import data into the PingDirectory if there are data files
+#- included in the server profile data directory.
+#-
+#- If a .template file is provided, then makeldif will be run to create the .ldif
+#- file to be imported.
+#-
+#- If there are any skipped or rejected entries, an error message will be printed
+#- and the container will exit, unless the environment variable
+#- `PD_IMPORT_CONTINUE_ON_ERROR=true` is provided when the container is run.
+#
 ${VERBOSE} && set -x
 
 # shellcheck source=../lib.sh
