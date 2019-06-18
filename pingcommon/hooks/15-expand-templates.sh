@@ -53,7 +53,8 @@ expandFiles()
 }
 
 # main
-cd "${STAGING_DIR}"
+cd "${STAGING_DIR}" || exit 15
+# shellcheck disable=SC2044
 for _zipBundle in $( find "." -type f -iname \*.zip.subst ) ; do
     echo "exapanding .zip file - ${_zipBundle}"
 
@@ -76,5 +77,5 @@ for _zipBundle in $( find "." -type f -iname \*.zip.subst ) ; do
 done
 
 echo "exapanding files..."
-cd "${STAGING_DIR}"
+cd "${STAGING_DIR}" || exit 15
 expandFiles
