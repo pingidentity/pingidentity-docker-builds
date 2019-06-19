@@ -11,4 +11,8 @@ git config user.name "devops_program"
 
 git remote add gh_location https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-docker-builds.git
 
-git push gh_location master
+if test -z "$CI_COMMIT_TAG"; then
+  git push gh_location "$CI_COMMIT_TAG"
+else 
+  git push gh_location master
+fi
