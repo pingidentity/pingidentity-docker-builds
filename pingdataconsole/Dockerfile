@@ -10,7 +10,7 @@
 
 FROM pingidentity/pingdownloader as staging
 ARG PRODUCT=pingdirectory
-ARG VERSION=7.2.0.1
+ARG VERSION=7.3.0.0
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 	&& unzip -d /tmp/ /tmp/product.zip PingDirectory/resource/admin-console.zip \

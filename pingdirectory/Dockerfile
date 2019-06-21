@@ -14,7 +14,7 @@ ARG SHIM=alpine
 
 FROM pingidentity/pingdownloader as staging
 ARG PRODUCT=pingdirectory
-ARG VERSION=7.2.1.0
+ARG VERSION=7.3.0.0
 
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
@@ -43,7 +43,7 @@ ENV LICENSE_FILE_NAME=PingDirectory.lic
 #-- Shortname used when retrieving license from License Server
 ENV LICENSE_SHORT_NAME=PD
 #-- Version used when retrieving license from License Server
-ENV LICENSE_VERSION=7.2
+ENV LICENSE_VERSION=7.3
 
 #-- Default PingDirectory Replication Port
 ENV REPLICATION_PORT=8989

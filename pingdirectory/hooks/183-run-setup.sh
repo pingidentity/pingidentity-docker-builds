@@ -10,6 +10,7 @@ ${VERBOSE} && set -x
 # shellcheck source=../pingdatacommon/pingdata.lib.sh
 test -f "${BASE}/pingdata.lib.sh" && . "${BASE}/pingdata.lib.sh"
 
+# We might need this stuff below 
 certificateOptions=$( getCertificateOptions )
 
 encryptionOption="--encryptDataWithRandomPassphrase"
@@ -33,27 +34,12 @@ case "${JVM_TUNING}" in
         ;;
 esac
 
-# using ${HOSTNAME} always works on Docker
-# the ports variables don't need to be quoted they never have whitespaces
-# shellcheck disable=SC2039,SC2086
-"${SERVER_ROOT_DIR}"/setup \
-    --no-prompt \
-    --verbose \
-    --acceptLicense \
-    --instanceName "${HOSTNAME}" \
-    --location "${LOCATION}" \
-    --skipPortCheck \
-    --ldapPort ${LDAP_PORT} \
-    --ldapsPort ${LDAPS_PORT} \
-    --httpsPort ${HTTPS_PORT} \
-    --enableStartTLS \
-    ${jvmOptions} \
-    ${certificateOptions} \
-    ${encryptionOption} \
-    --rootUserDN "${ROOT_USER_DN}" \
-    --rootUserPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
-    --baseDN "${USER_BASE_DN}" \
-    --addBaseEntry \
-    --doNotStart 2>&1
+export certificateOptions encryptionOption jvmOptions 
 
-die_on_error 77 "Instance setup unsuccessful"
+# run the manage-profile to setup the server
+"${SERVER_ROOT_DIR}"/bin/manage-profile setup \
+    --profile "${STAGING_DIR}/pd.profile" \
+    --profileVariablesFile "${STAGING_DIR}/env_vars" \
+    --useEnvironmentVariables \
+    --tempProfileDirectory "/tmp" \
+    --doNotStart

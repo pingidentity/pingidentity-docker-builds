@@ -13,6 +13,9 @@ test -f "${STAGING_DIR}/env_vars" && . "${STAGING_DIR}/env_vars"
 ####
 # cleanup the replication topology in case it has some defunct servers
 ###
+
+# NEW 7.3 remove-defunct-server --serverInstanceName c68f0ce0e576 --ignoreOnline -D cn=administrator -w 2FederateM0re -n
+
 status=$( dsreplication status --script-friendly )
 firstLiveServer=$( echo "${status}" | awk 'BEGIN {s=""} $1~/Server:/{s=$2} $1~/Entries:/ && $2!~/N\/A/{print s;exit 0}' )
 # shellcheck disable=2086,2039

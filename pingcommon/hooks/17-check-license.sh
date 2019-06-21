@@ -44,7 +44,7 @@ else
     # Let's get the license from the license server
     ##################################################################
     if ! test -z "${LICENSE_SHORT_NAME}" && ! test -z "${LICENSE_VERSION}" ; then
-        echo "Pulling evauation license from Ping Identity for ${LICENSE_SHORT_NAME} v${LICENSE_VERSION}..."
+        echo "Pulling evaluation license from Ping Identity for ${LICENSE_SHORT_NAME} v${LICENSE_VERSION}..."
         
         licenseCurlResult=$( curl -kL -w '%{http_code}' -G \
             --data-urlencode "product=${LICENSE_SHORT_NAME}" \

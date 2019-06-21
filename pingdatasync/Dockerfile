@@ -14,7 +14,7 @@ ARG SHIM=alpine
 
 FROM pingidentity/pingdownloader as staging
 ARG PRODUCT=pingdatasync
-ARG VERSION=7.2.1.0
+ARG VERSION=7.3.0.0
 
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
@@ -42,7 +42,7 @@ FROM pingidentity/pingbase:${SHIM}
 ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/sync"
 ENV LICENSE_FILE_NAME="PingDirectory.lic"
 ENV LICENSE_SHORT_NAME=PD
-ENV LICENSE_VERSION=7.2
+ENV LICENSE_VERSION=7.3
 ENV PING_PRODUCT=PingDataSync
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
 ENV STARTUP_FOREGROUND_OPTS="--nodetach"

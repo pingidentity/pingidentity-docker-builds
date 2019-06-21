@@ -14,7 +14,7 @@ ARG SHIM=alpine
 
 FROM pingidentity/pingdownloader as staging
 ARG PRODUCT=pingdirectoryproxy
-ARG VERSION=7.2.1.0
+ARG VERSION=7.3.0.0
 
 # copy the product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
@@ -39,7 +39,7 @@ COPY [ "hooks/","/opt/staging/hooks/" ]
 FROM pingidentity/pingbase:${SHIM}
 ENV LICENSE_FILE_NAME=PingDirectory.lic
 ENV LICENSE_SHORT_NAME=PD
-ENV LICENSE_VERSION=7.2
+ENV LICENSE_VERSION=7.3
 # This is a candidate to move to pingbase
 ENV REPLICATION_PORT=8989
 ENV PING_PRODUCT="PingDirectoryProxy"

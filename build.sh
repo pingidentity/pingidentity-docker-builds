@@ -62,7 +62,7 @@ buildAndTag ()
 
     if test ${resCode} -eq 0 ; then
         resultMessage="#   Result: ${green}Successful build${normal}\n"
-        resultMessage+="#           $( docker images "${image}" | grep -v "REPOSITORY" )"
+        resultMessage="${resultMessage}#           $( docker images "${image}" | grep -v "REPOSITORY" )"
         
     else
         resultMessage="#   Result: ${red}Error during build ($resCode)${normal}"
