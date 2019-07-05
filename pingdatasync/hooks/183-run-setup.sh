@@ -4,29 +4,28 @@
 #
 ${VERBOSE} && set -x
 
-# shellcheck source=../lib.sh
-. "${BASE}/lib.sh"
+# shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
 
-# shellcheck source=../pingdatacommon/pingdata.lib.sh
-test -f "${BASE}/pingdata.lib.sh" && . "${BASE}/pingdata.lib.sh"
+# shellcheck source=../../pingdatacommon/hooks/pingdata.lib.sh
+test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 
+#
+# Build certification options
+#
 certificateOptions=$( getCertificateOptions )
 
-jvmOptions=""
-if ! test "${MAX_HEAP_SIZE}" = "AUTO" ; then
-    jvmOptions="--maxHeapSize ${MAX_HEAP_SIZE}"
-fi
-case "${JVM_TUNING}" in
-    NONE|AGGRESSIVE|SEMI_AGGRESSIVE)
-        jvmOptions="${jvmOptions} --jvmTuningParameter ${JVM_TUNING}"
-        ;;
-    *)
-        echo_red "**********"
-        echo_red "Unsupported JVM_TUNING value [${JVM_TUNING}]"
-        echo_red "Value must be NONE, AGGRESSIVE or SEMI_AGGRESSIVE"
-        exit 75
-        ;;
-esac
+#
+# Build encryption option.
+#
+encryptionOption=$( getEncryptionOption )
+
+#
+# Build jvm options.
+#
+jvmOptions=$( getJvmOptions )
+
+export certificateOptions encryptionOption jvmOptions 
 
 # shellcheck disable=SC2039,SC2086
 "${SERVER_ROOT_DIR}"/setup \

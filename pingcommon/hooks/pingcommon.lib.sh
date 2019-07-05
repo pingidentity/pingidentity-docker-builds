@@ -9,6 +9,9 @@ ${VERBOSE} && set -x
 # capture the calling hook so it can be echo'd later on
 CALLING_HOOK=${0}
 
+# File holding State Properties
+STATE_PROPERTIES="${STAGING_DIR}/state.properties"
+
 # echo colorization options
 RED_COLOR='\033[0;31m'
 GREEN_COLOR='\033[0;32m'
@@ -53,30 +56,28 @@ cat_indent ()
 ###############################################################################
 run_if_present ()
 {
-    runFile=${1}
+    _runFile=${1}
 
-    commandSet="sh"
-    ${VERBOSE} && commandSet="${commandSet} -x"
+    _commandSet="sh"
+    ${VERBOSE} && commandSet="${_commandSet} -x"
 
-    test -f "${runFile}" && ${commandSet} "${runFile}"
+    test -f "${_runFile}" && ${_commandSet} "${_runFile}"
 }
 
 ###############################################################################
 # container_failure (exitCode, errorMessage)
 #
 # echo a CONTAINER FAILURE with passed message
-# Wipe the runtime
 # exit with the exitCode
 ###############################################################################
 container_failure ()
 {
-    exitCode=${1} && shift
+    _exitCode=${1} && shift
 
     echo_red "CONTAINER FAILURE: $*"
-    # wipe the runtime
-    rm -rf "${BASE}/out/instance"
+
     # shellcheck disable=SC2086
-    exit ${exitCode}
+    exit ${_exitCode}
 }
 
 ###############################################################################
@@ -89,12 +90,32 @@ container_failure ()
 ###############################################################################
 die_on_error ()
 {
-    errorCode=${?}
-    exitCode=${1} && shift
+    _errorCode=${?}
+    _exitCode=${1} && shift
 
-    if test ${errorCode} -ne 0 ; then
-        container_failure "$exitCode" "$*"
+    if test ${_errorCode} -ne 0 ; then
+        container_failure "${_exitCode}" "$*"
     fi
+}
+
+###############################################################################
+# run_hook (hookName)
+#
+# Run the hook passed, and if there is an error, die with the exit number that
+# the file starts with.
+#
+# If the number is > 256, then it will result in a return of that number mod 256
+################################################################################
+run_hook ()
+{
+    _hookScript="$1"
+    _hookExit=$( echo "${_hookScript}" | sed  's/^\([0-9]*\).*$/\1/g' )
+
+    test -z "${_hookExit}" && _hookExit=99
+
+    run_if_present "${HOOKS_DIR}/${_hookScript}"
+
+    die_on_error ${_hookExit} "Error running ${_hookScript}" || exit ${?}
 }
 
 ###############################################################################
@@ -123,16 +144,16 @@ apply_local_server_profile()
 ###############################################################################
 sleep_at_most ()
 {
-    max=$1
-    modulus=$(( max - 1 ))
+    _max=$1
+    _modulus=$(( _max - 1 ))
     # RANDOM tested on Alpine
     # shellcheck disable=SC2039
-    result=$(( RANDOM % modulus ))
-    duration=$(( result + 1))
+    _result=$(( RANDOM % _modulus ))
+    _duration=$(( _result + 1))
 
-    echo "Sleeping ${duration} seconds (max: ${max})"
+    echo "Sleeping ${_duration} seconds (max: ${_max})..."
   
-    sleep ${duration}
+    sleep ${_duration}
 }
 
 ###############################################################################
@@ -167,10 +188,24 @@ echo_header()
   echo "##################################################################################"
 }
 
+
+###############################################################################
+# error_req_var (var)
+#
+# Check for the requirement, values of a variable and 
+# Echo a formatted list of variables and their value.  If the variable is 
+# empty, then, a sring of '---- empty ----' will be echoed
+###############################################################################
+echo_req_vars()
+{
+    echo_red "# Variable (${_var}) is required."
+}
+
 ###############################################################################
 # echo_vars (var1, var2, ...)
 #
-# Echo a formatted list of variables and their value.  If the variable is 
+# Check for the requirement, values of a variable and
+# Echo a formatted list of variables and their value.  If the variable is
 # empty, then, a sring of '---- empty ----' will be echoed
 ###############################################################################
 echo_vars()
@@ -181,11 +216,45 @@ echo_vars()
     _val=$( get_value "${_var}" )
 
     printf "    %30s : %s\n" "${_var}" "${_val:---- empty ---}"
+
+    # Find out if there is a _VALIDATION string
+    #
+    # var_VALIDATION must be of format "true|valid values|message"
+    #
+    _varValidation="${_var}_VALIDATION"
+    _valValidation=$( get_value "${_varValidation}" )
+
+    # Parse the validation value if it exists
+    if test ! -z "${_valValidation}" ; then
+      _validReq=$( echo "${_valValidation}" | sed  's/^\(.*\)|\(.*\)|\(.*\)$/\1/g' )
+      _validVal=$( echo "${_valValidation}" | sed  's/^\(.*\)|\(.*\)|\(.*\)$/\2/g' )
+      _validMsg=$( echo "${_valValidation}" | sed  's/^\(.*\)|\(.*\)|\(.*\)$/\3/g' )
+
+      if test "${_validReq}" == "true" -a -z "${_val}" ; then
+        _validationFailed="true"
+        test "${_validReq}" == "true" && echo_red "         Required: ${_var}"
+        test ! -z "${_validVal}" && echo_red "     Valid Values: ${_validVal}"
+        test ! -z "${_validMsg}" && echo_red "        More Info: ${_validMsg}"
+      fi
+    fi
   done
 }
-
 
 ###############################################################################
 # main  
 ###############################################################################
 echo_green "----- Starting hook: ${CALLING_HOOK}"
+
+# shellcheck source=/dev/null
+if test -f "${STAGING_DIR}/env_vars" ; then
+    set -o allexport
+    . "${STAGING_DIR}/env_vars"
+    set +o allexport
+fi
+
+# shellcheck source=/dev/null
+if test -f "${STATE_PROPERTIES}" ; then
+    set -o allexport
+    . "${STATE_PROPERTIES}"
+    set +o allexport
+fi

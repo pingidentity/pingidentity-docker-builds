@@ -31,8 +31,8 @@
 #
 ${VERBOSE} && set -x
 
-# shellcheck source=../lib.sh
-. "${BASE}/lib.sh"
+# shellcheck source=pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
 
 ########################################################################################
 # performs a git clone on the server profile passed

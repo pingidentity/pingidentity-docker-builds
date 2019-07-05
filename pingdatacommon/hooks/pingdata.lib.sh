@@ -4,6 +4,10 @@
 #
 ${VERBOSE} && set -x
 
+# TODO - With the new manage-profile in directory, many of the options below, should be 
+# put into the setup-arguments.txt of the pd.profile.  Since they change from an initial
+# setup to a replacement (i.e. truststore info).
+
 getCertificateOptions ()
 {
     certificateOptions="--generateSelfSignedCertificate"
@@ -24,3 +28,37 @@ getCertificateOptions ()
     certificateOptions="${certificateOptions} --certNickname ${CERTIFICATE_NICKNAME:-server-cert}"
     echo "${certificateOptions}"
 }
+
+getEncryptionOption ()
+{
+    encryptionOption="--encryptDataWithRandomPassphrase"
+    
+    if test -f "${ENCRYPTION_PASSWORD_FILE}" ; then
+        encryptionOption="--encryptDataWithPassphraseFromFile ${ENCRYPTION_PASSWORD_FILE}"
+    else
+        echo_red "Encryption Random Passphrase will be used - Unable to setup replication"
+    fi
+
+    echo "${encryptionOption}"
+}
+
+getJvmOptions ()
+{
+    jvmOptions=""
+    if ! test "${MAX_HEAP_SIZE}" = "AUTO" ; then
+        jvmOptions="--maxHeapSize ${MAX_HEAP_SIZE}"
+    fi
+    case "${JVM_TUNING}" in
+        NONE|AGGRESSIVE|SEMI_AGGRESSIVE)
+            jvmOptions="${jvmOptions} --jvmTuningParameter ${JVM_TUNING}"
+            ;;
+        *)
+            echo_red "**********"
+            echo_red "Unsupported JVM_TUNING value [${JVM_TUNING}]"
+            echo_red "Value must be NONE, AGGRESSIVE or SEMI_AGGRESSIVE"
+            exit 75
+            ;;
+    esac
+    echo "${jvmOptions}"
+}
+

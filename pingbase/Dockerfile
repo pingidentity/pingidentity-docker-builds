@@ -32,7 +32,7 @@ ONBUILD RUN apt -y update \
         && apt -y install  openjdk-11-jdk curl gettext-base dnsutils git jq unzip \
         && apt-get -y autoremove \
         && rm -rf /var/lib/apt/lists/* \ 
-        && mkdir -p ${BASE}/tests
+        && mkdir -p ${BASE}/state ${BASE}/backup ${BASE}/logs ${BASE}/tests
 
 
 #
@@ -51,7 +51,7 @@ ONBUILD RUN yum update -y \
         && yum -y autoremove \
         && yum -y clean all \
         && rm -rf /var/cache/yum \
-        && mkdir -p ${BASE}/tests
+        && mkdir -p ${BASE}/state ${BASE}/backup ${BASE}/logs ${BASE}/tests
         
 
 #
@@ -68,7 +68,7 @@ ONBUILD RUN apk --no-cache add git curl ca-certificates jq zip \
     && apk add --virtual build_deps gettext \
     && cp /usr/bin/envsubst /usr/local/bin/envsubst \
     && apk del build_deps \
-    && mkdir -p ${BASE}/tests
+    && mkdir -p ${BASE}/state ${BASE}/backup ${BASE}/logs ${BASE}/tests
 
 
 FROM shim-${SHIM} 
@@ -84,6 +84,8 @@ ONBUILD ENV BASE=${BASE:-/opt}
 ONBUILD ENV IN_DIR=${BASE}/in
 #-- Path to the runtime volume
 ONBUILD ENV OUT_DIR=${BASE}/out
+#-- Path to the server bits
+ONBUILD ENV SERVER_BITS_DIR=${BASE}/server
 #-- Path to a volume generically used to export or backup data
 ONBUILD ENV BAK_DIR=${BASE}/backup
 #-- Default path to the secrets
@@ -129,6 +131,7 @@ ONBUILD ENV TAIL_LOG_FILES=""
 
 #-- Location default value
 ONBUILD ENV LOCATION=Docker
+ONBUILD ENV LOCATION_VALIDATION="true|Any string denoting a logical/physical location|Must be a string"
 
 #-- Heap size (for java products)
 ONBUILD ENV MAX_HEAP_SIZE=384m
@@ -143,6 +146,7 @@ ONBUILD ENV PING_DEBUG=false
 
 #-- The name of Ping product.  Should be overridden by child images.
 ONBUILD ENV PING_PRODUCT=""
+ONBUILD ENV PING_PRODUCT_VALIDATION="true|i.e. PingFederate,PingDirectory|Must be a valid Ping prouduct type"
 
 #-- Port over which to communicate for LDAP
 ONBUILD ENV LDAP_PORT=389
@@ -153,9 +157,13 @@ ONBUILD ENV HTTPS_PORT=443
 #-- Port for monitoring over JMX protocol
 ONBUILD ENV JMX_PORT=689
 
-ONBUILD ENV TOPOLOGY_SIZE=1
-ONBUILD ENV TOPOLOGY_PREFIX=""
-ONBUILD ENV TOPOLOGY_SUFFIX=""
+#-- The type of orchestration tool used to run the container, normally
+#-- set in the deployment (.yaml) file.  Expected values include:
+#-- - compose
+#-- - swarm
+#-- - kubernetes
+#-- Defaults to blank (i.e. No type is set)
+ONBUILD ENV ORCHESTRATION_TYPE=""
 
 ONBUILD ENV USER_BASE_DN=dc=example,dc=com
 ONBUILD ENV DOLLAR='$'

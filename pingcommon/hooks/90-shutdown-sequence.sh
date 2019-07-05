@@ -6,5 +6,5 @@
 #- >Note: this is most useful in Kubernetes but can be called arbitrarily by
 #- by control/config frameworks
 
-# shellcheck source=../lib.sh
-. "${BASE}/lib.sh"
+# shellcheck source=pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"

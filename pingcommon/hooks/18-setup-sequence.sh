@@ -7,5 +7,5 @@
 #- >Note: The PingData (i.e. Directory, DataSync, DataGovernance, DirectoryProxy) 
 #- products will all provide this
 
-# shellcheck source=../lib.sh
-. "${BASE}/lib.sh"
+# shellcheck source=pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"

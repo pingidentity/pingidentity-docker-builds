@@ -4,8 +4,8 @@
 #
 ${VERBOSE} && set -x
 
-# shellcheck source=../lib.sh
-. "${BASE}/lib.sh"
+# shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
 
 LOG_FILE="${SERVER_ROOT_DIR}/logs/preStop.log"
 TOPOLOGY_FILE="${IN_DIR}/topology.json"

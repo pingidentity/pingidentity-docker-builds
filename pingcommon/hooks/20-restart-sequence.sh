@@ -7,11 +7,9 @@
 #
 ${VERBOSE} && set -x
 
-# shellcheck source=../lib.sh
-. "${BASE}/lib.sh"
+# shellcheck source=pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
 
 echo "Restarting container"
 
-# if this hook is provided it can be executed early on
-run_if_present "${HOOKS_DIR}/21-update-server-profile.sh"
-die_on_error 21 "Issue encountered while updating server profile"
+run_hook "21-update-server-profile.sh"

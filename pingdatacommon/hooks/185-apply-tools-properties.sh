@@ -4,8 +4,8 @@
 #
 ${VERBOSE} && set -x
 
-# shellcheck source=../lib.sh
-. "${BASE}/lib.sh"
+# shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
 
 echo "Configuring tools.properties"
 TOOLS_PROPERTIES_FILE="${SERVER_ROOT_DIR}"/config/tools.properties
