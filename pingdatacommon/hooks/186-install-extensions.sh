@@ -4,8 +4,8 @@
 #
 ${VERBOSE} && set -x
 
-# shellcheck source=../lib.sh
-. "${BASE}/lib.sh"
+# shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
 
 EXTENSIONS_DIR="${STAGING_DIR}/extensions"
 if test -d "${EXTENSIONS_DIR}" ; then

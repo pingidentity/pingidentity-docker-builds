@@ -7,7 +7,7 @@
 #- It should be overridden by all the PingData product images.
 #-
 
-# shellcheck source=../lib.sh
-. "${BASE}/lib.sh"
+# shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
 
 container_failure 183 "${0} must be implemented in PingData Docker Build Hooks"

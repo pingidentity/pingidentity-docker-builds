@@ -4,8 +4,8 @@
 #
 ${VERBOSE} && set -x
 
-# shellcheck source=../pingcommon/lib.sh
-. "${BASE}/lib.sh"
+# shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
 
 #
 # TODO we need to pull this in earlier before manage-profile

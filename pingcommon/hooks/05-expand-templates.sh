@@ -13,15 +13,8 @@
 #-
 ${VERBOSE} && set -x
 
-# shellcheck source=../lib.sh disable=SC2153
-. "${BASE}/lib.sh"
-
-# shellcheck source=/dev/null
-if test -f "${STAGING_DIR}/env_vars" ; then
-    set -o allexport
-    . "${STAGING_DIR}/env_vars"
-    set +o allexport
-fi
+# shellcheck source=pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
 
 #- >Note: If a string of $name is sould be ignored during a substitution, then 
 #- A special vabiable ${_DOLLAR_} should be used.
@@ -56,7 +49,7 @@ expandFiles()
 cd "${STAGING_DIR}" || exit 15
 # shellcheck disable=SC2044
 for _zipBundle in $( find "." -type f -iname \*.zip.subst ) ; do
-    echo "exapanding .zip file - ${_zipBundle}"
+    echo "expanding .zip file - ${_zipBundle}"
 
     # create a temporary zip directory and unzip the .zip.subst artifacts there
     _zipBase="/tmp/zip"
@@ -76,6 +69,6 @@ for _zipBundle in $( find "." -type f -iname \*.zip.subst ) ; do
     rm -f "${STAGING_DIR}/${_zipBundle}"
 done
 
-echo "exapanding files..."
+echo "expanding files..."
 cd "${STAGING_DIR}" || exit 15
 expandFiles

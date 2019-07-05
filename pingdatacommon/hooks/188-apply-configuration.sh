@@ -4,8 +4,8 @@
 #
 ${VERBOSE} && set -x
 
-# shellcheck source=../lib.sh
-. "${BASE}/lib.sh"
+# shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
 
 if test -d "${STAGING_DIR}/dsconfig" ; then
     for batch in $( find "${STAGING_DIR}/dsconfig/" -iname \*.dsconfig 2>/dev/null | sort | uniq ) ; do

@@ -11,5 +11,5 @@
 #- For example, enabling replication in PingDirectory, initializing Sync 
 #- Pipes in PingDataSync or issuing admin API calls to PingFederate or PingAccess
 
-# shellcheck source=../lib.sh
-. "${BASE}/lib.sh"
+# shellcheck source=pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"

@@ -1,13 +1,21 @@
 #!/usr/bin/env sh
 ${VERBOSE} && set -x
 
-# shellcheck source=lib.sh
-. "${BASE}/lib.sh"
+# shellcheck source=hooks/pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
 
+
+echo_green "Command: $@"
+
+HOSTNAME=$(hostname)
+
+echo_header "Ping Identity DevOps Docker Image" " STARTED: $(date)" "HOSTNAME: ${HOSTNAME}"
 
 if test "$1" = "start-server" ; then
     shift
 
+    # If there are local IN_DIR files, this will copy them to a STAGING_DIRECTORY
+    # overwriting any fiiles that may alrady be in staging
     apply_local_server_profile
 
     # if a git repo is provided, it has not yet been cloned
@@ -16,21 +24,24 @@ if test "$1" = "start-server" ; then
     # or a previous run of the container that would then checkout
     # hence the name on-restart
     #
-    run_if_present "${HOOKS_DIR}/01-start-server.sh"
-    die_on_error 01 "Start script failed" || exit ${?} 
+    run_hook "01-start-server.sh"
+    . "${STATE_PROPERTIES}"
 
-    if ! test -d "${SERVER_ROOT_DIR}" ; then
-        ## FIRST TIME EXECUTION OF THE CONTAINER
-        run_if_present "${HOOKS_DIR}/10-start-sequence.sh"
-        die_on_error 10 "First time sequence failed" || exit ${?}
-    else
-        ## RESTART
-        run_if_present "${HOOKS_DIR}/20-restart-sequence.sh"
-        die_on_error 19 "Restart sequence failed" || exit ${?}
-    fi
+    case "${RUN_PLAN}" in
+        START) 
+            # First run of the container
+            run_hook "10-start-sequence.sh"
+            ;;
+        RESTART)
+            # Restart of an existing container
+            run_hook "20-restart-sequence.sh"
+            ;;
+        *)
+            container_failure 90 "Unknown RUN_PLAN, unable to continue"
+            ;;
+    esac
 
-    run_if_present "${HOOKS_DIR}/50-before-post-start.sh" 
-    die_on_error 50 "Before post-start hook failed" || exit ${?}
+    run_hook "50-before-post-start.sh"
 
     # The 80-post-start.sh is placed in the background, at tenically runs
     # before the service is actually started.  The post start SHOULD 

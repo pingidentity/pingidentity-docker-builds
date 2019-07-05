@@ -25,12 +25,11 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 		bin/start-ds \
 		bin/stop-ds \
 	    docs \
-	    bat \
 	    uninstall \
 	    webapps \
 	    resource/*.zip \
 	&& mv /tmp/PingDirectory /opt/server 
-COPY [ "liveness.sh", "pingdirectory.lib.sh", "/opt/" ]
+COPY [ "liveness.sh", "/opt/" ]
 COPY [ "hooks/","/opt/staging/hooks/" ]
 
 
@@ -51,7 +50,15 @@ ENV REPLICATION_PORT=8989
 ENV ADMIN_USER_NAME=admin
 
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
+
+#-- Adding lockdown mode so non administrive connections be made until server
+#-- has been started with replication enabled
 ENV STARTUP_FOREGROUND_OPTS="--nodetach"
+
+#-- Adding lockdown mode so non administrive connections be made until server
+#-- has been started with replication enabled
+ENV STARTUP_BACKGROUND_OPTS=""
+
 ENV ROOT_USER_PASSWORD_FILE=${SECRETS_DIR}/root-user-password
 ENV ADMIN_USER_PASSWORD_FILE=${SECRETS_DIR}/admin-user-password
 ENV ENCRYPTION_PASSWORD_FILE=${SECRETS_DIR}/encryption-password
