@@ -25,7 +25,7 @@ else
     PD_STATE="SETUP"
 fi
 
-# if runningin kubernetes
+# if running in kubernetes
 if test "${ORCHESTRATION_TYPE}" == "kubernetes" ; then
 
     if test "$(hostname)" == "${K8S_STATEFUL_SET_NAME}-0" ; then
