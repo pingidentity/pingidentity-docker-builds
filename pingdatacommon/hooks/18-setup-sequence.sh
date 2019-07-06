@@ -12,9 +12,6 @@ ${VERBOSE} && set -x
 
  if test ! -f "${SERVER_ROOT_DIR}/config/server.uuid" ; then
 
-    # generate ldif files from templates
-    run_hook "182-template-to-ldif.sh"
-
     # setup the instance given all the provided data
     run_hook "183-run-setup.sh"
 
