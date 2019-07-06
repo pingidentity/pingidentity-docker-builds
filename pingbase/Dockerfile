@@ -129,6 +129,11 @@ ONBUILD ENV STARTUP_BACKGROUND_OPTS=""
 #-- standard output
 ONBUILD ENV TAIL_LOG_FILES=""
 
+#-- If 'true', the output logs will be colorized with GREENs and REDs,
+#-- otherwise, no colorization will be done.  This is good for tools
+#-- that monitor logs and colorization gets in the way.
+ONBUILD ENV COLORIZE_LOGS=true
+
 #-- Location default value
 ONBUILD ENV LOCATION=Docker
 ONBUILD ENV LOCATION_VALIDATION="true|Any string denoting a logical/physical location|Must be a string"

@@ -13,9 +13,11 @@ CALLING_HOOK=${0}
 STATE_PROPERTIES="${STAGING_DIR}/state.properties"
 
 # echo colorization options
-RED_COLOR='\033[0;31m'
-GREEN_COLOR='\033[0;32m'
-NORMAL_COLOR='\033[0m'
+if test "${COLORIZE_LOGS}" == "true" ; then
+    RED_COLOR='\033[0;31m'
+    GREEN_COLOR='\033[0;32m'
+    NORMAL_COLOR='\033[0m'
+fi
 
 ###############################################################################
 # echo_red (message)
