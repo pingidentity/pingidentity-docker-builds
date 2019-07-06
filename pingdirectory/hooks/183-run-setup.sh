@@ -11,14 +11,27 @@ ${VERBOSE} && set -x
 test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 
 #
-# If we are not the GENESIS server, we should remove the ldif files so they aren't 
-# imported
+# If we are the GENESIS state, then process any templates if they are defined.
 #
-if test "${PD_STATE}" != "GENESIS" ; then
+if test "${PD_STATE}" == "GENESIS" ; then
+    echo "PD_STATE is GENESIS ==> Processing Templates"
+    
+    LDIF_DIR="${STAGING_DIR}/pd.profile/ldif/userRoot"
+    TEMPLATE_DIR="${LDIF_DIR}"
+    test -z "${MAKELDIF_USERS}" && MAKELDIF_USERS=0
+
+    for template in $( find "${TEMPLATE_DIR}" -type f -iname \*.template 2>/dev/null ) ; do 
+            echo "Processing (${template}) template with ${MAKELDIF_USERS} users..."
+            "${SERVER_ROOT_DIR}/bin/make-ldif" \
+                --templateFile "${template}"  \
+                --ldifFile "${template%.*}.ldif" \
+                --numThreads 3
+    done
+else
+    echo "PD_STATE is not GENESIS ==> Skipping Templates"
     echo "PD_STATE is not GENESIS ==> Will not process ldif imports"
     rm -rf "${STAGING_DIR}/pd.profile/ldif/*"
 fi
-
 
 # TODO - See the TODO in pingdata.lib.sh
 
