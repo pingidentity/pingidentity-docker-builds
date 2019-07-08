@@ -42,7 +42,7 @@ case "${ORCHESTRATION_TYPE}" in
         _topologyServiceName="${K8S_STATEFUL_SET_SERVICE_NAME}"
         
         if test "${PD_STATE}" == "SETUP" ; then
-            _seedServer="${K8S_STATEFUL_SET_NAME}-0.${K8S_STATEFUL_SET_SERVICE_NAME}"
+            _seedServer="${K8S_STATEFUL_SET_NAME}-0.${DOMAINNAME}"
             echo "Seed server used to enable/init this server in replication is (${_seedServer})"
         fi
         ;;
@@ -55,10 +55,8 @@ esac
 #       to ensure we won't have a split brain scenario with replication toplogies
 #
 if test -z "${_seedServer}" ; then
-    _myhostname=$(hostname -f)
-
     echo "Checking nslookup of ${_topologyServiceName}"
-    echo "   1. to see if (${_myhostname}) appears"
+    echo "   1. to see if (${HOSTNAME}) appears"
     echo "   2. There are 2 or more hosts"
 
     while true; do
@@ -67,7 +65,7 @@ if test -z "${_seedServer}" ; then
         _numHosts=$( wc -l </tmp/_serviceHosts 2> /dev/null)
 
         # cat_indent /tmp/_serviceHosts
-        grep "${_myhostname}" /tmp/_serviceHosts > /dev/null
+        grep "${HOSTNAME}" /tmp/_serviceHosts > /dev/null
         _foundMyself=$?
 
         test ${_foundMyself} -eq 0 && test ${_numHosts} -gt 1 && break;
@@ -98,7 +96,7 @@ SEPARATOR=""
 
 
 for _host in $( cat /tmp/_serviceHosts ) ; do
-    if test "${_host}" != "$(hostname -f)" ; then
+    if test "${_host}" != "${HOSTNAME}" ; then
         # Write the server instance's content
         cat >> "${_tmpTopology}" <<____END
     ${SEPARATOR}{

@@ -11,10 +11,6 @@
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 #######################################################################################################
-HOSTNAME=$(hostname)
-
-echo_header "Ping Identity DevOps Docker Image" " STARTED: $(date)" "HOSTNAME: ${HOSTNAME}"
-
 echo_header "Directory Variables"
 echo_vars   BASE IN_DIR OUT_DIR SERVER_ROOT_DIR STAGING_DIR HOOKS_DIR SERVER_PROFILE_DIR BAK_DIR SECRETS_DIR LICENSE_DIR
 

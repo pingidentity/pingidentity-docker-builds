@@ -7,9 +7,15 @@ ${VERBOSE} && set -x
 
 echo_green "Command: $@"
 
-HOSTNAME=$(hostname)
+HOSTNAME=$(hostname -f)
+DOMAINNAME=$(hostname -d)
 
-echo_header "Ping Identity DevOps Docker Image" " STARTED: $(date)" "HOSTNAME: ${HOSTNAME}"
+export HOSTNAME DOMAINNAME
+
+echo_header "Ping Identity DevOps Docker Image" \
+    "     STARTED: $(date)" \
+    "    HOSTNAME: ${HOSTNAME}" \
+    "  DOMAINNAME: ${DOMAINNAME}"
 
 if test "$1" = "start-server" ; then
     shift

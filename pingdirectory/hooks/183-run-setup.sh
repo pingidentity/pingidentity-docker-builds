@@ -7,6 +7,9 @@ ${VERBOSE} && set -x
 # shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
+# TODO Make pd.profile path a variable
+PD_PROFILE="${STAGING_DIR}/pd.profile"
+
 # shellcheck source=../../pingdatacommon/hooks/pingdata.lib.sh
 test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 
@@ -16,7 +19,7 @@ test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 if test "${PD_STATE}" == "GENESIS" ; then
     echo "PD_STATE is GENESIS ==> Processing Templates"
     
-    LDIF_DIR="${STAGING_DIR}/pd.profile/ldif/userRoot"
+    LDIF_DIR="${PD_PROFILE}/ldif/userRoot"
     TEMPLATE_DIR="${LDIF_DIR}"
     test -z "${MAKELDIF_USERS}" && MAKELDIF_USERS=0
 
@@ -30,7 +33,7 @@ if test "${PD_STATE}" == "GENESIS" ; then
 else
     echo "PD_STATE is not GENESIS ==> Skipping Templates"
     echo "PD_STATE is not GENESIS ==> Will not process ldif imports"
-    rm -rf "${STAGING_DIR}/pd.profile/ldif/*"
+    rm -rf "${PD_PROFILE}/ldif/*"
 fi
 
 # TODO - See the TODO in pingdata.lib.sh
@@ -53,9 +56,8 @@ jvmOptions=$( getJvmOptions )
 export certificateOptions encryptionOption jvmOptions 
 
 # run the manage-profile to setup the server
-# TODO Make pd.profile path a variable
 "${SERVER_ROOT_DIR}"/bin/manage-profile setup \
-    --profile "${STAGING_DIR}/pd.profile" \
+    --profile "${PD_PROFILE}" \
     --profileVariablesFile "${STAGING_DIR}/env_vars" \
     --useEnvironmentVariables \
     --tempProfileDirectory "/tmp" \

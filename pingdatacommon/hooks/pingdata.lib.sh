@@ -14,13 +14,13 @@ getCertificateOptions ()
     if test -f "${SERVER_ROOT_DIR}/config/keystore" && test -f "${SERVER_ROOT_DIR}/config/keystore.pin" ; then
         certificateOptions="--useJavaKeystore ${SERVER_ROOT_DIR}/config/keystore --keyStorePasswordFile ${SERVER_ROOT_DIR}/config/keystore.pin"
     elif test -f "${SERVER_ROOT_DIR}/config/keystore.p12" && test -f "${SERVER_ROOT_DIR}/config/keystore.pin" ; then
-        certificateOptions="--usePkcs12Keystore ${SERVER_ROOT_DIR}/config/keystore --keyStorePasswordFile ${SERVER_ROOT_DIR}/config/keystore.pin"
+        certificateOptions="--usePkcs12Keystore ${SERVER_ROOT_DIR}/config/keystore.p12 --keyStorePasswordFile ${SERVER_ROOT_DIR}/config/keystore.pin"
     fi
 
     if test -f "${SERVER_ROOT_DIR}/config/truststore" ; then
-        certificateOptions="--useJavaTruststore ${SERVER_ROOT_DIR}/config/keystore"
+        certificateOptions="${certificateOptions} --useJavaTruststore ${SERVER_ROOT_DIR}/config/truststore"
     elif test -f "${SERVER_ROOT_DIR}/config/truststore.p12" ; then
-        certificateOptions="--usePkcs12Truststore ${SERVER_ROOT_DIR}/config/keystore"
+        certificateOptions="${certificateOptions} --usePkcs12Truststore ${SERVER_ROOT_DIR}/config/truststore.p12"
     fi
     if test -f "${SERVER_ROOT_DIR}/config/truststore.pin" ; then
         certificateOptions="${certificateOptions} --trustStorePasswordFile ${SERVER_ROOT_DIR}/config/truststore.pin"

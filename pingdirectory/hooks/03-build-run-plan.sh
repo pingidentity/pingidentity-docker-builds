@@ -53,8 +53,7 @@ if test "${ORCHESTRATION_TYPE}" == "kubernetes" ; then
 #            ORCHESTRATION_TYPE: ${ORCHESTRATION_TYPE}
 #         K8S_STATEFUL_SET_NAME: ${K8S_STATEFUL_SET_NAME}
 # K8S_STATEFUL_SET_SERVICE_NAME: ${K8S_STATEFUL_SET_SERVICE_NAME}
-#                      HOSTNAME: $(hostname)
-#    HOSTNAME (fully qualified): $(hostname -f)
+#                      HOSTNAME: ${HOSTNAME}
 #                    serverUUID: ${serverUUID}
 #" >> "${STATE_PROPERTIES}"
 
@@ -117,8 +116,7 @@ else
 #                      RUN_PLAN: ${RUN_PLAN}
 #
 #            ORCHESTRATION_TYPE: ${ORCHESTRATION_TYPE}
-#                      HOSTNAME: $(hostname)
-#    HOSTNAME (fully qualified): $(hostname -f)
+#                      HOSTNAME: ${HOSTNAME}
 #                    serverUUID: ${serverUUID}
 #
 #     Startup Plan

@@ -33,13 +33,13 @@ test $? -ne 0 && exit 0
 _myHostname=$( hostname -f )
 
 #- - Wait for DNS lookups to work, sleeping until successful
-echo "Waiting until DNS lookup works for ${_myHostname}. Running nslookup test..."
+echo "Waiting until DNS lookup works for ${HOSTNAME}. Running nslookup test..."
 while true; do
-  nslookup "${_myHostname}" 2>/dev/null >/dev/null && echo "  dns is up" && break
+  nslookup "${HOSTNAME}" 2>/dev/null >/dev/null && echo "  dns is up" && break
   sleep_at_most 5
 done
 
-# _myIP=$( getIP "${_myHostname}"  )
+# _myIP=$( getIP "${HOSTNAME}"  )
 # _firstHostname=$( getFirstHostInTopology )
 # _firstIP=$( getIP "${_firstHostname}" )
 
@@ -53,7 +53,7 @@ done
 #-   - my instance
 #-   - first instance in the TOPOLOGY_FILE
 echo
-echo "Running ldapsearch test on this container ($(hostname))"
+echo "Running ldapsearch test on this container (${HOSTNAME})"
 waitUntilLdapUp "localhost" "${LDAPS_PORT}" ""
 
 # this container is going to need to initialize over the network
