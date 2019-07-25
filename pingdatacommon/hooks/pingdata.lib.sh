@@ -35,8 +35,6 @@ getEncryptionOption ()
     
     if test -f "${ENCRYPTION_PASSWORD_FILE}" ; then
         encryptionOption="--encryptDataWithPassphraseFromFile ${ENCRYPTION_PASSWORD_FILE}"
-    else
-        echo_red "Encryption Random Passphrase will be used - Unable to setup replication"
     fi
 
     echo "${encryptionOption}"
