@@ -13,11 +13,11 @@ rm -rf "${STATE_PROPERTIES}"
 
 RUN_PLAN="UNKNOWN"
 
-if test -f "${SERVER_ROOT_DIR}" ; then
-    echo "Found SERVER_ROOT: ${SERVER_ROOT}"
+if test -d "${SERVER_ROOT_DIR}" ; then
+    echo "Found SERVER_ROOT: ${SERVER_ROOT_DIR}"
     RUN_PLAN="RESTART"
 else
-    echo "Missing SERVER_ROOT: ${SERVER_ROOT}"
+    echo "Missing SERVER_ROOT: ${SERVER_ROOT_DIR}"
     RUN_PLAN="START"
 fi
 
