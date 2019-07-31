@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env sh 
 #
 # Ping Identity DevOps
 #
@@ -38,21 +38,32 @@ exit 99
 #
 # Build and Tag a new docker image
 #
+# Expents arguments:
+#  - product (i.e. directory)
+#  - version (i.e. 7.3.0.0)
+#  - shim    (i.e. alpine)
+#  - tag     (i.e. edge)
+#
 buildAndTag ()
 {
-    product=${1}
-    shift
-    tag=${1}
-    shift
-    image=${p}/${c}${product}:${tag}
+    _product="${1}"
+    _version="${2}"
+    _shim="${3}"
+    _tag="${4}"
+    _image=${p}/${c}${_product}:${_tag}
 
-    docker image rm ${image} > /dev/null 2>/dev/null
-    
-    dockerCmd="docker build --no-cache --rm $* -t ${image} ${c}${product}"
+    CURRENT_DATE=$( date +"%y%m%d" )
+    CURRENT_SHORT_GIT_REV=$( git rev-parse --short=4 HEAD )
+    CURRENT_LONG_GIT_REV=$( git rev-parse HEAD )
+    IMAGE_VERSION="${c}${_product}-${_shim}-${_version}-${CURRENT_DATE}-${CURRENT_SHORT_GIT_REV}"
+
+    docker image rm ${_image} > /dev/null 2>/dev/null
+
+    dockerCmd="docker build --no-cache --rm --build-arg SHIM=${_shim} --build-arg VERSION=${_version} --build-arg IMAGE_VERSION=${IMAGE_VERSION} --build-arg IMAGE_GIT_REV=${CURRENT_LONG_GIT_REV} -t ${_image} ${c}${_product}"
 
     echo ""
     echo "###########################################################################"
-    echo "# Building: $image"
+    echo "# Building: $_image"
     echo "#  Command: $dockerCmd"
 
     if test -z "${dryRun}" ; then
@@ -62,7 +73,7 @@ buildAndTag ()
 
     if test ${resCode} -eq 0 ; then
         resultMessage="#   Result: ${green}Successful build${normal}\n"
-        resultMessage="${resultMessage}#           $( docker images "${image}" | grep -v "REPOSITORY" )"
+        resultMessage="${resultMessage}#           $( docker images "${_image}" | grep -v "REPOSITORY" )"
         
     else
         resultMessage="#   Result: ${red}Error during build ($resCode)${normal}"
@@ -147,7 +158,6 @@ while ! test -z "${1}" ; do
     shift
 done
 
-
 echo "
 ###########################################################################
 #                 Ping Identity DevOps Docker Builds
@@ -161,18 +171,18 @@ echo "
 "
 
 for product in common datacommon ; do
-    buildAndTag ${product} latest
+    buildAndTag "${product}" "na" "na" "latest"
     test ${?} -ne 0 && errorExit "${image}" 75
 done
 
 for shim in ${OSesToBuild} ; do
     # docker image rm -f ${p}/${c}base
-    buildAndTag base ${shim} --build-arg SHIM=${shim}
+    buildAndTag "base" "na" "${shim}" "${shim}" 
     test ${?} -ne 0 && errorExit "${image}" 76
 
     for product in ${productsToBuild} ; do
         if ! test -f "${c}${product}/versions" ; then
-            buildAndTag ${product} edge --build-arg SHIM=${shim}
+            buildAndTag "${product}" "na" "${shim}" "edge"
             test ${?} -ne 0 && errorExit "${image}" 77
         else
             firstImage=true
@@ -182,16 +192,18 @@ for shim in ${OSesToBuild} ; do
                 prodVersionsToBuild="${versionsToBuild}"
             fi
             for VERSION in ${prodVersionsToBuild} ; do
+                imageName="${p}/${c}${product}"
+                imageTag="${VERSION}-${shim}-edge"
 
-                buildAndTag ${product} ${VERSION}-${shim}-edge --build-arg VERSION=${VERSION}  --build-arg SHIM=${shim}
+                buildAndTag "${product}" "${VERSION}" "${shim}" "${imageTag}" 
                 test ${?} -ne 0 && errorExit "${image}" 78
 
                 if ${firstImage} ; then
-                    tagImage "${p}/${c}${product}:${VERSION}-${shim}-edge" "${p}/${c}${product}:${shim}"
-                    tagImage "${p}/${c}${product}:${VERSION}-${shim}-edge" "${p}/${c}${product}:${shim}-edge"
+                    tagImage "${imageName}:${imageTag}" "${imageName}:${shim}"
+                    tagImage "${imageName}:${imageTag}" "${p}/${c}${product}:${shim}-edge"
 
                     if test "${shim}" = "alpine" ; then
-                      tagImage "${p}/${c}${product}:${VERSION}-${shim}-edge" "${p}/${c}${product}:edge"
+                      tagImage "${imageName}:${imageTag}" "${imageName}:edge"
                     fi
                     firstImage=false
                 fi

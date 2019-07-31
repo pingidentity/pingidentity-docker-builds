@@ -21,10 +21,7 @@ ARG SHIM=alpine
 # Ubuntu disco OpenJDK11 shim
 #
 FROM ubuntu:disco as shim-ubuntu
-ONBUILD LABEL	maintainer=devops_program@pingidentity.com \
-		license="Ping Identity Proprietary" \
-		vendor="Ping Identity Corp." \
-		name="Ping Identity (Ubuntu/OpenJDK11) Image"
+ONBUILD LABEL	name="Ping Identity (Ubuntu/OpenJDK11) Image"
 
 ONBUILD RUN apt -y update \
         && apt -y  upgrade \
@@ -39,10 +36,7 @@ ONBUILD RUN apt -y update \
 # Centos shim
 #
 FROM centos as shim-centos
-ONBUILD LABEL	maintainer=devops_program@pingidentity.com \
-		license="Ping Identity Proprietary" \
-		vendor="Ping Identity Corp." \
-		name="Ping Identity (CentOS/OpenJDK11) Image"
+ONBUILD LABEL	name="Ping Identity (CentOS/OpenJDK11) Image"
 
 ONBUILD RUN yum update -y \
         && yum upgrade -y \
@@ -58,10 +52,7 @@ ONBUILD RUN yum update -y \
 # The good shim
 # 
 FROM openjdk:8-jre-alpine as shim-alpine
-ONBUILD LABEL	maintainer=devops_program@pingidentity.com \
-		license="Ping Identity Proprietary" \
-		vendor="Ping Identity Corp." \
-		name="Ping Identity (Alpine/OpenJDK8) Image"
+ONBUILD LABEL	name="Ping Identity (Alpine/OpenJDK8) Image" 
         
 ONBUILD RUN apk --no-cache add git curl ca-certificates jq zip \
     && apk add --update libintl \
@@ -71,7 +62,21 @@ ONBUILD RUN apk --no-cache add git curl ca-certificates jq zip \
     && mkdir -p ${BASE}/state ${BASE}/backup ${BASE}/logs ${BASE}/tests
 
 
-FROM shim-${SHIM} 
+FROM shim-${SHIM}
+LABEL	maintainer="devops_program@pingidentity.com" \
+		license="Ping Identity Proprietary" \
+		vendor="Ping Identity Corp."
+
+#-- Image version, set by build process of the docker build
+ONBUILD ARG IMAGE_VERSION="unspecified"
+ONBUILD ENV IMAGE_VERSION=${IMAGE_VERSION}
+
+#-- Image git revision, set by build process of the docker build
+ONBUILD ARG IMAGE_GIT_REV=""
+ONBUILD ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+
+ONBUILD LABEL	image-version="${IMAGE_VERSION}" \
+                image-git-rev="${IMAGE_GIT_REV}"
 
 # the image base /might/ be changed at build-time but
 # be aware that the entrypoint will have to be
@@ -182,10 +187,6 @@ ONBUILD ENV PA_ADMIN_PUBLIC_HOSTNAME="localhost"
 ONBUILD ENV ROOT_USER_DN="cn=administrator"
 
 ONBUILD ENV PATH="${BASE}:${SERVER_ROOT_DIR}/bin:${PATH}"
-
-# the default evaluation user/key for obtaining DevOps License
-ONBUILD ENV PING_IDENTITY_EVAL_USER="PingIdentityDevOpsEval"
-ONBUILD ENV PING_IDENTITY_EVAL_KEY="e30a780b-481b-46dc-a47e-ac26d9457221"
 
 # the method by which the framework can assess whether the container is viable or not
 ONBUILD HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]

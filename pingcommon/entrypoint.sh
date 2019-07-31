@@ -13,9 +13,11 @@ DOMAINNAME=$(hostname -d)
 export HOSTNAME DOMAINNAME
 
 echo_header "Ping Identity DevOps Docker Image" \
-    "     STARTED: $(date)" \
-    "    HOSTNAME: ${HOSTNAME}" \
-    "  DOMAINNAME: ${DOMAINNAME}"
+    " IMAGE_VERSION: ${IMAGE_VERSION}" \
+    " IMAGE_GIT_REV: ${IMAGE_GIT_REV}" \
+    "       STARTED: $(date)" \
+    "      HOSTNAME: ${HOSTNAME}" \
+    "    DOMAINNAME: ${DOMAINNAME}"
 
 if test "$1" = "start-server" ; then
     shift

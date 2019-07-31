@@ -232,7 +232,7 @@ if test ${pullLicense} ; then
            usage "No license files available for $product"
         ;;
     esac
-    url="https://license.pingidentity.com/devops/licensekey"
+    url="https://license.pingidentity.com/devops/v2/license"
     
     output="product.lic"
 else
@@ -259,11 +259,11 @@ if test ${pullLicense} ; then
     	echo "#               TO: ${output}" 
 	    cd /tmp || exit 2
 	    curlResult=$( curl -kL -w '%{http_code}' -G \
-          --data-urlencode "product=${productShortName}" \
-          --data-urlencode "version=${version}" \
-          --data-urlencode "user=${devopsUser}" \
-          --data-urlencode "devops-key=${devopsKey}" \
-          --data-urlencode "devops-app=${devopsApp}" \
+          -H "product: ${productShortName}" \
+          -H "version: ${version}" \
+          -H "devops-user: ${devopsUser}" \
+          -H "devops-key: ${devopsKey}" \
+          -H "devops-app: ${devopsApp}" \
           "${url}" -o "${output}" )
 
 	    ! test $curlResult -eq 200 && echo "Unable to download product.lic" && exit 1
