@@ -31,6 +31,11 @@ for tag in $(git tag --points-at "$CI_COMMIT_SHA") ; do
 done
 # sprint=${sprint}
 
+# Get the components for the IMAGE_VERSION and IMAGE_GIT_REV variables
+currentDate=$( date +"%y%m%d" )
+gitRevShort=$( git rev-parse --short=4 HEAD )
+gitRevLong=$( git rev-parse HEAD )
+
 echo building "${product}"
 image="pingidentity/${product}"
 if test  -f "${product}/versions" ; then
@@ -39,8 +44,9 @@ if test  -f "${product}/versions" ; then
     is_latest=true
     for version in ${versions} ; do
         fullTag="${version}-${os}-edge"
+        imageVersion="${product}-${os}-${version}-${currentDate}-${gitRevShort}"
         #build the edge version of this product
-        docker build -t "${image}:${fullTag}" --build-arg SHIM=${os} --build-arg VERSION="${version}" "${product}"/
+        docker build -t "${image}:${fullTag}" --build-arg SHIM=${os} --build-arg VERSION="${version}" --build-arg IMAGE_VERSION="${imageVersion}" --build-arg IMAGE_GIT_REV="${gitRevLong}" "${product}"/
         if test ${?} -ne 0 ; then
             echo "*** BUILD BREAK ***"
             echo "error on version: ${version}" 
