@@ -5,7 +5,7 @@
 #-
 #-
 
-FROM busybox as pingcommon
+FROM busybox
 RUN mkdir -p ${BASE}/staging/hooks
 COPY [ "entrypoint.sh", "wait-for", "/opt/" ]
 COPY [ "hooks/", "/opt/staging/hooks/" ]
