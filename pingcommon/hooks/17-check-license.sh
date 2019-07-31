@@ -36,8 +36,11 @@ else
 #      https://pingidentity-devops.gitbook.io/devops/prod-license
 # 
 ##################################################################################"
-       PING_IDENTITY_DEVOPS_USER="${PING_IDENTITY_EVAL_USER}"
-       PING_IDENTITY_DEVOPS_KEY="${PING_IDENTITY_EVAL_KEY}"
+
+
+        # the default evaluation user/key for obtaining DevOps License
+        PING_IDENTITY_DEVOPS_USER="PingIdentityDevOpsEval"
+        PING_IDENTITY_DEVOPS_KEY="e30a780b-481b-46dc-a47e-ac26d9457221"
     fi
 
     ##################################################################
@@ -49,12 +52,12 @@ else
            DevOps User: ${PING_IDENTITY_DEVOPS_USER}..."
         
         licenseCurlResult=$( curl -kL -w '%{http_code}' -G \
-            --data-urlencode "product=${LICENSE_SHORT_NAME}" \
-            --data-urlencode "version=${LICENSE_VERSION}" \
-            --data-urlencode "user=${PING_IDENTITY_DEVOPS_USER}" \
-            --data-urlencode "devops-key=${PING_IDENTITY_DEVOPS_KEY}" \
-            --data-urlencode "devops-app=docker-${PING_PRODUCT}-${LICENSE_VERSION}" \
-            "https://license.pingidentity.com/devops/licensekey" \
+            -H "product: ${LICENSE_SHORT_NAME}" \
+            -H "version: ${LICENSE_VERSION}" \
+            -H "devops-user: ${PING_IDENTITY_DEVOPS_USER}" \
+            -H "devops-key: ${PING_IDENTITY_DEVOPS_KEY}" \
+            -H "devops-app: ${IMAGE_VERSION}" \
+            "https://license.pingidentity.com/devops/v2/license" \
             -o "${LICENSE_FILE}" 2> /dev/null )
         if test $licenseCurlResult -eq 200 ; then
             echo "Successfully pulled evaluation license from Ping Identity"
