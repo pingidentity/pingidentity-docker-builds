@@ -25,6 +25,7 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 	&& mv /tmp/pingaccess-* /opt/server
 COPY [ "run.sh", "/opt/server/bin/run.sh" ]
 COPY [ "liveness.sh", "/opt/" ]
+COPY [ "hooks/","/opt/staging/hooks/" ]
 
 #
 # the final image 
