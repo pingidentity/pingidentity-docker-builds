@@ -27,6 +27,8 @@ Usage: build.sh {options}
     -v, --version
         the version of the product for which to build a docker image
         this setting overrides the versions in the version file of the target product
+    --use-cache
+        use cached layers. useful to avoid re-building unchanged images, notably: pingbase
     --dry-run
         does everything except actually call the docker command and prints it instead
     --help
@@ -59,7 +61,7 @@ buildAndTag ()
 
     docker image rm ${_image} > /dev/null 2>/dev/null
 
-    dockerCmd="docker build --no-cache --rm --build-arg SHIM=${_shim} --build-arg VERSION=${_version} --build-arg IMAGE_VERSION=${IMAGE_VERSION} --build-arg IMAGE_GIT_REV=${CURRENT_LONG_GIT_REV} -t ${_image} ${c}${_product}"
+    dockerCmd="docker build ${useCache} --build-arg SHIM=${_shim} --build-arg VERSION=${_version} --build-arg IMAGE_VERSION=${IMAGE_VERSION} --build-arg IMAGE_GIT_REV=${CURRENT_LONG_GIT_REV} -t ${_image} ${c}${_product}"
 
     echo ""
     echo "###########################################################################"
@@ -113,6 +115,7 @@ OSesToBuild="alpine centos ubuntu"
 #
 # Parse the provided arguments, if any
 #
+useCache="--no-cache --rm"
 while ! test -z "${1}" ; do
     case "${1}" in
         -o|--os)
@@ -140,6 +143,10 @@ while ! test -z "${1}" ; do
                 usage
             fi
             versionsToBuild="${1}"
+            ;;
+        
+        --use-cache)
+            useCache=" "
             ;;
         
         --dry-run)
@@ -207,7 +214,6 @@ for shim in ${OSesToBuild} ; do
                     fi
                     firstImage=false
                 fi
-
                 done
         fi
     done
