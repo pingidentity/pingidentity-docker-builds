@@ -23,6 +23,11 @@ if  test -f "${SERVER_UUID_FILE}" ; then
 else
     RUN_PLAN="START"
     PD_STATE="SETUP"
+
+    if test -d "${SERVER_ROOT_DIR}" ; then
+        echo "No server.uuid found. Removing existing SERVER_ROOT_DIR '${SERVER_ROOT_DIR}''"
+        rm -rf "${SERVER_ROOT_DIR}"
+    fi
 fi
 
 # if running in kubernetes
