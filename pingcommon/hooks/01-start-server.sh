@@ -28,3 +28,6 @@ run_hook "06-copy-product-bits.sh"
 # Applies the results of the staged server profile instance directory into SERVER_ROOT
 run_hook "07-apply-server-profile.sh"
 
+# Builds and displys a Message of the Day file"
+run_hook "09-build-motd.sh"
+

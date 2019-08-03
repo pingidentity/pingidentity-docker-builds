@@ -28,8 +28,7 @@ ONBUILD RUN apt -y update \
         && apt -y install apt-utils \
         && apt -y install  openjdk-11-jdk curl gettext-base dnsutils git jq unzip \
         && apt-get -y autoremove \
-        && rm -rf /var/lib/apt/lists/* \ 
-        && mkdir -p ${BASE}/state ${BASE}/backup ${BASE}/logs ${BASE}/tests
+        && rm -rf /var/lib/apt/lists/* 
 
 
 #
@@ -44,8 +43,7 @@ ONBUILD RUN yum update -y \
         && yum -y install java-11-openjdk-devel gettext bind-utils git jq unzip \
         && yum -y autoremove \
         && yum -y clean all \
-        && rm -rf /var/cache/yum \
-        && mkdir -p ${BASE}/state ${BASE}/backup ${BASE}/logs ${BASE}/tests
+        && rm -rf /var/cache/yum 
         
 
 #
@@ -58,8 +56,7 @@ ONBUILD RUN apk --no-cache add git curl ca-certificates jq zip \
     && apk add --update libintl \
     && apk add --virtual build_deps gettext \
     && cp /usr/bin/envsubst /usr/local/bin/envsubst \
-    && apk del build_deps \
-    && mkdir -p ${BASE}/state ${BASE}/backup ${BASE}/logs ${BASE}/tests
+    && apk del build_deps 
 
 
 FROM shim-${SHIM}
@@ -93,6 +90,8 @@ ONBUILD ENV OUT_DIR=${BASE}/out
 ONBUILD ENV SERVER_BITS_DIR=${BASE}/server
 #-- Path to a volume generically used to export or backup data
 ONBUILD ENV BAK_DIR=${BASE}/backup
+#-- Path to a volume generically used for logging
+ONBUILD ENV LOGS_DIR=${BASE}/logs
 #-- Default path to the secrets
 ONBUILD ENV SECRETS_DIR=/usr/local/secrets
 
@@ -188,10 +187,21 @@ ONBUILD ENV ROOT_USER_DN="cn=administrator"
 
 ONBUILD ENV PATH="${BASE}:${SERVER_ROOT_DIR}/bin:${PATH}"
 
+ONBUILD ENV ENV="${BASE}/.profile"
+
+#-- Instructs the image to pull the MOTD json from the followig URL.
+#-- If this MOTD_URL variable is empty, then no motd will be downloaded.
+#-- The format of this MOTD file must match the example provided in the
+#-- url: https://raw.githubusercontent.com/pingidentity/pingidentity-devops-getting-started/master/motd/motd.json
+ONBUILD ENV MOTD_URL="https://raw.githubusercontent.com/pingidentity/pingidentity-devops-getting-started/master/motd/motd.json"
+
+#-- Default shell prompt (i.e. productName:hostname:workingDir)
+ONBUILD ENV PS1="\${PING_PRODUCT}:\h:\w\n> "
+
 # the method by which the framework can assess whether the container is viable or not
 ONBUILD HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
 
-ONBUILD VOLUME [ "${BAK_DIR}", "${IN_DIR}", "${OUT_DIR}" ]
+ONBUILD VOLUME [ "${BAK_DIR}" "${IN_DIR}" "${OUT_DIR}" "${LOGS_DIR}" ]
 ONBUILD WORKDIR ${BASE}
 ### WARNING THE ENTRYPOINT WILL NEED TO BE UPDATED MANUALLY IF THE BASE IS CHANGED
 ### IT DOES NOT EXPAND VARIABLES -- REAL BUMMER
