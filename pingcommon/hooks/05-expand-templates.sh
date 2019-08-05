@@ -72,3 +72,26 @@ done
 echo "expanding files..."
 cd "${STAGING_DIR}" || exit 15
 expandFiles
+
+#
+# If a directory called _data.zip_ and there isn't a data.zip already present, then
+# build up the data.zip with the _data.zip_ contents.  This supports the use case
+# where data.zip artifacts from a PingFederate export can be stored as artifacts
+#
+cd "${STAGING_DIR}" || exit 15
+
+for _zipBundle in $( find "." -type d -iname _data.zip_ ) ; do
+    echo "Ziping up ${_zipBundle} in to a data.zip..."
+
+    cd "${_zipBundle}" || exit 15
+
+    if test ! -d ../data.zip ; then
+        zip -qr "../data.zip" * || exit 18
+    else 
+        echo "  Possible error.  Also found a data.zip file."
+        echo "  Will use data.zip file."
+    fi
+
+    cd "${STAGING_DIR}" || exit 15
+done
+
