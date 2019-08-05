@@ -13,7 +13,7 @@ env_setup:
     - docker-compose version
     - git --version
     - sh ci_scripts/if_readme_only.sh 
-    - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
