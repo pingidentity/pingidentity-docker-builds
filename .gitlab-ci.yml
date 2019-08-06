@@ -350,23 +350,23 @@ build_pingdatagovernance:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       
 
-test_pingdatagovernance:
-  stage: test
-  script:
-    - sh ci_scripts/run_tests.sh pingdatagovernance
-  only:
-    changes:
-      - pingdatagovernance/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingbase/**/*
-      - pingdownloader/**/*
-  except:
-    refs:
-      - schedules
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+# test_pingdatagovernance:
+#   stage: test
+#   script:
+#     - sh ci_scripts/run_tests.sh pingdatagovernance
+#   only:
+#     changes:
+#       - pingdatagovernance/**/*
+#       - pingcommon/**/*
+#       - pingdatacommon/**/*
+#       - pingbase/**/*
+#       - pingdownloader/**/*
+#   except:
+#     refs:
+#       - schedules
+#     variables:
+#       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+#       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       
 
 deploy_pingdatagovernance:
