@@ -85,5 +85,11 @@ fi
     --useEnvironmentVariables \
     --tempProfileDirectory "/tmp" \
     --doNotStart \
+    --rejectFile /tmp/rejects.ldif \
     ${_manageProfileOptions} \
     ${_skipImports}
+
+if test $? -ne 0 ; then
+    test -f /tmp/rejects.ldif && cat /tmp/rejects.ldif
+    exit 183
+fi

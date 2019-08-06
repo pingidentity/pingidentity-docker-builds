@@ -12,7 +12,7 @@
 
 #######################################################################################################
 echo_header "Directory Variables"
-echo_vars   BASE IN_DIR OUT_DIR SERVER_ROOT_DIR STAGING_DIR HOOKS_DIR SERVER_PROFILE_DIR BAK_DIR SECRETS_DIR LICENSE_DIR
+echo_vars   BASE IN_DIR OUT_DIR SERVER_ROOT_DIR STAGING_DIR HOOKS_DIR SERVER_PROFILE_DIR BAK_DIR LOGS_DIR SECRETS_DIR LICENSE_DIR
 
 echo_header "File Variables"
 echo_vars   TOPOLOGY_FILE TAIL_LOG_FILES COLORIZE_LOGS
