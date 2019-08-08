@@ -225,6 +225,9 @@ if test ${pullLicense} ; then
         pingdatagovernance)
            productShortName="PDG"
            ;;
+        pingdatagovernancepap)
+           productShortName="PDG"
+           ;;
         pingfederate)
            productShortName="PF"
            ;;
