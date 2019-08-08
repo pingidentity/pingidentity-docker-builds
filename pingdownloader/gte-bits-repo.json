@@ -4,42 +4,47 @@
         {
             "name": "pingdirectory",
             "mapping": "PingDirectory-${version}.zip",
-            "latestVersion": "7.2.1.0"
+            "latestVersion": "7.3.0.0"
         },
         {
             "name": "pingdatasync",
             "mapping": "PingDataSync-${version}.zip",
-            "latestVersion": "7.2.1.0"
+            "latestVersion": "7.3.0.0"
         },
         {
             "name": "pingaccess",
             "mapping": "pingaccess-${version}.zip",
-            "latestVersion": "5.2.2"
+            "latestVersion": "5.2.3"
         },
         {
             "name": "pingdatagovernance",
             "mapping": "PingDataGovernance-${version}.zip",
-            "latestVersion": "7.0.1.0"
+            "latestVersion": "7.3.0.0"
+        },
+        {
+            "name": "pingdatagovernancepap",
+            "mapping": "PingDataGovernance-PAP-${version}.zip",
+            "latestVersion": "7.3.0.0"
         },
         {
             "name": "pingdirectoryproxy",
             "mapping": "PingDirectoryProxy-${version}.zip",
-            "latestVersion": "7.2.1.0"
+            "latestVersion": "7.3.0.0"
         },
         {
             "name": "pingdatametrics",
             "mapping": "PingDataMetrics-${version}.zip",
-            "latestVersion": "7.2.1.0"
+            "latestVersion": "7.3.0.0"
         },
         {
             "name": "pingfederate",
             "mapping": "pingfederate-${version}.zip",
-            "latestVersion": "9.2.2"
+            "latestVersion": "9.3.0"
         },
         {
             "name": "ldapsdk",
             "mapping": "unboundid-ldapsdk-${version}.zip",
-            "latestVersion": "4.0.10",
+            "latestVersion": "4.0.11",
             "url": "https://github.com/pingidentity/ldapsdk/releases/download/${version}/"
         },
         {
