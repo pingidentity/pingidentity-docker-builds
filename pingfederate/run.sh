@@ -205,7 +205,7 @@ fi
 #    ( [[ $line =~ ^#.*$ ]] || [[ -z $line ]] ) && continue
 #    JVM_MEMORY_OPTS="$JVM_MEMORY_OPTS $line"
 #done < "$jvmmemoryopts"
-JVM_MEMORY_OPTS=$( awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print}' <${jvmmemoryopts} )
+JVM_MEMORY_OPTS=$( awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print OPTS}' <${jvmmemoryopts} )
 
 
 JAVA_OPTS="$JAVA_OPTS $JVM_MEMORY_OPTS"
