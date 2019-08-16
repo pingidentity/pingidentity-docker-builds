@@ -25,12 +25,14 @@ LABEL	maintainer=devops_program@pingidentity.com \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity PingDataConsole (Alpine/OpenJDK8) Image"
-EXPOSE 8080 8443
+EXPOSE 8443
 RUN apk --no-cache add curl ca-certificates \
-    && keytool -genkey -keystore /usr/local/tomcat/conf/ss.jks -alias server-cert -storepass 2FederateM0re -keyalg  RSA -keysize 4096 -keypass 2FederateM0re -validity 731 -dname cn=pingdataconsole,ou=docker,o=pingidentity,l=denver,st=co,c=us
+    && rm -rf /usr/local/tomcat/webapps/* \
+    && mkdir -p /usr/local/tomcat/webapps/ROOT
 COPY --from=staging /opt/console.war /usr/local/tomcat/webapps/
 COPY index.html /usr/local/tomcat/webapps/ROOT/
 COPY server.xml /usr/local/tomcat/conf/
+COPY ss.jks /usr/local/tomcat/conf/
 COPY [ "liveness.sh", "/usr/local/bin/" ]
 HEALTHCHECK --interval=31s --timeout=30s --start-period=5s --retries=3 CMD [ "/usr/local/bin/liveness.sh" ]
 CMD ["catalina.sh","run"]
@@ -41,7 +43,7 @@ CMD ["catalina.sh","run"]
 #- ```shell
 #-   docker run \
 #-            --name pingdataconsole \
-#-            --publish 8080:8080 \
+#-            --publish 8443:8443 \
 #-            --detach \
 #-            pingidentity/pingdataconsole
 #- ```
@@ -54,7 +56,7 @@ CMD ["catalina.sh","run"]
 #- ```
 #- 
 #- If using the command above with the embedded [server profile](../server-profiles/README.md), log in with: 
-#- * http://localhost:8080/console/login
+#- * http://localhost:8443/console/login
 #- ```
 #- Server: pingdirectory
 #- Username: administrator
