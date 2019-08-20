@@ -81,7 +81,40 @@ deploy_pingdownloader:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+
+build_apache-jmeter:
+  stage: build
+  script:
+    - sh ci_scripts/build_and_tag.sh apache-jmeter
+  only:
+    changes:
+      - apache-jmeter/**/*
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+
+deploy_apache-jmeter:
+  stage: deploy
+  script:
+    - sh ci_scripts/deploy_to_docker_hub.sh apache-jmeter
+    - sh ci_scripts/deploy_to_gcr.sh apache-jmeter
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - apache-jmeter/**/*
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
       
+
    
 build_ldap-sdk-tools:
   stage: build
