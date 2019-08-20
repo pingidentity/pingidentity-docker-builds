@@ -50,12 +50,11 @@ pingfoundation:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       
 
-pingdownloader:
+build_pingdownloader:
   stage: build_foundation
   script:
     - docker image build -t pingidentity/pingdownloader ./pingdownloader
     - docker-compose -f pingdownloader/build.test.yml up --exit-code-from sut
-    - docker push pingidentity/pingdownloader
   only:
     changes:
       - pingdownloader/**/*
@@ -65,6 +64,23 @@ pingdownloader:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+
+deploy_pingdownloader:
+  stage: deploy
+  script:
+    - docker push pingidentity/pingdownloader
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - pingdownloader/**/*
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
       
    
 build_ldap-sdk-tools:
