@@ -16,7 +16,7 @@ ARG SHIM=alpine
 FROM pingidentity/pingdownloader as staging
 # place the software being delivered in a conspicuous, unix-correct location
 ARG PRODUCT=pingaccess
-ARG VERSION=5.3.0
+ARG VERSION=5.2.0
 
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
