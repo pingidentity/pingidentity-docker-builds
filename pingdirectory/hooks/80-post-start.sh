@@ -99,6 +99,7 @@ echo "Running dsreplication enable"
 # shellcheck disable=SC2039,SC2086
 dsreplication enable \
   --topologyFilePath "${TOPOLOGY_FILE}" \
+  --retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS} \
   --bindDN1 "${ROOT_USER_DN}" --bindPasswordFile1 "${ROOT_USER_PASSWORD_FILE}" \
   --host2 "${HOSTNAME}" --port2 "${LDAPS_PORT}" --useSSL2 --trustAll \
   --bindDN2 "${ROOT_USER_DN}" --bindPasswordFile2 "${ROOT_USER_PASSWORD_FILE}" \
@@ -121,6 +122,7 @@ echo "Running dsreplication initialize"
 # shellcheck disable=SC2039,SC2086
 dsreplication initialize \
   --topologyFilePath "${TOPOLOGY_FILE}" \
+  --retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS} \
   --useSSLDestination \
   --trustAll \
   --hostDestination "${HOSTNAME}" \

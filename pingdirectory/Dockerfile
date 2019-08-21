@@ -67,6 +67,10 @@ ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access"
 #-- Number of users to auto-populate using make-ldif templates
 ENV MAKELDIF_USERS=0
 
+#-- The default retry timeout in seconds for dsreplication and
+#-- remove-defunct-server
+ENV RETRY_TIMEOUT_SECONDS=120
+
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT} 5005
 
 COPY --from=pingidentity/pingdatacommon /opt ${BASE}
