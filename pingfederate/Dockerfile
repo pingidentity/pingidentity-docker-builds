@@ -15,7 +15,7 @@ ARG SHIM=alpine
 
 FROM pingidentity/pingdownloader as staging
 ARG PRODUCT=pingfederate
-ARG VERSION=9.2.1
+ARG VERSION=9.3.1
 
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
@@ -43,7 +43,7 @@ COPY --from=pingidentity/pingcommon /opt ${BASE}
 COPY --from=staging /opt ${BASE}
 
 #- ## Running a PingFederate container
-#- To run a PingFederate container: 
+#- To run a PingFederate container:
 #- 
 #- ```shell
 #-   docker run \
