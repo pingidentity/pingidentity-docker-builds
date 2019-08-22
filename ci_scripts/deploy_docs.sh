@@ -250,7 +250,7 @@ parse_dockerfile()
 #
 # main
 #
-dockerImages="pingaccess pingfederate pingdirectory pingdatasync
+dockerImages="pingaccess pingfederate pingdirectory pingdatagovernance pingdatasync
 pingbase pingcommon pingdatacommon
 pingdataconsole pingdownloader ldap-sdk-tools 
 pingdirectoryproxy pingdelegator apache-jmeter"
