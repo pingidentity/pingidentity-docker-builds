@@ -60,7 +60,7 @@ append_footer()
 #
 append_env_table_header()
 {
-    case ${dockerImage} in pingaccess|pingdirectory|pingdatasync|pingfederate)
+    case ${dockerImage} in pingaccess|pingdirectory|pingdatasync|pingfederate|pingdatagovernance)
     if test "${ENV_TABLE_ACTIVE}" != "true" ; then
         ENV_TABLE_ACTIVE="true"
 
