@@ -5,18 +5,10 @@
 #- This script is used to import any configurations that are
 #- needed after PingAccess starts
 
-# shellcheck source=pingcommon.lib.sh
+# shellcheck disable=SC1090
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-if test ${RUN_PLAN} = "START" ; then
-  echo "Check for configuration to import.."
-  if ! test -f ${STAGING_DIR}/instance/conf/pa.jwk ; then
-    echo "INFO: No 'pa.jwk' found in /instance/conf"
-    if ! test -f ${STAGING_DIR}/instance/data/data.json ; then
-      echo "INFO: No file named 'data.json' found in /instance/data"
-      echo "INFO: skipping config import"
-    fi
-  else 
-    run_hook "81-import-initial-configuration.sh"
-  fi
+#change initial Password
+if test -z "${OPERATIONAL_MODE}" || test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE"  ; then
+  wait-for localhost:9000 -t 200 --  "${HOOKS_DIR}/81-after-start-process.sh"
 fi
