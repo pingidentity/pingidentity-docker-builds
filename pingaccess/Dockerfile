@@ -40,7 +40,6 @@ ENV LICENSE_SHORT_NAME=PA
 ENV LICENSE_VERSION=5.2
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/pingaccess.log
-ENV INITIAL_ADMIN_PASSWORD="2FederateM0re"
 COPY --from=pingidentity/pingcommon "/opt" "${BASE}"
 COPY --from=staging "/opt" "${BASE}"
 
