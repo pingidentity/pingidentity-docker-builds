@@ -22,9 +22,17 @@ test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib
 # through a config-map mounted volume will not do because that will change the
 # pod spec and re-spin --all-- of the pods unnecessarily, even if the only
 # change to the deployment is a reduced replica count.
-echo "Removing server ${HOSTNAME} from the topology"
+INSTANCE_NAME=$(dsconfig --no-prompt \
+  --useSSL --trustAll \
+  --hostname "${HOSTNAME}" --port "${LDAPS_PORT}" \
+  get-global-configuration-prop \
+  --property instance-name \
+  --script-friendly |
+  awk '{ print $2 }')
+
+echo "Removing ${HOSTNAME} (instance name: ${INSTANCE_NAME}) from the topology"
 remove-defunct-server --no-prompt \
-  --serverInstanceName "${HOSTNAME}" \
+  --serverInstanceName "${INSTANCE_NAME}" \
   --retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS} \
   --ignoreOnline \
   --bindDN "${ROOT_USER_DN}" \
