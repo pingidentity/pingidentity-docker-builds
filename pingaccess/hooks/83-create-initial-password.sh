@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-curl -k -X PUT -u Administrator:2Access -H "X-Xsrf-Header: PingAccess" -d '{ "email": null,
+curl -k -X PUT -u Administrator:2Access --silent -H "X-Xsrf-Header: PingAccess" -d '{ "email": null,
     "slaAccepted": true,
     "firstLogin": false,
     "showTutorial": false,
