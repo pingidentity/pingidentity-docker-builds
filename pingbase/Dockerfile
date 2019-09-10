@@ -205,7 +205,7 @@ ONBUILD VOLUME [ "${BAK_DIR}" "${IN_DIR}" "${OUT_DIR}" "${LOGS_DIR}" ]
 ONBUILD WORKDIR ${BASE}
 
 ONBUILD ENV TINI_VERSION v0.18.0
-ONBUILD ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini ${BASE}/tini
+ONBUILD ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static ${BASE}/tini
 ONBUILD RUN chmod +x ${BASE}/tini
 
 ### WARNING THE ENTRYPOINT WILL NEED TO BE UPDATED MANUALLY IF THE BASE IS CHANGED
