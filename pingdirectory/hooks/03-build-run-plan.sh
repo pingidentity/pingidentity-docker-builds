@@ -9,6 +9,7 @@
 # shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
+
 rm -rf "${STATE_PROPERTIES}"
 
 RUN_PLAN="UNKNOWN"
@@ -112,7 +113,12 @@ if test "${ORCHESTRATION_TYPE}" == "kubernetes" ; then
     esac
 else
     # Assume GENESIS state for now, if we aren't kubernetes when setting up
-    test "${RUN_PLAN}" == "START" && PD_STATE="GENESIS"
+    if test "${RUN_PLAN}" == "START" ; then
+        PD_STATE="GENESIS"
+        if test "${ORCHESTRATION_TYPE}" = "COMPOSE" ; then
+            nslookup ${COMPOSE_SERVICE_NAME}-1 2>/dev/null | awk '$0 ~ /^Address / {print $4}' | grep ${HOSTNAME} || PD_STATE="SETUP"
+        fi
+    fi
     test "${RUN_PLAN}" == "RESTART" && PD_STATE="UPDATE"
     echo "
 ###################################################################################
