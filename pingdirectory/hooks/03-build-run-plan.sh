@@ -116,7 +116,7 @@ else
     if test "${RUN_PLAN}" == "START" ; then
         PD_STATE="GENESIS"
         if test "${ORCHESTRATION_TYPE}" = "COMPOSE" ; then
-            nslookup ${COMPOSE_SERVICE_NAME}-1 2>/dev/null | awk '$0 ~ /^Address / {print $4}' | grep ${HOSTNAME} || PD_STATE="SETUP"
+            nslookup ${COMPOSE_SERVICE_NAME}_1 2>/dev/null | awk '$0 ~ /^Address / {print $4}' | grep ${HOSTNAME} || PD_STATE="SETUP"
         fi
     fi
     test "${RUN_PLAN}" == "RESTART" && PD_STATE="UPDATE"
