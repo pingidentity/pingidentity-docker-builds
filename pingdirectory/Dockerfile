@@ -63,7 +63,11 @@ ENV ROOT_USER_PASSWORD_FILE=${SECRETS_DIR}/root-user-password
 ENV ADMIN_USER_PASSWORD_FILE=${SECRETS_DIR}/admin-user-password
 ENV ENCRYPTION_PASSWORD_FILE=${SECRETS_DIR}/encryption-password
 #-- Files tailed once container has started
-ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access"
+ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access \
+    ${SERVER_ROOT_DIR}/logs/errors \
+    ${SERVER_ROOT_DIR}/logs/config-audit.log \
+    ${SERVER_ROOT_DIR}/logs/failed-ops \
+    ${SERVER_ROOT_DIR}/logs/tools/*"
 #-- Number of users to auto-populate using make-ldif templates
 ENV MAKELDIF_USERS=0
 
