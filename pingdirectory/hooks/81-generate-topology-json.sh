@@ -20,23 +20,24 @@ fi
 # hosts for the service.  The following will set the DNS name to be queried.
 
 case "${ORCHESTRATION_TYPE}" in
-    compose)
+    COMPOSE)
         if test -z "${COMPOSE_SERVICE_NAME}" ; then
             echo "Variable COMPOSE_SERVICE_NAME is required to enable replication."
             exit 1
         fi
         _topologyServiceName="${COMPOSE_SERVICE_NAME}"
+        _seedServer="${COMPOSE_SERVICE_NAME}_1"
         ;;
-    swarm)
-        if test -z "${SWARM_SERVICE_NAME}" ; then
-            echo "Variable SWARM_SERVICE_NAME is required to enable replication."
-            exit 1
-        fi
-        _topologyServiceName="tasks.${SWARM_SERVICE_NAME}"
-        ;;
-    kubernetes)
+    # SWARM)
+    #     if test -z "${SWARM_SERVICE_NAME}" ; then
+    #         echo "Variable SWARM_SERVICE_NAME is required to enable replication."
+    #         exit 1
+    #     fi
+    #     _topologyServiceName="tasks.${SWARM_SERVICE_NAME}"
+    #     ;;
+    KUBERNETES)
         if test -z "${K8S_STATEFUL_SET_NAME}" -o -z "${K8S_STATEFUL_SET_SERVICE_NAME}" ; then
-            echo "Variales K8S_STATEFUL_SET_NAME and K8S_STATEFUL_SET_SERVICE_NAME are required to enable replication."
+            echo "Variables K8S_STATEFUL_SET_NAME and K8S_STATEFUL_SET_SERVICE_NAME are required to enable replication."
             exit 1
         fi
         _topologyServiceName="${K8S_STATEFUL_SET_SERVICE_NAME}"
@@ -46,6 +47,9 @@ case "${ORCHESTRATION_TYPE}" in
             echo "Seed server used to enable/init this server in replication is (${_seedServer})"
         fi
         ;;
+    *)
+        echo "Variable ORCHESTRATION_TYPE (${ORCHESTRATION_TYPE}) not supported."
+        exit 1
 esac
 
 #
