@@ -33,8 +33,8 @@ else
 fi
 
 # if running in kubernetes
-if test "${ORCHESTRATION_TYPE}" == "KUBERNETES" ; then
-    if test "$(hostname)" == "${K8S_STATEFUL_SET_NAME}-0" ; then
+if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
+    if test "$(hostname)" = "${K8S_STATEFUL_SET_NAME}-0" ; then
         # echo "We are the SEED server (${K8S_STATEFUL_SET_NAME})-0"
 
         if test -z "${serverUUID}" ; then
@@ -112,15 +112,19 @@ if test "${ORCHESTRATION_TYPE}" == "KUBERNETES" ; then
             container_failure 08 "Unknown PD_STATE of ($PD_STATE)"
     esac
 fi
-if test "${ORCHESTRATION_TYPE}" == "COMPOSE" ; then
+if test "${ORCHESTRATION_TYPE}" = "COMPOSE" ; then
     # Assume GENESIS state for now, if we aren't kubernetes when setting up
-    if test "${RUN_PLAN}" == "START" ; then
+    if test "${RUN_PLAN}" = "START" ; then
         PD_STATE="GENESIS"
         nslookup ${COMPOSE_SERVICE_NAME}_1 2>/dev/null | awk '$0 ~ /^Address / {print $4}' | grep ${HOSTNAME} || PD_STATE="SETUP"
     fi
 fi
 
-test "${RUN_PLAN}" == "RESTART" && PD_STATE="UPDATE"
+if test -z "${ORCHESTRATION_TYPE}" && test "${PD_STATE}" = "SETUP"; then
+    PD_STATE="GENESIS"
+fi
+
+test "${RUN_PLAN}" = "RESTART" && PD_STATE="UPDATE"
 echo "
 ###################################################################################
 #  
