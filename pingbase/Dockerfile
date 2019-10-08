@@ -26,7 +26,7 @@ ONBUILD LABEL	name="Ping Identity (Ubuntu/OpenJDK11) Image"
 ONBUILD RUN apt -y update \
         && apt -y  upgrade \
         && apt -y install apt-utils \
-        && apt -y install openjdk-11-jdk curl gettext-base dnsutils git jq unzip openssh-client \
+        && apt -y install openjdk-11-jdk curl gettext-base dnsutils git jq unzip openssh-client gnupg \
         && apt-get -y autoremove \
         && rm -rf /var/lib/apt/lists/* 
 
@@ -40,7 +40,7 @@ ONBUILD LABEL	name="Ping Identity (CentOS/OpenJDK11) Image"
 ONBUILD RUN yum update -y \
         && yum upgrade -y \
         && yum -y install epel-release \
-        && yum -y install java-11-openjdk-devel gettext bind-utils git jq unzip openssh-clients \
+        && yum -y install java-11-openjdk-devel gettext bind-utils git jq unzip openssh-clients gnupg \
         && yum -y autoremove \
         && yum -y clean all \
         && rm -rf /var/cache/yum 
@@ -52,7 +52,7 @@ ONBUILD RUN yum update -y \
 FROM openjdk:8-jre-alpine as shim-alpine
 ONBUILD LABEL	name="Ping Identity (Alpine/OpenJDK8) Image" 
         
-ONBUILD RUN apk --no-cache add git curl ca-certificates jq zip \
+ONBUILD RUN apk --no-cache add git curl ca-certificates jq zip gnupg \
     && apk add --update libintl openssh-client \
     && apk add --virtual build_deps gettext \
     && cp /usr/bin/envsubst /usr/local/bin/envsubst \
