@@ -26,7 +26,7 @@ ONBUILD LABEL	name="Ping Identity (Ubuntu/OpenJDK11) Image"
 ONBUILD RUN apt -y update \
         && apt -y  upgrade \
         && apt -y install apt-utils \
-        && apt -y install  openjdk-11-jdk curl gettext-base dnsutils git jq unzip \
+        && apt -y install openjdk-11-jdk curl gettext-base dnsutils git jq unzip \
         && apt-get -y autoremove \
         && rm -rf /var/lib/apt/lists/* 
 
