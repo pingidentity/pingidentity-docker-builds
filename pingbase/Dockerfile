@@ -26,7 +26,7 @@ ONBUILD LABEL	name="Ping Identity (Ubuntu/OpenJDK11) Image"
 ONBUILD RUN apt -y update \
         && apt -y  upgrade \
         && apt -y install apt-utils \
-        && apt -y install openjdk-11-jdk curl gettext-base dnsutils git jq unzip openssh-client gnupg \
+        && apt -y install openjdk-11-jdk curl gettext-base dnsutils git jq unzip openssh-client gnupg wget \
         && apt-get -y autoremove \
         && rm -rf /var/lib/apt/lists/* 
 
@@ -40,7 +40,7 @@ ONBUILD LABEL	name="Ping Identity (CentOS/OpenJDK11) Image"
 ONBUILD RUN yum update -y \
         && yum upgrade -y \
         && yum -y install epel-release \
-        && yum -y install java-11-openjdk-devel gettext bind-utils git jq unzip openssh-clients gnupg \
+        && yum -y install java-11-openjdk-devel gettext bind-utils git jq unzip openssh-clients gnupg wget \
         && yum -y autoremove \
         && yum -y clean all \
         && rm -rf /var/cache/yum 
