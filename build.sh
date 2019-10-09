@@ -31,6 +31,8 @@ Usage: build.sh {options}
         use cached layers. useful to avoid re-building unchanged images, notably: pingbase
     --dry-run
         does everything except actually call the docker command and prints it instead
+    --pretty
+        do not display detailed output
     --help
         Display general usage information
 END_USAGE
@@ -69,7 +71,8 @@ buildAndTag ()
     echo "#  Command: $dockerCmd"
 
     if test -z "${dryRun}" ; then
-        $dockerCmd > /dev/null 2> /dev/null
+        # $dockerCmd ${pretty:+>/dev/null} ${pretty:+2>/dev/null}
+        $dockerCmd
     fi
     resCode=$?
 
@@ -116,6 +119,7 @@ OSesToBuild="alpine centos ubuntu"
 # Parse the provided arguments, if any
 #
 useCache="--no-cache --rm"
+pretty=false
 while ! test -z "${1}" ; do
     case "${1}" in
         -o|--os)
@@ -153,7 +157,10 @@ while ! test -z "${1}" ; do
             dryRun="echo"
             ;;
 
-        
+        --pretty)
+            pretty="true"
+            ;;
+
         --help)
             usage
             ;;
