@@ -206,7 +206,18 @@ ONBUILD WORKDIR ${BASE}
 
 ONBUILD ENV TINI_VERSION v0.18.0
 ONBUILD ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static ${BASE}/tini
-ONBUILD RUN chmod +x ${BASE}/tini
+ONBUILD RUN chmod +x ${BASE}/tini \
+    && export GOSU_VERSION='1.11' \
+    && export GOSU_ARCH=amd64 \ 
+    && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$GOSU_ARCH" \
+	&& wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$GOSU_ARCH.asc" \
+	&& export GNUPGHOME="$(mktemp -d)" \
+	&& gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+	&& gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
+	&& gpgconf --kill all \
+	&& rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc \
+	&& chmod +x /usr/local/bin/gosu \
+	&& gosu nobody true;
 
 ### WARNING THE ENTRYPOINT WILL NEED TO BE UPDATED MANUALLY IF THE BASE IS CHANGED
 ### IT DOES NOT EXPAND VARIABLES -- REAL BUMMER
