@@ -34,7 +34,8 @@ COPY [ "hooks/","/opt/staging/hooks/" ]
 
 
 FROM pingidentity/pingbase:${SHIM}
-
+#-- PingIdentity license version
+ARG LICENSE_VERSION
 #-- Ping product name
 ENV PING_PRODUCT=PingDirectory
 #-- Name of License File
@@ -42,7 +43,7 @@ ENV LICENSE_FILE_NAME=PingDirectory.lic
 #-- Shortname used when retrieving license from License Server
 ENV LICENSE_SHORT_NAME=PD
 #-- Version used when retrieving license from License Server
-ENV LICENSE_VERSION=7.3
+ENV LICENSE_VERSION=${LICENSE_VERSION}
 
 #-- Default PingDirectory Replication Port
 ENV REPLICATION_PORT=8989

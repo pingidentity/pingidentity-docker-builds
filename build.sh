@@ -60,10 +60,12 @@ buildAndTag ()
     CURRENT_SHORT_GIT_REV=$( git rev-parse --short=4 HEAD )
     CURRENT_LONG_GIT_REV=$( git rev-parse HEAD )
     IMAGE_VERSION="${c}${_product}-${_shim}-${_version}-${CURRENT_DATE}-${CURRENT_SHORT_GIT_REV}"
-
+    if test "${_version}" != "na" ; then
+        LICENSE_VERSION="$( echo ${_version} | cut -d. -f1,2 )"
+    fi
     docker image rm "${_image}" > /dev/null 2>/dev/null
 
-    dockerCmd="docker build ${useCache} --build-arg SHIM=${_shim} --build-arg VERSION=${_version} --build-arg IMAGE_VERSION=${IMAGE_VERSION} --build-arg IMAGE_GIT_REV=${CURRENT_LONG_GIT_REV} -t ${_image} ${c}${_product}"
+    dockerCmd="docker build ${useCache} --build-arg SHIM=${_shim} --build-arg VERSION=${_version} --build-arg IMAGE_VERSION=${IMAGE_VERSION} --build-arg IMAGE_GIT_REV=${CURRENT_LONG_GIT_REV} ${LICENSE_VERSION:+--build-arg LICENSE_VERSION=}${LICENSE_VERSION} -t ${_image} ${c}${_product}"
 
     echo ""
     echo "###########################################################################"

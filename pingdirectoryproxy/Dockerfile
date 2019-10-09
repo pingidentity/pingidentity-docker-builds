@@ -37,9 +37,11 @@ COPY [ "hooks/","/opt/staging/hooks/" ]
 # The final image
 #
 FROM pingidentity/pingbase:${SHIM}
+#-- PingIdentity license version
+ARG LICENSE_VERSION
 ENV LICENSE_FILE_NAME=PingDirectory.lic
 ENV LICENSE_SHORT_NAME=PD
-ENV LICENSE_VERSION=7.3
+ENV LICENSE_VERSION=${LICENSE_VERSION}
 # This is a candidate to move to pingbase
 ENV REPLICATION_PORT=8989
 ENV PING_PRODUCT="PingDirectoryProxy"
