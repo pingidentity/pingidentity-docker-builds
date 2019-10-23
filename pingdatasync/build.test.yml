@@ -1,4 +1,4 @@
-version: "2"
+version: "3"
 
 services:
   pingdirectory:
@@ -10,7 +10,7 @@ services:
       - SERVER_PROFILE_PATH=simple-sync/pingdirectory
   sut:
     build: .
-    image: pingidentity/pingdatasync
+    image: pingidentity/pingdatasync:${TAG}
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
