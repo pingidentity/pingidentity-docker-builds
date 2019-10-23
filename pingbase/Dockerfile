@@ -26,7 +26,7 @@ ONBUILD LABEL	name="Ping Identity (Ubuntu/OpenJDK11) Image"
 ONBUILD RUN apt -y update \
         && apt -y  upgrade \
         && apt -y install apt-utils \
-        && apt -y install  openjdk-11-jdk curl gettext-base dnsutils git jq unzip \
+        && apt -y install openjdk-11-jdk curl gettext-base dnsutils git jq unzip openssh-client gnupg wget \
         && apt-get -y autoremove \
         && rm -rf /var/lib/apt/lists/* 
 
@@ -40,7 +40,7 @@ ONBUILD LABEL	name="Ping Identity (CentOS/OpenJDK11) Image"
 ONBUILD RUN yum update -y \
         && yum upgrade -y \
         && yum -y install epel-release \
-        && yum -y install java-11-openjdk-devel gettext bind-utils git jq unzip \
+        && yum -y install java-11-openjdk-devel gettext bind-utils git jq unzip openssh-clients gnupg wget \
         && yum -y autoremove \
         && yum -y clean all \
         && rm -rf /var/cache/yum 
@@ -52,8 +52,8 @@ ONBUILD RUN yum update -y \
 FROM openjdk:8-jre-alpine as shim-alpine
 ONBUILD LABEL	name="Ping Identity (Alpine/OpenJDK8) Image" 
         
-ONBUILD RUN apk --no-cache add git curl ca-certificates jq zip \
-    && apk add --update libintl \
+ONBUILD RUN apk --no-cache add git curl ca-certificates jq zip gnupg \
+    && apk add --update libintl openssh-client \
     && apk add --virtual build_deps gettext \
     && cp /usr/bin/envsubst /usr/local/bin/envsubst \
     && apk del build_deps 
@@ -203,7 +203,25 @@ ONBUILD HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7
 
 ONBUILD VOLUME [ "${BAK_DIR}" "${IN_DIR}" "${OUT_DIR}" "${LOGS_DIR}" ]
 ONBUILD WORKDIR ${BASE}
+
+ONBUILD ENV TINI_VERSION v0.18.0
+ONBUILD ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static ${BASE}/tini
+ONBUILD RUN chmod +x ${BASE}/tini \
+    && export GOSU_VERSION='1.11' \
+    && export GOSU_ARCH=amd64 \ 
+    && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$GOSU_ARCH" \
+	&& wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$GOSU_ARCH.asc" \
+	&& export GNUPGHOME="$(mktemp -d)" \
+	&& gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+	&& gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
+	&& gpgconf --kill all \
+	&& rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc \
+	&& chmod +x /usr/local/bin/gosu \
+	&& gosu nobody true;
+
 ### WARNING THE ENTRYPOINT WILL NEED TO BE UPDATED MANUALLY IF THE BASE IS CHANGED
 ### IT DOES NOT EXPAND VARIABLES -- REAL BUMMER
-ONBUILD ENTRYPOINT [ "entrypoint.sh" ]
+### HOWEVER, AS LONG AS ENTRYPOINT IS NOT REFERENCED WITH AN ABSOLUTE PATH
+### REBASING WILL WORK AS EXPECTED
+ONBUILD ENTRYPOINT [ "tini", "--", "entrypoint.sh" ]
 ONBUILD CMD [ "start-server" ]

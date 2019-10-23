@@ -34,7 +34,8 @@ COPY [ "hooks/","/opt/staging/hooks/" ]
 
 
 FROM pingidentity/pingbase:${SHIM}
-
+#-- PingIdentity license version
+ARG LICENSE_VERSION
 #-- Ping product name
 ENV PING_PRODUCT=PingDirectory
 #-- Name of License File
@@ -42,7 +43,7 @@ ENV LICENSE_FILE_NAME=PingDirectory.lic
 #-- Shortname used when retrieving license from License Server
 ENV LICENSE_SHORT_NAME=PD
 #-- Version used when retrieving license from License Server
-ENV LICENSE_VERSION=7.3
+ENV LICENSE_VERSION=${LICENSE_VERSION}
 
 #-- Default PingDirectory Replication Port
 ENV REPLICATION_PORT=8989
@@ -63,7 +64,11 @@ ENV ROOT_USER_PASSWORD_FILE=${SECRETS_DIR}/root-user-password
 ENV ADMIN_USER_PASSWORD_FILE=${SECRETS_DIR}/admin-user-password
 ENV ENCRYPTION_PASSWORD_FILE=${SECRETS_DIR}/encryption-password
 #-- Files tailed once container has started
-ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access"
+ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access \
+    ${SERVER_ROOT_DIR}/logs/errors \
+    ${SERVER_ROOT_DIR}/logs/config-audit.log \
+    ${SERVER_ROOT_DIR}/logs/failed-ops \
+    ${SERVER_ROOT_DIR}/logs/tools/*"
 #-- Number of users to auto-populate using make-ldif templates
 ENV MAKELDIF_USERS=0
 
@@ -144,3 +149,4 @@ COPY --from=staging /opt ${BASE}
 #- ```
 #-   docker container rm -f pingdirectory
 #- ```
+

@@ -4,12 +4,12 @@
         {
             "name": "pingdirectory",
             "mapping": "PingDirectory-${version}.zip",
-            "latestVersion": "7.3.0.0"
+            "latestVersion": "7.3.0.1"
         },
         {
             "name": "pingdatasync",
             "mapping": "PingDataSync-${version}.zip",
-            "latestVersion": "7.3.0.0"
+            "latestVersion": "7.3.0.1"
         },
         {
             "name": "pingaccess",
@@ -19,27 +19,27 @@
         {
             "name": "pingdatagovernance",
             "mapping": "PingDataGovernance-${version}.zip",
-            "latestVersion": "7.3.0.0"
+            "latestVersion": "7.3.0.1"
         },
         {
             "name": "pingdatagovernancepap",
             "mapping": "PingDataGovernance-PAP-${version}.zip",
-            "latestVersion": "7.3.0.0"
+            "latestVersion": "7.3.0.1"
         },
         {
             "name": "pingdirectoryproxy",
             "mapping": "PingDirectoryProxy-${version}.zip",
-            "latestVersion": "7.3.0.0"
+            "latestVersion": "7.3.0.1"
         },
         {
             "name": "pingdatametrics",
             "mapping": "PingDataMetrics-${version}.zip",
-            "latestVersion": "7.3.0.0"
+            "latestVersion": "7.3.0.1"
         },
         {
             "name": "pingfederate",
             "mapping": "pingfederate-${version}.zip",
-            "latestVersion": "9.3.0"
+            "latestVersion": "9.3.1"
         },
         {
             "name": "ldapsdk",
@@ -50,7 +50,7 @@
         {
             "name": "delegator",
             "mapping": "pingdirectory-delegator-${version}.zip",
-            "latestVersion": "3.0.2"
+            "latestVersion": "3.4.0"
         }
     ]
 }

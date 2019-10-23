@@ -38,11 +38,13 @@ COPY [ "build.test.sh", "/opt/tests/" ]
 # The final image
 #
 FROM pingidentity/pingbase:${SHIM}
+#-- PingIdentity license version
+ARG LICENSE_VERSION
 
 ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/sync"
 ENV LICENSE_FILE_NAME="PingDirectory.lic"
 ENV LICENSE_SHORT_NAME=PD
-ENV LICENSE_VERSION=7.3
+ENV LICENSE_VERSION=${LICENSE_VERSION}
 ENV PING_PRODUCT=PingDataSync
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
 ENV STARTUP_FOREGROUND_OPTS="--nodetach"

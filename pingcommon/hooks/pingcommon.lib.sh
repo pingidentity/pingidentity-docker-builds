@@ -19,6 +19,41 @@ if test "${COLORIZE_LOGS}" == "true" ; then
     NORMAL_COLOR='\033[0m'
 fi
 
+#
+#
+#  Some extremely basic functions to make life with variables a bit easier
+#
+#
+toLower ()
+{
+     echo -n ${*}|tr '[:upper:]' '[:lower:]'
+}
+
+toLowerVar ()
+{
+      toLower $(eval echo -n \$${1})
+}
+
+lowerVar()
+{
+     eval ${1}=$(toLowerVar ${1})
+}
+
+toUpper ()
+{
+     echo -n ${*}|tr '[:lower:]' '[:upper:]' 
+}
+
+toUpperVar ()
+{
+     toUpper $(eval echo -n \$${1})
+}
+
+upperVar()
+{
+     eval ${1}=$(toUpperVar ${1})
+}
+
 ###############################################################################
 # echo_red (message)
 #

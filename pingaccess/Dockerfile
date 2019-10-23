@@ -38,6 +38,7 @@ ENV LICENSE_DIR="${SERVER_ROOT_DIR}/conf"
 ENV LICENSE_FILE_NAME=pingaccess.lic
 ENV LICENSE_SHORT_NAME=PA
 ENV LICENSE_VERSION=5.2
+ENV INITIAL_ADMIN_PASSWORD="2FederateM0re"
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/pingaccess.log
 COPY --from=pingidentity/pingcommon "/opt" "${BASE}"
@@ -67,4 +68,4 @@ COPY --from=staging "/opt" "${BASE}"
 #- If using the command above with the embedded [server profile](../server-profiles/README.md), log in with: 
 #- * https://localhost:9000
 #-   * Username: Administrator
-#-   * Password: 2Access
+#-   * Password: 2FederateM0re

@@ -34,7 +34,8 @@ COPY [ "hooks/","/opt/staging/hooks/" ]
 
 
 FROM pingidentity/pingbase:${SHIM}
-
+#-- PingIdentity license version
+ARG LICENSE_VERSION
 #-- Ping product name
 ENV PING_PRODUCT=PingDataGovernance
 #-- Name of License File
@@ -42,7 +43,7 @@ ENV LICENSE_FILE_NAME=PingDataGovernance.lic
 #-- Shortname used when retrieving license from License Server
 ENV LICENSE_SHORT_NAME=PG
 #-- Version used when retrieving license from License Server
-ENV LICENSE_VERSION=7.3
+ENV LICENSE_VERSION=${LICENSE_VERSION}
 
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
 
