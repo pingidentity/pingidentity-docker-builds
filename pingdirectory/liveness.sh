@@ -13,6 +13,6 @@ ldapsearch \
     --port "${LDAPS_PORT}" \
     --useSSL \
     --trustAll \
-    --baseDN "${USER_BASE_DN}" \
-    --searchScope base "(&)" 1.1 \
+    --baseDN "" \
+    --searchScope base "(&)" \
     2>/dev/null || exit 1
