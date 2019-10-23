@@ -11,6 +11,10 @@
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 #######################################################################################################
+
+echo_header "Docker Image Information"
+echo_vars IMAGE_VERSION IMAGE_GIT_REV HOSTNAME DOMAINNAME
+
 echo_header "Directory Variables"
 echo_vars   BASE IN_DIR OUT_DIR SERVER_ROOT_DIR STAGING_DIR HOOKS_DIR SERVER_PROFILE_DIR BAK_DIR LOGS_DIR SECRETS_DIR LICENSE_DIR
 
