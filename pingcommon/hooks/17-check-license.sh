@@ -47,7 +47,7 @@ else
                 rm -f "${LICENSE_FILE}"
             fi
         else
-            echo "Unable to determine PRODUCT_SHORT_NAME and PRODUCT_VERSION"
+            echo "Unable to determine LICENSE_SHORT_NAME (${LICENSE_SHORT_NAME}) or LICENSE_VERSION (${LICENSE_VERSION})"
         fi
     fi
 fi
