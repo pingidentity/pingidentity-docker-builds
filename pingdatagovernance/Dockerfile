@@ -14,7 +14,7 @@ ARG SHIM=alpine
 
 FROM pingidentity/pingdownloader as staging
 ARG PRODUCT=pingdatagovernance
-ARG VERSION=7.3.0.0
+ARG VERSION=7.3.0.3
 
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
