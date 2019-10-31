@@ -98,9 +98,11 @@ run_if_present ()
     _commandSet="sh"
     ${VERBOSE} && commandSet="${_commandSet} -x"
 
-    test -f "_pre_${_runFile}" && ${_commandSet} "_pre_${_runFile}"
-    test -f "${_runFile}" && ${_commandSet} "${_runFile}"
-    test -f "_post_${_runFile}" && ${_commandSet} "_post_${_runFile}"
+    if test -f "${_runFile}" ; then
+        test -f "_pre_${_runFile}" && ${_commandSet} "_pre_${_runFile}"
+        ${_commandSet} "${_runFile}"
+        test -f "_post_${_runFile}" && ${_commandSet} "_post_${_runFile}"
+    fi
 }
 
 ###############################################################################
