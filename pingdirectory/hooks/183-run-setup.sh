@@ -38,7 +38,7 @@ else
 fi
 
 #
-# Do to an issue with the manage-profile process, we need to install the extensions before we 
+# Due to an issue with the manage-profile process, we need to install the extensions before we 
 # setup, so the dsconfig command can properly configure the extension.
 # So we will do that with the server root prior to manage-profile
 #
