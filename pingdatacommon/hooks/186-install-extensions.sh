@@ -20,6 +20,24 @@ if test -d "${EXTENSIONS_DIR}" ; then
         done
     fi
 
+    REMOTE_INSTALL_FILE="${EXTENSIONS_DIR}/remote.list"
+    if test -f "${REMOTE_INSTALL_FILE}" ; then
+        while IFS=" " read -r extensionUrl extensionSignatureUrl keyServer keyID ;
+        do
+            printf "Extension URL: %s - extension Signature URL: %s - GPG repo: %s - GPG key: %s\n" "${extensionUrl}" "${extensionSignatureUrl}" "${keyServer}" "${keyID}"
+            tmpDir="/tmp/extension-$((RANDOM * RANDOM))"
+            rm -rf ${tmpDir}
+            mkdir ${tmpDir}
+            curl -sS ${extensionUrl}
+            export GNUPGHOME="${tmpDir}"
+            if test -n "${keyServer}" && test -n "${keyID}" ; then
+                gpg --batch --keyserver ${keyServer} --recv-keys ${keyID}
+                gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu
+                gpgconf --kill all
+            fi
+        done < ${REMOTE_INSTALL_FILE}
+    fi
+
     if ! test -z "$( ls -A "${STAGING_DIR}/extensions/"*.zip 2>/dev/null )" ; then
         # shellcheck disable=SC2045
         for extension in $( ls -1 "${STAGING_DIR}/extensions/"*.zip ) ; do 
