@@ -112,6 +112,22 @@ dsreplication enable \
   --globalDebugLevel verbose
 _replEnableResult=$?
 
+# The dsreplication command above automatically sets up replication for cn=schema. We'll disable
+# it. Schema should come from server profiles, and the servers should not have to replicate it.
+dsreplication disable \
+  --hostname localhost \
+  --port ${LDAPS_PORT} \
+  --useSSL --trustAll \
+  --baseDN cn=schema \
+  --no-prompt \
+  --enableDebug \
+  --globalDebugLevel verbose
+_replDisableResult=$?
+
+if test ! ${_replDisableResult} -eq 0 ; then
+    echo "Replication disable cn=schema for ${HOSTNAME} result=${_replDisableResult}"
+fi
+
 if test ! ${_replEnableResult} -eq 0 ; then
     echo "Replication already enabled for ${HOSTNAME} (result=${_replEnableResult})"
     exit ${_replEnableResult}
