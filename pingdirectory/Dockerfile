@@ -75,7 +75,7 @@ ENV MAKELDIF_USERS=0
 
 #-- The default retry timeout in seconds for dsreplication and
 #-- remove-defunct-server
-ENV RETRY_TIMEOUT_SECONDS=120
+ENV RETRY_TIMEOUT_SECONDS=180
 
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT} 5005
 
