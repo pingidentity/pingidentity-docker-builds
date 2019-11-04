@@ -20,25 +20,43 @@ if test -d "${EXTENSIONS_DIR}" ; then
         done
     fi
 
-    REMOTE_INSTALL_FILE="${EXTENSIONS_DIR}/remote.list"
-    if test -f "${REMOTE_INSTALL_FILE}" ; then
-        while IFS=" " read -r extensionUrl extensionSignatureUrl keyServer keyID ;
-        do
-            printf "Extension URL: %s - extension Signature URL: %s - GPG repo: %s - GPG key: %s\n" "${extensionUrl}" "${extensionSignatureUrl}" "${keyServer}" "${keyID}"
-            tmpDir="/tmp/extension-$((RANDOM * RANDOM))"
-            rm -rf ${tmpDir}
-            mkdir ${tmpDir}
-            curl -sS ${extensionUrl}
-            export GNUPGHOME="${tmpDir}"
-            if test -n "${keyServer}" && test -n "${keyID}" ; then
-                gpg --batch --keyserver ${keyServer} --recv-keys ${keyID}
-                gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu
-                gpgconf --kill all
-            fi
-        done < ${REMOTE_INSTALL_FILE}
-    fi
+    for remoteInstallFile in $(find ${EXTENSIONS_DIR} -type f -name \*.remote.list ) ; 
+    do
+        
+        if test -f "${remoteInstallFile}" ; then
+            while IFS=" " read -r extensionUrl extensionSignatureUrl keyServer keyID ;
+            do
+                printf "Extension URL: %s - extension Signature URL: %s - GPG repo: %s - GPG key: %s\n" "${extensionUrl}" "${extensionSignatureUrl}" "${keyServer}" "${keyID}"
+                tmpDir="/tmp/extension-$((RANDOM * RANDOM))"
+                rm -rf ${tmpDir}
+                mkdir ${tmpDir}
+                ( cd ${tmpDir} && curl -sSO ${extensionUrl} )
+                extensionFile=$(ls -1tr ${tmpDir} | tail -1 )
+                
+                export GNUPGHOME="${tmpDir}"
+                if test -n "${extensionSignatureUrl}" ; then
+                    ( cd ${tmpDir} && curl -sSO ${extensionSignatureUrl} )
+                    extensionSignatureFile=$(ls -1tr ${tmpDir} | tail -1 )
+                    if test -n "${keyServer}" && test -n "${keyID}" ; then
+                        gpg --batch --keyserver ${keyServer} --recv-keys ${keyID}
+                        gpg --batch --verify ${extensionSignatureFile} ${extensionFile}
+                        gpgconf --kill all
+                    else
+                        extensionRemoteSignature=$(cat ${extensionSignatureFile})
+                        extensionLocalSignature=$( sha1sum ${extensionFile} | awk '{print $1}' )
+                        test "${extensionRemoteSignature}" = "${extensionLocalSignature}"
+                    fi
+                else
+                    if ! test ${ENABLE_INSECURE_REMOTE_EXTENSIONS} ; then
+                        continue
+                    fi
+                fi
+                cp ${extensionFile} ${EXTENSIONS_DIR}
+            done < ${remoteInstallFile}
+        fi
+    done
 
-    if ! test -z "$( ls -A "${STAGING_DIR}/extensions/"*.zip 2>/dev/null )" ; then
+    if find "${EXTENSIONS_DIR}" -type f -name \*.zip | read ; then
         # shellcheck disable=SC2045
         for extension in $( ls -1 "${STAGING_DIR}/extensions/"*.zip ) ; do 
             "${SERVER_ROOT_DIR}/bin/manage-extension" --install "${extension}" --no-prompt
