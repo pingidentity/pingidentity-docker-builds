@@ -9,6 +9,7 @@
 # shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
+${VERBOSE} && set -x
 
 rm -rf "${STATE_PROPERTIES}"
 
