@@ -101,7 +101,7 @@ run_if_present ()
         ${_commandSet} "${_runFile}"
         return ${?}
     else
-        echo "${_runFile} not present"
+        echo ""
     fi
 }
 
