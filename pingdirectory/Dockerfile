@@ -52,6 +52,9 @@ ENV ADMIN_USER_NAME=admin
 
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
 
+#-- Public hostname of the DA app
+ENV PD_DELEGATOR_PUBLIC_HOSTNAME=localhost
+
 #-- Adding lockdown mode so non administrive connections be made until server
 #-- has been started with replication enabled
 ENV STARTUP_FOREGROUND_OPTS="--nodetach"
@@ -76,6 +79,10 @@ ENV MAKELDIF_USERS=0
 #-- The default retry timeout in seconds for dsreplication and
 #-- remove-defunct-server
 ENV RETRY_TIMEOUT_SECONDS=180
+
+#-- Flag to disable schema replication. In a DevOps environment, schema
+#-- comes from configuration. So it does not need to be replicated.
+ENV DISABLE_SCHEMA_REPLICATION=false
 
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT} 5005
 

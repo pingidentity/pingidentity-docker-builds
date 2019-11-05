@@ -13,6 +13,6 @@ ${VERBOSE} && set -x
 
 if test -d "${STAGING_DIR}/instance" && find "${STAGING_DIR}/instance" -type f | read; then
     echo "merging ${STAGING_DIR}/instance to ${SERVER_ROOT_DIR}"
-    cp -afL "${STAGING_DIR}"/instance/* "${SERVER_ROOT_DIR}"
+    copy_files "${STAGING_DIR}/instance" "${SERVER_ROOT_DIR}"
 fi
 
