@@ -174,13 +174,39 @@ run_hook ()
 ###############################################################################
 apply_local_server_profile()
 {
-    if ! test -z "$( ls -A ${IN_DIR} )" ; then
+    if find "${IN_DIR}" -type f | read; then
         echo "copying local IN_DIR files (${IN_DIR}) to STAGING_DIR (${STAGING_DIR})"
         # shellcheck disable=SC2086
-        cp -af ${IN_DIR}/* "${STAGING_DIR}"
+        copy_files "${IN_DIR}" "${STAGING_DIR}"
     else
         echo "no local IN_DIR files (${IN_DIR}) found."
     fi
+}
+
+###############################################################################
+# copy_files (src, dst)
+#
+# Copy files from the source to the destination directory, following all
+# symlinks. Directory structure is preserved, but empty directories are not
+# copied. Destination must be a directory and is created if it doesn't already
+# exist.
+###############################################################################
+copy_files()
+{
+    SRC="$1"
+    DST="$2"
+
+    if ! test -e "${DST}"; then
+        echo "copy_files - dst dir (${DST}) does not exist - will create it"
+        mkdir -p "${DST}"
+    elif ! test -d "${DST}"; then
+        echo "Error: copy_files - dst (${DST}) must be a directory"
+        exit 1
+    fi
+
+    cd "${SRC}"
+    find . -type f -exec cp -afL --parents '{}' "${DST}" \;
+    cd - > /dev/null
 }
 
 ###############################################################################
