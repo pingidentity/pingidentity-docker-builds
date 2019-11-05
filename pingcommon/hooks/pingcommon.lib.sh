@@ -97,7 +97,7 @@ run_if_present ()
 
     _commandSet="sh"
     ${VERBOSE} && commandSet="${_commandSet} -x"
-    test -f "${_runFile}" && ${_commandSet} "${_runFile}"
+    test -f "${_runFile}" && ${_commandSet} "${_runFile}" || echo " "
 }
 
 ###############################################################################
@@ -151,11 +151,13 @@ run_hook ()
 
 
     run_if_present "${HOOKS_DIR}/${_hookScript}.pre"
+    die_on_error ${_hookExit} "Error running ${_hookScript}.pre" || exit ${?}
 
     run_if_present "${HOOKS_DIR}/${_hookScript}"
     die_on_error ${_hookExit} "Error running ${_hookScript}" || exit ${?}
 
     run_if_present "${HOOKS_DIR}/${_hookScript}.post"
+    die_on_error ${_hookExit} "Error running ${_hookScript}.post" || exit ${?}
 }
 
 ###############################################################################
