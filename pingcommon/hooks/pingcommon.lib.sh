@@ -96,8 +96,13 @@ run_if_present ()
     _runFile=${1}
 
     _commandSet="sh"
-    ${VERBOSE} && commandSet="${_commandSet} -x"
-    test -f "${_runFile}" && ${_commandSet} "${_runFile}" || echo " "
+    ${VERBOSE} && _commandSet="${_commandSet} -x"
+    if test -f "${_runFile}" ; then 
+        ${_commandSet} "${_runFile}"
+        return ${?}
+    else
+        echo "${_runFile} not present"
+    fi
 }
 
 ###############################################################################
