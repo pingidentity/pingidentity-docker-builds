@@ -20,31 +20,34 @@ if test -d "${EXTENSIONS_DIR}" ; then
         done
     fi
 
-    for remoteInstallFile in $(find ${EXTENSIONS_DIR} -type f -name \*.remote.list ) ; 
+    for remoteInstallFile in $(find ${EXTENSIONS_DIR} -type f -name \*remote.list ) ; 
     do
         
         if test -f "${remoteInstallFile}" ; then
             while IFS=" " read -r extensionUrl extensionSignatureUrl keyServer keyID ;
             do
                 printf "Extension URL: %s - extension Signature URL: %s - GPG repo: %s - GPG key: %s\n" "${extensionUrl}" "${extensionSignatureUrl}" "${keyServer}" "${keyID}"
-                tmpDir="/tmp/extension-$((RANDOM * RANDOM))"
-                rm -rf ${tmpDir}
-                mkdir ${tmpDir}
-                ( cd ${tmpDir} && curl -sSO ${extensionUrl} )
-                extensionFile=$(ls -1tr ${tmpDir} | tail -1 )
+                tmpDir="$( mktemp -d )"
+                ( cd "${tmpDir}" && curl -sSO "${extensionUrl}" )
+                extensionFile=$(ls -1tr "${tmpDir}" | tail -1 )
                 
                 export GNUPGHOME="${tmpDir}"
                 if test -n "${extensionSignatureUrl}" ; then
-                    ( cd ${tmpDir} && curl -sSO ${extensionSignatureUrl} )
-                    extensionSignatureFile=$(ls -1tr ${tmpDir} | tail -1 )
+                    ( cd "${tmpDir}" && curl -sSLO "${extensionSignatureUrl}" )
+                    extensionSignatureFile=$(ls -1tr "${tmpDir}" | tail -1 )
                     if test -n "${keyServer}" && test -n "${keyID}" ; then
-                        gpg --batch --keyserver ${keyServer} --recv-keys ${keyID}
+                        gpg --batch --keyserver "${keyServer}" --recv-keys "${keyID}"
                         gpg --batch --verify "${extensionSignatureFile}" "${extensionFile}"
                         signatureMatched=false
                         if test ${?} -eq 0 ; then
                             signatureMatched=true
                         fi
                         gpgconf --kill all
+                        if ! test ${signatureMatched} ; then
+                            echo_red "The PGP signature for ${extensionUrl} did not match. Skipping..."
+                            continue
+                        fi
+                        echo_green "The PGP signature for ${extensionUrl} matched."
                     else
                         extensionRemoteSignature=$( cat "${extensionSignatureFile}" )
                         extensionLocalSignature=$( sha1sum "${extensionFile}" | awk '{print $1}' )
@@ -59,14 +62,14 @@ if test -d "${EXTENSIONS_DIR}" ; then
                         continue
                     fi
                 fi
-                cp ${extensionFile} ${EXTENSIONS_DIR}
+                cp "${extensionFile}" "${EXTENSIONS_DIR}"/
             done < ${remoteInstallFile}
         fi
     done
 
     if find "${EXTENSIONS_DIR}" -type f -name \*.zip | read ; then
         # shellcheck disable=SC2045
-        for extension in $( ls -1 "${STAGING_DIR}/extensions/"*.zip ) ; do 
+        for extension in $( ls -1 "${EXTENSIONS_DIR}/"*.zip ) ; do 
             "${SERVER_ROOT_DIR}/bin/manage-extension" --install "${extension}" --no-prompt
         done
     fi
