@@ -39,15 +39,23 @@ if test -d "${EXTENSIONS_DIR}" ; then
                     extensionSignatureFile=$(ls -1tr ${tmpDir} | tail -1 )
                     if test -n "${keyServer}" && test -n "${keyID}" ; then
                         gpg --batch --keyserver ${keyServer} --recv-keys ${keyID}
-                        gpg --batch --verify ${extensionSignatureFile} ${extensionFile}
+                        gpg --batch --verify "${extensionSignatureFile}" "${extensionFile}"
+                        signatureMatched=false
+                        if test ${?} -eq 0 ; then
+                            signatureMatched=true
+                        fi
                         gpgconf --kill all
                     else
-                        extensionRemoteSignature=$(cat ${extensionSignatureFile})
-                        extensionLocalSignature=$( sha1sum ${extensionFile} | awk '{print $1}' )
-                        test "${extensionRemoteSignature}" = "${extensionLocalSignature}"
+                        extensionRemoteSignature=$( cat "${extensionSignatureFile}" )
+                        extensionLocalSignature=$( sha1sum "${extensionFile}" | awk '{print $1}' )
+                        if ! test "${extensionRemoteSignature}" = "${extensionLocalSignature}" ; then
+                            echo_red "The SHA1 signature for ${extensionUrl} did not match. Skipping..."
+                            continue
+                        fi
+                        echo_green "The SHA1 signature for ${extensionUrl} matched."
                     fi
                 else
-                    if ! test ${ENABLE_INSECURE_REMOTE_EXTENSIONS} ; then
+                    if ! test ${ENABLE_INSECURE_REMOTE_EXTENSIONS:-false} ; then
                         continue
                     fi
                 fi
