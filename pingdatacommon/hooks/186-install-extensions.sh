@@ -22,9 +22,8 @@ if test -d "${EXTENSIONS_DIR}" ; then
 
     for remoteInstallFile in $(find ${EXTENSIONS_DIR} -type f -name \*remote.list ) ; 
     do
-        
-        if test -f "${remoteInstallFile}" ; then
-            while IFS=" " read -r extensionUrl extensionSignatureUrl keyServer keyID ;
+        if test -n "${remoteInstallFile}" && test -f "${remoteInstallFile}" ; then
+            while IFS=" " read -r extensionUrl extensionSignatureUrl keyServer keyID || test -n "${extensionUrl}" ;
             do
                 printf "Extension URL: %s - extension Signature URL: %s - GPG repo: %s - GPG key: %s\n" "${extensionUrl}" "${extensionSignatureUrl}" "${keyServer}" "${keyID}"
                 tmpDir="$( mktemp -d )"
@@ -62,8 +61,8 @@ if test -d "${EXTENSIONS_DIR}" ; then
                         continue
                     fi
                 fi
-                cp "${extensionFile}" "${EXTENSIONS_DIR}"/
-            done < ${remoteInstallFile}
+                cp "${tmpDir}/${extensionFile}" "${EXTENSIONS_DIR}"/
+            done < "${remoteInstallFile}"
         fi
     done
 
