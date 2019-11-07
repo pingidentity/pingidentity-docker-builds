@@ -204,9 +204,7 @@ copy_files()
         exit 1
     fi
 
-    cd "${SRC}"
-    find . -type f -exec cp -afL --parents '{}' "${DST}" \;
-    cd - > /dev/null
+    ( cd "${SRC}" && find . -type f -exec cp -afL --parents '{}' "${DST}" \; )
 }
 
 ###############################################################################
