@@ -19,7 +19,7 @@ for tag in $tags ; do
   docker push "pingidentity/${product}:${dockerTag}"
 done
 
-docker image rm -f $(docker image ls --filter=reference="pingidentity/${product}:*")
-docker image rm -f $(docker image ls --filter=reference="${FOUNDATION_REGISTRY}/${product}:*")
+docker image rm -f "$(docker image ls --filter=reference=pingidentity/${product}:*)"
+docker image rm -f "$(docker image ls --filter=reference=${FOUNDATION_REGISTRY}/${product}:*)"
 
 history | tail -100
