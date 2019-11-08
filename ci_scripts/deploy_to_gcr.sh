@@ -19,7 +19,7 @@ for fullTag in $tags ; do
   dockerTag="$(echo $fullTag | sed -e 's/-${ciTag}//g')"
   docker tag "${FOUNDATION_REGISTRY}/${product}:$fullTag" "pingidentity/${product}:${dockerTag}"
   docker push "${FOUNDATION_REGISTRY}/${product}:${dockerTag}"
-  test "$( echo ${fullTag} | grep ${ciTag})" gcloud container images delete "${FOUNDATION_REGISTRY}/${product}:$fullTag"
+  test "$( echo ${fullTag} | grep ${ciTag})" && gcloud container images delete "${FOUNDATION_REGISTRY}/${product}:$fullTag"
 done
 
 # docker rmi -f $(docker image ls --filter=reference="pingidentity/${product}:*")
