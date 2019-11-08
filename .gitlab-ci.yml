@@ -50,6 +50,8 @@ build_pingfoundation:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  tags:
+    - pingcommon
 
 deploy_pingfoundation:
   stage: deploy
