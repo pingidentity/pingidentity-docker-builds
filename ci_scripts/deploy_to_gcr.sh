@@ -1,9 +1,28 @@
-#!/usr/bin/env sh
-set -x
+#!/usr/bin/env bash
+set -e
+product="${1}"
 
-product="$1"
-tags=$(docker images "pingidentity/${product}*" --format "{{.Tag}}" -q)
-for tag in $tags ; do
-  docker tag pingidentity/"$product":"$tag" gcr.io/ping-identity/"$product":"$tag"
-  docker push gcr.io/ping-identity/"$product":"$tag"
+test -z "$CI_COMMIT_TAG" && test ! "${CI_COMMIT_REF_NAME}" = "master" && echo "ERROR: are you sure this script should be running??" && exit 1
+
+if test ! -z "${CI_COMMIT_REF_NAME}" ; then
+  . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
+else 
+  # shellcheck source=~/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
+  . ${HOME}/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
+fi
+
+
+tags=$(gcloud container images list-tags ${FOUNDATION_REGISTRY}/${product} --format="value(tags)" --filter=TAGS:"${ciTag}" | sed -e 's/,/ /g' )
+
+for fullTag in $tags ; do
+  docker pull "${FOUNDATION_REGISTRY}/${product}:$fullTag"
+  dockerTag="$(echo $fullTag | sed -e 's/-${ciTag}//g')"
+  docker tag "${FOUNDATION_REGISTRY}/${product}:$fullTag" "pingidentity/${product}:${dockerTag}"
+  docker push "${FOUNDATION_REGISTRY}/${product}:${dockerTag}"
+  test "$( echo ${fullTag} | grep ${ciTag})" gcloud container images delete "${FOUNDATION_REGISTRY}/${product}:$fullTag"
 done
+
+# docker rmi -f $(docker image ls --filter=reference="pingidentity/${product}:*")
+# docker rmi -f $(docker image ls --filter=reference="${FOUNDATION_REGISTRY}/${product}:*")
+
+history | tail -100
