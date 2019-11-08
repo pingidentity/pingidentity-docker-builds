@@ -1,8 +1,19 @@
-#!/usr/bin/env sh
-set -x
+#!/usr/bin/env bash
+
 defaultOS=alpine
 product=${1}
 os=${2:-${defaultOS}}
+#not implemented version
+
+if test ! -z "${CI_COMMIT_REF_NAME}" ;then
+  . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
+else 
+  # shellcheck source=~/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
+  . ${HOME}/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
+fi
+
+set -e
+
 
 test -z "${product}" && exit 199
 
@@ -23,24 +34,60 @@ test -z "${product}" && exit 199
 # tag that happens to be 4 consecutive digits so we will have to
 # make sure we never point 2 4-digit tags to the same commit
 #
-for tag in $(git tag --points-at "$CI_COMMIT_SHA") ; do
+
+# Get the components for the IMAGE_VERSION and IMAGE_GIT_REV variables
+currentDate=$( date +"%y%m%d" )
+# UNCOMMENT THIS FOR LOCAL TESTING
+# CI_COMMIT_REF_NAME="build-improve-ci"
+# CI_COMMIT_SHORT_SHA="6a153eb9"
+
+
+for tag in $(git tag --points-at "$gitRevLong") ; do
     if test -z "$(echo ${tag} | sed 's/^[0-9]\{4\}$//')" ; then
-        sprint=${tag}
+        sprint="${tag}"
         break
     fi
 done
 # sprint=${sprint}
 
-# Get the components for the IMAGE_VERSION and IMAGE_GIT_REV variables
-currentDate=$( date +"%y%m%d" )
-gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
-gitRevLong=$( git rev-parse "$CI_COMMIT_SHA" )
+# make sure have latest pingfoundation
+pull_and_tag(){
+    if test "${FOUNDATION_REGISTRY}" = "gcr.io/ping-identity" ; then
+        docker pull "${1}"
+        docker tag "${1}" "${2}"
+    fi
+}
 
+if test "$(docker pull ${FOUNDATION_REGISTRY}/pingcommon:${ciTag})" ; then
+    # TODO: make it pull from gcr if local isn't found. 
+    # || test $(docker image ls --filter=reference='pingidentity/pingcommon:latest' --format "{{.Repository}} {{.Tag}}" | grep ping)
+    # || test $(docker image ls --filter=reference='pingidentity/pingdatacommon:latest' --format "{{.Repository}} {{.Tag}}" | grep ping) ; then
+    # we are in CI pipe and pingfoundation was built in previous job. 
+    pull_and_tag "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}" "pingidentity/common"
+    pull_and_tag "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon"
+    pull_and_tag "${FOUNDATION_REGISTRY}/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}"
+elif test "${FOUNDATION_REGISTRY}" = "gcr.io/ping-identity" ; then
+    # we are in CI pipe and need to just use "latest"
+    docker pull "${FOUNDATION_REGISTRY}/pingcommon"
+    docker pull "${FOUNDATION_REGISTRY}/pingdatacommon"
+    docker pull "${FOUNDATION_REGISTRY}/pingbase:${os}"
+# if we are not in a ci pipe, ping foundation is expected to be there. 
+fi
+
+#Start building product
 echo building "${product}"
 image="pingidentity/${product}"
+gcr="gcr.io/ping-identity/${product}"
+
+tag_and_push(){
+    if test "${FOUNDATION_REGISTRY}" = "gcr.io/ping-identity" ; then
+        docker tag "${image}:${1}" "${gcr}:${1}-${ciTag}"
+        docker push "${gcr}:${1}-${ciTag}"
+    fi
+}
 if test  -f "${product}/versions" ; then
     versions=$(grep -v "^#" "${product}"/versions)
-    echo "Buildind versions: ${versions}"
+    echo "Building versions: ${versions}"
     is_latest=true
     for version in ${versions} ; do
         fullTag="${version}-${os}-edge"
@@ -54,33 +101,49 @@ if test  -f "${product}/versions" ; then
             echo "error on OS     : ${os}" 
             exit 76
         fi
+        tag_and_push "${fullTag}"
         #if it relates to a sprint, tag the sprint and as latest for version. 
         if test -n "${sprint}" ; then
             docker tag "${image}:${fullTag}" "${image}:${sprint}-${os}-${version}"
+            tag_and_push "${sprint}-${os}-${version}"
             if ${is_latest} ; then
                 docker tag "${image}:${fullTag}" "${image}:${sprint}-${os}-latest"
+                tag_and_push "${sprint}-${os}-latest"
+
                 docker tag "${image}:${fullTag}" "${image}:${os}-latest"
+                tag_and_push "${os}-latest"
             fi
             if test "${os}" = "${defaultOS}" ; then
                 docker tag "${image}:${fullTag}" "${image}:${sprint}-${version}"
+                tag_and_push "${sprint}-${version}"
+
                 docker tag "${image}:${fullTag}" "${image}:${version}-latest"
+                tag_and_push "${version}-latest"
+
                 docker tag "${image}:${fullTag}" "${image}:${version}"
+                tag_and_push "${version}"
                 #if it's latest product version and a sprint, then it's "latest" overall and also just "edge". 
                 if ${is_latest} ; then
                     docker tag "${image}:${fullTag}" "${image}:latest"
+                    tag_and_push "latest"
+
                     docker tag "${image}:${fullTag}" "${image}:${sprint}"
+                    tag_and_push "${sprint}"
                 fi
             fi
         fi
 
         if test "${os}" = "${defaultOS}" ; then
             docker tag "${image}:${fullTag}" "${image}:${version}-edge"
+            tag_and_push "${version}-edge"
         fi
     
         if ${is_latest} ; then
             docker tag "${image}:${fullTag}" "${image}:${os}-edge"
+            tag_and_push "${os}-edge"
             if test "${os}" = "${defaultOS}" ; then
                 docker tag "${image}:${fullTag}" "${image}:edge"
+                tag_and_push edge
             fi
             is_latest=false
         fi
@@ -94,16 +157,23 @@ else
             echo "*** BUILD BREAK ***"
             exit 76
     fi
-
+    tag_and_push "${fullTag}"
     if test "${os}" = "${defaultOS}" ; then
         docker tag "${image}:${fullTag}" "${image}:edge"
+        tag_and_push edge
     fi
     #tag if sprint, and then also latest
     if test -n "${sprint}" ; then
         docker tag "${image}:${fullTag}" "${image}:${sprint}-${os}"
+        tag_and_push "${sprint}-${os}"
         if test "${os}" = "${defaultOS}" ; then
             docker tag "${image}:${fullTag}" "${image}:${sprint}"
+            tag_and_push "${sprint}"
+
             docker tag "${image}:${fullTag}" "${image}:latest"
+            tag_and_push "latest"
         fi
     fi
 fi
+
+history | tail -100

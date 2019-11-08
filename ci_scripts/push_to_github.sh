@@ -1,5 +1,10 @@
-#!/usr/bin/env  
-set -x
+#!/usr/bin/env bash
+if test ! -z "${CI_COMMIT_REF_NAME}" ; then
+  . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
+else 
+  # shellcheck source=~/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
+  . ${HOME}/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
+fi
 
 rm -rf /tmp/build
 mkdir -p /tmp/build && cd /tmp/build || exit 9
@@ -16,3 +21,5 @@ if test -n "$CI_COMMIT_TAG"; then
 fi
 
 git push gh_location master
+
+history | tail -100

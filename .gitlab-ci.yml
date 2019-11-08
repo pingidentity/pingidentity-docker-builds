@@ -6,14 +6,20 @@ stages:
   - deploy
   - cleanup
 
+## TODO: after getting multiple runners to work. add tags to product jobs. 
+# to minimize downloading. 
+
 env_setup:
   stage: ci_setup
   script:
+    - pwd
+    - env
+    - echo $USER
     - docker info
     - docker-compose version
     - git --version
-    - sh ci_scripts/if_readme_only.sh 
-    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    - ./ci_scripts/if_readme_only.sh 
+    - gcloud --version
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -35,14 +41,10 @@ refresh_external_images:
   tags:
     - runner1
       
-
-pingfoundation:
+build_pingfoundation:
   stage: build_foundation
   script:
-    - sh ci_scripts/prep_build_foundation.sh
-    - docker image build -t pingidentity/pingcommon ./pingcommon
-    - docker image build -t pingidentity/pingdatacommon ./pingdatacommon
-    - for os in alpine ubuntu centos ; do docker image build --build-arg SHIM=${os} -t pingidentity/pingbase:${os} ./pingbase ; done
+    - ./ci_scripts/build_foundation.sh
   only:
     changes:
       - pingbase/**/*
@@ -51,16 +53,35 @@ pingfoundation:
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+
+deploy_pingfoundation:
+  stage: deploy
+  script:
+    - ./ci_scripts/deploy_foundation.sh
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build]/
-  tags:
-    - runner1
       
 
 build_pingdownloader:
   stage: build_foundation
   script:
     - docker image build -t pingidentity/pingdownloader ./pingdownloader
-    - docker-compose -f pingdownloader/build.test.yml up --exit-code-from sut
+    - docker tag "pingidentity/pingdownloader" "gcr.io/ping-identity/pingdownloader:edge"
+    - docker push "gcr.io/ping-identity/pingdownloader:edge"
+    - ./ci_scripts/run_tests.sh pingdownloader
   only:
     changes:
       - pingdownloader/**/*
@@ -95,7 +116,7 @@ deploy_pingdownloader:
 build_apache-jmeter:
   stage: build
   script:
-    - sh ci_scripts/build_and_tag.sh apache-jmeter
+    - ./ci_scripts/build_and_tag.sh apache-jmeter
   only:
     changes:
       - apache-jmeter/**/*
@@ -111,8 +132,8 @@ build_apache-jmeter:
 deploy_apache-jmeter:
   stage: deploy
   script:
-    - sh ci_scripts/deploy_to_docker_hub.sh apache-jmeter
-    - sh ci_scripts/deploy_to_gcr.sh apache-jmeter
+    - ./ci_scripts/deploy_to_docker_hub.sh apache-jmeter
+    - ./ci_scripts/deploy_to_gcr.sh apache-jmeter
   only:
     refs:
       - master
@@ -133,7 +154,7 @@ deploy_apache-jmeter:
 build_ldap-sdk-tools:
   stage: build
   script:
-    - sh ci_scripts/build_and_tag.sh ldap-sdk-tools
+    - ./ci_scripts/build_and_tag.sh ldap-sdk-tools
   only:
     changes:
       - pingdownloader/**/*
@@ -151,7 +172,7 @@ build_ldap-sdk-tools:
 test_ldap-sdk-tools:
   stage: test
   script:
-    - sh ci_scripts/run_tests.sh ldap-sdk-tools
+    - ./ci_scripts/run_tests.sh ldap-sdk-tools
   only:
     changes:
       - pingdownloader/**/*
@@ -169,8 +190,8 @@ test_ldap-sdk-tools:
 deploy_ldap-sdk-tools:
   stage: deploy
   script:
-    - sh ci_scripts/deploy_to_docker_hub.sh ldap-sdk-tools
-    - sh ci_scripts/deploy_to_gcr.sh ldap-sdk-tools
+    - ./ci_scripts/deploy_to_docker_hub.sh ldap-sdk-tools
+    - ./ci_scripts/deploy_to_gcr.sh ldap-sdk-tools
   only:
     refs:
       - master
@@ -203,15 +224,15 @@ build_pingaccess:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
-    - runner1
+    - pingcommon
       
 
 test_pingaccess:
   stage: test
   script:
-    - sh ci_scripts/run_tests.sh pingaccess
+    - ./ci_scripts/run_tests.sh pingaccess
   only:
     changes:
       - pingaccess/**/*
@@ -223,16 +244,16 @@ test_pingaccess:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
-    - runner1
+    - pingcommon
       
       
 deploy_pingaccess:
   stage: deploy
   script:
-    - sh ci_scripts/deploy_to_docker_hub.sh pingaccess
-    - sh ci_scripts/deploy_to_gcr.sh pingaccess
+    - ./ci_scripts/deploy_to_docker_hub.sh pingaccess
+    - ./ci_scripts/deploy_to_gcr.sh pingaccess
   only:
     refs:
       - master
@@ -246,16 +267,16 @@ deploy_pingaccess:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
-    - runner1
+    - pingcommon
       
       
 
 build_pingdirectory:
   stage: build
   script:
-    - sh ci_scripts/build_product.sh pingdirectory
+    - ./ci_scripts/build_product.sh pingdirectory
   only:
     changes:
       - pingdirectory/**/*
@@ -268,15 +289,15 @@ build_pingdirectory:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
-    - runner1
+    - pingdatacommon
       
 
 test_pingdirectory:
   stage: test
   script:
-    - sh ci_scripts/run_tests.sh pingdirectory
+    - ./ci_scripts/run_tests.sh pingdirectory
   only:
     changes:
       - pingdirectory/**/*
@@ -289,16 +310,16 @@ test_pingdirectory:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
-    - runner1
+    - pingdatacommon
       
 
 deploy_pingdirectory:
   stage: deploy
   script:
-    - sh ci_scripts/deploy_to_docker_hub.sh pingdirectory
-    - sh ci_scripts/deploy_to_gcr.sh pingdirectory
+    - ./ci_scripts/deploy_to_docker_hub.sh pingdirectory
+    - ./ci_scripts/deploy_to_gcr.sh pingdirectory
   only:
     refs:
       - master
@@ -313,15 +334,15 @@ deploy_pingdirectory:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
-    - runner1
+    - pingdatacommon
       
 
 build_pingdataconsole:
   stage: build
   script:
-    - sh ci_scripts/build_and_tag.sh pingdataconsole
+    - ./ci_scripts/build_and_tag.sh pingdataconsole
   only:
     changes:
       - pingdataconsole/**/*
@@ -331,16 +352,13 @@ build_pingdataconsole:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
-  tags:
-    - runner1
-      
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
 
 deploy_pingdataconsole:
   stage: deploy
   script:
-    - sh ci_scripts/deploy_to_docker_hub.sh pingdataconsole
-    - sh ci_scripts/deploy_to_gcr.sh pingdataconsole
+    - ./ci_scripts/deploy_to_docker_hub.sh pingdataconsole
+    - ./ci_scripts/deploy_to_gcr.sh pingdataconsole
   only:
     refs:
       - master
@@ -360,7 +378,7 @@ deploy_pingdataconsole:
 build_pingdatasync:
   stage: build
   script:
-    - sh ci_scripts/build_product.sh pingdatasync
+    - ./ci_scripts/build_product.sh pingdatasync
   only:
     changes:
       - pingdatasync/**/*
@@ -373,15 +391,15 @@ build_pingdatasync:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
-    - runner1
+    - pingdatacommon
       
 
 test_pingdatasync:
   stage: test
   script:
-    - sh ci_scripts/run_tests.sh pingdatasync
+    - ./ci_scripts/run_tests.sh pingdatasync
   only:
     changes:
       - pingdatasync/**/*
@@ -394,16 +412,16 @@ test_pingdatasync:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
-    - runner1
+    - pingdatacommon
       
 
 deploy_pingdatasync:
   stage: deploy
   script:
-    - sh ci_scripts/deploy_to_docker_hub.sh pingdatasync
-    - sh ci_scripts/deploy_to_gcr.sh pingdatasync
+    - ./ci_scripts/deploy_to_docker_hub.sh pingdatasync
+    - ./ci_scripts/deploy_to_gcr.sh pingdatasync
   only:
     refs:
       - master
@@ -418,14 +436,14 @@ deploy_pingdatasync:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
-    - runner1
+    - pingdatacommon
       
 build_pingdatagovernance:
   stage: build
   script:
-    - sh ci_scripts/build_product.sh pingdatagovernance
+    - ./ci_scripts/build_product.sh pingdatagovernance
   only:
     changes:
       - pingdatagovernance/**/*
@@ -438,15 +456,15 @@ build_pingdatagovernance:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
-    - runner1
+    - pingdatacommon
       
 
 # test_pingdatagovernance:
 #   stage: test
 #   script:
-#     - sh ci_scripts/run_tests.sh pingdatagovernance
+#     - ./ci_scripts/run_tests.sh pingdatagovernance
 #   only:
 #     changes:
 #       - pingdatagovernance/**/*
@@ -465,8 +483,8 @@ build_pingdatagovernance:
 deploy_pingdatagovernance:
   stage: deploy
   script:
-    - sh ci_scripts/deploy_to_docker_hub.sh pingdatagovernance
-    - sh ci_scripts/deploy_to_gcr.sh pingdatagovernance
+    - ./ci_scripts/deploy_to_docker_hub.sh pingdatagovernance
+    - ./ci_scripts/deploy_to_gcr.sh pingdatagovernance
   only:
     refs:
       - master
@@ -481,15 +499,15 @@ deploy_pingdatagovernance:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
-    - runner1
+    - pingdatacommon
       
 
 build_pingfederate:
   stage: build
   script:
-    - sh ci_scripts/build_product.sh pingfederate
+    - ./ci_scripts/build_product.sh pingfederate
   only:
     changes:
       - pingfederate/**/*
@@ -501,15 +519,15 @@ build_pingfederate:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
-    - runner1
+    - pingcommon
       
 
 test_pingfederate:
   stage: test
   script:
-    - sh ci_scripts/run_tests.sh pingfederate
+    - ./ci_scripts/run_tests.sh pingfederate
   only:
     changes:
       - pingfederate/**/*
@@ -521,16 +539,16 @@ test_pingfederate:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
-    - runner1
+    - pingcommon
       
 
 deploy_pingfederate:
   stage: deploy
   script:
-    - sh ci_scripts/deploy_to_docker_hub.sh pingfederate
-    - sh ci_scripts/deploy_to_gcr.sh pingfederate
+    - ./ci_scripts/deploy_to_docker_hub.sh pingfederate
+    - ./ci_scripts/deploy_to_gcr.sh pingfederate
   only:
     refs:
       - master
@@ -544,9 +562,9 @@ deploy_pingfederate:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
-    - runner1
+    - pingcommon
       
 
 # pingdirectoryproxy:
@@ -563,7 +581,10 @@ deploy_pingfederate:
 #       - pingdownloader/**/*
 #     except:
 #       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-#      - $CI_COMMIT_MESSAGE =~ 
+#       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+#     tags:
+#       - pingdatacommon
+# 
 #       
 
 # pingdelegator:
@@ -582,15 +603,17 @@ deploy_pingfederate:
 #       - pingdownloader/**/*
 #     except:
 #       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-#      - $CI_COMMIT_MESSAGE =~ /tags
+#       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+#     tags:
+#       - pingdatacommon
 #       
 
 push_to_github:
   stage: deploy
   script:
     - git --version
-    - sh ci_scripts/push_to_github.sh
-    - sh ci_scripts/deploy_docs.sh
+    - ./ci_scripts/push_to_github.sh
+    - ./ci_scripts/deploy_docs.sh
   only:
     refs:
       - master
@@ -603,14 +626,20 @@ push_to_github:
   tags:
     - runner1
       
+clean_failure:
+  stage: cleanup
+  script:
+    - ./ci_scripts/failure_cleanup.sh
+  when: on_failure
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
 
 clean_environment:
   stage: cleanup
   script:
-    - sh ci_scripts/docker-cleanup.sh
+    - ./ci_scripts/docker-cleanup.sh
   when: always
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-  tags:
-    - runner1
