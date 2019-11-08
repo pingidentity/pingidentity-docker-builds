@@ -23,8 +23,6 @@ env_setup:
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-  tags:
-    - runner1
 
 refresh_external_images:
   stage: ci_setup
@@ -38,8 +36,6 @@ refresh_external_images:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build]/
-  tags:
-    - runner1
       
 build_pingfoundation:
   stage: build_foundation
@@ -91,8 +87,6 @@ build_pingdownloader:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build]/
-  tags:
-    - runner1
 
 deploy_pingdownloader:
   stage: deploy
@@ -110,8 +104,6 @@ deploy_pingdownloader:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build]/
-  tags:
-    - runner1
 
 build_apache-jmeter:
   stage: build
@@ -126,8 +118,6 @@ build_apache-jmeter:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build]/
-  tags:
-    - runner1
 
 deploy_apache-jmeter:
   stage: deploy
@@ -146,8 +136,6 @@ deploy_apache-jmeter:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build]/
-  tags:
-    - runner1
       
 
    
@@ -165,8 +153,6 @@ build_ldap-sdk-tools:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build]/
-  tags:
-    - runner1
       
 
 test_ldap-sdk-tools:
@@ -183,8 +169,6 @@ test_ldap-sdk-tools:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build]/
-  tags:
-    - runner1
       
 
 deploy_ldap-sdk-tools:
@@ -204,8 +188,6 @@ deploy_ldap-sdk-tools:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build]/
-  tags:
-    - runner1
       
       
 
@@ -371,8 +353,6 @@ deploy_pingdataconsole:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build]/
-  tags:
-    - runner1
       
       
 build_pingdatasync:
@@ -623,8 +603,6 @@ push_to_github:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-  tags:
-    - runner1
       
 clean_failure:
   stage: cleanup
