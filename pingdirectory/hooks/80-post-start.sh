@@ -26,9 +26,14 @@ if test "${PD_STATE}" == "GENESIS" ; then
     exit 0
 fi
 
-# Generate the topology json file
-sh "${HOOKS_DIR}/81-generate-topology-json.sh"
-test $? -ne 0 && exit 0
+# If a topology.json file is provided externally, then just use that.
+if test -f "${TOPOLOGY_FILE}"; then
+    echo "${TOPOLOGY_FILE} exists, not generating it"
+else
+    # Generate the topology json file
+    sh "${HOOKS_DIR}/81-generate-topology-json.sh"
+    test $? -ne 0 && exit 0
+fi
 
 _myHostname=$( hostname -f )
 
