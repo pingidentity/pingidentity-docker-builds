@@ -31,7 +31,7 @@ refresh_external_images:
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -51,7 +51,7 @@ pingfoundation:
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -69,7 +69,7 @@ build_pingdownloader:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
 
@@ -104,7 +104,7 @@ build_apache-jmeter:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
 
@@ -143,7 +143,7 @@ build_ldap-sdk-tools:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -161,7 +161,7 @@ test_ldap-sdk-tools:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -203,7 +203,7 @@ build_pingaccess:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -223,7 +223,7 @@ test_pingaccess:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -246,7 +246,7 @@ deploy_pingaccess:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -268,7 +268,7 @@ build_pingdirectory:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -289,7 +289,7 @@ test_pingdirectory:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -313,7 +313,7 @@ deploy_pingdirectory:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -331,7 +331,7 @@ build_pingdataconsole:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -352,7 +352,7 @@ deploy_pingdataconsole:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -373,7 +373,7 @@ build_pingdatasync:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -394,7 +394,7 @@ test_pingdatasync:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -418,7 +418,7 @@ deploy_pingdatasync:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -438,7 +438,7 @@ build_pingdatagovernance:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -481,7 +481,7 @@ deploy_pingdatagovernance:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -501,7 +501,7 @@ build_pingfederate:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -521,7 +521,7 @@ test_pingfederate:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
@@ -544,7 +544,7 @@ deploy_pingfederate:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /
+      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
   tags:
     - runner1
       
