@@ -20,12 +20,12 @@ gitRevLong=$( git rev-parse "$CI_COMMIT_SHA" )
 ciTag="${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
 
 retag_and_deploy(){
-  docker pull "${FOUNDATION_REGISTRY}/${1}${ciTag}"
-  docker tag "${FOUNDATION_REGISTRY}/${1}${ciTag}" "${FOUNDATION_REGISTRY}/${1}"
-  docker push "${FOUNDATION_REGISTRY}/${1}"
-  gcloud container images delete "${FOUNDATION_REGISTRY}/${1}${ciTag}"
-  docker rmi -f "${FOUNDATION_REGISTRY}/${1}${ciTag}"
-  docker rmi -f "${FOUNDATION_REGISTRY}/${1}"
+  product=${1}
+  docker pull "${FOUNDATION_REGISTRY}/${product}${ciTag}"
+  docker tag "${FOUNDATION_REGISTRY}/${product}${ciTag}" "${FOUNDATION_REGISTRY}/${product//-/}"
+  docker push "${FOUNDATION_REGISTRY}/${product//-/}s"
+  gcloud container images untag "${FOUNDATION_REGISTRY}/${product}${ciTag}"
+  docker rmi "${FOUNDATION_REGISTRY}/${product}${ciTag}"
 }
 
 retag_and_deploy "pingcommon:"
