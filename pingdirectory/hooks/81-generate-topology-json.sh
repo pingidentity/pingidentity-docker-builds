@@ -4,6 +4,12 @@
 #
 ${VERBOSE} && set -x
 
+# If a topology.json file is provided externally, then just use that.
+if test -f "${TOPOLOGY_FILE}"; then
+    echo "${TOPOLOGY_FILE} exists, not generating it"
+    exit 0
+fi
+
 # shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
