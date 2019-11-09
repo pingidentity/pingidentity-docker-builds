@@ -9,6 +9,7 @@ ldapsearch \
     --dontWrap \
     --terse \
     --suppressPropertiesFileComment \
+    --noPropertiesFile \
     --operationPurpose "Docker container liveness check" \
     --port "${LDAPS_PORT}" \
     --useSSL \
