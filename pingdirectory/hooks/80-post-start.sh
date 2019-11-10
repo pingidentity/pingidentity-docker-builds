@@ -102,24 +102,23 @@ dsconfig --no-prompt \
 #- - Enable replication
 echo "Running dsreplication enable"
 # shellcheck disable=SC2039,SC2086
-ENABLE_ARGS='--topologyFilePath "${TOPOLOGY_FILE}"
---retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS}
---bindDN1 "${ROOT_USER_DN}" --bindPasswordFile1 "${ROOT_USER_PASSWORD_FILE}"
---host2 "${HOSTNAME}" --port2 "${LDAPS_PORT}" --useSSL2 --trustAll
---bindDN2 "${ROOT_USER_DN}" --bindPasswordFile2 "${ROOT_USER_PASSWORD_FILE}"
---replicationPort2 "${REPLICATION_PORT}"
---adminUID "${ADMIN_USER_NAME}" --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}"
---no-prompt
---ignoreWarnings
---baseDN "${USER_BASE_DN}"
---enableDebug
---globalDebugLevel verbose'
-
 if test "${DISABLE_SCHEMA_REPLICATION}" = 'true'; then
-    ENABLE_ARGS="${ENABLE_ARGS} --noSchemaReplication"
+    NO_SCHEMA_REPL_OPTION="--noSchemaReplication"
 fi
 
-dsreplication enable "${ENABLE_ARGS}"
+dsreplication enable \
+  --topologyFilePath "${TOPOLOGY_FILE}" \
+  --retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS} \
+  --bindDN1 "${ROOT_USER_DN}" --bindPasswordFile1 "${ROOT_USER_PASSWORD_FILE}" \
+  --host2 "${HOSTNAME}" --port2 "${LDAPS_PORT}" --useSSL2 --trustAll \
+  --bindDN2 "${ROOT_USER_DN}" --bindPasswordFile2 "${ROOT_USER_PASSWORD_FILE}" \
+  --replicationPort2 "${REPLICATION_PORT}" \
+  --adminUID "${ADMIN_USER_NAME}" --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
+  --no-prompt \
+  --ignoreWarnings \
+  --baseDN "${USER_BASE_DN}" ${NO_SCHEMA_REPL_OPTION} \
+  --enableDebug \
+  --globalDebugLevel verbose
 _replEnableResult=$?
 
 if test ${_replEnableResult} -ne 0 && test ${_replEnableResult} -ne 5; then
