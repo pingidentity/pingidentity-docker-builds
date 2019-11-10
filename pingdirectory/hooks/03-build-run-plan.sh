@@ -20,7 +20,7 @@ ORCHESTRATION_TYPE=$(echo "${ORCHESTRATION_TYPE}" | tr '[:lower:]' '[:upper:]')
 
 if  test -f "${SERVER_UUID_FILE}" ; then
     . "${SERVER_UUID_FILE}"
-    
+
     RUN_PLAN="RESTART"
     PD_STATE="UPDATE"
 else
@@ -53,7 +53,7 @@ if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
 
     echo "
 ###################################################################################
-#  
+#
 #                      PD_STATE: ${PD_STATE}
 #                      RUN_PLAN: ${RUN_PLAN}
 #

@@ -102,40 +102,27 @@ dsconfig --no-prompt \
 #- - Enable replication
 echo "Running dsreplication enable"
 # shellcheck disable=SC2039,SC2086
-dsreplication enable \
-  --topologyFilePath "${TOPOLOGY_FILE}" \
-  --retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS} \
-  --bindDN1 "${ROOT_USER_DN}" --bindPasswordFile1 "${ROOT_USER_PASSWORD_FILE}" \
-  --host2 "${HOSTNAME}" --port2 "${LDAPS_PORT}" --useSSL2 --trustAll \
-  --bindDN2 "${ROOT_USER_DN}" --bindPasswordFile2 "${ROOT_USER_PASSWORD_FILE}" \
-  --replicationPort2 "${REPLICATION_PORT}" \
-  --adminUID "${ADMIN_USER_NAME}" --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
-  --no-prompt \
-  --ignoreWarnings \
-  --baseDN "${USER_BASE_DN}" \
-  --enableDebug \
-  --globalDebugLevel verbose
-_replEnableResult=$?
+ENABLE_ARGS='--topologyFilePath "${TOPOLOGY_FILE}"
+--retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS}
+--bindDN1 "${ROOT_USER_DN}" --bindPasswordFile1 "${ROOT_USER_PASSWORD_FILE}"
+--host2 "${HOSTNAME}" --port2 "${LDAPS_PORT}" --useSSL2 --trustAll
+--bindDN2 "${ROOT_USER_DN}" --bindPasswordFile2 "${ROOT_USER_PASSWORD_FILE}"
+--replicationPort2 "${REPLICATION_PORT}"
+--adminUID "${ADMIN_USER_NAME}" --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}"
+--no-prompt
+--ignoreWarnings
+--baseDN "${USER_BASE_DN}"
+--enableDebug
+--globalDebugLevel verbose'
 
 if test "${DISABLE_SCHEMA_REPLICATION}" = 'true'; then
-    # The dsreplication command above automatically sets up replication for cn=schema. We'll disable
-    # it. Schema should come from server profiles, and the servers should not have to replicate it.
-    dsreplication disable \
-      --hostname localhost \
-      --port ${LDAPS_PORT} \
-      --useSSL --trustAll \
-      --baseDN cn=schema \
-      --no-prompt \
-      --enableDebug \
-      --globalDebugLevel verbose
-    _replDisableResult=$?
-
-    if test ! ${_replDisableResult} -eq 0 ; then
-        echo "Replication disable cn=schema for ${HOSTNAME} result=${_replDisableResult}"
-    fi
+    ENABLE_ARGS="${ENABLE_ARGS} --noSchemaReplication"
 fi
 
-if test ! ${_replEnableResult} -eq 0 ; then
+dsreplication enable "${ENABLE_ARGS}"
+_replEnableResult=$?
+
+if test ${_replEnableResult} -ne 0 && test ${_replEnableResult} -ne 5; then
     echo "Replication already enabled for ${HOSTNAME} (result=${_replEnableResult})"
     exit ${_replEnableResult}
 fi
