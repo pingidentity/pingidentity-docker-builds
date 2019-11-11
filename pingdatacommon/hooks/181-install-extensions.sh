@@ -20,14 +20,16 @@ if test -d "${EXTENSIONS_DIR}" ; then
         done
     fi
 
+    extensionID=0
     for remoteInstallFile in $(find ${EXTENSIONS_DIR} -type f -name \*remote.list ) ; 
     do
         if test -n "${remoteInstallFile}" && test -f "${remoteInstallFile}" ; then
             while IFS=" " read -r extensionUrl extensionSignatureUrl keyServer keyID || test -n "${extensionUrl}" ;
             do
+                extensionID=$(( extensionID + 1 ))
                 printf "Extension URL: %s - extension Signature URL: %s - GPG repo: %s - GPG key: %s\n" "${extensionUrl}" "${extensionSignatureUrl}" "${keyServer}" "${keyID}"
                 tmpDir="$( mktemp -d )"
-                ( cd "${tmpDir}" && curl -sSO "${extensionUrl}" )
+                ( cd "${tmpDir}" && curl -sSo extension-${extensionID}.zip "${extensionUrl}" )
                 extensionFile=$(ls -1tr "${tmpDir}" | tail -1 )
                 
                 export GNUPGHOME="${tmpDir}"
@@ -35,9 +37,9 @@ if test -d "${EXTENSIONS_DIR}" ; then
                     ( cd "${tmpDir}" && curl -sSLO "${extensionSignatureUrl}" )
                     extensionSignatureFile=$(ls -1tr "${tmpDir}" | tail -1 )
                     if test -n "${keyServer}" && test -n "${keyID}" ; then
-                        gpg --batch --keyserver "${keyServer}" --recv-keys "${keyID}"
-                        gpg --batch --verify "${extensionSignatureFile}" "${extensionFile}"
                         signatureMatched=false
+                        gpg --batch --keyserver "${keyServer}" --recv-keys "${keyID}"
+                        gpg --batch --verify "${tmpDir}/${extensionSignatureFile}" "${tmpDir}/${extensionFile}"
                         if test ${?} -eq 0 ; then
                             signatureMatched=true
                         fi
