@@ -90,9 +90,13 @@ fi
 
 echo "Merging changes from new server profile..."
 
+if test -f "${STAGING_DIR}/env_vars"  ; then
+    _manageProfileOptions="--profileVariablesFile ${STAGING_DIR}/env_vars "
+fi
+
 "${SERVER_BITS_DIR}"/bin/manage-profile replace-profile \
         --serverRoot "${SERVER_ROOT_DIR}" \
         --profile "${STAGING_DIR}/pd.profile" \
-        --useEnvironmentVariables
+        ${_manageProfileOptions} --useEnvironmentVariables
 
 echo "  manage-profile replace-profile returned $?"

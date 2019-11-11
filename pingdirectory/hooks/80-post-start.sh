@@ -102,6 +102,10 @@ dsconfig --no-prompt \
 #- - Enable replication
 echo "Running dsreplication enable"
 # shellcheck disable=SC2039,SC2086
+if test "${DISABLE_SCHEMA_REPLICATION}" = 'true'; then
+    NO_SCHEMA_REPL_OPTION="--noSchemaReplication"
+fi
+
 dsreplication enable \
   --topologyFilePath "${TOPOLOGY_FILE}" \
   --retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS} \
@@ -112,30 +116,12 @@ dsreplication enable \
   --adminUID "${ADMIN_USER_NAME}" --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
   --no-prompt \
   --ignoreWarnings \
-  --baseDN "${USER_BASE_DN}" \
+  --baseDN "${USER_BASE_DN}" ${NO_SCHEMA_REPL_OPTION} \
   --enableDebug \
   --globalDebugLevel verbose
 _replEnableResult=$?
 
-if test "${DISABLE_SCHEMA_REPLICATION}" = 'true'; then
-    # The dsreplication command above automatically sets up replication for cn=schema. We'll disable
-    # it. Schema should come from server profiles, and the servers should not have to replicate it.
-    dsreplication disable \
-      --hostname localhost \
-      --port ${LDAPS_PORT} \
-      --useSSL --trustAll \
-      --baseDN cn=schema \
-      --no-prompt \
-      --enableDebug \
-      --globalDebugLevel verbose
-    _replDisableResult=$?
-
-    if test ! ${_replDisableResult} -eq 0 ; then
-        echo "Replication disable cn=schema for ${HOSTNAME} result=${_replDisableResult}"
-    fi
-fi
-
-if test ! ${_replEnableResult} -eq 0 ; then
+if test ${_replEnableResult} -ne 0 && test ${_replEnableResult} -ne 5; then
     echo "Replication already enabled for ${HOSTNAME} (result=${_replEnableResult})"
     exit ${_replEnableResult}
 fi
