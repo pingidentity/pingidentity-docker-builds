@@ -12,14 +12,15 @@ ${VERBOSE} && set -x
 
  if test ! -f "${SERVER_ROOT_DIR}/config/server.uuid" ; then
 
+    # install custom extension provided
+    run_hook "181-install-extensions.sh"
+
     # setup the instance given all the provided data
     run_hook "183-run-setup.sh"
 
     # apply the tools properties for convenience
     run_hook "185-apply-tools-properties.sh"
 
-    # install custom extension provided
-    run_hook "186-install-extensions.sh"
 
     # apply custom configuration provided
     run_hook "188-apply-configuration.sh"
