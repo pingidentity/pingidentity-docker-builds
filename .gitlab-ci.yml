@@ -27,10 +27,7 @@ env_setup:
 refresh_external_images:
   stage: ci_setup
   script:
-    - docker container stop $(docker container ls -aq)
-    - docker container rm $(docker container ls -aq)
-    - docker image prune -f
-    - docker rmi -f $(docker images -q)
+    - ./ci_scripts/docker-cleanup.sh full
   only:
     refs:
       - schedules
