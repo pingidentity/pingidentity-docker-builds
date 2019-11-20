@@ -37,7 +37,13 @@ else
                 -H "devops-app: ${IMAGE_VERSION}" \
                 "https://license.pingidentity.com/devops/v2/license" \
                 -o "${LICENSE_FILE}" 2> /dev/null )
-            if test $licenseCurlResult -eq 200 ; then
+            #
+            # Just testing the http code isn't sufficient, curl will return http 200 if it
+            # can retrieve the file even if it can't actually write the file to disk. We
+            # also need to capture & test the curl return code.
+            #
+            rc=${?}
+            if test $licenseCurlResult -eq 200 && test ${rc} -eq 0 ; then
                 echo "Successfully pulled evaluation license from Ping Identity"
                 test "${PING_DEBUG}" == "true" && cat_indent "${LICENSE_FILE}"
                 echo ""
