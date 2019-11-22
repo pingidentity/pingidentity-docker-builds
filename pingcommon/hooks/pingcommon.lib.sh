@@ -276,8 +276,10 @@ echo_req_vars()
 # echo_vars (var1, var2, ...)
 #
 # Check for the requirement, values of a variable and
-# Echo a formatted list of variables and their value.  If the variable is
-# empty, then, a sring of '---- empty ----' will be echoed
+# Echo a formatted list of variables and their value.  
+# If the variable is empty, then, '---- empty ----' will be echoed
+# If the variable is found in env_vars file, then '(env_vars overridden)'
+# If the varaible has a _REDACT=true, then '*** REDACTED ***'
 ###############################################################################
 echo_vars()
 {
@@ -286,7 +288,27 @@ echo_vars()
     _var=${1} && shift
     _val=$( get_value "${_var}" )
 
-    printf "    %30s : %s\n" "${_var}" "${_val:---- empty ---}"
+    # If the same var is found in env_vars, then we will print an
+    # overridden message
+    #
+    grep -e "^${_var}=" "${STAGING_DIR}/env_vars" >/dev/null 2>/dev/null
+    if test $? -eq 0; then
+        _overridden=" (env_vars overridden)"
+    else
+        _overridden=""
+    fi
+
+    # If the variable_REDACT is true, then we will print a
+    # redaction message
+    #
+    _varRedact="${_var}_REDACT"
+    _varRedact=$( get_value "${_varRedact}" )
+
+    if test "${_varRedact}" == "true"; then
+      _val="*** REDACTED ***"
+    fi
+
+    printf "    %30s : %s %s\n" "${_var}" "${_val:---- empty ---}" "${_overridden}"
 
     # Find out if there is a _VALIDATION string
     #

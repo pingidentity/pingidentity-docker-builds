@@ -106,6 +106,7 @@ ONBUILD ENV HOOKS_DIR=${STAGING_DIR}/hooks
 ONBUILD ENV SERVER_PROFILE_DIR=/tmp/server-profile
 #-- A valid git HTTPS URL (not ssh)
 ONBUILD ENV SERVER_PROFILE_URL=""
+ONBUILD ENV SERVER_PROFILE_URL_REDACT=true
 #-- A valid git branch (optional)
 ONBUILD ENV SERVER_PROFILE_BRANCH=""
 #-- The subdirectory in the git repo
@@ -127,6 +128,8 @@ ONBUILD ENV STARTUP_FOREGROUND_OPTS=""
 #-- the container starts with the server in the background. This is the 
 #-- debug start flow for the container
 ONBUILD ENV STARTUP_BACKGROUND_OPTS=""
+
+ONBUILD ENV PING_IDENTITY_DEVOPS_KEY_REDACT=true
 
 #-- A whitespace separated list of log files to tail to the container 
 #-- standard output

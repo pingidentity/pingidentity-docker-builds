@@ -47,8 +47,14 @@ getProfile ()
     rm -rf "${SERVER_PROFILE_DIR}"
     if test -n "${serverProfileUrl}" ; then
         # deploy configuration if provided
+        if test "${SERVER_PROFILE_URL_REDACT}" == "true"; then
+            serverProfileUrlDisplay="*** REDACTED ***"
+        else
+            serverProfileUrlDisplay="${serverProfileUrl}"
+        fi
+
         echo "Getting ${1}"
-        echo "  git url: ${serverProfileUrl}"
+        echo "  git url: ${serverProfileUrlDisplay}"
         test -n "${serverProfileBranch}" && echo "   branch: ${serverProfileBranch}"
         test -n "${serverProfilePath}" && echo "     path: ${serverProfilePath}"
 
