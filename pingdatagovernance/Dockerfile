@@ -45,6 +45,9 @@ ENV LICENSE_SHORT_NAME=PG
 #-- Version used when retrieving license from License Server
 ENV LICENSE_VERSION=${LICENSE_VERSION}
 
+#-- Minimal Heap size required for Ping DataGovernance
+ENV MAX_HEAP_SIZE=1g
+
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
 
 #-- Adding lockdown mode so non administrive connections be made until server
