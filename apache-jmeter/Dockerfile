@@ -2,7 +2,7 @@ FROM alpine as staging
 RUN mkdir -p /opt \
     && cd /opt \
     && apk --no-cache add curl ca-certificates zip gettext \
-    && curl -k http://apache.mirrors.ionfish.org/jmeter/binaries/apache-jmeter-5.1.1.zip -o jmeter.zip \
+    && curl -k http://mirror.metrocast.net/apache//jmeter/binaries/apache-jmeter-5.2.1.zip -o jmeter.zip \
     && unzip jmeter.zip \
     && mv apache-jmeter-* apache-jmeter \
     && find apache-jmeter \( -iname \*.bat -o -iname \*.exe -o -iname \*.dll -o -iname \*.ini \) -exec rm -f {} \; \
