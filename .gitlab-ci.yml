@@ -622,3 +622,4 @@ clean_environment:
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+
