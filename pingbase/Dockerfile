@@ -75,6 +75,7 @@ ONBUILD LABEL	image-version="${IMAGE_VERSION}" \
                 image-git-rev="${IMAGE_GIT_REV}"
 
 # Legal requirement to explicitly accept the terms of the PingIdentity License
+#-- Must be set to 'YES' for the container to start
 ONBUILD ENV ACCEPT_EULA=NO
 
 # the image base /might/ be changed at build-time but
