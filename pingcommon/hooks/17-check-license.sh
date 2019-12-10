@@ -74,3 +74,11 @@ if test ! "${licenseFound}" = "true" ; then
 ##################################################################################"
     container_failure 17 "License File absent"
 fi
+
+case "${ACCEPT_EULA}" in
+    YES|yes|Y|y)
+        ;;
+    *)
+       container_failure 17 "You must accept the EULA by providing ACCEPT_EULA=YES"
+       ;;
+esac
