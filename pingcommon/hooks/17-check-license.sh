@@ -47,6 +47,15 @@ else
                 echo "Successfully pulled evaluation license from Ping Identity"
                 test "${PING_DEBUG}" == "true" && cat_indent "${LICENSE_FILE}"
                 echo ""
+
+                case "${ACCEPT_EULA}" in
+                    YES|yes|Y|y)
+                        ;;
+                    *)
+                    container_failure 17 "You must accept the EULA by providing the environment variable ACCEPT_EULA=YES"
+                    ;;
+                esac
+
                 licenseFound="true"
             else
                 echo "Unable to download evaluation product.lic (${licenseCurlResult}), most likely due to invalid PING_IDENTITY_DEVOPS_USER/PING_IDENTITY_DEVOPS_KEY"
@@ -74,11 +83,3 @@ if test ! "${licenseFound}" = "true" ; then
 ##################################################################################"
     container_failure 17 "License File absent"
 fi
-
-case "${ACCEPT_EULA}" in
-    YES|yes|Y|y)
-        ;;
-    *)
-       container_failure 17 "You must accept the EULA by providing ACCEPT_EULA=YES"
-       ;;
-esac
