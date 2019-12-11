@@ -123,8 +123,8 @@ if test -n "$( getValue ${gitPrefix}_URL )" ; then
     deployLayers
 fi
 
-heap=$(awk '$1~/MemAvailable/ {print int($2*0.9/1024)}' /proc/meminfo)
-jvmArgs="-Xmx${heap}m -Xms${heap}m"
+heap=$(awk '$1~/MemAvailable/ {print int($2*0.9/1048576)}' /proc/meminfo)
+jvmArgs="-Xmx${HEAP:-${heap}m} -Xms${HEAP:-${heap}m}"
 localIP=$(ifconfig eth0 | awk '$1~/inet$/ {split($2,ip,":");print ip[2]}')
 jmeterArgs=" -Djava.rmi.server.hostname=${localIP} -Dserver.rmi.ssl.disable=true -Djmeter.logfile=/var/log/jmeter.log"
 exec java ${jvmArgs} -jar /opt/apache-jmeter/bin/ApacheJMeter.jar ${jmeterArgs} ${*:-${CMD}}
