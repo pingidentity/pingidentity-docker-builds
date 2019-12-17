@@ -63,7 +63,7 @@ if test "$(docker pull ${FOUNDATION_REGISTRY}/pingcommon:${ciTag})" ; then
     # || test $(docker image ls --filter=reference='pingidentity/pingcommon:latest' --format "{{.Repository}} {{.Tag}}" | grep ping)
     # || test $(docker image ls --filter=reference='pingidentity/pingdatacommon:latest' --format "{{.Repository}} {{.Tag}}" | grep ping) ; then
     # we are in CI pipe and pingfoundation was built in previous job. 
-    pull_and_tag "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}" "pingidentity/common"
+    pull_and_tag "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}" "pingidentity/pingcommon"
     pull_and_tag "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon"
     pull_and_tag "${FOUNDATION_REGISTRY}/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}"
 elif test "${FOUNDATION_REGISTRY}" = "gcr.io/ping-identity" ; then
