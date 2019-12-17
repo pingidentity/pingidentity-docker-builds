@@ -48,11 +48,11 @@ else
                 test "${PING_DEBUG}" == "true" && cat_indent "${LICENSE_FILE}"
                 echo ""
 
-                case "${ACCEPT_EULA}" in
+                case "${PING_IDENTITY_ACCEPT_EULA}" in
                     YES|yes|Y|y)
                         ;;
                     *)
-                    container_failure 17 "You must accept the EULA by providing the environment variable ACCEPT_EULA=YES"
+                    container_failure 17 "You must accept the EULA by providing the environment variable PING_IDENTITY_ACCEPT_EULA=YES"
                     ;;
                 esac
 
