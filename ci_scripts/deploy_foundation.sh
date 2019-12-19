@@ -14,24 +14,27 @@ fi
 # ONLY on master. 
 test ! $(git tag --points-at "$CI_COMMIT_SHA") && test ! $(git rev-parse --abbrev-ref "$CI_COMMIT_SHA") = "master" && echo "ERROR: are you sure this script should be running??" && exit 1
 
-FOUNDATION_REGISTRY="gcr.io/ping-identity"
-gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
-gitRevLong=$( git rev-parse "$CI_COMMIT_SHA" )
-ciTag="${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
-
 retag_and_deploy(){
   product=${1}
-  docker pull "${FOUNDATION_REGISTRY}/${product}${ciTag}"
-  docker tag "${FOUNDATION_REGISTRY}/${product}${ciTag}" "${FOUNDATION_REGISTRY}/${product//-/}"
-  docker push "${FOUNDATION_REGISTRY}/${product//-/}s"
-  gcloud container images untag "${FOUNDATION_REGISTRY}/${product}${ciTag}"
-  docker rmi "${FOUNDATION_REGISTRY}/${product}${ciTag}"
+  tag=${2}
+  if test -z ${tag} ; then
+    docker pull "${FOUNDATION_REGISTRY}/${product}:${ciTag}"
+    docker tag "${FOUNDATION_REGISTRY}/${product}:${ciTag}" "${FOUNDATION_REGISTRY}/${product}"
+    docker push "${FOUNDATION_REGISTRY}/${product}"
+    gcloud container images untag "${FOUNDATION_REGISTRY}/${product}:${ciTag}"
+    docker rmi "${FOUNDATION_REGISTRY}/${product}:${ciTag}"
+  else
+    docker pull "${FOUNDATION_REGISTRY}/${product}:${tag}-${ciTag}"
+    docker tag "${FOUNDATION_REGISTRY}/${product}:${tag}-${ciTag}" "${FOUNDATION_REGISTRY}/${product}:${tag}"
+    docker push "${FOUNDATION_REGISTRY}/${product}:${tag}"
+    gcloud container images untag "${FOUNDATION_REGISTRY}/${product}:${tag}-${ciTag}"
+    docker rmi "${FOUNDATION_REGISTRY}/${product}:${tag}-${ciTag}"
 }
 
-retag_and_deploy "pingcommon:"
-retag_and_deploy "pingdatacommon:"
-retag_and_deploy "pingbase:ubuntu-"
-retag_and_deploy "pingbase:alpine-"
-retag_and_deploy "pingbase:centos-"
+retag_and_deploy "pingcommon"
+retag_and_deploy "pingdatacommon"
+retag_and_deploy "pingbase" "ubuntu"
+retag_and_deploy "pingbase" "alpine"
+retag_and_deploy "pingbase" "centos"
 
 history | tail -100
