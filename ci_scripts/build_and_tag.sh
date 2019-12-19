@@ -3,6 +3,9 @@
 defaultOS=alpine
 product=${1}
 os=${2:-${defaultOS}}
+image="pingidentity/${product}"
+gcr="gcr.io/ping-identity"
+gcrImage="gcr.io/ping-identity/${product}"
 #not implemented version
 
 if test ! -z "${CI_COMMIT_REF_NAME}" ;then
@@ -52,10 +55,8 @@ done
 
 # make sure have latest pingfoundation
 pull_and_tag(){
-    if test "${FOUNDATION_REGISTRY}" = "gcr.io/ping-identity" ; then
         docker pull "${1}"
         docker tag "${1}" "${2}"
-    fi
 }
 
 if test "$(docker pull ${FOUNDATION_REGISTRY}/pingcommon:${ciTag})" ; then
@@ -72,17 +73,19 @@ elif test "${FOUNDATION_REGISTRY}" = "gcr.io/ping-identity" ; then
     docker pull "${FOUNDATION_REGISTRY}/pingdatacommon"
     docker pull "${FOUNDATION_REGISTRY}/pingbase:${os}"
 # if we are not in a ci pipe, ping foundation is expected to be there. 
+elif test -z "${CI_COMMIT_REF_NAME}" ; then
+    pull_and_tag "${gcr}/pingcommon" "pingidentity/pingcommon"
+    pull_and_tag "${gcr}/pingdatacommon" "pingidentity/pingdatacommon"
+    pull_and_tag "${gcr}/pingbase:${os}" "pingidentity/pingbase:${os}"
 fi
 
 #Start building product
-echo building "${product}"
-image="pingidentity/${product}"
-gcr="gcr.io/ping-identity/${product}"
+echo "INFO: Start building ${product}"
 
 tag_and_push(){
     if test "${FOUNDATION_REGISTRY}" = "gcr.io/ping-identity" ; then
-        docker tag "${image}:${1}" "${gcr}:${1}-${ciTag}"
-        docker push "${gcr}:${1}-${ciTag}"
+        docker tag "${image}:${1}" "${gcrImage}:${1}-${ciTag}"
+        docker push "${gcrImage}:${1}-${ciTag}"
     fi
 }
 if test  -f "${product}/versions" ; then
