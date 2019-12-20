@@ -29,6 +29,7 @@ retag_and_deploy(){
     docker push "${FOUNDATION_REGISTRY}/${product}:${tag}"
     gcloud container images untag "${FOUNDATION_REGISTRY}/${product}:${tag}-${ciTag}"
     docker rmi "${FOUNDATION_REGISTRY}/${product}:${tag}-${ciTag}"
+  fi
 }
 
 retag_and_deploy "pingcommon"
