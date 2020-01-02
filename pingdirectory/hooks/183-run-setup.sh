@@ -73,10 +73,42 @@ jvmOptions=$( getJvmOptions )
 
 export certificateOptions encryptionOption jvmOptions 
 
+# This INSTANCE_NAME must be unique across all instances, hence the addition
+# of the K8S Cluster Name. This should be used in the PingDirectory profile
+# setup-arguments.txt
+
+export INSTANCE_NAME="${_podInstanceName}"
+
 # TODO - Maybe allow for an ENV_VARS variable specifying a file (default to "${STAGING_DIR}/env_vars")
 
 if test -f "${STAGING_DIR}/env_vars"  ; then
     _manageProfileOptions="--profileVariablesFile ${STAGING_DIR}/env_vars "
+fi
+
+# GDO-57 - If there isn't a setup-arguments.txt file, then we will create one based on the
+#          variables provided
+_setupArguments="${PD_PROFILE}/setup-arguments.txt"
+if test ! -f "${_setupArguments}"; then
+    echo "Generating ${_setupArguments}"
+    cat <<EOSETUP > "${_setupArguments}"
+    --verbose \
+    --acceptLicense \
+    --skipPortCheck \
+    --instanceName ${INSTANCE_NAME} \
+    --location ${LOCATION} \
+    $(test ! -z "${LDAP_PORT}" && echo "--ldapPort ${LDAP_PORT}") \
+    $(test ! -z "${LDAPS_PORT}" && echo "--ldapsPort ${LDAPS_PORT}") \
+    $(test ! -z "${HTTPS_PORT}" && echo "--httpsPort ${HTTPS_PORT}") \
+    --enableStartTLS \
+    ${jvmOptions} \
+    ${certificateOptions} \
+    ${encryptionOption} \
+    --rootUserDN "${ROOT_USER_DN}" \
+    --rootUserPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
+    --baseDN "${USER_BASE_DN}" \
+    --addBaseEntry
+EOSETUP
+
 fi
 
 # run the manage-profile to setup the server
