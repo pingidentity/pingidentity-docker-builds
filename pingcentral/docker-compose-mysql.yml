@@ -1,0 +1,17 @@
+version: '3'
+services:
+  pingcentral:
+    image: ping/pingcentral:latest
+    container_name: pingcentral
+    ports:
+      - "9022:9022"
+    depends_on:
+      - "db"
+  db:
+    image: mysql
+    container_name: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 2Federate
