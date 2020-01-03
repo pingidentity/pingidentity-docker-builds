@@ -1,0 +1,10 @@
+version: '3'
+services:
+  pingcentral:
+    image: ping/pingcentral:latest
+    container_name: pingcentral
+    volumes:
+      - ./conf/h2/pingcentral.jwk:/opt/pingcentral/conf/pingcentral.jwk
+      - ./conf/h2/pingcentral.mv.db:/opt/pingcentral/h2-data/pingcentral.mv.db
+    ports:
+      - "9022:9022"
