@@ -12,4 +12,4 @@ testing and deployments.
 
 ## Troubleshooting
 This repository is in active development and has not been officially released. 
-If you experience issues with this project, plese see details on contributing feedback at [Contributing](CONTRIBUTING.md).
+If you experience issues with this project, please see details on contributing feedback at [Contributing](CONTRIBUTING.md).
