@@ -51,7 +51,7 @@ if test "$1" = "start-server" ; then
 
     run_hook "50-before-post-start.sh"
 
-    # The 80-post-start.sh is placed in the background, at tenically runs
+    # The 80-post-start.sh is placed in the background, and technically runs
     # before the service is actually started.  The post start SHOULD 
     # poll the service (i.e. curl commands or ldapsearch or ...) to verify it 
     # is running before performing the actual post start tasks.
