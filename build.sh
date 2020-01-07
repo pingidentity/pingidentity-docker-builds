@@ -115,7 +115,7 @@ errorExit ()
     exit "${errorCode}"
 }
 
-productsToBuild="federate access datasync directory datagovernance"
+productsToBuild="federate access datasync directory datagovernance datagovernancepap"
 OSesToBuild="alpine centos ubuntu"
 #
 # Parse the provided arguments, if any
