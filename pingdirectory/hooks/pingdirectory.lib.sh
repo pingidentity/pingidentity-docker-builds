@@ -11,8 +11,15 @@ getIP ()
 }
 
 # Loops until a specific ldap host, port, basedn can be returned successfully
+# If it does't respond after 8 iterations, then echo the messages passed
+#
+# parameters:  $1 - hostname
+#              $2 - port
+#              $3 - baseDN
 waitUntilLdapUp ()
 {
+    _iCnt=1
+
     while true; do
         # shellcheck disable=SC2086
         ldapsearch \
@@ -26,5 +33,13 @@ waitUntilLdapUp ()
             --scope base "(&)" 1.1 2>/dev/null && break
 
         sleep_at_most 15
+
+        if test $_iCnt == 8; then
+            _iCnt=0
+            echo "May be a DNS/Firewall/Service/PortMapping Issue."
+            echo "    Ensure that the container/pod can reach: $1:$2"
+        fi
+
+        _iCnt=$((_iCnt+1))
     done
 }

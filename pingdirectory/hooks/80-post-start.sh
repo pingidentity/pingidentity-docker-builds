@@ -2,11 +2,7 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-#- This hook runs after the PingDirectory service has been started and is running.  It
-#- will determine if it is part of a directory replication topology by the presence
-#- of a TOPOLOGY_SERVICE_BAME .  If not present, then replication will not be enabled.  
-#- Otherwise,
-#- it will perform the following steps regarding replication.
+#- This hook runs through the followig phases:
 #-
 ${VERBOSE} && set -x
 
@@ -19,136 +15,179 @@ test -f "${STAGING_DIR}/env_vars" && . "${STAGING_DIR}/env_vars"
 test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib.sh"
 
 #
-# If we are in GENESIS State, then, no replication will be setup
+#- * Ensures the PingDirectory service has been started an accepts queries.
+# 
+echo "Waiting until PingDirectory service is running on this Server (${_podInstanceName})"
+echo "        ${_podHostname}:${_podLdapsPort}"
+waitUntilLdapUp "${_podHostname}" "${_podLdapsPort}" ""
+
+#
+#- * Updates the Server Instance hostname/ldaps-port
+#
+echo "Updating the Server Instance hostname/ldaps-port:
+         instance: ${_podInstanceName}
+         hostname: ${_podHostname}
+       ldaps-port: ${_podLdapsPort}"
+
+dsconfig set-server-instance-prop --no-prompt --quiet \
+    --instance-name "${_podInstanceName}" \
+    --set hostname:${_podHostname} \
+    --set ldaps-port:${_podLdapsPort}
+
+_updateServerInstanceResult=$?
+echo "Updating the Server Instance ${_podInstanceName} result=${_updateServerInstanceResult}"
+
+#
+#- * Check to see if PD_STATE is GENISIS.  If so, no replication will be performed
 #
 if test "${PD_STATE}" == "GENESIS" ; then
     echo "PD_STATE is GENESIS ==> Replication on this server won't be setup until more instances are added"
     exit 0
 fi
 
-# If a topology.json file is provided externally, then just use that.
-if test -f "${TOPOLOGY_FILE}"; then
-    echo "${TOPOLOGY_FILE} exists, not generating it"
+#
+#- * Ensure the Seed Server is accepting queries
+#
+echo "Running ldapsearch test on SEED Server (${_seedInstanceName})"
+echo "        ${_seedHostname}:${_seedLdapsPort}"
+waitUntilLdapUp "${_seedHostname}" "${_seedLdapsPort}" ""
+
+#
+#- * Check the topology prior to enabling replication
+#
+_priorTopoFile="/tmp/priorTopology.json"
+rm -rf "${_priorTopoFile}"
+manage-topology export \
+    --hostname "${_seedHostname}" \
+    --port "${_seedLdapsPort}" \
+    --exportFilePath "${_priorTopoFile}"
+_priorNumInstances=$(cat ${_priorTopoFile} | jq ".serverInstances | length")
+
+#
+#- * If this server is already in prior topology, then replication is already enable
+#
+if test ! -z $(cat ${_priorTopoFile} | jq -r ".serverInstances[] | select(.instanceName==\"${_podInstanceName}\") | .instanceName"); then
+    echo "This instance (${_podInstanceName}) is already found in topology --> No need to enable replication"
+    dsreplication status --displayServerTable --showAll
+    exit 0
+fi
+
+#
+#- * If the server being setup is the Seed Instance, then no replication will be performed
+#
+if test "${_podInstanceName}" == "${_seedInstanceName}"; then
+    echo ""
+    echo "We are the SEED Server: ${_seedInstanceName} --> No need to enable replication"
+    echo "TODO: We need to check for other servers"
+    exit 0
+fi
+
+#
+#- * Get the current Toplogy Master
+#
+_masterTopologyInstance=$(ldapsearch --hostname "${_seedHostname}" --port "${_seedLdapsPort}" --terse --outputFormat json -b "cn=Mirrored subtree manager for base DN cn_Topology_cn_config,cn=monitor" -s base objectclass=* master-instance-name | jq -r .attributes[].values[])
+_masterTopologyHostname="${_seedHostname}"
+_masterTopologyLdapsPort="${_seedLdapsPort}"
+_masterTopologyReplicationPort="${_seedReplicationPort}"
+
+
+#
+#- * Determine the Master Toplogy server to use to enable with
+#
+if test "${_priorNumInstances}" -eq 1; then
+    echo "Only 1 instance (${_masterTopologyInstance}) found in current topology.  Adding 1st replica"
 else
-    # Generate the topology json file
-    sh "${HOOKS_DIR}/81-generate-topology-json.sh"
-    test $? -ne 0 && exit 0
+    if test "${_masterTopologyInstance}" = "${_seedInstanceName}"; then
+        echo "Seed Instance is the Topology Master Instance"
+        _masterTopologyHostname="${_seedHostname}"
+        _masterTopologyLdapsPort="${_seedLdapsPort}"
+        _masterTopologyReplicationPort="${_seedReplicationPort}"
+    else
+        echo "Topology master instance (${_masterTopologyInstance}) isn't seed instance (${_seedInstanceName})"
+        
+        _masterTopologyHostname=$(cat ${_priorTopoFile} | jq -r ".serverInstances[] | select(.instanceName==\"${_masterTopologyInstance}\") | .hostname")
+        _masterTopologyLdapsPort=$(cat ${_priorTopoFile} | jq ".serverInstances[] | select(.instanceName==\"${_masterTopologyInstance}\") | .ldapsPort")
+        _masterTopologyReplicationPort=$(cat ${_priorTopoFile} | jq ".serverInstances[] | select(.instanceName==\"${_masterTopologyInstance}\") | .replicationPort")
+    fi
 fi
 
-_myHostname=$( hostname -f )
 
-#- - Wait for DNS lookups to work, sleeping until successful
-echo "Waiting until DNS lookup works for ${HOSTNAME}. Running nslookup test..."
-while true; do
-  nslookup "${HOSTNAME}" 2>/dev/null >/dev/null && echo "  dns is up" && break
-  sleep_at_most 5
-done
-
-# _myIP=$( getIP "${HOSTNAME}"  )
-# _firstHostname=$( getFirstHostInTopology )
-# _firstIP=$( getIP "${_firstHostname}" )
-
-#- - If my instance is the first one to come up, then replication enablement will be skipped.
-# if test "${_myIP}" = "${_firstIP}" ; then
-#   echo "Skipping replication on first container"
-#   exit 0
-# fi
-
-#- - Wait until a successful ldapsearch an be run on (this may take awhile when a bunch of instances are started simultaneiously):
-#-   - my instance
-#-   - first instance in the TOPOLOGY_FILE
-echo
-echo "Running ldapsearch test on this container (${HOSTNAME})"
-waitUntilLdapUp "localhost" "${LDAPS_PORT}" ""
-
-# this container is going to need to initialize over the network
-# if all containers start at the same time then the first container
-# will import the data which takes some time
-#echo "Running ldapsearch test on first container (${_firstHostname})"
-#waitUntilLdapUp "${_firstHostname}" "${LDAPS_PORT}" "${USER_BASE_DN}"
-
-#- - Change the customer name to my instance hostname
-# shellcheck disable=SC2039
-echo "Changing the cluster name to ${HOSTNAME}"
-# shellcheck disable=SC2039,SC2086
-dsconfig --no-prompt \
-  --useSSL --trustAll \
-  --hostname "${HOSTNAME}" --port "${LDAPS_PORT}" \
-  set-server-instance-prop \
-  --instance-name "${HOSTNAME}" \
-  --set cluster-name:"${HOSTNAME}" >/dev/null 2>/dev/null
-
-#- - Check to see if my hostname is already in the replication topology.  If it is, then exit
-# shellcheck disable=SC2039
-#echo "Checking if ${HOSTNAME} is already in replication topology"
-# shellcheck disable=SC2039,SC2086
-#if dsreplication --no-prompt status \
-#  --useSSL \
-#  --trustAll \
-#  --script-friendly \
-#  --port ${LDAPS_PORT} \
-#  --adminUID "${ADMIN_USER_NAME}" \
-#  --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
-#  | awk '$1 ~ /^Server:$/ {print $2}' \
-#  | grep "${HOSTNAME}"; then
-#  echo "${HOSTNAME} is already in replication topology"
-#  exit 0
-#fi
-
-#- - To ensure a clean toplogy, call 81-repair-toplogy.sh to mend the TOPOLOGY_FILE before replciation steps taken
-# the topology might need to be mended before new containers can join
-#sh "${HOOKS_DIR}/81-repair-topology.sh"
-
-#- - Enable replication
-echo "Running dsreplication enable"
-# shellcheck disable=SC2039,SC2086
-if test "${DISABLE_SCHEMA_REPLICATION}" = 'true'; then
-    NO_SCHEMA_REPL_OPTION="--noSchemaReplication"
-fi
+#
+#- * Enabling Replication
+#
+printf "
+#############################################
+# Enabling Replication
+#
+# Current Master Topology Instance: ${_masterTopologyInstance}
+#
+#   %60s        %-60s
+#   %60s  <-->  %-60s
+#############################################
+" "Topology Master Server" "POD Server" "${_masterTopologyHostname}:${_masterTopologyReplicationPort}" "${_podHostname}:${_podReplicationPort}"
 
 dsreplication enable \
-  --topologyFilePath "${TOPOLOGY_FILE}" \
-  --retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS} \
-  --bindDN1 "${ROOT_USER_DN}" --bindPasswordFile1 "${ROOT_USER_PASSWORD_FILE}" \
-  --host2 "${HOSTNAME}" --port2 "${LDAPS_PORT}" --useSSL2 --trustAll \
-  --bindDN2 "${ROOT_USER_DN}" --bindPasswordFile2 "${ROOT_USER_PASSWORD_FILE}" \
-  --replicationPort2 "${REPLICATION_PORT}" \
-  --adminUID "${ADMIN_USER_NAME}" --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
-  --no-prompt \
-  --ignoreWarnings \
-  --baseDN "${USER_BASE_DN}" ${NO_SCHEMA_REPL_OPTION} \
-  --enableDebug \
-  --globalDebugLevel verbose
-_replEnableResult=$?
+      --retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS} \
+      --trustAll \
+      --host1 "${_masterTopologyHostname}" \
+      --port1 ${_masterTopologyLdapsPort} --useSSL1 \
+      --replicationPort1 "${_masterTopologyReplicationPort}" \
+      --bindDN1 "${ROOT_USER_DN}" --bindPasswordFile1 "${ROOT_USER_PASSWORD_FILE}" \
+      \
+      --host2 "${_podHostname}" \
+      --port2 ${_podLdapsPort} --useSSL2 \
+      --replicationPort2 "${_podReplicationPort}" \
+      --bindDN2 "${ROOT_USER_DN}" --bindPasswordFile2 "${ROOT_USER_PASSWORD_FILE}" \
+      \
+      --adminUID "${ADMIN_USER_NAME}" --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
+      --no-prompt --ignoreWarnings \
+      --baseDN "${USER_BASE_DN}" \
+      --noSchemaReplication \
+      --enableDebug --globalDebugLevel verbose
 
-if test ${_replEnableResult} -ne 0 && test ${_replEnableResult} -ne 5; then
-    echo "Replication already enabled for ${HOSTNAME} (result=${_replEnableResult})"
+_replEnableResult=$?
+echo "Replication enable for POD Server result=${_replEnableResult}"
+
+if test ${_replEnableResult} -ne 0; then
+    echo "Not running dsreplication initialize since enable failed with a non-successful return code"
     exit ${_replEnableResult}
 fi
 
-#- - Initialize replication
-echo "Running dsreplication initialize"
-# shellcheck disable=SC2039,SC2086
+#
+#- * Get the new current topology
+#
+echo "Getting Topology from SEED Server"
+rm -rf "${TOPOLOGY_FILE}"
+manage-topology export \
+    --hostname "${_seedHostname}" \
+    --port "${_seedLdapsPort}" \
+    --exportFilePath "${TOPOLOGY_FILE}"
+
+cat "${TOPOLOGY_FILE}"
+
+#
+#- * Initialize replication
+#
+echo "Initializing replication on POD Server"
 dsreplication initialize \
-  --topologyFilePath "${TOPOLOGY_FILE}" \
-  --retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS} \
-  --useSSLDestination \
-  --trustAll \
-  --hostDestination "${HOSTNAME}" \
-  --portDestination ${LDAPS_PORT} \
-  --baseDN "${USER_BASE_DN}" \
-  --adminUID "${ADMIN_USER_NAME}" \
-  --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
-  --no-prompt \
-  --enableDebug \
-  --globalDebugLevel verbose
+      --retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS} \
+      --trustAll \
+      \
+      --topologyFilePath "${TOPOLOGY_FILE}" \
+      \
+      --hostDestination "${_podHostname}" --portDestination ${_podLdapsPort} --useSSLDestination \
+      \
+      --baseDN "${USER_BASE_DN}" \
+      --adminUID "${ADMIN_USER_NAME}" \
+      --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
+      --no-prompt \
+      --enableDebug \
+      --globalDebugLevel verbose
 
 _replInitResult=$?
+echo "Replication initialize result=${_replInitResult}"
 
-if test ! ${_replInitResult} -eq 0 ; then
-    echo "Unable to initialized replication (result=${_replInitResult})"
-    exit ${_replInitResult}
-else 
-    echo "Successful initialization."
-    dsreplication status --displayServerTable --showAll
-fi
+test ${_replInitResult} -eq 0 && dsreplication status --displayServerTable --showAll
+    
+exit ${_replInitResult}
+
