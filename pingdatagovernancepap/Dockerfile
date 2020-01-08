@@ -27,6 +27,8 @@ FROM pingidentity/pingbase:${SHIM}
 ARG LICENSE_VERSION
 #-- Ping product name
 ENV PING_PRODUCT=PingDataGovernance-PAP
+#- Set License Directory BASE (locaion where we start PAP application)
+ENV LICENSE_DIR="${BASE}"
 #-- Name of License File
 ENV LICENSE_FILE_NAME=PingDataGovernance.lic
 #-- Shortname used when retrieving license from License Server
@@ -37,11 +39,11 @@ ENV LICENSE_VERSION=${LICENSE_VERSION}
 #-- Minimal Heap size required for Ping DataGovernance
 ENV MAX_HEAP_SIZE=384m
 
-ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
+ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/admin-point-application/bin/admin-point-application"
 
 #-- Adding lockdown mode so non administrive connections be made until server
 #-- has been started with replication enabled
-ENV STARTUP_FOREGROUND_OPTS="--nodetach"
+ENV STARTUP_FOREGROUND_OPTS="server ${SERVER_ROOT_DIR}/config/configuration.yml"
 
 #-- Adding lockdown mode so non administrive connections be made until server
 #-- has been started with replication enabled
