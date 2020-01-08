@@ -257,7 +257,7 @@ deploy_pingaccess:
 #
 # PingCentral
 # 
-build_pingaccess:
+build_pingcentral:
   stage: build
   script:
     - ci_scripts/build_product.sh pingcentral centos centos
@@ -277,7 +277,7 @@ build_pingaccess:
     - pingcommon
       
 
-test_pingaccess:
+test_pingcentral:
   stage: test
   script:
     - ./ci_scripts/run_tests.sh pingcentral
@@ -297,7 +297,7 @@ test_pingaccess:
     - pingcommon
       
       
-deploy_pingaccess:
+deploy_pingcentral:
   stage: deploy
   script:
     - ./ci_scripts/deploy_to_docker_hub.sh pingcentral
