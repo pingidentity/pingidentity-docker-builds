@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-defaultOS=alpine
+defaultOS=${3:-alpine}
 product=${1}
 os=${2:-${defaultOS}}
 image="pingidentity/${product}"
