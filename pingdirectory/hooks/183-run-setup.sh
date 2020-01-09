@@ -7,9 +7,6 @@ ${VERBOSE} && set -x
 # shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-# TODO Make pd.profile path a variable
-PD_PROFILE="${STAGING_DIR}/pd.profile"
-
 # shellcheck source=../../pingdatacommon/hooks/pingdata.lib.sh
 test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 
@@ -35,23 +32,6 @@ else
     echo "PD_STATE is not GENESIS ==> Skipping Templates"
     echo "PD_STATE is not GENESIS ==> Will not process ldif imports"
     _skipImports="--skipImportLdif "
-fi
-
-#
-# Due to an issue with the manage-profile process, we need to install the extensions before we 
-# setup, so the dsconfig command can properly configure the extension.
-# So we will do that with the server root prior to manage-profile
-#
-EXTENSION_DIR="${PD_PROFILE}/server-sdk-extensions"
-if test -d "${EXTENSION_DIR}" ; then
-    echo "Processing extensions in ${EXTENSION_DIR}..."
-    for _extension in $( find "${EXTENSION_DIR}" -mindepth 1 -maxdepth 1 2> /dev/null ) ; do
-        "${SERVER_ROOT_DIR}"/bin/manage-extension \
-            --install "${_extension}" \
-            --no-prompt
-
-        rm -rf "${_extension}"
-    done
 fi
 
 # TODO - See the TODO in pingdata.lib.sh

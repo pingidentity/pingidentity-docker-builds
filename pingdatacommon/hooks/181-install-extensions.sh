@@ -8,6 +8,8 @@ ${VERBOSE} && set -x
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 EXTENSIONS_DIR="${STAGING_DIR}/extensions"
+PROFILE_EXTENSIONS_DIR="${PD_PROFILE}/server-sdk-extensions"
+
 if test -d "${EXTENSIONS_DIR}" ; then
     AUTO_INSTALL_FILE="${EXTENSIONS_DIR}/autoinstall.list"
     if test -f "${AUTO_INSTALL_FILE}" ; then
@@ -63,16 +65,22 @@ if test -d "${EXTENSIONS_DIR}" ; then
                         continue
                     fi
                 fi
-                cp "${tmpDir}/${extensionFile}" "${EXTENSIONS_DIR}"/
+
+                mkdir -p "${PROFILE_EXTENSIONS_DIR}"
+                cp "${tmpDir}/${extensionFile}" "${PROFILE_EXTENSIONS_DIR}"/
             done < "${remoteInstallFile}"
         fi
     done
 
-    if find "${EXTENSIONS_DIR}" -type f -name \*.zip | read ; then
-        # shellcheck disable=SC2045
-        for extension in $( ls -1 "${EXTENSIONS_DIR}/"*.zip ) ; do 
-            "${SERVER_ROOT_DIR}/bin/manage-extension" --install "${extension}" --no-prompt
-        done
+    # FIXME: when all PingData products have been updated to use manage-profile, this block may be removed.
+    # This is required for PingData products that do not use manage-profile yet.
+    if test ! "${PING_PRODUCT}" = 'PingDirectory'; then
+        if test -d "${PROFILE_EXTENSIONS_DIR}" && find "${PROFILE_EXTENSIONS_DIR}" -type f -name \*.zip | read; then
+            # shellcheck disable=SC2045
+            for extension in $(ls -1 "${PROFILE_EXTENSIONS_DIR}/"*.zip); do
+                "${SERVER_ROOT_DIR}/bin/manage-extension" --install "${extension}" --no-prompt
+            done
+        fi
     fi
 fi
 
