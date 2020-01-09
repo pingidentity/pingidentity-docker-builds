@@ -16,4 +16,5 @@ test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
     --port ${HTTPS_PORT} \
     --hostname "${REST_API_HOSTNAME}" \
     --generateSelfSignedCertificate \
+    --decisionPointSharedSecret "${DECISION_POINT_SHARED_SECRET}"
     2>&1

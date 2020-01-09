@@ -55,6 +55,9 @@ ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/datagovernance-pap.log"
 #-- Hostname used for the REST API
 ENV REST_API_HOSTNAME="localhost"
 
+#-- Define shared secret between PDG and PAP
+ENV DECISION_POINT_SHARED_SECRET="2FederateM0re"
+
 EXPOSE ${HTTPS_PORT}
 
 COPY --from=pingidentity/pingcommon /opt ${BASE}
