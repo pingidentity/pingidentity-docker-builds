@@ -254,8 +254,72 @@ deploy_pingaccess:
   tags:
     - pingcommon
       
+#
+# PingCentral
+# 
+build_pingcentral:
+  stage: build
+  script:
+    - ci_scripts/build_product.sh pingcentral centos centos
+  only:
+    changes:
+      - pingcentral/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  tags:
+    - pingcommon
       
 
+test_pingcentral:
+  stage: test
+  script:
+    - ./ci_scripts/run_tests.sh pingcentral centos
+  only:
+    changes:
+      - pingcentral/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  tags:
+    - pingcommon
+      
+      
+deploy_pingcentral:
+  stage: deploy
+  script:
+    - ./ci_scripts/deploy_to_docker_hub.sh pingcentral
+    - ./ci_scripts/deploy_to_gcr.sh pingcentral
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - pingcentral/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  tags:
+    - pingcommon 
+
+    
 build_pingdirectory:
   stage: build
   script:

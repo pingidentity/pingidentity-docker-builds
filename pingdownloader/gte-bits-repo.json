@@ -2,19 +2,35 @@
     "defaultURL": "https://s3.amazonaws.com/gte-bits-repo/",
     "products": [
         {
-            "name": "pingdirectory",
-            "mapping": "PingDirectory-${version}.zip",
+            "name": "delegator",
+            "mapping": "pingdirectory-delegator-${version}.zip",
+            "latestVersion": "4.0.0"
+        },
+        {
+            "name": "ldapsdk",
+            "mapping": "unboundid-ldapsdk-${version}.zip",
+            "latestVersion": "4.0.14",
+            "url": "https://github.com/pingidentity/ldapsdk/releases/download/${version}/"
+        },
+        {
+            "name": "pingaccess",
+            "mapping": "pingaccess-${version}.zip",
+            "latestVersion": "5.2.3"
+        },
+        {
+            "name": "pingcentral",
+            "mapping": "ping-central-${version}.zip",
+            "latestVersion": "1.2.0"
+        },
+        {
+            "name": "pingdatametrics",
+            "mapping": "PingDataMetrics-${version}.zip",
             "latestVersion": "8.0.0.0"
         },
         {
             "name": "pingdatasync",
             "mapping": "PingDataSync-${version}.zip",
             "latestVersion": "8.0.0.0"
-        },
-        {
-            "name": "pingaccess",
-            "mapping": "pingaccess-${version}.zip",
-            "latestVersion": "5.2.3"
         },
         {
             "name": "pingdatagovernance",
@@ -27,30 +43,19 @@
             "latestVersion": "8.0.0.0"
         },
         {
-            "name": "pingdirectoryproxy",
-            "mapping": "PingDirectoryProxy-${version}.zip",
+            "name": "pingdirectory",
+            "mapping": "PingDirectory-${version}.zip",
             "latestVersion": "8.0.0.0"
         },
         {
-            "name": "pingdatametrics",
-            "mapping": "PingDataMetrics-${version}.zip",
+            "name": "pingdirectoryproxy",
+            "mapping": "PingDirectoryProxy-${version}.zip",
             "latestVersion": "8.0.0.0"
         },
         {
             "name": "pingfederate",
             "mapping": "pingfederate-${version}.zip",
             "latestVersion": "10.0.0"
-        },
-        {
-            "name": "ldapsdk",
-            "mapping": "unboundid-ldapsdk-${version}.zip",
-            "latestVersion": "4.0.14",
-            "url": "https://github.com/pingidentity/ldapsdk/releases/download/${version}/"
-        },
-        {
-            "name": "delegator",
-            "mapping": "pingdirectory-delegator-${version}.zip",
-            "latestVersion": "4.0.0"
         }
     ]
 }
