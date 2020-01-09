@@ -280,7 +280,7 @@ build_pingcentral:
 test_pingcentral:
   stage: test
   script:
-    - ./ci_scripts/run_tests.sh pingcentral
+    - ./ci_scripts/run_tests.sh pingcentral centos
   only:
     changes:
       - pingcentral/**/*

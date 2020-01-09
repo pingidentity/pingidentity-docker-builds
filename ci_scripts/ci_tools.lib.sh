@@ -4,7 +4,7 @@ HISTFILE=~/.bash_history
 set -o history
 export HISTTIMEFORMAT='%T'
 
-if test ! -z ${CI_COMMIT_REF_NAME} ; then
+if test -n "${CI_COMMIT_REF_NAME}" ; then
   #we are in CI pipeline
   FOUNDATION_REGISTRY="gcr.io/ping-identity"
   gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )

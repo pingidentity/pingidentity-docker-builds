@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 defaultOS=${3:-alpine}
 product=${1}
 os=${2:-${defaultOS}}
@@ -8,11 +7,12 @@ gcr="gcr.io/ping-identity"
 gcrImage="gcr.io/ping-identity/${product}"
 #not implemented version
 
-if test ! -z "${CI_COMMIT_REF_NAME}" ;then
+if test -n "${CI_COMMIT_REF_NAME}" ;then
   . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
 else 
   # shellcheck source=~/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
-  . ${HOME}/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
+  HERE=$(cd $(dirname ${0});pwd)
+  . ${HERE}/ci_tools.lib.sh
 fi
 
 set -e

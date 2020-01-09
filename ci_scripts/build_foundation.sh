@@ -5,7 +5,8 @@ if test ! -z "${CI_COMMIT_REF_NAME}" ;then
   . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
 else 
   # shellcheck source=~/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
-  . ${HOME}/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
+  HERE=$(dirname ${0})
+  . ${HERE}/ci_tools.lib.sh
 fi
 
 if test "${FOUNDATION_REGISTRY}" = "gcr.io/ping-identity" ; then
