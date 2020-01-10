@@ -6,15 +6,13 @@ defaultOS=${1:-alpine}
 shift
 OSList=${*}
 
+HERE=$(cd $(dirname ${0});pwd)
 if test -n "${CI_COMMIT_REF_NAME}" ;then
   . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
 else 
   # shellcheck source=~/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
-  HERE=$(cd $(dirname ${0});pwd)
   . ${HERE}/ci_tools.lib.sh
 fi
-
-H=$( cd $( dirname ${0} ) ; pwd )
 
 # TODO: make it work for local
 # usage ()
@@ -96,7 +94,7 @@ H=$( cd $( dirname ${0} ) ; pwd )
 
 exitCode=0
 for OSToBuild in ${OSList:-alpine centos ubuntu} ; do
-    "${H}/build_and_tag.sh" "${productsToBuild}" "${defaultOS}" "${OSToBuild}" #"${versionsToBuild}"
+    "${HERE}/build_and_tag.sh" "${productsToBuild}" "${defaultOS}" "${OSToBuild}" #"${versionsToBuild}"
     exitCode=${?}
     if test ${exitCode} -ne 0 ; then
         echo "Build break for ${1} on ${OSToBuild}"
