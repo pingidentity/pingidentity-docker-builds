@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 test -z "${1}" && exit 199
 productsToBuild="${1}"
+shift
+defaultOS=${1:-alpine}
+shift
+OSList=${*}
 
-if test ! -z "${CI_COMMIT_REF_NAME}" ;then
+if test -n "${CI_COMMIT_REF_NAME}" ;then
   . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
 else 
   # shellcheck source=~/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
-  . ${HOME}/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
+  HERE=$(cd $(dirname ${0});pwd)
+  . ${HERE}/ci_tools.lib.sh
 fi
 
 H=$( cd $( dirname ${0} ) ; pwd )
@@ -90,11 +95,11 @@ H=$( cd $( dirname ${0} ) ; pwd )
 # done
 
 exitCode=0
-for OSesToBuild in alpine ubuntu centos ; do
-    "${H}/build_and_tag.sh" "${productsToBuild}" "${OSesToBuild}" #"${versionsToBuild}"
+for OSToBuild in ${OSList:-alpine centos ubuntu} ; do
+    "${H}/build_and_tag.sh" "${productsToBuild}" "${defaultOS}" "${OSToBuild}" #"${versionsToBuild}"
     exitCode=${?}
     if test ${exitCode} -ne 0 ; then
-        echo "Build break for ${1} on ${os}"
+        echo "Build break for ${1} on ${OSToBuild}"
         break
     fi
 done

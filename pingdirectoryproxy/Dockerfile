@@ -53,6 +53,7 @@ ENV ROOT_USER_PASSWORD_FILE="${SECRETS_DIR}/root-user-password"
 ENV ADMIN_USER_PASSWORD_FILE="${SECRETS_DIR}/admin-user-password"
 ENV ENCRYPTION_PASSWORD_FILE="${SECRETS_DIR}/encryption-password"
 ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access"
+ENV PD_PROFILE="${STAGING_DIR}/pd.profile"
 ENV MAKELDIF_USERS=0
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT} 5005
 COPY --from=pingidentity/pingdatacommon /opt ${BASE}

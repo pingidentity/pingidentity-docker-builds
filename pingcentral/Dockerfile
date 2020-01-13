@@ -1,7 +1,7 @@
 #- # Ping Identity DevOps Docker Image - `pingcentral`
-#-
+#- 
 #- This docker image includes the Ping Identity PingCentral product binaries
-#- and associated hook scripts to create and run PingCentral
+#- and associated hook scripts to create and run PingCentral in a container.
 #-
 #- ## Related Docker Images
 #- - pingidentity/pingbase - Parent Image
@@ -10,36 +10,58 @@
 #- - pingidentity/pingdownloader - Used to download product bits
 #-
 
-# TODO use different image before final check-in?
-FROM openjdk:11-jre-slim
+ARG SHIM=centos
 
-RUN mkdir /opt/pingcentral
-RUN mkdir /opt/pingcentral/bin
-RUN mkdir /opt/pingcentral/conf
-RUN mkdir /opt/pingcentral/log
-RUN mkdir /opt/pingcentral/ext-lib
+FROM pingidentity/pingdownloader as staging
+ARG PRODUCT=pingcentral
+ARG VERSION=1.2.0
 
-# Copy files from distribution ZIP
-COPY /maven/ping-central.jar /opt/pingcentral/ping-central.jar
-COPY /maven/bin/run.sh /opt/pingcentral/bin/run.sh
-COPY /maven/bin/obfuscate.sh /opt/pingcentral/bin/obfuscate.sh
-COPY /maven/conf/log4j2.xml /opt/pingcentral/conf/log4j2.xml
-COPY /maven/conf/pingcentral.lic /opt/pingcentral/conf/pingcentral.lic
+# copy your product zip file into the staging image
+RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
+	&& unzip /tmp/product.zip -d /tmp/ \
+	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
+	&& mv /tmp/ping-central-* /opt/server
+COPY [ "liveness.sh", "/opt/"]
 
-# H2 Specific
-#COPY /maven/conf/h2/application.properties /opt/pingcentral/conf/application.properties
-
-# MySQL Specific
-COPY /maven/conf/mysql/application.properties /opt/pingcentral/conf/application.properties
-COPY /maven/conf/mysql/mysql-connector-java-8.0.18.jar /opt/pingcentral/ext-lib/mysql-connector-java-8.0.18.jar
-
+#
+# The final image 
+#
+FROM pingidentity/pingbase:${SHIM}
 EXPOSE 9022
-EXPOSE 3306
+ARG LICENSE_VERSION
+ENV PING_PRODUCT="PingCentral"
+ENV LICENSE_DIR="${SERVER_ROOT_DIR}/conf"
+ENV LICENSE_FILE_NAME="pingcentral.lic"
+ENV LICENSE_SHORT_NAME="PC"
+ENV LICENSE_VERSION=${LICENSE_VERSION}
+ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
+ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/server.log
+COPY --from=pingidentity/pingcommon /opt ${BASE}
+COPY --from=staging /opt ${BASE}
 
-ENTRYPOINT [ "/opt/pingcentral/bin/run.sh" ]
-
-# External Database Volume
-VOLUME ["/opt/pingcentral/conf/"]
-
-# H2 Specific Volume
-#VOLUME ["/opt/pingcentral/conf/", "/opt/pingcentral/h2-data/"]
+#- ## Running a PingFederate container
+#- To run a PingFederate container:
+#- 
+#- ```shell
+#-   docker run \
+#-            --name pingcentral \
+#-            --publish 9022:9022 \
+#-            --detach \
+#-            --env SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git \
+#-            --env SERVER_PROFILE_PATH=baseline/pingcentral/embedded-h2-db \
+#-            --env SERVER_PROFILE_PARENT=LOGGING \
+#-            --env SERVER_PROFILE_LOGGING_URL=https://github.com/pingidentity/pingidentity-server-profiles.git \
+#-            --env SERVER_PROFILE_LOGGING_PATH=baseline/pingcentral/logging \
+#-            pingidentity/pingcentral:edge
+#- ```
+#- 
+#- Follow Docker logs with:
+#- 
+#- ```
+#- docker logs -f pingcentral
+#- ```
+#- 
+#- If using the command above with the embedded [server profile](../server-profiles/README.md), log in with: 
+#- * https://localhost:9022/
+#-   * Username: Administrator
+#-   * Password: 2Federate

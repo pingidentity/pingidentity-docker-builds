@@ -13,9 +13,6 @@ ${VERBOSE} && set -x
 # shellcheck source=../pingdatacommon/pingdata.lib.sh
 test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 
-# TODO Make pd.profile path a variable
-PD_PROFILE="${STAGING_DIR}/pd.profile"
-
 echo "Restarting container"
 
 # if this hook is provided it can be executed early on

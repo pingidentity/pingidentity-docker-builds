@@ -84,6 +84,8 @@ ENV RETRY_TIMEOUT_SECONDS=180
 #-- comes from configuration. So it does not need to be replicated.
 ENV DISABLE_SCHEMA_REPLICATION=false
 
+ENV PD_PROFILE="${STAGING_DIR}/pd.profile"
+
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT} 5005
 
 COPY --from=pingidentity/pingdatacommon /opt ${BASE}

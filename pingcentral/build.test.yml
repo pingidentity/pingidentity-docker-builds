@@ -1,0 +1,12 @@
+version: "2"
+services:
+  sut:
+    image: pingidentity/pingcentral:${TAG}
+    environment:
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+      - PING_IDENTITY_ACCEPT_EULA=YES
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=baseline/pingcentral/logging
+      - VERBOSE=true
+    command: start-server curl --connect-timeout 3 --retry 100 --retry-max-time 180 --retry-connrefused --retry-delay 5 -k4 https://localhost:9022/

@@ -5,7 +5,8 @@ if test ! -z "${CI_COMMIT_REF_NAME}" ; then
   . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
 else 
   # shellcheck source=~/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
-  . ${HOME}/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
+  HERE=$(cd $(dirname ${0});pwd)
+  . ${HERE}/ci_tools.lib.sh
 fi
 
 images="$(gcloud container images list --repository=gcr.io/ping-identity)"
