@@ -23,10 +23,10 @@ ARG SHIM=alpine
 FROM ubuntu:disco as shim-ubuntu
 ONBUILD LABEL	name="Ping Identity (Ubuntu/OpenJDK11) Image"
 
-ONBUILD RUN apt -y update \
-        && apt -y  upgrade \
-        && apt -y install apt-utils \
-        && apt -y install openjdk-11-jdk curl gettext-base dnsutils git jq unzip openssh-client gnupg \
+ONBUILD RUN apt-get -y update \
+        && apt-get -y  upgrade \
+        && apt-get -y install apt-utils \
+        && apt-get -y install openjdk-11-jdk curl gettext-base dnsutils git jq unzip openssh-client gnupg \
         && apt-get -y autoremove \
         && rm -rf /var/lib/apt/lists/* 
 
@@ -237,7 +237,9 @@ ONBUILD RUN set -eux \
     && mv "${PAYLOAD}" "${BASE}/gosu" \
     && chmod +x "${BASE}/gosu" \
 	&& "${BASE}/gosu" nobody true \
-    && rm -r "$GNUPGHOME" "${TMP_VS}"
+    && rm -r "$GNUPGHOME" "${TMP_VS}" \
+    && chmod -Rf a+rx /opt \
+    && chmod -Rf a+rwx /opt/staging /opt/out /opt/backup /opt/logs 
 
 ### WARNING THE ENTRYPOINT WILL NEED TO BE UPDATED MANUALLY IF THE BASE IS CHANGED
 ### IT DOES NOT EXPAND VARIABLES -- REAL BUMMER
