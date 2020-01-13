@@ -97,7 +97,7 @@ if test  -f "${product}/versions" ; then
         imageVersion="${product}-${os}-${version}-${currentDate}-${gitRevShort}"
         licenseVersion="$(echo ${version}| cut -d. -f1,2)"
         #build the edge version of this product
-        docker build -t "${image}:${fullTag}" --build-arg SHIM="${os}" --build-arg VERSION="${version}" --build-arg IMAGE_VERSION="${imageVersion}" --build-arg IMAGE_GIT_REV="${gitRevLong}" --build-arg LICENSE_VERSION="${licenseVersion}" "${product}"/
+        DOCKER_BUILDKIT=1 docker build -t "${image}:${fullTag}" --build-arg SHIM="${os}" --build-arg VERSION="${version}" --build-arg IMAGE_VERSION="${imageVersion}" --build-arg IMAGE_GIT_REV="${gitRevLong}" --build-arg LICENSE_VERSION="${licenseVersion}" "${product}"/
         if test ${?} -ne 0 ; then
             echo "*** BUILD BREAK ***"
             echo "error on version: ${version}" 
