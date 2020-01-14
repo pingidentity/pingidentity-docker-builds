@@ -504,6 +504,26 @@ build_pingdatagovernance:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
     - pingdatacommon
+
+build_pingdatagovernancepap:
+  stage: build
+  script:
+    - ./ci_scripts/build_product.sh pingdatagovernancepap
+  only:
+    changes:
+      - pingdatagovernancepap/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  tags:
+    - pingdatacommon
       
 
 # test_pingdatagovernance:
@@ -536,6 +556,30 @@ deploy_pingdatagovernance:
       - tags
     changes:
       - pingdatagovernance/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  tags:
+    - pingdatacommon
+      
+
+deploy_pingdatagovernancepap:
+  stage: deploy
+  script:
+    - ./ci_scripts/deploy_to_docker_hub.sh pingdatagovernancepap
+    - ./ci_scripts/deploy_to_gcr.sh pingdatagovernancepap
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - pingdatagovernancepap/**/*
       - pingcommon/**/*
       - pingdatacommon/**/*
       - pingbase/**/*
