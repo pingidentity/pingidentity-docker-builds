@@ -5,11 +5,11 @@ product="${1}"
 test -z "$CI_COMMIT_TAG" && test ! "${CI_COMMIT_REF_NAME}" = "master" && echo "ERROR: are you sure this script should be running??" && exit 1
 
 if test ! -z "${CI_COMMIT_REF_NAME}" ; then
-  . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
+    . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
 else 
-  # shellcheck source=~/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
-  HERE=$(cd $(dirname ${0});pwd)
-  . ${HERE}/ci_tools.lib.sh
+    HERE=$(cd $(dirname "${0}");pwd)
+    # shellcheck source=./ci_tools.lib.sh
+    . "${HERE}/ci_tools.lib.sh"
 fi
 
 
@@ -26,4 +26,6 @@ done
 # docker rmi -f $(docker image ls --filter=reference="pingidentity/${product}:*")
 # docker rmi -f $(docker image ls --filter=reference="${FOUNDATION_REGISTRY}/${product}:*")
 
-history | tail -100
+if test -z "${HERE}" ; then
+    history | tail -100
+fi

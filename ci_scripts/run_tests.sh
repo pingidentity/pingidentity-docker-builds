@@ -62,6 +62,7 @@ else
   # done
 fi
 
-history | tail -100
-
+if test -z "${HERE}" ; then
+    history | tail -100
+fi
 exit ${returnCode}

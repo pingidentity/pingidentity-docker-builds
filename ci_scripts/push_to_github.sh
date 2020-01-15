@@ -2,9 +2,8 @@
 if test ! -z "${CI_COMMIT_REF_NAME}" ; then
   . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
 else 
-  # shellcheck source=~/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
-  HERE=$(cd $(dirname ${0});pwd)
-  . ${HERE}/ci_tools.lib.sh
+  # shellcheck source=./ci_tools.lib.sh
+  . "${HERE}/ci_tools.lib.sh"
 fi
 
 rm -rf /tmp/build
@@ -23,4 +22,6 @@ fi
 
 git push gh_location master
 
-history | tail -100
+if test -z "${HERE}" ; then
+    history | tail -100
+fi

@@ -5,22 +5,22 @@ test ! $(git tag --points-at "$CI_COMMIT_SHA") && test ! $(git rev-parse --abbre
 
 if test ! -z "${CI_COMMIT_REF_NAME}" ; then
   . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
+    tags=$(gcloud container images list-tags ${FOUNDATION_REGISTRY}/${product} --format="value(tags)" --filter=TAGS:"${ciTag}" | sed -e 's/,/ /g' )
+    for tag in $tags ; do
+        docker pull "${FOUNDATION_REGISTRY}/${product}:$tag"
+        dockerTag=$(echo "$tag" | sed -e "s/-${ciTag}//g")
+        docker tag "${FOUNDATION_REGISTRY}/${product}:$tag" "pingidentity/${product}:${dockerTag}"
+        docker push "pingidentity/${product}:${dockerTag}"
+    done
 else 
-  # shellcheck source=~/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
-  HERE=$(cd $(dirname ${0});pwd)
-  . ${HERE}/ci_tools.lib.sh
+    HERE=$(cd $(dirname "${0}");pwd)
+    # shellcheck source=./ci_tools.lib.sh
+    . "${HERE}/ci_tools.lib.sh"
 fi
-
-tags=$(gcloud container images list-tags ${FOUNDATION_REGISTRY}/${product} --format="value(tags)" --filter=TAGS:"${ciTag}" | sed -e 's/,/ /g' )
-
-for tag in $tags ; do
-  docker pull "${FOUNDATION_REGISTRY}/${product}:$tag"
-  dockerTag=$(echo "$tag" | sed -e "s/-${ciTag}//g")
-  docker tag "${FOUNDATION_REGISTRY}/${product}:$tag" "pingidentity/${product}:${dockerTag}"
-  docker push "pingidentity/${product}:${dockerTag}"
-done
 
 docker image rm -f "$(docker image ls --filter=reference=pingidentity/${product}:*)"
 docker image rm -f "$(docker image ls --filter=reference=${FOUNDATION_REGISTRY}/${product}:*)"
 
-history | tail -100
+if test -z "${HERE}" ; then
+    history | tail -100
+fi
