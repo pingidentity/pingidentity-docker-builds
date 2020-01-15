@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 set -eux
-if which apt-get >/dev/null 2>/dev/null ; then
+if type apt-get >/dev/null 2>/dev/null ; then
     apt-get -y update
     apt-get -y  upgrade
     apt-get -y install apt-utils
@@ -19,7 +19,7 @@ if type yum >/dev/null 2>/dev/null ; then
     rm -rf /var/cache/yum 
 fi
 
-if which apk >/dev/null 2>/dev/null ; then
+if type apk >/dev/null 2>/dev/null ; then
     apk --no-cache --update add git curl ca-certificates jq zip gnupg libintl openssh-client openjdk8
     apk add --virtual build_deps gettext 
     cp /usr/bin/envsubst /usr/local/bin/envsubst 
