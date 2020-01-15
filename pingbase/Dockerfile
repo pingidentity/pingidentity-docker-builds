@@ -16,50 +16,55 @@
 
 # Default to Alpine
 ARG SHIM=alpine
+#ARG SHIM=ubuntu:disco
+#ARG SHIM=centos
 
 #
 # Ubuntu disco OpenJDK11 shim
 #
-FROM ubuntu:disco as shim-ubuntu
-ONBUILD LABEL	name="Ping Identity (Ubuntu/OpenJDK11) Image"
+# FROM ubuntu:disco as shim-ubuntu
+# ONBUILD LABEL	name="Ping Identity (Ubuntu/OpenJDK11) Image"
 
-ONBUILD RUN apt-get -y update \
-        && apt-get -y  upgrade \
-        && apt-get -y install apt-utils \
-        && apt-get -y install openjdk-11-jdk curl gettext-base dnsutils git jq unzip openssh-client gnupg \
-        && apt-get -y autoremove \
-        && rm -rf /var/lib/apt/lists/* 
+# ONBUILD RUN apt-get -y update \
+#         && apt-get -y  upgrade \
+#         && apt-get -y install apt-utils \
+#         && apt-get -y install openjdk-11-jdk curl gettext-base dnsutils git jq unzip openssh-client gnupg \
+#         && apt-get -y autoremove \
+#         && rm -rf /var/lib/apt/lists/* 
 
 
 #
 # Centos shim
 #
-FROM centos as shim-centos
-ONBUILD LABEL	name="Ping Identity (CentOS/OpenJDK11) Image"
+# FROM centos as shim-centos
+# ONBUILD LABEL	name="Ping Identity (CentOS/OpenJDK11) Image"
 
-ONBUILD RUN yum update -y \
-        && yum upgrade -y \
-        && yum -y install epel-release \
-        && yum -y install java-11-openjdk-devel gettext bind-utils git jq unzip openssh-clients gnupg \
-        && yum -y autoremove \
-        && yum -y clean all \
-        && rm -rf /var/cache/yum 
+# ONBUILD RUN yum update -y \
+#         && yum upgrade -y \
+#         && yum -y install epel-release \
+#         && yum -y install java-11-openjdk-devel gettext bind-utils git jq unzip openssh-clients gnupg \
+#         && yum -y autoremove \
+#         && yum -y clean all \
+#         && rm -rf /var/cache/yum 
         
 
-#
-# The good shim
-# 
-FROM openjdk:8-jre-alpine as shim-alpine
-ONBUILD LABEL	name="Ping Identity (Alpine/OpenJDK8) Image" 
+# #
+# # The good shim
+# # 
+# FROM openjdk:8-jre-alpine as shim-alpine
+# ONBUILD LABEL	name="Ping Identity (Alpine/OpenJDK8) Image" 
         
-ONBUILD RUN apk --no-cache --update add git curl ca-certificates jq zip gnupg libintl openssh-client\
-    && apk add --virtual build_deps gettext \
-    && cp /usr/bin/envsubst /usr/local/bin/envsubst \
-    && apk del build_deps 
+# ONBUILD RUN apk --no-cache --update add git curl ca-certificates jq zip gnupg libintl openssh-client\
+#     && apk add --virtual build_deps gettext \
+#     && cp /usr/bin/envsubst /usr/local/bin/envsubst \
+#     && apk del build_deps 
 
+# FROM ${SHIM} as shim
+FROM ${SHIM}
 
-FROM shim-${SHIM}
-LABEL	maintainer="devops_program@pingidentity.com" \
+# FROM shim
+LABEL	name="Ping Identity Docker Image (${SHIM})" \
+        maintainer="devops_program@pingidentity.com" \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp."
 
@@ -210,40 +215,26 @@ ONBUILD HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7
 ONBUILD VOLUME [ "${BAK_DIR}" "${IN_DIR}" "${OUT_DIR}" "${LOGS_DIR}" ]
 ONBUILD WORKDIR ${BASE}
 
-# ONBUILD ENV TINI_VERSION v0.18.0
-# ONBUILD ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static ${BASE}/tini
-ONBUILD RUN set -eux \
-	&& export GNUPGHOME="$(mktemp -d)" \
-    && export TMP_VS="$( mktemp -d )" \
-    && export PAYLOAD="${TMP_VS}/payload" \
-    && export SIGNATURE="${TMP_VS}/signature" \
-    && export TINI_VERSION="v0.18.0" \
-    && export OBJECT="https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static" \
-    && curl -sSLo "${PAYLOAD}" "${OBJECT}" \
-    && curl -sSLo "${SIGNATURE}" "${OBJECT}.asc" \
-    && gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys 6380DC428747F6C393FEACA59A84159D7001A4E5 \
-    && gpg --batch --verify "${SIGNATURE}" "${PAYLOAD}" \
-    && mv "${PAYLOAD}" "${BASE}/tini" \ 
-    && chmod +x "${BASE}/tini" \
-    && rm -f ${PAYLOAD} ${SIGNATURE} \
-    && export GOSU_VERSION="1.11" \
-    && export GOSU_ARCH=amd64 \
-    && export OBJECT="https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$GOSU_ARCH" \
-    && curl -sSLo "${PAYLOAD}" "${OBJECT}" \
-    && curl -sSLo "${SIGNATURE}" "${OBJECT}.asc" \
-	&& gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
-    && gpg --batch --verify "${SIGNATURE}" "${PAYLOAD}" \
-	&& gpgconf --kill all \
-    && mv "${PAYLOAD}" "${BASE}/gosu" \
-    && chmod +x "${BASE}/gosu" \
-	&& "${BASE}/gosu" nobody true \
-    && rm -r "$GNUPGHOME" "${TMP_VS}" \
-    && chmod -Rf a+rx /opt \
-    && chmod -Rf a+rwx /opt/staging /opt/out /opt/backup /opt/logs 
+#-- Whether to run the process as Root or not
+#-- if set to false, user spec can be left to default (uid:9031, gid:9999)
+#-- or a custom uid can be passed with PING_CONTAINER_UID
+#-- and PING_CONTAINER_GID
+ONBUILD ENV PING_CONTAINER_PRIVILEGED="true"
+
+#-- The user ID the product will use if PINGIDENTITY_RUN_PRIVILEGED is set to false
+ONBUILD ENV PING_CONTAINER_UID=9031
+#-- The group ID the product will use if PINGIDENTITY_RUN_PRIVILEGED is set to false
+ONBUILD ENV PING_CONTAINER_GID=9999
+
+ONBUILD ENV PING_CONTAINER_UNAME=ping
+ONBUILD ENV PING_CONTAINER_GNAME=identity
+
+COPY build.sh /
+RUN /build.sh
 
 ### WARNING THE ENTRYPOINT WILL NEED TO BE UPDATED MANUALLY IF THE BASE IS CHANGED
 ### IT DOES NOT EXPAND VARIABLES -- REAL BUMMER
 ### HOWEVER, AS LONG AS ENTRYPOINT IS NOT REFERENCED WITH AN ABSOLUTE PATH
 ### REBASING WILL WORK AS EXPECTED
-ONBUILD ENTRYPOINT [ "tini", "--", "entrypoint.sh" ]
+ONBUILD ENTRYPOINT [ "tini", "--", "./bootstrap.sh" ]
 ONBUILD CMD [ "start-server" ]
