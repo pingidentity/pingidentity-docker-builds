@@ -60,7 +60,7 @@ append_footer()
 #
 append_env_table_header()
 {
-    case ${dockerImage} in pingaccess|pingdirectory|pingdatasync|pingfederate|pingdatagovernance)
+    case ${dockerImage} in pingaccess|pingdirectory|pingdatasync|pingfederate|pingdatagovernance|pingdatagovernancepap)
     if test "${ENV_TABLE_ACTIVE}" != "true" ; then
         ENV_TABLE_ACTIVE="true"
 
@@ -250,7 +250,7 @@ parse_dockerfile()
 #
 # main
 #
-dockerImages="pingaccess pingfederate pingdirectory pingdatagovernance pingdatasync
+dockerImages="pingaccess pingfederate pingdirectory pingdatagovernance pingdatagovernancepap pingdatasync
 pingbase pingcommon pingdatacommon
 pingdataconsole pingdownloader ldap-sdk-tools 
 pingdirectoryproxy pingdelegator apache-jmeter"
