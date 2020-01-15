@@ -46,7 +46,7 @@ ENV PF_ADMIN_DEBUG=false
 ENV PF_DEBUG_PORT=9030
 COPY --from=pingidentity/pingcommon /opt ${BASE}
 COPY --from=staging /opt ${BASE}
-
+RUN ./post-build.sh
 #- ## Running a PingFederate container
 #- To run a PingFederate container:
 #- 

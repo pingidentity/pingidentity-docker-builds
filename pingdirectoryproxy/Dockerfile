@@ -58,3 +58,5 @@ ENV MAKELDIF_USERS=0
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT} 5005
 COPY --from=pingidentity/pingdatacommon /opt ${BASE}
 COPY --from=staging /opt ${BASE}
+
+RUN ./post-build.sh

@@ -84,3 +84,4 @@ COPY --from=staging /opt ${BASE}
 #- * https://localhost:8443/
 #-   * Username: admin
 #-   * Password: password123
+RUN ./post-build.sh

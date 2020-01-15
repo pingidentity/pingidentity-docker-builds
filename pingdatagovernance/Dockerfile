@@ -119,3 +119,4 @@ COPY --from=staging /opt ${BASE}
 #-   docker container rm -f pingdatagovernance
 #- ```
 
+RUN ./post-build.sh

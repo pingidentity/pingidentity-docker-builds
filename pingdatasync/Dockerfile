@@ -67,3 +67,4 @@ COPY --from=staging "/opt" "${BASE}"
 #-            --env SERVER_PROFILE_PATH=simple-sync/pingdatasync \
 #-            pingidentity/pingdatasync
 #- ```
+RUN ./post-build.sh
