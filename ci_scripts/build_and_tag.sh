@@ -163,7 +163,12 @@ else
     echo "Version-less build"
     fullTag="${os}-edge"
     imageVersion="${product}-${os}-0-${currentDate}-${gitRevShort}"
-    docker build -t "${image}:${fullTag}" --build-arg SHIM="${os}" --build-arg IMAGE_VERSION="${imageVersion}" --build-arg IMAGE_GIT_REV="${gitRevLong}" "${product}"/
+    DOCKER_BUILDKIT=1 docker build \
+        -t "${image}:${fullTag}" \
+        --build-arg SHIM="${os}" \
+        --build-arg IMAGE_VERSION="${imageVersion}" \
+        --build-arg IMAGE_GIT_REV="${gitRevLong}" \
+        "${product}"/
     if test ${?} -ne 0 ; then
             echo "*** BUILD BREAK ***"
             exit 76
