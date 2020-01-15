@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 product="${1}"
-
+HERE=$(cd $(dirname "${0}");pwd)
 if test ! -z "${CI_COMMIT_REF_NAME}" ; then
   . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
 else 

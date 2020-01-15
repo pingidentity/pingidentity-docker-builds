@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
+HERE=$(cd $(dirname "${0}");pwd)
 if test ! -z "${CI_COMMIT_REF_NAME}" ;then
     . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
 else 
-    HERE=$(cd $(dirname "${0}");pwd)
     # shellcheck source=./ci_tools.lib.sh
     . "${HERE}/ci_tools.lib.sh"
 fi
@@ -40,7 +40,7 @@ fi
 for os in ${oses} ; do 
 #   DOCKER_BUILDKIT=1 docker image build --build-arg SHIM=${os} -t "pingidentity/pingbase:${os}" ./pingbase
     docker image build --build-arg SHIM=${os} -t "pingidentity/pingbase:${os}" ./pingbase
-    if test -z "${HERE}" ; then
+    if test -n "${CI_COMMIT_REF_NAME}" ; then
         tag_and_push "pingidentity/pingbase:${os}" "${FOUNDATION_REGISTRY}/pingbase:${os}-${ciTag}"
     fi
 done
@@ -48,6 +48,6 @@ done
 echo "images built:"
 docker images -f since=pingidentity/pingcommon:latest -f dangling=false | sed 's/^/#   /'
 
-if test -z "${HERE}" ; then
+if test -n "${CI_COMMIT_REF_NAME}" ; then
     history | tail -100
 fi

@@ -21,6 +21,6 @@ fi
 docker image rm -f "$(docker image ls --filter=reference=pingidentity/${product}:*)"
 docker image rm -f "$(docker image ls --filter=reference=${FOUNDATION_REGISTRY}/${product}:*)"
 
-if test -z "${HERE}" ; then
+if test -n "${CI_COMMIT_REF_NAME}" ; then
     history | tail -100
 fi

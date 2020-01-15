@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+HERE=$(cd $(dirname "${0}");pwd)
 if test ! -z "${CI_COMMIT_REF_NAME}" ; then
   . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
 else 
@@ -22,6 +23,6 @@ fi
 
 git push gh_location master
 
-if test -z "${HERE}" ; then
+if test -n "${CI_COMMIT_REF_NAME}" ; then
     history | tail -100
 fi

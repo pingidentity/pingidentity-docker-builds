@@ -3,11 +3,11 @@ product=${1}
 defaultOS=alpine
 os=${2:-${defaultOS}}
 
+HERE=$(cd $(dirname ${0});pwd)
 if test ! -z "${CI_COMMIT_REF_NAME}" ; then
   . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
 else 
   # shellcheck source=~/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
-  HERE=$(cd $(dirname ${0});pwd)
   . ${HERE}/ci_tools.lib.sh
 fi
 
@@ -62,7 +62,7 @@ else
   # done
 fi
 
-if test -z "${HERE}" ; then
+if test -n "${CI_COMMIT_REF_NAME}" ; then
     history | tail -100
 fi
 exit ${returnCode}

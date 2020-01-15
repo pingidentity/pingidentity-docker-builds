@@ -25,10 +25,10 @@ tag_and_push(){
     fi
 }
 
+HERE=$(cd $(dirname "${0}");pwd)
 if test -n "${CI_COMMIT_REF_NAME}" ;then
     . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
 else 
-    HERE=$(cd $(dirname "${0}");pwd)
     # shellcheck source=./ci_tools.lib.sh
     . "${HERE}/ci_tools.lib.sh"
 fi
@@ -187,6 +187,6 @@ else
     fi
 fi
 
-if test -z "${HERE}" ; then
+if test -n "${CI_COMMIT_REF_NAME}" ; then
     history | tail -100
 fi
