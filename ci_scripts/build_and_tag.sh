@@ -78,8 +78,8 @@ else
     if test "$( docker pull ${FOUNDATION_REGISTRY}/pingcommon:${ciTag} )" ; then
         # we are in CI pipe and pingfoundation was built in previous job. 
         pull_and_tag "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}" "pingidentity/pingcommon"
-        pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon"
-        pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}"
+        pull_and_tag "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon"
+        pull_and_tag "${FOUNDATION_REGISTRY}/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}"
     else
         # we are in CI pipe and need to just use "latest"
         docker pull "${FOUNDATION_REGISTRY}/pingcommon"
