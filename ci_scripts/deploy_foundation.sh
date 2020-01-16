@@ -37,7 +37,3 @@ retag_and_deploy "pingdatacommon"
 retag_and_deploy "pingbase" "ubuntu"
 retag_and_deploy "pingbase" "alpine"
 retag_and_deploy "pingbase" "centos"
-
-if test -n "${CI_COMMIT_REF_NAME}" ; then
-    history | tail -100
-fi

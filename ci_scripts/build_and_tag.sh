@@ -193,7 +193,3 @@ else
         fi
     fi
 fi
-
-if test -n "${CI_COMMIT_REF_NAME}" ; then
-    history | tail -100
-fi

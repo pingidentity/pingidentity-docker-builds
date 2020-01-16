@@ -22,7 +22,3 @@ if test -n "$CI_COMMIT_TAG"; then
 fi
 
 git push gh_location master
-
-if test -n "${CI_COMMIT_REF_NAME}" ; then
-    history | tail -100
-fi

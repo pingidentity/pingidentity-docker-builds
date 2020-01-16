@@ -24,8 +24,4 @@ for OSToBuild in ${OSList:-alpine centos ubuntu} ; do
     fi
 done
 
-if test -n "${CI_COMMIT_REF_NAME}" ; then
-    history | tail -100
-fi
-
 exit ${exitCode}
