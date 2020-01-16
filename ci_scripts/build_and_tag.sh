@@ -20,7 +20,7 @@ pull_and_tag_if_missing ()
     _destination="${1}"
     shift
 
-    if test -z "$(docker image ls -q ${2})" ; then
+    if test -n "${_source}" -a -n "${_destination}" -a -z "$(docker image ls -q ${_destination})" ; then
         if docker pull "${_source}" ; then
             docker tag "${_source}" "${_destination}" || :
             while test -n "${1}" ; do
@@ -111,7 +111,7 @@ fi
 #Start building product
 echo "INFO: Start building ${product}"
 
-if test  -f "${product}/versions" ; then
+if test -f "${product}/versions" ; then
     versions=$(grep -v "^#" "${product}"/versions)
     echo "Building versions: ${versions}"
     is_latest=true
