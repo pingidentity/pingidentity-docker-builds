@@ -53,4 +53,4 @@ if test ${_userID} -eq 0 ; then
     fi
 fi
 
-exec ${_runUnprivileged} ./entrypoint.sh $*
+exec ${_runUnprivileged} tini -- ./entrypoint.sh $*
