@@ -6,7 +6,7 @@ _runUnprivileged=""
 
 addUser_alpine ()
 {
-    if type apk >/dev/null ; then
+    if type apk >/dev/null 2>/dev/null ; then
         addgroup -g ${2} identity
         adduser -u ${1} -G identity -D -H -s /bin/false ping
     fi
@@ -14,7 +14,7 @@ addUser_alpine ()
 
 addUser_ubuntu ()
 {
-    if type apt >/dev/null ; then
+    if type apt >/dev/null 2>/dev/null ; then
         addgroup --gid ${2} identity
         adduser --uid ${1} --gid identity --no-create-home --shel /bin/false --disabled-login --disabled-password --gecos "" ping
     fi
@@ -22,7 +22,7 @@ addUser_ubuntu ()
 
 addUser_centos ()
 {
-    if type yum 2>/dev/null ; then
+    if type yum 2>/dev/null 2>/dev/null ; then
         groupadd --gid ${2} identity
         adduser --uid ${1} --gid identity --no-create-home --shell /bin/false ping
     fi
