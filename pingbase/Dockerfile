@@ -219,7 +219,7 @@ ONBUILD WORKDIR ${BASE}
 #-- if set to false, user spec can be left to default (uid:9031, gid:9999)
 #-- or a custom uid can be passed with PING_CONTAINER_UID
 #-- and PING_CONTAINER_GID
-ONBUILD ENV PING_CONTAINER_PRIVILEGED="false"
+ONBUILD ENV PING_CONTAINER_PRIVILEGED="true"
 
 #-- The user ID the product will use if PINGIDENTITY_RUN_PRIVILEGED is set to false
 ONBUILD ENV PING_CONTAINER_UID=9031
