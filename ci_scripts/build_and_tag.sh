@@ -15,7 +15,21 @@ pull_and_tag(){
 
 pull_and_tag_if_missing ()
 {
-    test -z "$(docker image ls -q ${2})" && pull_and_tag ${*} || :
+    _source="${1}"
+    shift
+    _destination="${1}"
+    shift
+
+    if test -z "$(docker image ls -q ${2})" ; then
+        if docker pull "${_source}" ; then
+            docker tag "${_source}" "${_destination}" || :
+            while test -n "${1}" ; do
+                _tag="${1}"
+                shift
+                docker tag "${_destination}" "${_tag}" || :
+            done
+        fi
+    fi
 }
 
 tag_and_push(){
@@ -75,17 +89,23 @@ if test -z "${CI_COMMIT_REF_NAME}" ; then
     pull_and_tag_if_missing "${gcr}/pingdatacommon" "pingidentity/pingdatacommon"
     pull_and_tag_if_missing "${gcr}/pingbase:${os}" "pingidentity/pingbase:${os}"
 else
-    if test "$( docker pull ${FOUNDATION_REGISTRY}/pingcommon:${ciTag} )" ; then
-        # we are in CI pipe and pingfoundation was built in previous job. 
-        pull_and_tag "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}" "pingidentity/pingcommon"
-        pull_and_tag "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon"
-        pull_and_tag "${FOUNDATION_REGISTRY}/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}"
-    else
-        # we are in CI pipe and need to just use "latest"
-        docker pull "${FOUNDATION_REGISTRY}/pingcommon"
-        docker pull "${FOUNDATION_REGISTRY}/pingdatacommon"
-        docker pull "${FOUNDATION_REGISTRY}/pingbase:${os}"
-    fi
+    # we are in CI pipe
+
+    # if foundation was built, we can use that
+    # pull_and_tag_if missing is going to check if we have the image with the
+    # ${ciTag} tag locally, and if not it will pull it down, tag it with both
+    # the ciTag and latest
+    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}" "pingidentity/pingcommon:${ciTag}" "pingidentity/pingcommon"
+    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon"
+    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}"
+ 
+    # if the build has not triggered a foundation build, we use latest
+    # note that if the commit triggered the foundation build then the 
+    # latest image actually maps to the ciTag image pulled above
+    # and no action is taken below
+    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingcommon" "pingidentity/pingcommon"
+    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingdatacommon" "pingidentity/pingdatacommon"
+    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingbase:${os}" "pingidentity/pingbase:${os}"
 fi
 
 #Start building product

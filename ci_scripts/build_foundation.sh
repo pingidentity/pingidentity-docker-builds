@@ -26,9 +26,11 @@ tag_and_push(){
 
 #build foundation and push to gcr for use in subsequent jobs. 
 DOCKER_BUILDKIT=1 docker image build --no-cache -t "pingidentity/pingcommon" ./pingcommon
+docker tag "pingidentity/pingcommon" "pingidentity/pingcommon:${ciTag}"
 tag_and_push "pingidentity/pingcommon" "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}"
 
 DOCKER_BUILDKIT=1 docker image build -t "pingidentity/pingdatacommon" ./pingdatacommon
+docker tag "pingidentity/pingdatacommon" "pingidentity/pingdatacommon:${ciTag}"
 tag_and_push "pingidentity/pingdatacommon" "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}"
 
 if test -z "${1}" ; then
@@ -41,6 +43,7 @@ for os in ${oses} ; do
 #   DOCKER_BUILDKIT=1 docker image build --build-arg SHIM=${os} -t "pingidentity/pingbase:${os}" ./pingbase
     DOCKER_BUILDKIT=1 docker image build --build-arg SHIM=${os} -t "pingidentity/pingbase:${os}" ./pingbase
     if test -n "${CI_COMMIT_REF_NAME}" ; then
+        docker tag "pingidentity/pingbase:${os}" "pingidentity/pingbase:${os}-${ciTag}"
         tag_and_push "pingidentity/pingbase:${os}" "${FOUNDATION_REGISTRY}/pingbase:${os}-${ciTag}"
     fi
 done
