@@ -45,7 +45,7 @@ build_pingfoundation:
       - pingbase/**/*
       - pingcommon/**/*
       - pingdatacommon/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -66,7 +66,7 @@ deploy_pingfoundation:
       - pingbase/**/*
       - pingcommon/**/*
       - pingdatacommon/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -86,7 +86,7 @@ build_pingdownloader:
   only:
     changes:
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -105,7 +105,7 @@ deploy_pingdownloader:
       - tags
     changes:
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -121,7 +121,7 @@ build_apache-jmeter:
   only:
     changes:
       - apache-jmeter/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -141,7 +141,7 @@ deploy_apache-jmeter:
       - tags
     changes:
       - apache-jmeter/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -160,7 +160,7 @@ build_ldap-sdk-tools:
     changes:
       - pingdownloader/**/*
       - ldap-sdk-tools/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -178,7 +178,7 @@ test_ldap-sdk-tools:
     changes:
       - pingdownloader/**/*
       - ldap-sdk-tools/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -199,7 +199,7 @@ deploy_ldap-sdk-tools:
       - tags
     changes:
       - ldap-sdk-tools/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -220,7 +220,7 @@ build_pingaccess:
       - pingcommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -242,7 +242,7 @@ test_pingaccess:
       - pingcommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -267,7 +267,7 @@ deploy_pingaccess:
       - pingaccess/**/*
       - pingcommon/**/*
       - pingbase/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -291,7 +291,7 @@ build_pingcentral:
       - pingcommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -313,7 +313,7 @@ test_pingcentral:
       - pingcommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -338,7 +338,7 @@ deploy_pingcentral:
       - pingcentral/**/*
       - pingcommon/**/*
       - pingbase/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -361,7 +361,7 @@ build_pingdirectory:
       - pingdatacommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -384,7 +384,7 @@ test_pingdirectory:
       - pingdatacommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -410,7 +410,7 @@ deploy_pingdirectory:
       - pingcommon/**/*
       - pingdatacommon/**/*
       - pingbase/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -430,7 +430,7 @@ build_pingdataconsole:
     changes:
       - pingdataconsole/**/*
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -450,7 +450,7 @@ deploy_pingdataconsole:
       - tags
     changes:
       - pingdataconsole/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -471,7 +471,7 @@ build_pingdatasync:
       - pingdatacommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -494,7 +494,7 @@ test_pingdatasync:
       - pingdatacommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -520,7 +520,7 @@ deploy_pingdatasync:
       - pingcommon/**/*
       - pingdatacommon/**/*
       - pingbase/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -542,7 +542,7 @@ build_pingdatagovernance:
       - pingdatacommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -564,7 +564,7 @@ build_pingdatagovernancepap:
       - pingdatacommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -609,7 +609,7 @@ deploy_pingdatagovernance:
       - pingcommon/**/*
       - pingdatacommon/**/*
       - pingbase/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -635,7 +635,7 @@ deploy_pingdatagovernancepap:
       - pingcommon/**/*
       - pingdatacommon/**/*
       - pingbase/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -657,7 +657,7 @@ build_pingfederate:
       - pingcommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -679,7 +679,7 @@ test_pingfederate:
       - pingcommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
@@ -704,7 +704,7 @@ deploy_pingfederate:
       - pingfederate/**/*
       - pingcommon/**/*
       - pingbase/**/*
-       - ci_scripts/*
+      - ci_scripts/*
       - .gitlab-ci.yml
   except:
     refs:
