@@ -39,8 +39,8 @@ ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/server.log
 COPY --from=pingidentity/pingcommon /opt ${BASE}
 COPY --from=staging /opt ${BASE}
 
-#- ## Running a PingFederate container
-#- To run a PingFederate container:
+#- ## Running a PingCentral container
+#- To run a PingCentral container:
 #- 
 #- ```shell
 #-   docker run \
