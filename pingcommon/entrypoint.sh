@@ -5,7 +5,7 @@ ${VERBOSE} && set -x
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 
-echo_green "Command: $@"
+echo_green "Command: ${@}"
 
 HOSTNAME=$(hostname -f)
 DOMAINNAME=$(hostname -d)
@@ -21,7 +21,6 @@ echo_header "Ping Identity DevOps Docker Image" \
 
 if test "$1" = "start-server" ; then
     shift
-
     # If there are local IN_DIR files, this will copy them to a STAGING_DIRECTORY
     # overwriting any fiiles that may alrady be in staging
     apply_local_server_profile
@@ -78,7 +77,7 @@ if test "$1" = "start-server" ; then
     #   run docker .... start-server           # Starts server in foreground (same as previous)
     #   run docker .... start-server /bin/sh   # Starts server in background and runs shell
     #   run docker .... /bin/sh                # Doesn't start the server but drops into a shell
-    if test -z "$*" ; then
+    if test -z "${*}" ; then
         # replace the shell with foreground server
         echo_green "Starting server in foreground: (${STARTUP_COMMAND} ${STARTUP_FOREGROUND_OPTS})"
         exec "${STARTUP_COMMAND}" ${STARTUP_FOREGROUND_OPTS}
@@ -87,10 +86,10 @@ if test "$1" = "start-server" ; then
         echo_green "Starting server in background: (${STARTUP_COMMAND} ${STARTUP_BACKGROUND_OPTS})"
         # shellcheck disable=SC2086
         "${STARTUP_COMMAND}" ${STARTUP_BACKGROUND_OPTS} &
-        echo_green "Running command: $@"
-        exec "$@"
+        echo_green "Running command: ${@}"
+        exec "${@}"
     fi
 else
-    echo_green "Running command: $@"
-    exec "$@"
+    echo_green "Running command: ${@}"
+    exec "${@}"
 fi

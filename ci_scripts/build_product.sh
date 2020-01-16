@@ -16,7 +16,7 @@ fi
 
 exitCode=0
 for OSToBuild in ${OSList:-alpine centos ubuntu} ; do
-    "${HERE}/build_and_tag.sh" "${productToBuild}" "${defaultOS}" "${OSToBuild}" #"${versionsToBuild}"
+    "${HERE}/build_and_tag.sh" "${productToBuild}" "${OSToBuild}" "${defaultOS}" #"${versionsToBuild}"
     exitCode=${?}
     if test ${exitCode} -ne 0 ; then
         echo "Build break for ${productToBuild} on ${OSToBuild}"
