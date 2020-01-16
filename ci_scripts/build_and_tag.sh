@@ -69,21 +69,23 @@ for tag in $( git tag --points-at "$gitRevLong" ) ; do
 done
 # sprint=${sprint}
 
-if test "$( docker pull ${FOUNDATION_REGISTRY}/pingcommon:${ciTag} )" ; then
-    # we are in CI pipe and pingfoundation was built in previous job. 
-    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}" "pingidentity/pingcommon"
-    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon"
-    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}"
-elif test "${FOUNDATION_REGISTRY}" = "gcr.io/ping-identity" ; then
-    # we are in CI pipe and need to just use "latest"
-    docker pull "${FOUNDATION_REGISTRY}/pingcommon"
-    docker pull "${FOUNDATION_REGISTRY}/pingdatacommon"
-    docker pull "${FOUNDATION_REGISTRY}/pingbase:${os}"
-# if we are not in a ci pipe, ping foundation is expected to be there. 
-elif test -z "${CI_COMMIT_REF_NAME}" ; then
+if test -z "${CI_COMMIT_REF_NAME}" ; then
+    # We are building locally (not in CI)
     pull_and_tag_if_missing "${gcr}/pingcommon" "pingidentity/pingcommon"
     pull_and_tag_if_missing "${gcr}/pingdatacommon" "pingidentity/pingdatacommon"
     pull_and_tag_if_missing "${gcr}/pingbase:${os}" "pingidentity/pingbase:${os}"
+else
+    if test "$( docker pull ${FOUNDATION_REGISTRY}/pingcommon:${ciTag} )" ; then
+        # we are in CI pipe and pingfoundation was built in previous job. 
+        pull_and_tag "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}" "pingidentity/pingcommon"
+        pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon"
+        pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}"
+    else
+        # we are in CI pipe and need to just use "latest"
+        docker pull "${FOUNDATION_REGISTRY}/pingcommon"
+        docker pull "${FOUNDATION_REGISTRY}/pingdatacommon"
+        docker pull "${FOUNDATION_REGISTRY}/pingbase:${os}"
+    fi
 fi
 
 #Start building product
