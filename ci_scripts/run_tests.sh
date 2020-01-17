@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 product=${1}
-defaultOS=alpine
+defaultOS=${3:-alpine}
 os=${2:-${defaultOS}}
 
 HERE=$(cd $(dirname ${0});pwd)
@@ -21,14 +21,16 @@ pull_and_tag(){
 }
 returnCode=0
 echo testing "${product}"
+versions="edge"
 if test  -f "${product}"/versions; then
   versions=$(grep -v "^#" "${product}"/versions)
-  for version in ${versions}; do      
-    #test this version of this product
-    #TODO: test all the OSes. 
-    preTag=${version}-${os}-edge
-    pull_and_tag "${FOUNDATION_REGISTRY}/${product}:${preTag}-${ciTag}" "pingidentity/${product}:${preTag}"
-    TAG=${version}-${os}-edge docker-compose -f ./"${product}"/build.test.yml up --exit-code-from sut
+  notVersionless="false"
+fi
+for version in ${versions} ; do      
+    # test this version of this product
+    _tag="${version}${notVersionless:+-${os}}-${ciTag}"
+    docker pull "${FOUNDATION_REGISTRY}/${product}:${_tag}"
+    env TAG=${_tag} docker-compose -f ./"${product}"/build.test.yml up --exit-code-from sut
     thisReturnCode=${?}
     test "${thisReturnCode}" -ne 0 && returnCode="${thisReturnCode}" && echo "
     ##################
@@ -36,30 +38,6 @@ if test  -f "${product}"/versions; then
     return code: ${returnCode}
     ##################
     "
-    TAG=${version}-${os}-edge docker-compose -f ./"${product}"/build.test.yml down
-    ##TODO: add way to run compose from URLs. 
-    # will have to add a file like test_urls with urls to raw github docker-compose-yamls. 
-    # for f in ./"${product}"/tests/*.yaml ; do
-    #   echo "running docker-compose up on ${f}"
-    #   TAG=${version}-${os}-edge docker-compose -f $f up --exit-code-from sut
-    #   returnCode=${?}
-    #   TAG=${version}-${os}-edge docker-compose -f $f down
-    #   test $returnCode -ne 0 && exit returnCode
-    # done
-  done
-else
-  pull_and_tag "${FOUNDATION_REGISTRY}/${product}:edge-${ciTag}" "pingidentity/${product}:edge"
-  TAG=edge docker-compose -f ./"${product}"/build.test.yml up --exit-code-from sut
-  returnCode=${?}
-  TAG=edge docker-compose -f ./"${product}"/build.test.yml down
-  test $returnCode -ne 0 && exit ${returnCode}
-  # for f in ./"${product}"/tests/* ; do
-  #   echo "running docker-compose up on ${f}"
-  #   TAG=edge docker-compose -f $f up --exit-code-from sut
-  #   returnCode=${?}
-  #   TAG=edge docker-compose -f $f down
-  #   test $returnCode -ne 0 && exit returnCode
-  # done
-fi
-
+    env TAG=${_tag} docker-compose -f ./"${product}"/build.test.yml down
+done
 exit ${returnCode}
