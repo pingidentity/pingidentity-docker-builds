@@ -19,3 +19,4 @@ COPY --from=staging /usr/bin/envsubst /usr/local/bin/envsubst
 COPY giterized-entrypoint.sh /
 ENTRYPOINT ["/giterized-entrypoint.sh"]
 CMD ["--server"]
+

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 product=${1}
-defaultOS=alpine
+defaultOS=${3:-alpine}
 os=${2:-${defaultOS}}
 
+HERE=$(cd $(dirname ${0});pwd)
 if test ! -z "${CI_COMMIT_REF_NAME}" ; then
   . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
 else 
   # shellcheck source=~/projects/devops/pingidentity-docker-builds/ci_scripts/ci_tools.lib.sh
-  HERE=$(cd $(dirname ${0});pwd)
   . ${HERE}/ci_tools.lib.sh
 fi
 
@@ -21,14 +21,19 @@ pull_and_tag(){
 }
 returnCode=0
 echo testing "${product}"
+versions="edge"
 if test  -f "${product}"/versions; then
   versions=$(grep -v "^#" "${product}"/versions)
-  for version in ${versions}; do      
-    #test this version of this product
-    #TODO: test all the OSes. 
-    preTag=${version}-${os}-edge
-    pull_and_tag "${FOUNDATION_REGISTRY}/${product}:${preTag}-${ciTag}" "pingidentity/${product}:${preTag}"
-    TAG=${version}-${os}-edge docker-compose -f ./"${product}"/build.test.yml up --exit-code-from sut
+  notVersionless="false"
+fi
+for version in ${versions} ; do      
+    # test this version of this product
+    _tag="${version}${notVersionless:+-${os}}-edge${ciTag:+-${ciTag}}"
+    pull_and_tag "${FOUNDATION_REGISTRY}/${product}:${_tag}" "pingidentity/${product}:${_tag}"
+    if test "${product}" = "pingdatasync" ; then
+        pull_and_tag "${FOUNDATION_REGISTRY}/pingdirectory:${_tag}" "pingidentity/pingdirectory:${_tag}"
+    fi
+    env TAG=${_tag} docker-compose -f ./"${product}"/build.test.yml up --exit-code-from sut
     thisReturnCode=${?}
     test "${thisReturnCode}" -ne 0 && returnCode="${thisReturnCode}" && echo "
     ##################
@@ -36,32 +41,6 @@ if test  -f "${product}"/versions; then
     return code: ${returnCode}
     ##################
     "
-    TAG=${version}-${os}-edge docker-compose -f ./"${product}"/build.test.yml down
-    ##TODO: add way to run compose from URLs. 
-    # will have to add a file like test_urls with urls to raw github docker-compose-yamls. 
-    # for f in ./"${product}"/tests/*.yaml ; do
-    #   echo "running docker-compose up on ${f}"
-    #   TAG=${version}-${os}-edge docker-compose -f $f up --exit-code-from sut
-    #   returnCode=${?}
-    #   TAG=${version}-${os}-edge docker-compose -f $f down
-    #   test $returnCode -ne 0 && exit returnCode
-    # done
-  done
-else
-  pull_and_tag "${FOUNDATION_REGISTRY}/${product}:edge-${ciTag}" "pingidentity/${product}:edge"
-  TAG=edge docker-compose -f ./"${product}"/build.test.yml up --exit-code-from sut
-  returnCode=${?}
-  TAG=edge docker-compose -f ./"${product}"/build.test.yml down
-  test $returnCode -ne 0 && exit ${returnCode}
-  # for f in ./"${product}"/tests/* ; do
-  #   echo "running docker-compose up on ${f}"
-  #   TAG=edge docker-compose -f $f up --exit-code-from sut
-  #   returnCode=${?}
-  #   TAG=edge docker-compose -f $f down
-  #   test $returnCode -ne 0 && exit returnCode
-  # done
-fi
-
-history | tail -100
-
+    env TAG=${_tag} docker-compose -f ./"${product}"/build.test.yml down
+done
 exit ${returnCode}

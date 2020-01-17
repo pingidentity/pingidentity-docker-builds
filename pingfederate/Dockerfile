@@ -28,6 +28,7 @@ COPY [ "run.sh", "/opt/server/bin/run.sh" ]
 #
 # The final image 
 #
+# FROM pingidentity/pingbase:shim-${SHIM}
 FROM pingidentity/pingbase:${SHIM}
 EXPOSE 9031 9999
 ARG LICENSE_VERSION
@@ -40,9 +41,12 @@ ENV OPERATIONAL_MODE="STANDALONE"
 ENV CLUSTER_BIND_ADDRESS="NON_LOOPBACK"
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/server.log
+ENV PF_ENGINE_DEBUG=false
+ENV PF_ADMIN_DEBUG=false
+ENV PF_DEBUG_PORT=9030
 COPY --from=pingidentity/pingcommon /opt ${BASE}
 COPY --from=staging /opt ${BASE}
-
+RUN ./post-build.sh
 #- ## Running a PingFederate container
 #- To run a PingFederate container:
 #- 

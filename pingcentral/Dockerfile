@@ -35,29 +35,45 @@ ENV LICENSE_FILE_NAME="pingcentral.lic"
 ENV LICENSE_SHORT_NAME="PC"
 ENV LICENSE_VERSION=${LICENSE_VERSION}
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
-ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/server.log
+ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/application.log
+ENV PING_CENTRAL_LOG_LEVEL="INFO"
+ENV PING_CENTRAL_BLIND_TRUST=false
+ENV JAVA_HOME=/etc/alternatives/java_sdk
 COPY --from=pingidentity/pingcommon /opt ${BASE}
 COPY --from=staging /opt ${BASE}
 
 #- ## Running a PingCentral container
-#- To run a PingCentral container:
-#- 
+#- To run a PingCentral container with your devops configuration file:
+#- ```shell docker run -Pt \
+#-            --name pingcentral \
+#-            --env-file ~/.pingidentity/devops \
+#-            pingidentity/pingcentral:edge
+#- ```
+#- or with long options in the background:
 #- ```shell
 #-   docker run \
 #-            --name pingcentral \
 #-            --publish 9022:9022 \
 #-            --detach \
-#-            --env SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git \
-#-            --env SERVER_PROFILE_PATH=baseline/pingcentral/embedded-h2-db \
-#-            --env SERVER_PROFILE_PARENT=LOGGING \
-#-            --env SERVER_PROFILE_LOGGING_URL=https://github.com/pingidentity/pingidentity-server-profiles.git \
-#-            --env SERVER_PROFILE_LOGGING_PATH=baseline/pingcentral/logging \
+#-            --env-file ~/.pingidentity/devops \
+#-            pingidentity/pingcentral:edge
+#- ```
+#- 
+#- or if you want to specify everything yourself:
+#- ```shell
+#-   docker run \
+#-            --name pingcentral \
+#-            --publish 9022:9022 \
+#-            --detach \
+#-            --env PING_IDENTITY_ACCEPT_EULA=YES \
+#-            --env PING_IDENTITY_DEVOPS_USER=<yourdevopsuser@example.com> \
+#-            --env PING_IDENTITY_DEVOPS_KEY=<yourdevopskeyhere> \
 #-            pingidentity/pingcentral:edge
 #- ```
 #- 
 #- Follow Docker logs with:
 #- 
-#- ```
+#- ``` shell
 #- docker logs -f pingcentral
 #- ```
 #- 
@@ -65,3 +81,5 @@ COPY --from=staging /opt ${BASE}
 #- * https://localhost:9022/
 #-   * Username: Administrator
 #-   * Password: 2Federate
+
+RUN ./post-build.sh
