@@ -28,7 +28,7 @@ if test  -f "${product}"/versions; then
 fi
 for version in ${versions} ; do      
     # test this version of this product
-    _tag="${version}${notVersionless:+-${os}}-${ciTag}"
+    _tag="${version}${notVersionless:+-${os}}-edge${ciTag:+-${ciTag}}"
     docker pull "${FOUNDATION_REGISTRY}/${product}:${_tag}"
     env TAG=${_tag} docker-compose -f ./"${product}"/build.test.yml up --exit-code-from sut
     thisReturnCode=${?}
