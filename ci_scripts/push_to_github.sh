@@ -7,8 +7,8 @@ else
   . "${HERE}/ci_tools.lib.sh"
 fi
 
-rm -rf /tmp/build
-mkdir -p /tmp/build && cd /tmp/build || exit 9
+rm -rf ~/tmp/build
+mkdir -p ~/tmp/build && cd ~/tmp/build || exit 9
 
 git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.corp.pingidentity.com/devops-program/docker-builds
 cd docker-builds
