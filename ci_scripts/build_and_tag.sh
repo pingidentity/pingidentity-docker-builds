@@ -21,7 +21,8 @@ pull_and_tag_if_missing ()
     shift
 
     if test -n "${_source}" -a -n "${_destination}" -a -z "$(docker image ls -q ${_destination})" ; then
-        if docker pull "${_source}" ; then
+        docker pull "${_source}" || :
+        if test -n "$(docker image ls -q ${_source})" ; then
             docker tag "${_source}" "${_destination}" || :
             while test -n "${1}" ; do
                 _tag="${1}"
