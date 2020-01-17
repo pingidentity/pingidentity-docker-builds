@@ -30,6 +30,9 @@ for version in ${versions} ; do
     # test this version of this product
     _tag="${version}${notVersionless:+-${os}}-edge${ciTag:+-${ciTag}}"
     pull_and_tag "${FOUNDATION_REGISTRY}/${product}:${_tag}" "pingidentity/${product}:${_tag}"
+    if test "${product}" = "pingdatasync" ; then
+        pull_and_tag "${FOUNDATION_REGISTRY}/pingdirectory:${_tag}" "pingidentity/pingdirectory:${_tag}"
+    fi
     env TAG=${_tag} docker-compose -f ./"${product}"/build.test.yml up --exit-code-from sut
     thisReturnCode=${?}
     test "${thisReturnCode}" -ne 0 && returnCode="${thisReturnCode}" && echo "
