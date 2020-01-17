@@ -29,7 +29,7 @@ fi
 for version in ${versions} ; do      
     # test this version of this product
     _tag="${version}${notVersionless:+-${os}}-edge${ciTag:+-${ciTag}}"
-    docker pull "${FOUNDATION_REGISTRY}/${product}:${_tag}"
+    pull_and_tag "${FOUNDATION_REGISTRY}/${product}:${_tag}" "pingidentity/${product}:${_tag}"
     env TAG=${_tag} docker-compose -f ./"${product}"/build.test.yml up --exit-code-from sut
     thisReturnCode=${?}
     test "${thisReturnCode}" -ne 0 && returnCode="${thisReturnCode}" && echo "
