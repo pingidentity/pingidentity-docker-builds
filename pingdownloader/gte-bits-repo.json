@@ -15,47 +15,56 @@
         {
             "name": "pingaccess",
             "mapping": "pingaccess-${version}.zip",
-            "latestVersion": "5.2.3"
+            "latestVersion": "5.2.3",
+            "licenseFile": "pingaccess.lic"
         },
         {
             "name": "pingcentral",
             "mapping": "ping-central-${version}.zip",
-            "latestVersion": "1.2.0"
+            "latestVersion": "1.2.0",
+            "licenseFile": "pingcentral.lic"
         },
         {
             "name": "pingdatametrics",
             "mapping": "PingDataMetrics-${version}.zip",
-            "latestVersion": "8.0.0.0"
+            "latestVersion": "8.0.0.0",
+            "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdatasync",
             "mapping": "PingDataSync-${version}.zip",
-            "latestVersion": "8.0.0.0"
+            "latestVersion": "8.0.0.0",
+            "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdatagovernance",
             "mapping": "PingDataGovernance-${version}.zip",
-            "latestVersion": "8.0.0.0"
+            "latestVersion": "8.0.0.0",
+            "licenseFile": "PingDataGovernance.lic"
         },
         {
             "name": "pingdatagovernancepap",
             "mapping": "PingDataGovernance-PAP-${version}.zip",
-            "latestVersion": "8.0.0.0"
+            "latestVersion": "8.0.0.0",
+            "licenseFile": "PingDataGovernance.lic"
         },
         {
             "name": "pingdirectory",
             "mapping": "PingDirectory-${version}.zip",
-            "latestVersion": "8.0.0.0"
+            "latestVersion": "8.0.0.0",
+            "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdirectoryproxy",
             "mapping": "PingDirectoryProxy-${version}.zip",
-            "latestVersion": "8.0.0.0"
+            "latestVersion": "8.0.0.0",
+            "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingfederate",
             "mapping": "pingfederate-${version}.zip",
-            "latestVersion": "10.0.0"
+            "latestVersion": "10.0.0",
+            "licenseFile": "pingfederate.lic"
         }
     ]
 }

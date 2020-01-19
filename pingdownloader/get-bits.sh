@@ -139,6 +139,13 @@ getProductURL ()
 	test "${prodURL}" = "null" && usage "Unable to determine download URL for ${product}"
 }
 
+getProductLicenseFile ()
+{
+	licenseFile=$( jq -r ".products[] | select(.name==\"${product}\").licenseFile" ${outputProps} )
+	licenseFile=$(eval echo "${licenseFile}")
+    # test "${licenseFile}" = "null" && usage "Unable to determine license file for ${product}"
+}
+
 propsURL="https://s3.amazonaws.com/gte-bits-repo/"
 getBitsProps="gte-bits-repo.json"
 
@@ -149,6 +156,8 @@ getProps
 product=""
 version=""
 dryRun=""
+devopsUser="${PING_IDENTITY_DEVOPS_USER}"
+devopsKey="${PING_IDENTITY_DEVOPS_KEY}"
 while ! test -z "${1}" ; do
     case "${1}" in
         -p|--product)
@@ -209,6 +218,7 @@ test -z ${product} && usage "Option --product {product} required"
 getProductVersion
 getProductFile
 getProductURL
+getProductLicenseFile
 
 if test ${pullLicense} ; then
     test -z ${devopsKey} && usage "Option --devops-key {devops-key} required for eval license"
@@ -238,6 +248,7 @@ if test ${pullLicense} ; then
     url="https://license.pingidentity.com/devops/v2/license"
     
     output="product.lic"
+    test ${conserveName} && output=${licenseFile}
 else
     # Construct the url used to pull the product down
     url="${prodURL}${prodFile}"

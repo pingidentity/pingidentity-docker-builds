@@ -45,6 +45,7 @@ build_pingfoundation:
       - pingbase/**/*
       - pingcommon/**/*
       - pingdatacommon/**/*
+      - pingdownloader/**/*
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
@@ -66,6 +67,7 @@ deploy_pingfoundation:
       - pingbase/**/*
       - pingcommon/**/*
       - pingdatacommon/**/*
+      - pingdownloader/**/*
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
