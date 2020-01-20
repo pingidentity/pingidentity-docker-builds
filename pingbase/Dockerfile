@@ -212,7 +212,7 @@ ONBUILD ENV PS1="\${PING_PRODUCT}:\h:\w\n> "
 # the method by which the framework can assess whether the container is viable or not
 ONBUILD HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
 
-ONBUILD VOLUME [ "${BAK_DIR}" "${IN_DIR}" "${OUT_DIR}" "${LOGS_DIR}" ]
+# ONBUILD VOLUME [ "${BAK_DIR}" "${IN_DIR}" "${OUT_DIR}" "${LOGS_DIR}" ]
 ONBUILD WORKDIR ${BASE}
 
 #-- Whether to run the process as Root or not

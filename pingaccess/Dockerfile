@@ -69,3 +69,5 @@ COPY --from=staging "/opt" "${BASE}"
 #- * https://localhost:9000
 #-   * Username: Administrator
 #-   * Password: 2FederateM0re
+
+RUN ./post-build.sh

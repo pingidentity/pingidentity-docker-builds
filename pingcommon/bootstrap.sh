@@ -22,7 +22,7 @@ addUser_ubuntu ()
 
 addUser_centos ()
 {
-    if type yum 2>/dev/null 2>/dev/null ; then
+    if type yum >/dev/null 2>/dev/null ; then
         groupadd --gid ${2} identity
         adduser --uid ${1} --gid identity --no-create-home --shell /bin/false ping
     fi
@@ -53,4 +53,4 @@ if test ${_userID} -eq 0 ; then
     fi
 fi
 
-exec ${_runUnprivileged} tini -- ./entrypoint.sh $*
+exec ${_runUnprivileged} tini -s -- ./entrypoint.sh $*

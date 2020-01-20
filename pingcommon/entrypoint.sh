@@ -19,8 +19,8 @@ echo_header "Ping Identity DevOps Docker Image" \
     "      HOSTNAME: ${HOSTNAME}" \
     "    DOMAINNAME: ${DOMAINNAME}"
 
-if test "$1" = "start-server" ; then
-    shift
+if test -z "${1}" -o "$1" = "start-server" ; then
+    test -n "${1}" && shift
     # If there are local IN_DIR files, this will copy them to a STAGING_DIRECTORY
     # overwriting any fiiles that may alrady be in staging
     apply_local_server_profile
