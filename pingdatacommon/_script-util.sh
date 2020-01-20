@@ -252,14 +252,17 @@ set_environment_vars() {
     # variable is set through some other form), then we'll use that value.
     # Otherwise, on Linux only, we'll use a minimum of 16383, and on other
     # platforms we will use the existing value.
-
-    # The ulimit option for the number of processes is -p on Ubuntu.
-    ulimit -u >/dev/null 2>&1
-    if test $? -eq 0 && ! test -f /etc/alpine-release
+    _osID=$( awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null ) 
+    PROCESSES_OPTION=-u
+    ulimit ${PROCESSES_OPTION} >/dev/null 2>&1
+    if test ${?} -ne 0 -a "${_osID}" = "ubuntu"
     then
-      PROCESSES_OPTION=-u
-    else
-      PROCESSES_OPTION=-p
+        ulimit -p >/dev/null 2>&1
+        if test ${?} -ne 0 ; then
+            # The ulimit option for the number of processes is -p on older Ubuntu.
+            PROCESSES_OPTION=-p
+            # we only fall back on this because there is confusion with -p being used for pipe size normally
+        fi
     fi
 
     if test -z "${NUM_USER_PROCESSES}"
