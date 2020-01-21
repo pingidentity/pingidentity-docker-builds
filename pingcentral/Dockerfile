@@ -27,8 +27,9 @@ COPY [ "liveness.sh", "/opt/"]
 # The final image 
 #
 FROM pingidentity/pingbase:${SHIM}
-EXPOSE 9022
 ARG LICENSE_VERSION
+EXPOSE 9022
+ENV PING_CENTRAL_SERVER_PORT=9022
 ENV PING_PRODUCT="PingCentral"
 ENV LICENSE_DIR="${SERVER_ROOT_DIR}/conf"
 ENV LICENSE_FILE_NAME="pingcentral.lic"

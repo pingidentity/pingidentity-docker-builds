@@ -4,7 +4,7 @@ if type apt-get >/dev/null 2>/dev/null ; then
     apt-get -y update
     apt-get -y  upgrade
     apt-get -y install apt-utils
-    apt-get -y install openjdk-11-jdk curl gettext-base dnsutils git jq unzip openssh-client gnupg
+    apt-get -y install openjdk-11-jdk curl gettext-base dnsutils git jq unzip openssh-client gnupg netcat
     apt-get -y autoremove
     rm -rf /var/lib/apt/lists/* 
 fi
@@ -13,7 +13,7 @@ if type yum >/dev/null 2>/dev/null ; then
     yum update -y
     yum upgrade -y
     yum -y install epel-release
-    yum -y install java-11-openjdk-devel gettext bind-utils git jq unzip openssh-clients gnupg
+    yum -y install java-11-openjdk-devel gettext bind-utils git jq unzip openssh-clients gnupg nmap-ncat
     yum -y autoremove 
     yum -y clean all
     rm -rf /var/cache/yum 
