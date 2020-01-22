@@ -20,7 +20,7 @@ pull_and_tag_if_missing ()
     _destination="${1}"
     shift
 
-    if test -n "${_source}" -a -n "${_destination}" -a -z "$(docker image ls -q ${_destination})" ; then
+    if test -n "${_source}" -a -n "${_destination}" -a -z "$(docker image ls -q ${_destination} | sort | uniq )" ; then
         docker pull "${_source}" || :
         if test -n "$(docker image ls -q ${_source})" ; then
             docker tag "${_source}" "${_destination}" || :
@@ -96,17 +96,17 @@ else
     # pull_and_tag_if missing is going to check if we have the image with the
     # ${ciTag} tag locally, and if not it will pull it down, tag it with both
     # the ciTag and latest
-    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}" "pingidentity/pingcommon:${ciTag}" "pingidentity/pingcommon"
-    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon"
-    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}"
+    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}" "pingidentity/pingcommon:${ciTag}" "pingidentity/pingcommon:latest"
+    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon:latest"
+    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}-latest"
  
     # if the build has not triggered a foundation build, we use latest
     # note that if the commit triggered the foundation build then the 
     # latest image actually maps to the ciTag image pulled above
     # and no action is taken below
-    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingcommon" "pingidentity/pingcommon"
-    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingdatacommon" "pingidentity/pingdatacommon"
-    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingbase:${os}" "pingidentity/pingbase:${os}"
+    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingcommon" "pingidentity/pingcommon:latest"
+    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingdatacommon" "pingidentity/pingdatacommon:latest"
+    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingbase:${os}" "pingidentity/pingbase:${os}-latest"
 fi
 
 #Start building product
