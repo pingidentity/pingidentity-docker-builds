@@ -81,7 +81,7 @@ deploy_pingfoundation:
 build_pingdownloader:
   stage: build_foundation
   script:
-    - docker image build -t pingidentity/pingdownloader ./pingdownloader
+    - DOCKER_BUILDKIT=1 docker image build -t pingidentity/pingdownloader ./pingdownloader
     - docker tag "pingidentity/pingdownloader" "gcr.io/ping-identity/pingdownloader:edge"
     - docker push "gcr.io/ping-identity/pingdownloader:edge"
     - ./ci_scripts/run_tests.sh pingdownloader
