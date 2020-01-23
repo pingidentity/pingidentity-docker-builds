@@ -9,10 +9,22 @@ else
 fi
 
 if test "${FOUNDATION_REGISTRY}" = "gcr.io/ping-identity" ; then
-    docker container stop $(docker container ls -aq)
-    docker container rm $(docker container ls -aq)
+    # get the list of running containers.
+    _containersList="$(docker container ls -q | sort | uniq)"
+    # stop all running containers
+    test -n "${_containersList}" && docker container stop ${_containersList}
+    # get list of all stopped containers lingering
+    _containersList="$(docker container ls -aq | sort | uniq)"
+    # remove all containers
+    test -n "${_containersList}" && docker container rm -f $(docker container ls -aq)
+    # get the list of all images in the local repo
+    _imagesList="$(docker image ls -q | sort | uniq)"
+    test -n "${_imagesList}" && docker image rm -f ${_imagesList}
+
+    # wipe everything clean
+    docker container prune -f 
     docker image prune -f
-    # docker rmi -f $(docker image ls --format '{{.Repository}} {{.ID}}' "pingidentity/*")
+    docker network prune
 fi
 
 set -e 
@@ -40,7 +52,9 @@ else
 fi
 
 for os in ${oses} ; do 
-#   DOCKER_BUILDKIT=1 docker image build --build-arg SHIM=${os} -t "pingidentity/pingbase:${os}" ./pingbase
+    echo "################################################################################################"
+    echo "#                       Building pingbase for ${os}                                            #"
+    echo "################################################################################################"
     DOCKER_BUILDKIT=1 docker image build --build-arg SHIM=${os} -t "pingidentity/pingbase:${os}" ./pingbase
     if test -n "${CI_COMMIT_REF_NAME}" ; then
         docker tag "pingidentity/pingbase:${os}" "pingidentity/pingbase:${os}-${ciTag}"
