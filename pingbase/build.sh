@@ -4,26 +4,31 @@ if type apt-get >/dev/null 2>/dev/null ; then
     apt-get -y update
     apt-get -y  upgrade
     apt-get -y install apt-utils
-    apt-get -y install openjdk-11-jdk curl gettext-base dnsutils git jq unzip openssh-client gnupg netcat
+    apt-get -y install openjdk-11-jdk curl gettext-base dnsutils git git-lfs jq unzip openssh-client gnupg netcat
     apt-get -y autoremove
-    rm -rf /var/lib/apt/lists/* 
+    rm -rf /var/lib/apt/lists/*
+    ln -s /usr/lib/jvm/java-11-openjdk-amd64 /opt/java
 fi
 
 if type yum >/dev/null 2>/dev/null ; then
     yum update -y
     yum upgrade -y
     yum -y install epel-release
-    yum -y install java-11-openjdk-devel gettext bind-utils git jq unzip openssh-clients gnupg nmap-ncat
+    curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | bash
+    yum -y install java-11-openjdk-devel gettext bind-utils git git-lfs jq unzip openssh-clients gnupg nmap-ncat
     yum -y autoremove 
     yum -y clean all
-    rm -rf /var/cache/yum 
+    rm -rf /var/cache/yum
+    ln -s /etc/alternatives/java_sdk /opt/java
 fi
 
 if type apk >/dev/null 2>/dev/null ; then
-    apk --no-cache --update add git curl ca-certificates jq zip gnupg libintl openssh-client openjdk8
+    apk --no-cache --update add git git-lfs curl ca-certificates jq zip gnupg libintl openssh-client openjdk8
     apk add --virtual build_deps gettext 
     cp /usr/bin/envsubst /usr/local/bin/envsubst 
-    apk del build_deps 
+    apk del build_deps
+    ln -s /usr/lib/jvm/default-jvm /opt/java
+    git lfs install
 fi
 
 download_and_verify ()

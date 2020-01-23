@@ -39,7 +39,6 @@ ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/application.log
 ENV PING_CENTRAL_LOG_LEVEL="INFO"
 ENV PING_CENTRAL_BLIND_TRUST=false
-ENV JAVA_HOME=/etc/alternatives/java_sdk
 COPY --from=pingidentity/pingcommon /opt ${BASE}
 COPY --from=staging /opt ${BASE}
 

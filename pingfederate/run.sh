@@ -157,7 +157,7 @@ JAVA_OPTS="${JAVA_OPTS} -Dcom.ncipher.provider.announcemode=on"
 # JAVA_OPTS="-Djetty51.encode.cookies=CookieName1,CookieName2 $JAVA_OPTS"
 
 # Debugger arguments
-if test "${PF_ENGINE_DEBUG}" = "true" -o "${PF_ADMIN_DEBUG}" ; then
+if test "${PF_ENGINE_DEBUG}" = "true" || test "${PF_ADMIN_DEBUG}" = "true" ; then
     JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=${PF_DEBUG_PORT},server=y,suspend=n $JAVA_OPTS"
 fi
 
