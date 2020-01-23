@@ -6,25 +6,31 @@ _runUnprivileged=""
 
 addUser_alpine ()
 {
-    if type apk >/dev/null 2>/dev/null ; then
-        addgroup -g ${2} identity
-        adduser -u ${1} -G identity -D -H -s /bin/false ping
+    _uid=${1}
+    _gid=${2}
+    if type apk >/dev/null 2>/dev/null && test -n "${_uid}" && test -n "${_gid}" ; then
+        addgroup -g ${_gid} ${PING_CONTAINER_GNAME}
+        adduser -u ${_uid} -G ${PING_CONTAINER_GNAME} -D -H -s /bin/false ${PING_CONTAINER_UNAME}
     fi
 }
 
 addUser_ubuntu ()
 {
-    if type apt >/dev/null 2>/dev/null ; then
-        addgroup --gid ${2} identity
-        adduser --uid ${1} --gid identity --no-create-home --shel /bin/false --disabled-login --disabled-password --gecos "" ping
+    _uid=${1}
+    _gid=${2}
+    if type apt >/dev/null 2>/dev/null && test -n "${_uid}" && test -n "${_gid}" ; then
+        addgroup --gid ${_gid}} ${PING_CONTAINER_GNAME}
+        adduser --uid ${_uid} --gid ${PING_CONTAINER_GNAME} --no-create-home --shel /bin/false --disabled-login --disabled-password --gecos "" ${PING_CONTAINER_UNAME}
     fi
 }
 
 addUser_centos ()
 {
-    if type yum >/dev/null 2>/dev/null ; then
-        groupadd --gid ${2} identity
-        adduser --uid ${1} --gid identity --no-create-home --shell /bin/false ping
+    _uid=${1}
+    _gid=${2}
+    if type yum >/dev/null 2>/dev/null && test -n "${_uid}" && test -n "${_gid}" ; then
+        groupadd --gid ${_gid} ${PING_CONTAINER_GNAME}
+        adduser --uid ${_uid} --gid ${PING_CONTAINER_GNAME} --no-create-home --shell /bin/false ${PING_CONTAINER_UNAME}
     fi
 }
 
@@ -32,9 +38,11 @@ addUser ()
 {
     _uid=${1}
     _gid=${2}
-    addUser_alpine ${_uid} ${_gid}
-    addUser_centos ${_uid} ${_gid}
-    addUser_ubuntu ${_uid} ${_gid}
+    if  test -n "${_uid}" && test -n "${_gid}" ; then
+        addUser_alpine ${_uid} ${_gid}
+        addUser_centos ${_uid} ${_gid}
+        addUser_ubuntu ${_uid} ${_gid}
+    fi
 }
 
 fixPermissions ()
@@ -43,9 +51,13 @@ fixPermissions ()
     chmod -Rf go-rwx /opt
 }
 
+echo "### Bootstrap"
 if test ${_userID} -eq 0 ; then
     # if the user is root we need to check if and how to step down
     if test "${PING_CONTAINER_PRIVILEGED}" != "true" ; then
+        echo "### Stepdown to" 
+        echo "###     user : ${PING_CONTAINER_UNAME}(${PING_CONTAINER_UID})"
+        echo "###     group: ${PING_CONTAINER_GNAME}(${PING_CONTAINER_GID})"
         addUser ${PING_CONTAINER_UID} ${PING_CONTAINER_GID}
         fixPermissions
         # compute the step-down command
@@ -53,4 +65,4 @@ if test ${_userID} -eq 0 ; then
     fi
 fi
 
-exec ${_runUnprivileged} tini -s -- ./entrypoint.sh $*
+exec ${_runUnprivileged} tini -- ${BASE}/entrypoint.sh ${*}

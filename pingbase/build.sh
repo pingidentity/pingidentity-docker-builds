@@ -7,7 +7,6 @@ if type apt-get >/dev/null 2>/dev/null ; then
     apt-get -y install openjdk-11-jdk curl gettext-base dnsutils git git-lfs jq unzip openssh-client gnupg netcat
     apt-get -y autoremove
     rm -rf /var/lib/apt/lists/*
-    ln -s /usr/lib/jvm/java-11-openjdk-amd64 /opt/java
 fi
 
 if type yum >/dev/null 2>/dev/null ; then
@@ -19,7 +18,6 @@ if type yum >/dev/null 2>/dev/null ; then
     yum -y autoremove 
     yum -y clean all
     rm -rf /var/cache/yum
-    ln -s /etc/alternatives/java_sdk /opt/java
 fi
 
 if type apk >/dev/null 2>/dev/null ; then
@@ -27,14 +25,12 @@ if type apk >/dev/null 2>/dev/null ; then
     apk add --virtual build_deps gettext 
     cp /usr/bin/envsubst /usr/local/bin/envsubst 
     apk del build_deps
-    ln -s /usr/lib/jvm/default-jvm /opt/java
-    git lfs install
 fi
 
 download_and_verify ()
 {
 	export GNUPGHOME="$(mktemp -d)" 
-    TMP_VS="$( mktemp -d )" 
+    TMP_VS="$( mktemp -d )"
     PAYLOAD="${TMP_VS}/payload" 
     SIGNATURE="${TMP_VS}/signature" 
     OBJECT="${1}"

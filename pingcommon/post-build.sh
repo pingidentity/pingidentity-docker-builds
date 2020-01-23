@@ -14,6 +14,21 @@ for dir in backup in logs out ; do
     touch /opt/${dir}/.ephemeral
 done
 
+# Ubuntu-specific post-install
+if type apt-get >/dev/null 2>/dev/null ; then
+    ln -s /usr/lib/jvm/java-11-openjdk-amd64 /opt/java
+fi
+
+# Centos-specific post-install
+if type yum >/dev/null 2>/dev/null ; then
+    ln -s /etc/alternatives/java_sdk /opt/java
+fi
+
+# Alpine-specific post-install
+if type apk >/dev/null 2>/dev/null ; then
+    ln -s /usr/lib/jvm/default-jvm /opt/java
+fi
+
 chmod -R +rwx /opt/backup /opt/in /opt/logs /opt/out    
 
 # give each file the same permission for others as for the user
