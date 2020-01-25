@@ -45,7 +45,7 @@ else
             rc=${?}
             if test $licenseCurlResult -eq 200 && test ${rc} -eq 0 ; then
                 echo "Successfully pulled evaluation license from Ping Identity"
-                test "${PING_DEBUG}" == "true" && cat_indent "${LICENSE_FILE}"
+                test "${PING_DEBUG}" = "true" && cat_indent "${LICENSE_FILE}"
                 echo ""
 
                 case "${PING_IDENTITY_ACCEPT_EULA}" in

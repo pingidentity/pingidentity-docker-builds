@@ -10,8 +10,6 @@ chmod go+w /etc/motd
 # create the mounts
 for dir in backup in logs out ; do
     mkdir /opt/${dir}
-    # this file allows us to know if the path has been bound to the host or not
-    touch /opt/${dir}/.ephemeral
 done
 
 # Ubuntu-specific post-install

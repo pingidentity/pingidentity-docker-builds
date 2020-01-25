@@ -4,50 +4,77 @@ test "${VERBOSE}" = "true" && set -x
 _userID=$(id -u)
 _runUnprivileged=""
 
+addGroup_alpine ()
+{
+    _groupID="${1}"
+    _groupName="${2}"
+    addgroup -g ${_groupID} ${_groupName}
+}
+
+addGroup_centos ()
+{
+    _groupID="${1}"
+    _groupName="${2}"
+    groupadd --gid ${_groupID} ${_groupName}
+}
+
+addGroup_ubuntu ()
+{
+    _groupID="${1}"
+    _groupName="${2}"
+    addgroup --gid ${_groupID} ${_groupName}}
+}
+
 addUser_alpine ()
 {
-    _uid=${1}
-    _gid=${2}
-    if type apk >/dev/null 2>/dev/null && test -n "${_uid}" && test -n "${_gid}" ; then
-        addgroup -g ${_gid} ${PING_CONTAINER_GNAME}
-        adduser -u ${_uid} -G ${PING_CONTAINER_GNAME} -D -H -s /bin/false ${PING_CONTAINER_UNAME}
-    fi
+    _userID="${1}"
+    _userName="${2}"
+    _groupName="${3}"
+    adduser -u ${_userID} -G ${_groupName} -D -H -s /bin/false ${_userName}
 }
 
 addUser_ubuntu ()
 {
-    _uid=${1}
-    _gid=${2}
-    if type apt >/dev/null 2>/dev/null && test -n "${_uid}" && test -n "${_gid}" ; then
-        addgroup --gid ${_gid}} ${PING_CONTAINER_GNAME}
-        adduser --uid ${_uid} --gid ${PING_CONTAINER_GNAME} --no-create-home --shel /bin/false --disabled-login --disabled-password --gecos "" ${PING_CONTAINER_UNAME}
-    fi
+    _userID="${1}"
+    _userName="${2}"
+    _groupName="${3}"
+    adduser --uid ${_userID} --gid ${_groupName} --no-create-home --shel /bin/false --disabled-login --disabled-password --gecos "" ${_userName}
 }
 
 addUser_centos ()
 {
-    _uid=${1}
-    _gid=${2}
-    if type yum >/dev/null 2>/dev/null && test -n "${_uid}" && test -n "${_gid}" ; then
-        groupadd --gid ${_gid} ${PING_CONTAINER_GNAME}
-        adduser --uid ${_uid} --gid ${PING_CONTAINER_GNAME} --no-create-home --shell /bin/false ${PING_CONTAINER_UNAME}
-    fi
+    _userID="${1}"
+    _userName="${2}"
+    _groupName="${3}"
+    adduser --uid ${_userID} --gid ${_groupName} --no-create-home --shell /bin/false ${_userName}
 }
 
 addUser ()
 {
-    _uid=${1}
-    _gid=${2}
-    if  test -n "${_uid}" && test -n "${_gid}" ; then
-        addUser_alpine ${_uid} ${_gid}
-        addUser_centos ${_uid} ${_gid}
-        addUser_ubuntu ${_uid} ${_gid}
+    _userID="${1}"
+    _userName="${2}"
+    _groupName="${3}"
+    if  test -n "${_userID}" && test -n "${_userName}" && test -n "${_groupName}" ; then
+        type apk >/dev/null 2>/dev/null && addUser_alpine ${_userID} ${_userName} ${_groupName}
+        type yum >/dev/null 2>/dev/null && addUser_centos ${_userID} ${_userName} ${_groupName}
+        type apt >/dev/null 2>/dev/null && addUser_ubuntu ${_userID} ${_userName} ${_groupName}
+    fi
+}
+
+addGroup ()
+{
+    _groupID="${1}"
+    _groupName="${2}"
+    if test -n "${_groupID}" && test -n "${_groupName}" ; then
+        type apk >/dev/null 2>/dev/null && addGroup_alpine ${_groupID} ${_groupName}
+        type yum >/dev/null 2>/dev/null && addGroup_centos ${_groupID} ${_groupName}
+        type apt >/dev/null 2>/dev/null && addGroup_ubuntu ${_groupID} ${_groupName}
     fi
 }
 
 fixPermissions ()
 {
-    chown -Rf ${PING_CONTAINER_UNAME}:${PING_CONTAINER_GNAME} /opt
+    chown -Rf ${PING_CONTAINER_UID}:${PING_CONTAINER_GID} /opt
     chmod -Rf go-rwx /opt
 }
 
@@ -55,14 +82,39 @@ echo "### Bootstrap"
 if test ${_userID} -eq 0 ; then
     # if the user is root we need to check if and how to step down
     if test "${PING_CONTAINER_PRIVILEGED}" != "true" ; then
-        echo "### Stepdown to" 
+        _effectiveGroupName=$( awk 'BEGIN{FS=":"}$3~/^'${PING_CONTAINER_GID}'$/{print $1}' /etc/group )
+        test -z "${_effectiveGroupName}" && _effectiveGroupName=${PING_CONTAINER_GNAME}
+
+        _effectiveUserName=$( awk 'BEGIN{FS=":"}$3~/^'${PING_CONTAINER_UID}'$/{print $1}' /etc/passwd )
+        test -z "${_effectiveUserName}" && _effectiveUserName=${PING_CONTAINER_UNAME}
+
+        echo "### Stepdown requested to :" 
         echo "###     user : ${PING_CONTAINER_UNAME}(${PING_CONTAINER_UID})"
         echo "###     group: ${PING_CONTAINER_GNAME}(${PING_CONTAINER_GID})"
-        addUser ${PING_CONTAINER_UID} ${PING_CONTAINER_GID}
+        echo "### Stepdown effective to:"
+        echo "###     user : ${_effectiveUserName}(${PING_CONTAINER_UID})"
+        echo "###     group: ${_effectiveGroupName}(${PING_CONTAINER_GID})"
+
+        # if the effective group name is as requested, it means no existing group with that name exist, create it
+        if test "${_effectiveGroupName}" = "${PING_CONTAINER_GNAME}" ; then
+            addGroup ${PING_CONTAINER_GID} ${_effectiveGroupName} 
+        fi
+
+        # if the effective user name is as requested, it means no existing user with that name exist, create it
+        if test "${_effectiveUserName}" = "${PING_CONTAINER_UNAME}" ; then
+            addUser ${PING_CONTAINER_UID} ${_effectiveUserName} ${_effectiveGroupName}
+        fi
+        # we step down from the root user to the requested user so we strip /opt of world rights
         fixPermissions
-        # compute the step-down command
-        _runUnprivileged="${BASE}/gosu ${PING_CONTAINER_UNAME}"
+
+        # compute the step-down command that is going to be shimmed before tini
+        _runUnprivileged="${BASE}/gosu ${PING_CONTAINER_UID}"
     fi
 fi
 
-exec ${_runUnprivileged} tini -- ${BASE}/entrypoint.sh ${*}
+# if the current process id is not 1, tini needs to register as sub-reaper
+if test $$ -ne 1 ; then
+    _subReaper="-s"
+fi
+
+exec ${_runUnprivileged} tini ${_subReaper} -- ${BASE}/entrypoint.sh ${*}

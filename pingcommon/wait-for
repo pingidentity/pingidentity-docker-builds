@@ -4,7 +4,9 @@ TIMEOUT=15
 QUIET=0
 
 echoerr() {
-  if [ "$QUIET" -ne 1 ]; then printf "%s\n" "$*" 1>&2; fi
+    if test "$QUIET" -ne 1 ; then 
+        printf "%s\n" "$*" 1>&2; 
+    fi
 }
 
 usage() {
@@ -20,12 +22,12 @@ USAGE
 }
 
 wait_for() {
-  for i in `seq $TIMEOUT` ; do
+  for i in $( seq $TIMEOUT ) ; do
     nc -z "$HOST" "$PORT" > /dev/null 2>&1
     
     result=$?
-    if [ $result -eq 0 ] ; then
-      if [ $# -gt 0 ] ; then
+    if test $result -eq 0 ; then
+      if test $# -gt 0 ; then
         exec "$@"
       fi
       exit 0
@@ -36,8 +38,7 @@ wait_for() {
   exit 1
 }
 
-while [ $# -gt 0 ]
-do
+while test $# -gt 0 ; do
   case "$1" in
     *:* )
     HOST=$(printf "%s\n" "$1"| cut -d : -f 1)
@@ -71,7 +72,7 @@ do
   esac
 done
 
-if [ "$HOST" = "" -o "$PORT" = "" ]; then
+if test -z "$HOST" || test -z "$PORT" ; then
   echoerr "Error: you need to provide a host and port to test."
   usage 2
 fi

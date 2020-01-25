@@ -22,7 +22,7 @@ dsconfig set-connection-handler-prop \
 
 END
 
-if test "${PING_DEBUG}" == "true" ; then
+if test "${PING_DEBUG}" = "true" ; then
   DSCONFIG_OPT="--verbose"
 else
   DSCONFIG_OPT="--quiet"

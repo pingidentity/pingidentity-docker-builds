@@ -36,11 +36,11 @@ echo_vars   STARTUP_COMMAND STARTUP_FOREGROUND_OPTS STARTUP_BACKGROUND_OPTS VERB
 echo_header "Orchestration Info"
 echo_vars   ORCHESTRATION_TYPE 
 
-if test "${ORCHESTRATION_TYPE}" == "KUBERNETES"; then
+if test "${ORCHESTRATION_TYPE}" = "KUBERNETES"; then
     echo_vars   K8S_CLUSTERS K8S_CLUSTER K8S_SEED_CLUSTER K8S_NUM_REPLICAS K8S_POD_HOSTNAME_PREFIX K8S_POD_HOSTNAME_SUFFIX K8S_SEED_HOSTNAME_SUFFIX K8S_INCREMENT_PORTS
 fi
 
-if test "${ORCHESTRATION_TYPE}" == "COMPOSE"; then
+if test "${ORCHESTRATION_TYPE}" = "COMPOSE"; then
     echo_vars   COMPOSE_SERVICE_NAME
 fi
 
@@ -56,7 +56,7 @@ echo_header "JVM Details"
 echo_vars   MAX_HEAP_SIZE JVM_TUNING
 
 # If there are validations that have failed, then exit
-if test "${_validationFailed}" == true ; then
+if test "${_validationFailed}" = true ; then
     echo_red "Please resolve the validation issues!"
     exit 4
 else
