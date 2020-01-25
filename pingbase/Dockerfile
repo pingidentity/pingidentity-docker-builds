@@ -221,12 +221,13 @@ ONBUILD WORKDIR ${BASE}
 #-- and PING_CONTAINER_GID
 ONBUILD ENV PING_CONTAINER_PRIVILEGED="true"
 
-#-- The user ID the product will use if PINGIDENTITY_RUN_PRIVILEGED is set to false
+#-- The user ID the product will use if PING_CONTAINER_PRIVILEGED is set to false
 ONBUILD ENV PING_CONTAINER_UID=9031
-#-- The group ID the product will use if PINGIDENTITY_RUN_PRIVILEGED is set to false
+#-- The group ID the product will use if PING_CONTAINER_PRIVILEGED is set to false
 ONBUILD ENV PING_CONTAINER_GID=9999
-
+#-- The user name the product will use if PING_CONTAINER_PRIVILEGED is set to false and a user with that ID does not exist already
 ONBUILD ENV PING_CONTAINER_UNAME=ping
+#-- The group name the product will use if PING_CONTAINER_PRIVILEGED is set to false and a group with that ID does not exist already
 ONBUILD ENV PING_CONTAINER_GNAME=identity
 
 ONBUILD ENV JAVA_HOME=/opt/java

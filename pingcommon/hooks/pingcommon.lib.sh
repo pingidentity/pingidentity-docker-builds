@@ -13,7 +13,7 @@ CALLING_HOOK=${0}
 STATE_PROPERTIES="${STAGING_DIR}/state.properties"
 
 # echo colorization options
-if test "${COLORIZE_LOGS}" == "true" ; then
+if test "${COLORIZE_LOGS}" = "true" ; then
     RED_COLOR='\033[0;31m'
     GREEN_COLOR='\033[0;32m'
     NORMAL_COLOR='\033[0m'
@@ -26,32 +26,32 @@ fi
 #
 toLower ()
 {
-     echo -n ${*}|tr '[:upper:]' '[:lower:]'
+    echo -n ${*}|tr '[:upper:]' '[:lower:]'
 }
 
 toLowerVar ()
 {
-      toLower $(eval echo -n \$${1})
+    toLower $(eval echo -n \$${1})
 }
 
 lowerVar()
 {
-     eval ${1}=$(toLowerVar ${1})
+    eval ${1}=$(toLowerVar ${1})
 }
 
 toUpper ()
 {
-     echo -n ${*}|tr '[:lower:]' '[:upper:]' 
+    echo -n ${*}|tr '[:lower:]' '[:upper:]' 
 }
 
 toUpperVar ()
 {
-     toUpper $(eval echo -n \$${1})
+    toUpper $(eval echo -n \$${1})
 }
 
 upperVar()
 {
-     eval ${1}=$(toUpperVar ${1})
+    eval ${1}=$(toUpperVar ${1})
 }
 
 ###############################################################################
@@ -174,7 +174,7 @@ run_hook ()
 ###############################################################################
 apply_local_server_profile()
 {
-    if find "${IN_DIR}" -type f | read; then
+    if test -n "${IN_DIR}" && test -n "$( ls -A ${IN_DIR} 2>/dev/null )" ; then
         echo "copying local IN_DIR files (${IN_DIR}) to STAGING_DIR (${STAGING_DIR})"
         # shellcheck disable=SC2086
         copy_files "${IN_DIR}" "${STAGING_DIR}"
@@ -304,7 +304,7 @@ echo_vars()
     _varRedact="${_var}_REDACT"
     _varRedact=$( get_value "${_varRedact}" )
 
-    if test "${_varRedact}" == "true"; then
+    if test "${_varRedact}" = "true"; then
       _val="*** REDACTED ***"
     fi
 
@@ -323,9 +323,9 @@ echo_vars()
       _validVal=$( echo "${_valValidation}" | sed  's/^\(.*\)|\(.*\)|\(.*\)$/\2/g' )
       _validMsg=$( echo "${_valValidation}" | sed  's/^\(.*\)|\(.*\)|\(.*\)$/\3/g' )
 
-      if test "${_validReq}" == "true" -a -z "${_val}" ; then
+      if test "${_validReq}" = "true" -a -z "${_val}" ; then
         _validationFailed="true"
-        test "${_validReq}" == "true" && echo_red "         Required: ${_var}"
+        test "${_validReq}" = "true" && echo_red "         Required: ${_var}"
         test ! -z "${_validVal}" && echo_red "     Valid Values: ${_validVal}"
         test ! -z "${_validMsg}" && echo_red "        More Info: ${_validMsg}"
       fi

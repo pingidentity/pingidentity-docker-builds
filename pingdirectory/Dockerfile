@@ -28,7 +28,8 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 	    uninstall \
 	    webapps \
 	    resource/*.zip \
-	&& mv /tmp/PingDirectory /opt/server 
+        lib/_script-util.sh \
+    && mv /tmp/PingDirectory /opt/server 
 COPY [ "liveness.sh", "/opt/" ]
 COPY [ "hooks/","/opt/staging/hooks/" ]
 
