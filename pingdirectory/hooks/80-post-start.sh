@@ -40,7 +40,7 @@ echo "Updating the Server Instance ${_podInstanceName} result=${_updateServerIns
 #
 #- * Check to see if PD_STATE is GENISIS.  If so, no replication will be performed
 #
-if test "${PD_STATE}" == "GENESIS" ; then
+if test "${PD_STATE}" = "GENESIS" ; then
     echo "PD_STATE is GENESIS ==> Replication on this server won't be setup until more instances are added"
     exit 0
 fi
@@ -75,7 +75,7 @@ fi
 #
 #- * If the server being setup is the Seed Instance, then no replication will be performed
 #
-if test "${_podInstanceName}" == "${_seedInstanceName}"; then
+if test "${_podInstanceName}" = "${_seedInstanceName}"; then
     echo ""
     echo "We are the SEED Server: ${_seedInstanceName} --> No need to enable replication"
     echo "TODO: We need to check for other servers"

@@ -13,7 +13,7 @@ test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 #
 # If we are the GENESIS state, then process any templates if they are defined.
 #
-if test "${PD_STATE}" == "GENESIS" ; then
+if test "${PD_STATE}" = "GENESIS" ; then
     echo "PD_STATE is GENESIS ==> Processing Templates"
     
     # TODO need to process all ldif subdirectories, not just userRoot

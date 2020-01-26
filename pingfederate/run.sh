@@ -60,7 +60,8 @@ PF_SERVER_HOME="${PF_HOME}/server/default"
 PF_SERVER_LIB="${PF_SERVER_HOME}/lib"
 
 # Set PF_HOME_ESC - this is PF_HOME but with spaces that are replaced with %20
-PF_HOME_ESC=${PF_HOME// /%20}
+# PF_HOME_ESC=${PF_HOME// /%20}
+PF_HOME_ESC=$( echo ${PF_HOME// /%20} | awk '{gsub(/ /,"%20");print;}' )
 
 
 # Check for currently running instance of PingFederate

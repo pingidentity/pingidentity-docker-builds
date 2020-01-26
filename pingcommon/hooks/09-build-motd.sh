@@ -13,6 +13,7 @@ ${VERBOSE} && set -x
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 _motdFile="/etc/motd"
+# isOS ubuntu && _motdFile="${_motdFile}.tail"
 _motdJsonFile="/tmp/motd.json"
 _currentDate=$(date +%Y%m%d)
 

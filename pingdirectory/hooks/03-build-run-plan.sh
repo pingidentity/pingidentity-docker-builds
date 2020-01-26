@@ -125,7 +125,7 @@ if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
             K8S_SEED_HOSTNAME_SUFFIX=".\${K8S_SEED_CLUSTER}"
         fi
 
-        if test ${K8S_INCREMENT_PORTS} == true; then
+        if test ${K8S_INCREMENT_PORTS} = true; then
             _incrementPortsMsg="Using different ports for each instance, incremented from LDAPS_PORT (${LDAPS_PORT}) and REPLICATION_PORT (${REPLICATION_PORT})"
         else
             _incrementPortsMsg="K8S_INCREMENT_PORTS not used ==> Using same ports for all instancesLDAPS_PORT (${LDAPS_PORT}) and REPLICATION_PORT (${REPLICATION_PORT})"
@@ -139,7 +139,7 @@ if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
     # Single Cluster Details
     #
     # Create an instance/hostname using the Kubernetes StatefulSet Name and Service Name
-    if test "${_clusterMode}" == "single"; then
+    if test "${_clusterMode}" = "single"; then
         _podInstanceName="${K8S_STATEFUL_SET_NAME}-${_ordinal}.${K8S_STATEFUL_SET_SERVICE_NAME}"
         _podHostname=${_podInstanceName}
         _podLocation="${LOCATION}"
@@ -153,7 +153,7 @@ if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
     # Multi Cluster Details
     #
     # Create an instance/hostname using the Kubernetes Cluster and Suffixes provided
-    if test "${_clusterMode}" == "multi"; then
+    if test "${_clusterMode}" = "multi"; then
         _podInstanceName="${K8S_STATEFUL_SET_NAME}-${_ordinal}.${K8S_CLUSTER}"
         _podHostname=$(eval "echo ${K8S_POD_HOSTNAME_PREFIX}${_ordinal}${K8S_POD_HOSTNAME_SUFFIX}")
         _podLocation="${K8S_CLUSTER}"
@@ -163,7 +163,7 @@ if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
         _seedLocation="${K8S_SEED_CLUSTER}"
 
 
-        if test "${K8S_INCREMENT_PORTS}" == "true"; then
+        if test "${K8S_INCREMENT_PORTS}" = "true"; then
             _podLdapsPort=$(( LDAPS_PORT + _ordinal ))
             LDAPS_PORT=${_podLdapsPort}
             _podReplicationPort=$(( REPLICATION_PORT + _ordinal ))
@@ -171,7 +171,7 @@ if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
         fi
     fi
 
-    if test "${_podInstanceName}" == "${_seedInstanceName}" ; then
+    if test "${_podInstanceName}" = "${_seedInstanceName}" ; then
         echo "We are the SEED server (${_seedInstanceName})"
 
         if test -z "${serverUUID}" ; then
@@ -187,7 +187,7 @@ if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
             if test ${_numHosts} -eq 0 ; then
                 #
                 # Second, we need to check other clusters
-                if test "${_clusterMode}" == "multi"; then
+                if test "${_clusterMode}" = "multi"; then
                     echo_red "We need to check all 0 servers in each cluster"
                 fi
 
@@ -269,11 +269,11 @@ case "${PD_STATE}" in
 #
 #   1. We couldn't find a valid server.uuid file"
 
-        test "${ORCHESTRATION_TYPE}" == "KUBERNETES" && echo "#
+        test "${ORCHESTRATION_TYPE}" = "KUBERNETES" && echo "#
 #   2. KUBERNETES - Our host name ($(hostname))is the 1st one in the stateful set (${K8S_STATEFUL_SET_SERVICE_NAME}-0)
 #   3. KUBERNETES - There are no other servers currently running in the stateful set (${K8S_STATEFUL_SET_SERVICE_NAME})"
 
-        test "${ORCHESTRATION_TYPE}" == "COMPOSE" && echo "#
+        test "${ORCHESTRATION_TYPE}" = "COMPOSE" && echo "#
 #   2. COMPOSE - There is no SEED Server (${COMPOSE_SERVICE_NAME}_1) found"
 echo "#
 ##################################################################################
@@ -352,7 +352,7 @@ if test ! -z "${K8S_CLUSTERS}" &&
 
             _ldapsPort=${_seedLdapsPort}
             _replicationPort=${_seedReplicationPort}
-            if test ${K8S_INCREMENT_PORTS} == true; then
+            if test ${K8S_INCREMENT_PORTS} = true; then
                 _ldapsPort=$((_ldapsPort+i))
                 _replicationPort=$((_replicationPort+i))
             fi
@@ -386,19 +386,19 @@ if test ! -z "${K8S_CLUSTERS}" &&
             
             # If we are printing a row representing the seed pod
             _seedIndicator=""
-            test "${_cluster}" == "${K8S_SEED_CLUSTER}" && \
-            test "${_ordinal}" == "0" && \
+            test "${_cluster}" = "${K8S_SEED_CLUSTER}" && \
+            test "${_ordinal}" = "0" && \
             _seedIndicator="***"
 
             
             # If we are printing a row representing the current pod, then we will
             # provide an indicator of that
             _podIndicator=""
-            test "${_podInstanceName}" == "${_pod}" && _podIndicator="***"
+            test "${_podInstanceName}" = "${_pod}" && _podIndicator="***"
 
             _ldapsPort=${LDAPS_PORT}
             _replicationPort=${REPLICATION_PORT}
-            if test ${K8S_INCREMENT_PORTS} == true; then
+            if test ${K8S_INCREMENT_PORTS} = true; then
                 _ldapsPort=$((_ldapsPort+_ordinal))
                 _replicationPort=$((_replicationPort+_ordinal))
             fi

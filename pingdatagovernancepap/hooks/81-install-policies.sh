@@ -12,7 +12,7 @@ PAP_ADMIN=${PAP_ADMIN:-admin}
 echo "Checking PAP system status..."
 while true; do
     status=$(curl -H "x-user-id: ${PAP_ADMIN}" -k https://localhost:${HTTPS_PORT}/api/system/status 2>/dev/null | jq -r '.status')
-    if test "${status}" == "RUNNING" ; then
+    if test "${status}" = "RUNNING" ; then
         echo "PAP is ready"
         break
     else
@@ -29,7 +29,7 @@ if test -d "${STAGING_DIR}/policies" ; then
 
         echo "Created Snapshot ID: ${snapshotId}"
 
-        if test "${snapshotId}" == null; then
+        if test "${snapshotId}" = null; then
             container_failure "81" "Policy '${policyName}' could not be created"
         fi
     done

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 product=${1}
-defaultOS=${3:-alpine}
-os=${2:-${defaultOS}}
+shift
+osList=${*}
+test -z "${osList}" && osList="alpine centos ubuntu"
 
 HERE=$(cd $(dirname ${0});pwd)
 if test ! -z "${CI_COMMIT_REF_NAME}" ; then
@@ -26,21 +27,27 @@ if test  -f "${product}"/versions; then
   versions=$(grep -v "^#" "${product}"/versions)
   notVersionless="false"
 fi
-for version in ${versions} ; do      
-    # test this version of this product
-    _tag="${version}${notVersionless:+-${os}}-edge${ciTag:+-${ciTag}}"
-    pull_and_tag "${FOUNDATION_REGISTRY}/${product}:${_tag}" "pingidentity/${product}:${_tag}"
-    if test "${product}" = "pingdatasync" ; then
-        pull_and_tag "${FOUNDATION_REGISTRY}/pingdirectory:${_tag}" "pingidentity/pingdirectory:${_tag}"
-    fi
-    env TAG=${_tag} docker-compose -f ./"${product}"/build.test.yml up --exit-code-from sut
-    thisReturnCode=${?}
-    test "${thisReturnCode}" -ne 0 && returnCode="${thisReturnCode}" && echo "
-    ##################
-    THIS TEST FAILED
-    return code: ${returnCode}
-    ##################
-    "
-    env TAG=${_tag} docker-compose -f ./"${product}"/build.test.yml down
+for os in ${osList} ; do
+    for version in ${versions} ; do      
+        # test this version of this product
+        _tag="${version}${notVersionless:+-${os}}-edge${ciTag:+-${ciTag}}"
+        pull_and_tag "${FOUNDATION_REGISTRY}/${product}:${_tag}" "pingidentity/${product}:${_tag}"
+        if test "${product}" = "pingdatasync" ; then
+            pull_and_tag "${FOUNDATION_REGISTRY}/pingdirectory:${_tag}" "pingidentity/pingdirectory:${_tag}"
+        fi
+        for _test in ${product}/*.test.yml ; do
+            env TAG=${_tag} docker-compose -f ./"${_test}" up --exit-code-from sut --abort-on-container-exit
+            thisReturnCode=${?}
+            test "${thisReturnCode}" -ne 0 && returnCode="${thisReturnCode}" && echo "
+            ##################
+            FAILED
+            test       : ${_test}
+            on         : ${_tag}
+            ##################
+            "
+            env TAG=${_tag} docker-compose -f ./"${_test}" down
+            test ${returnCode} -ne 0 && exit 1
+        done
+    done
 done
 exit ${returnCode}
