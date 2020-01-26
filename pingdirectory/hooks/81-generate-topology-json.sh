@@ -48,7 +48,7 @@ case "${ORCHESTRATION_TYPE}" in
         fi
         _topologyServiceName="${K8S_STATEFUL_SET_SERVICE_NAME}"
         
-        if test "${PD_STATE}" == "SETUP" ; then
+        if test "${PD_STATE}" = "SETUP" ; then
             _seedServer="${K8S_STATEFUL_SET_NAME}-0.${DOMAINNAME}"
             echo "Seed server used to enable/init this server in replication is (${_seedServer})"
         fi

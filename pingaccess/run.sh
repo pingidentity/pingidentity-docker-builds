@@ -98,7 +98,8 @@ if test "x${PA_HOME}" = "x" ; then
     PA_HOME=$( cd "${DIRNAME}/.."; pwd )
 fi
 export PA_HOME
-PA_HOME_ESC=${PA_HOME// /%20}
+# PA_HOME_ESC=${PA_HOME// /%20}
+PA_HOME_ESC=$( echo ${PA_HOME// /%20} | awk '{gsub(/ /,"%20");print;}' )
 
 runprops="${PA_HOME}/conf/run.properties"
 pajwk="${PA_HOME}/conf/pa.jwk"

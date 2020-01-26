@@ -34,7 +34,7 @@ waitUntilLdapUp ()
 
         sleep_at_most 15
 
-        if test $_iCnt == 8; then
+        if test $_iCnt = 8; then
             _iCnt=0
             echo "May be a DNS/Firewall/Service/PortMapping Issue."
             echo "    Ensure that the container/pod can reach: $1:$2"

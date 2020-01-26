@@ -54,6 +54,40 @@ upperVar()
     eval ${1}=$(toUpperVar ${1})
 }
 
+#
+# Stable function to retrieve OS information
+#
+parseOSRelease () 
+{
+
+    test -n "${1}" && awk '$0~/^'${1}'=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null
+}
+
+# The OS ID is all lowercase
+getOSID ()
+{
+    parseOSRelease ID
+}
+
+getOSVersion ()
+{
+    parseOSRelease VERSION
+}
+
+# The name is often pretty-printed
+getOSName ()
+{
+    parseOSRelease NAME
+}
+
+isOS ()
+{
+    _targetOS="${1}"
+    _currentOS="$(getOSID)"
+    test -n "${_targetOS}" && test "${_targetOS}" = "${_currentOS}"
+    return ${?}
+}
+
 ###############################################################################
 # echo_red (message)
 #
@@ -61,8 +95,12 @@ upperVar()
 ###############################################################################
 echo_red ()
 {
+    echoEscape="-e"
+    if isOS ubuntu || test "${COLORIZE_LOGS}" != "true" ; then
+        echoEscape=""
+    fi
     # shellcheck disable=SC2039
-    echo -e "${RED_COLOR}$*${NORMAL_COLOR}"
+    echo ${echoEscape} "${RED_COLOR}$*${NORMAL_COLOR}"
 }
 
 ###############################################################################
@@ -72,8 +110,12 @@ echo_red ()
 ###############################################################################
 echo_green ()
 {
+    echoEscape="-e"
+    if isOS ubuntu || test "${COLORIZE_LOGS}" != "true" ; then
+        echoEscape=""
+    fi
     # shellcheck disable=SC2039
-    echo -e "${GREEN_COLOR}$*${NORMAL_COLOR}"
+    echo ${echoEscape} "${GREEN_COLOR}$*${NORMAL_COLOR}"
 }
 
 ###############################################################################

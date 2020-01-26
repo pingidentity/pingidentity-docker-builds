@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 test "${VERBOSE}" = "true" && set -x
+. "${HOOKS_DIR}/pingcommon.lib.sh"
+
 
 _userID=$(id -u)
 _runUnprivileged=""
@@ -22,7 +24,7 @@ addGroup_ubuntu ()
 {
     _groupID="${1}"
     _groupName="${2}"
-    addgroup --gid ${_groupID} ${_groupName}}
+    addgroup --gid ${_groupID} ${_groupName}
 }
 
 addUser_alpine ()
@@ -37,8 +39,8 @@ addUser_ubuntu ()
 {
     _userID="${1}"
     _userName="${2}"
-    _groupName="${3}"
-    adduser --uid ${_userID} --gid ${_groupName} --no-create-home --shel /bin/false --disabled-login --disabled-password --gecos "" ${_userName}
+    _groupID="${3}"
+    adduser --uid ${_userID} --gid ${_groupID} --no-create-home --shell /bin/false --disabled-login --disabled-password --gecos "" ${_userName}
 }
 
 addUser_centos ()
@@ -53,11 +55,12 @@ addUser ()
 {
     _userID="${1}"
     _userName="${2}"
-    _groupName="${3}"
+    _groupID="${3}"
+    _groupName="${4}"
     if  test -n "${_userID}" && test -n "${_userName}" && test -n "${_groupName}" ; then
-        type apk >/dev/null 2>/dev/null && addUser_alpine ${_userID} ${_userName} ${_groupName}
-        type yum >/dev/null 2>/dev/null && addUser_centos ${_userID} ${_userName} ${_groupName}
-        type apt >/dev/null 2>/dev/null && addUser_ubuntu ${_userID} ${_userName} ${_groupName}
+        isOS alpine && addUser_alpine ${_userID} ${_userName} ${_groupName}
+        isOS centos && addUser_centos ${_userID} ${_userName} ${_groupName}
+        isOS ubuntu && addUser_ubuntu ${_userID} ${_userName} ${_groupID}
     fi
 }
 
@@ -66,15 +69,17 @@ addGroup ()
     _groupID="${1}"
     _groupName="${2}"
     if test -n "${_groupID}" && test -n "${_groupName}" ; then
-        type apk >/dev/null 2>/dev/null && addGroup_alpine ${_groupID} ${_groupName}
-        type yum >/dev/null 2>/dev/null && addGroup_centos ${_groupID} ${_groupName}
-        type apt >/dev/null 2>/dev/null && addGroup_ubuntu ${_groupID} ${_groupName}
+        isOS alpine && addGroup_alpine ${_groupID} ${_groupName}
+        isOS centos && addGroup_centos ${_groupID} ${_groupName}
+        isOS ubuntu && addGroup_ubuntu ${_groupID} ${_groupName}
     fi
 }
 
 fixPermissions ()
 {
     chown -Rf ${PING_CONTAINER_UID}:${PING_CONTAINER_GID} /opt
+    touch /etc/motd
+    chown -f ${PING_CONTAINER_UID}:${PING_CONTAINER_GID} /etc/motd
     chmod -Rf go-rwx /opt
 }
 
@@ -102,7 +107,7 @@ if test ${_userID} -eq 0 ; then
 
         # if the effective user name is as requested, it means no existing user with that name exist, create it
         if test "${_effectiveUserName}" = "${PING_CONTAINER_UNAME}" ; then
-            addUser ${PING_CONTAINER_UID} ${_effectiveUserName} ${_effectiveGroupName}
+            addUser ${PING_CONTAINER_UID} ${_effectiveUserName} ${PING_CONTAINER_GID} ${_effectiveGroupName}
         fi
         # we step down from the root user to the requested user so we strip /opt of world rights
         fixPermissions

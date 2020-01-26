@@ -84,7 +84,7 @@ build_pingdownloader:
     - DOCKER_BUILDKIT=1 docker image build -t pingidentity/pingdownloader ./pingdownloader
     - docker tag "pingidentity/pingdownloader" "gcr.io/ping-identity/pingdownloader:edge"
     - docker push "gcr.io/ping-identity/pingdownloader:edge"
-    - ./ci_scripts/run_tests.sh pingdownloader
+    - ./ci_scripts/run_tests.sh pingdownloader alpine
   only:
     changes:
       - pingdownloader/**/*
@@ -175,7 +175,7 @@ build_ldap-sdk-tools:
 test_ldap-sdk-tools:
   stage: test
   script:
-    - ./ci_scripts/run_tests.sh ldap-sdk-tools
+    - ./ci_scripts/run_tests.sh ldap-sdk-tools alpine
   only:
     changes:
       - pingdownloader/**/*
