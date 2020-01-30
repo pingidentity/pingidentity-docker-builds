@@ -271,10 +271,10 @@ if test ${pullLicense} ; then
            productShortName="PA"
            ;;
         pingdatagovernance)
-           productShortName="PDG"
+           productShortName="PG"
            ;;
         pingdatagovernancepap)
-           productShortName="PDG"
+           productShortName="PG"
            ;;
         pingfederate)
            productShortName="PF"
