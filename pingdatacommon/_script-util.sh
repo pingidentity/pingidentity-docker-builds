@@ -232,10 +232,10 @@ set_environment_vars() {
     _osID=$( awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null ) 
     PROCESSES_OPTION=-u
     ulimit ${PROCESSES_OPTION} >/dev/null 2>&1
-    if test ${?} -ne 0 && test "${_osID}" = "ubuntu" ; then
+    if test ${?} -ne 0 && test "${_osID}" = "alpine" ; then
         ulimit -p >/dev/null 2>/dev/null
         if test ${?} -eq 0 ; then
-            # The ulimit option for the number of processes is -p on older Ubuntu.
+            # The ulimit option for the number of processes is -p on Alpine.
             PROCESSES_OPTION=-p
             # we only fall back on this because there is confusion with -p being used for pipe size normally
         fi
