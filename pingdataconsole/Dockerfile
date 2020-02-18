@@ -10,7 +10,7 @@
 
 FROM pingidentity/pingdownloader as staging
 ARG PRODUCT=pingdirectory
-ARG VERSION=7.3.0.3
+ARG VERSION=8.0.0.0
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 	&& unzip -d /tmp/ /tmp/product.zip PingDirectory/resource/admin-console.zip \
@@ -22,23 +22,31 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 # the final image 
 #
 FROM tomcat:8-jre8-alpine
+ENV ORIGINAL_ENTRYPOINT=""
+ENV GIT_PREFIX=SERVER_PROFILE
+ENV ORIGINAL_CMD="catalina.sh run"
 LABEL	maintainer=devops_program@pingidentity.com \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity PingDataConsole (Alpine/OpenJDK8) Image"
 EXPOSE 8443
-RUN apk --no-cache add curl ca-certificates \
+
+ENV VERBOSE=false
+ENV _DOLLAR_="$"
+RUN apk --no-cache --update add curl ca-certificates git \
     && rm -rf /usr/local/tomcat/webapps/* \
     && mkdir -p /usr/local/tomcat/webapps/ROOT \
     && mkdir -p /opt/in
 
-COPY --from=staging /opt/console /usr/local/tomcat/webapps/console
-COPY index.html /usr/local/tomcat/webapps/ROOT/
-COPY server.xml /usr/local/tomcat/conf/
-COPY keystore /opt/in/
+COPY --from=staging ["/opt/console","/usr/local/tomcat/webapps/console"]
+COPY ["index.html","/usr/local/tomcat/webapps/ROOT/"]
+COPY ["server.xml","/usr/local/tomcat/conf/"]
+COPY ["keystore","/opt/in/"]
+COPY ["giterized-entrypoint.sh","/"]
 COPY [ "liveness.sh", "/usr/local/bin/" ]
 HEALTHCHECK --interval=31s --timeout=30s --start-period=5s --retries=3 CMD [ "/usr/local/bin/liveness.sh" ]
-CMD ["catalina.sh","run"]
+# CMD ["catalina.sh","run"]
+ENTRYPOINT [ "/giterized-entrypoint.sh" ]
 
 #- ## Run
 #- To run a PingDataConsole container: 
