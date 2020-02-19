@@ -22,8 +22,9 @@ RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
 	&& unzip /tmp/product.zip -d /tmp/ \
 	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
 	&& mv /tmp/pingfederate-*/pingfederate /opt/server
-COPY [ "liveness.sh", "/opt/"]
-COPY [ "run.sh", "/opt/server/bin/run.sh" ]
+# COPY [ "liveness.sh", "/opt/" ]
+# COPY [ "run.sh", "/opt/server/bin/run.sh" ]
+COPY [ "/opt/", "/opt/"]
 
 #
 # The final image 
@@ -44,6 +45,8 @@ ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/server.log
 ENV PF_ENGINE_DEBUG=false
 ENV PF_ADMIN_DEBUG=false
 ENV PF_DEBUG_PORT=9030
+ENV PF_ADMIN_PORT=9999
+ENV PF_ENGINE_PORT=9031
 COPY --from=pingidentity/pingcommon /opt ${BASE}
 COPY --from=staging /opt ${BASE}
 RUN ./post-build.sh

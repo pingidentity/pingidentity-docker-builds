@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
-URL="https://localhost:9031/pf/heartbeat.ping"
-test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" && URL="https://localhost:9999/pingfederate/app"
+URL="https://localhost:${PF_ENGINE_PORT}/pf/heartbeat.ping"
+test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" && URL="https://localhost:${PF_ADMIN_PORT}/pingfederate/app"
 curl -ssk -o /dev/null "${URL}"
 if test ${?} -ne 0 ; then
     # the health check must return 0 for healthy, 1 otherwise

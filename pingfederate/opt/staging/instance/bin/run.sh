@@ -176,7 +176,7 @@ ERROR_FILE="-XX:ErrorFile=${PF_HOME_ESC}/log/java_error%p.log"
 
 ENDORSED_DIRS_FLAG=""
 if test "${JAVA_MAJOR_VERSION}" = "1" ; then
-    ENDORSED_DIRS_FLAG='-Djava.endorsed.dirs="$PF_ENDORSED_DIRS"'
+    ENDORSED_DIRS_FLAG="-Djava.endorsed.dirs=\"${PF_ENDORSED_DIRS}\""
 fi
 
 # Check for run.properties (used by PingFederate to configure ports, etc.)
