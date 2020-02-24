@@ -48,8 +48,8 @@ else
         _imageName=$(echo ${IMAGE_VERSION} | sed 's/-.*//')
 
 
-        cat ${_motdJsonFile} | jq -r ".devops | ${_jqExpr}" >> "${_motdFile}"
-        cat ${_motdJsonFile} | jq -r ".${_imageName} | ${_jqExpr}" >> "${_motdFile}"
+        cat ${_motdJsonFile} | jq -r "select (.devops != null) | .devops | ${_jqExpr}" >> "${_motdFile}"
+        cat ${_motdJsonFile} | jq -r "select (.${_imageName} != null) | .${_imageName} | ${_jqExpr}" >> "${_motdFile}"
     else
         echo_red "Unable to download MOTD from ${MOTD_URL}"
     fi
