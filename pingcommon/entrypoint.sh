@@ -65,6 +65,8 @@ if test -z "${1}" -o "$1" = "start-server" ; then
     # If there is no startup command provided, provide error message and exit.
     if test -z "${STARTUP_COMMAND}" ; then
         echo_red "*** NO CONTAINER STARTUP COMMAND PROVIDED ***"
+        echo_red "*** Please set the environment variable STARTUP_COMMAND with a command to run"
+        echo_red "*** Example: STARTUP_COMMAND=/opt/out/instance/bin/start-server"
         exit 90
     fi
 
