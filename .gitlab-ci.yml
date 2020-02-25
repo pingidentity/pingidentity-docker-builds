@@ -717,6 +717,74 @@ deploy_pingfederate:
   tags:
     - pingcommon
       
+build_pingtoolkit:
+  stage: build
+  script:
+    - ./ci_scripts/build_product.sh pingtoolkit alpine alpine
+  only:
+    changes:
+      - pingtoolkit/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  tags:
+    - pingcommon
+      
+
+test_pingtoolkit:
+  stage: test
+  script:
+    - ./ci_scripts/run_tests.sh pingtoolkit alpine
+  only:
+    changes:
+      - pingtoolkit/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  tags:
+    - pingcommon
+      
+
+deploy_pingtoolkit:
+  stage: deploy
+  script:
+    - ./ci_scripts/deploy_to_docker_hub.sh pingtoolkit
+    - ./ci_scripts/deploy_to_gcr.sh pingtoolkit
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - pingtoolkit/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  tags:
+    - pingcommon
+
 
 # pingdirectoryproxy:
 #   stage: build
