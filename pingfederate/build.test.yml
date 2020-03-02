@@ -2,7 +2,6 @@ version: "2"
 
 services:
   sut:
-    build: .
     image: pingidentity/pingfederate:${TAG}
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}

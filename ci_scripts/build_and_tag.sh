@@ -20,7 +20,7 @@ pull_and_tag_if_missing ()
     _destination="${1}"
     shift
 
-    if test -n "${_source}" -a -n "${_destination}" -a -z "$(docker image ls -q ${_destination} | sort | uniq )" ; then
+    if test -n "${_source}" -a -n "${_destination}" -a -z "$(docker image ls -q ${_source} | sort | uniq )" ; then
         docker pull "${_source}" || :
         if test -n "$(docker image ls -q ${_source})" ; then
             docker tag "${_source}" "${_destination}" || :

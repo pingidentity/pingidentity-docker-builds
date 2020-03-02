@@ -2,6 +2,5 @@ version: "2"
 
 services:
   sut:
-    build: .
     image: pingidentity/pingdownloader
     command: -p ldapsdk -v 4.0.9 --dry-run
