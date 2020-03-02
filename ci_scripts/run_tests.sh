@@ -30,7 +30,11 @@ fi
 for os in ${osList} ; do
     for version in ${versions} ; do      
         # test this version of this product
-        _tag="${version}${notVersionless:+-${os}}-edge${ciTag:+-${ciTag}}"
+        if test ${notVersionless} = "true"; then
+          _tag="${version}${notVersionless:+-${os}}-edge${ciTag:+-${ciTag}}"
+        else
+          _tag="${os}-${version}${ciTag:+-${ciTag}}"
+        fi
         pull_and_tag "${FOUNDATION_REGISTRY}/${product}:${_tag}" "pingidentity/${product}:${_tag}"
         if test "${product}" = "pingdatasync" ; then
             pull_and_tag "${FOUNDATION_REGISTRY}/pingdirectory:${_tag}" "pingidentity/pingdirectory:${_tag}"

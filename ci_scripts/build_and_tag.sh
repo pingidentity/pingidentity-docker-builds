@@ -6,7 +6,7 @@ image="pingidentity/${product}"
 gcr="gcr.io/ping-identity"
 gcrImage="gcr.io/ping-identity/${product}"
 #not implemented version
-docker image rm -f $(docker image ls "pingidentity/*")
+docker image rm -f $(docker image ls)
 # make sure have latest pingfoundation
 pull_and_tag(){
     docker pull "${1}"
