@@ -98,7 +98,7 @@ else
     # the ciTag and latest
     pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}" "pingidentity/pingcommon:${ciTag}" "pingidentity/pingcommon:latest"
     pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon:${ciTag}" "pingidentity/pingdatacommon:latest"
-    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}-latest"
+    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}-${ciTag}" "pingidentity/pingbase:${os}"
  
     # if the build has not triggered a foundation build, we use latest
     # note that if the commit triggered the foundation build then the 
@@ -106,7 +106,7 @@ else
     # and no action is taken below
     pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingcommon" "pingidentity/pingcommon:latest"
     pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingdatacommon" "pingidentity/pingdatacommon:latest"
-    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingbase:${os}" "pingidentity/pingbase:${os}-latest"
+    pull_and_tag_if_missing "${FOUNDATION_REGISTRY}/pingbase:${os}" "pingidentity/pingbase:${os}"
 fi
 
 #Start building product
