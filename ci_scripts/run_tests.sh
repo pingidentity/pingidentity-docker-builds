@@ -25,13 +25,13 @@ echo testing "${product}"
 versions="edge"
 if test  -f "${product}"/versions; then
   versions=$(grep -v "^#" "${product}"/versions)
-  notVersionless="false"
+  notVersionless="true"
 fi
 for os in ${osList} ; do
     for version in ${versions} ; do      
         # test this version of this product
         if test ${notVersionless} = "true"; then
-          _tag="${version}${notVersionless:+-${os}}-edge${ciTag:+-${ciTag}}"
+          _tag="${version}-${os}-edge${ciTag:+-${ciTag}}"
         else
           _tag="${os}-${version}${ciTag:+-${ciTag}}"
         fi
