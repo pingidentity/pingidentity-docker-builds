@@ -5,7 +5,11 @@
 #-
 #-
 
-FROM busybox
-RUN mkdir -p ${BASE}/staging/hooks
-COPY [ "post-build.sh", "bootstrap.sh", "entrypoint.sh", "wait-for", ".profile", "/opt/" ]
-COPY [ "hooks/", "/opt/staging/hooks/" ]
+FROM scratch
+COPY ["opt/","/opt/"]
+# RUN mkdir -p ${BASE}/staging/hooks
+# COPY [ "post-build.sh", "bootstrap.sh", "entrypoint.sh", "wait-for", ".profile", "/opt/" ]
+# COPY [ "hooks/", "/opt/staging/hooks/" ]
+
+# FROM scratch
+# COPY --from=staging ["/opt/","/opt/"]

@@ -18,15 +18,30 @@ RUN /get-bits.sh --product ldapsdk --version 4.0.14 \
 	&& mv /tmp/unboundid-ldapsdk-*/LICENSE* /opt/ \
 	&& mv /tmp/unboundid-ldapsdk-*/unboundid-ldapsdk.jar /opt/
 COPY wait-for /opt/tools/
-RUN rm -f /opt/tools/*.bat
 
-FROM openjdk:8-jre-alpine as ldapsdk
+FROM azul/zulu-openjdk-alpine:11 as jvm
+ENV JDK_HOME=/usr/lib/jvm/default-jvm 
+ENV JDK_MODULES=${JDK_HOME}/jmods/ 
+RUN ${JDK_HOME}/bin/jlink \
+    --compress=2 \
+    --no-header-files \
+    --no-man-pages \
+    --strip-debug \
+    --module-path ${JDK_MODULES} \
+    --add-modules java.base,java.logging,java.naming,java.security.sasl \
+    --output /opt/java
+
+# FROM openjdk:8-jre-alpine as ldapsdk
+FROM alpine
 LABEL	maintainer=devops_program@pingidentity.com \
 		license="GPLv2, LGPLv2.1, Ping Identity UnboundID LDAP SDK Free Use" \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity LDAP SDK Tools (Alpine/OpenJDK8) Image"
-COPY --from=staging /opt /opt
-ENV PATH=/opt/tools:${PATH}
+COPY --from=staging ["/opt","/opt"]
+COPY --from=jvm ["/opt/java","/opt/java"]
+
+ENV JAVA_HOME=/opt/java
+ENV PATH=/opt/tools:${JAVA_HOME}/bin:${PATH}
 WORKDIR /opt/tools
 VOLUME ["/opt/out"]
 

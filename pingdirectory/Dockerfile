@@ -10,31 +10,34 @@
 #- - pingidentity/pingdatacommon - Common PingData files (i.e. hook scripts)
 #- - pingidentity/pingdownloader - Used to download product bits
 #-
-ARG SHIM=alpine
+ARG PRODUCT
+ARG SHIM
+ARG SHIM_TAG
+ARG VERSION
+ARG JDK
 
-FROM pingidentity/pingdownloader as staging
-ARG PRODUCT=pingdirectory
-ARG VERSION=7.3.0.0
+FROM pingidentity/${PRODUCT}:staging-${VERSION} as product-staging
+FROM pingidentity/pingdatacommon as common
+FROM pingidentity/pingjvm:${JDK}_${SHIM_TAG} as jvm
 
-# copy your product zip file into the staging image
-RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
-    && unzip /tmp/product.zip -d /tmp/ \
-	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
-    && cd /tmp/PingDirectory \
-	&& rm -rf \
-		bin/start-ds \
-		bin/stop-ds \
-	    docs \
-	    uninstall \
-	    webapps \
-	    resource/*.zip \
-        lib/_script-util.sh \
-    && mv /tmp/PingDirectory /opt/server 
-COPY [ "liveness.sh", "/opt/" ]
-COPY [ "hooks/","/opt/staging/hooks/" ]
+FROM ${SHIM} as final-staging
+ENV SHIM=${SHIM}
+# get the product bits FIRST
+COPY --from=product-staging ["/opt/","/opt/"]
+# get Ping-wide common scripts
+#   this needs to happen after the bits have been laid down
+#   so they can be patched
+COPY --from=common ["/opt/","/opt/"]
+# get the jvm
+COPY --from=jvm ["/opt/java","/opt/java"]
 
+# apply product-specific hooks and patches
+COPY ["/opt","/opt"]
 
-FROM pingidentity/pingbase:${SHIM}
+# Run build
+RUN ["/opt/build.sh"]
+
+FROM pingidentity/pingbase:${SHIM_TAG}
 #-- PingIdentity license version
 ARG LICENSE_VERSION
 #-- Ping product name
@@ -89,8 +92,7 @@ ENV PD_PROFILE="${STAGING_DIR}/pd.profile"
 
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT} 5005
 
-COPY --from=pingidentity/pingdatacommon /opt ${BASE}
-COPY --from=staging /opt ${BASE}
+COPY --from=final-staging ["/","/"]
 
 #- ## Running a PingDirectory container
 #-
@@ -160,5 +162,3 @@ COPY --from=staging /opt ${BASE}
 #- ```
 #-   docker container rm -f pingdirectory
 #- ```
-
-RUN ./post-build.sh

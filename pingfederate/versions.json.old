@@ -1,0 +1,43 @@
+{
+    "versions":[
+        {   
+            "version": "10.0.1",
+            "latest": true,
+            "distributions":[
+                {
+                    "shim": "alpine",
+                    "preferred": true,
+                    "jdk": "11"
+                }
+            ]
+        },
+        {   
+            "version": "9.3.3",
+            "distributions":[
+                {
+                    "preferred": true,
+                    "shim": "alpine",
+                    "jdk": "11"
+                },
+                {
+                    "shim":"centos",
+                    "jdk": "11"
+                },
+                {
+                    "shim": "ubuntu:18.04",
+                    "jdk": "11"
+                }
+            ]
+        },
+        {
+            "version": "9.2.3",
+            "distributions":[
+                {
+                    "preferred": true,
+                    "shim": "alpine",
+                    "jdk": "8"
+                }
+            ]
+        }
+    ]
+}

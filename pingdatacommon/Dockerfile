@@ -9,7 +9,9 @@
 #-
 
 FROM pingidentity/pingcommon
-COPY [ "_script-util.sh", "/opt/server/lib/"  ]
-COPY [ "hooks/", "/opt/staging/hooks/" ]
+# COPY [ "_script-util.sh", "/opt/server/lib/"  ]
+# COPY [ "hooks/", "/opt/staging/hooks/" ]
+COPY [ "/opt/","/opt/"]
+# VOLUME [ "/opt" ]
 
 ONBUILD ENV PD_PROFILE="${STAGING_DIR}/pd.profile"

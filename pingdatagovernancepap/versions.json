@@ -1,0 +1,25 @@
+{
+    "versions":[
+        {   
+            "version": "8.0.0.0",
+            "latest": true,
+            "distributions":[
+                {
+                    "shim": "alpine",
+                    "preferred": true,
+                    "jdk": "11"
+                }
+            ]
+        },
+        {   
+            "version": "7.3.0.7",
+            "distributions":[
+                {
+                    "shim": "alpine",
+                    "preferred": true,
+                    "jdk": "11"
+                }
+            ]
+        }
+    ]
+}

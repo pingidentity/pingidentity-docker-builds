@@ -10,64 +10,15 @@
 #-
 #- ## Related Docker Images
 #- - `openjdk:8-jre-alpine` - Parent Image for `SHIM=alpine`
-#- - `centos` - Parent Image for `SHIM=cenots`
+#- - `centos` - Parent Image for `SHIM=centos`
 #- - `ubuntu:disco` - Parent Image for `SHIM=ubuntu`
 #-
-
-# Default to Alpine
 ARG SHIM=alpine
-#ARG SHIM=ubuntu:disco
-#ARG SHIM=centos
-
-#
-# Ubuntu disco OpenJDK11 shim
-#
-# FROM ubuntu:disco as shim-ubuntu
-# ONBUILD LABEL	name="Ping Identity (Ubuntu/OpenJDK11) Image"
-
-# ONBUILD RUN apt-get -y update \
-#         && apt-get -y  upgrade \
-#         && apt-get -y install apt-utils \
-#         && apt-get -y install openjdk-11-jdk curl gettext-base dnsutils git jq unzip openssh-client gnupg \
-#         && apt-get -y autoremove \
-#         && rm -rf /var/lib/apt/lists/* 
-
-
-#
-# Centos shim
-#
-# FROM centos as shim-centos
-# ONBUILD LABEL	name="Ping Identity (CentOS/OpenJDK11) Image"
-
-# ONBUILD RUN yum update -y \
-#         && yum upgrade -y \
-#         && yum -y install epel-release \
-#         && yum -y install java-11-openjdk-devel gettext bind-utils git jq unzip openssh-clients gnupg \
-#         && yum -y autoremove \
-#         && yum -y clean all \
-#         && rm -rf /var/cache/yum 
-        
-
-# #
-# # The good shim
-# # 
-# FROM openjdk:8-jre-alpine as shim-alpine
-# ONBUILD LABEL	name="Ping Identity (Alpine/OpenJDK8) Image" 
-        
-# ONBUILD RUN apk --no-cache --update add git curl ca-certificates jq zip gnupg libintl openssh-client\
-#     && apk add --virtual build_deps gettext \
-#     && cp /usr/bin/envsubst /usr/local/bin/envsubst \
-#     && apk del build_deps 
-
-# FROM ${SHIM} as shim
 FROM ${SHIM}
-
-# FROM shim
 LABEL	name="Ping Identity Docker Image (${SHIM})" \
         maintainer="devops_program@pingidentity.com" \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp."
-
 #-- Image version, set by build process of the docker build
 ONBUILD ARG IMAGE_VERSION="unspecified"
 ONBUILD ENV IMAGE_VERSION=${IMAGE_VERSION}
@@ -196,7 +147,6 @@ ONBUILD ENV PA_ADMIN_PUBLIC_HOSTNAME="localhost"
 #-- the default administrative user for PingData
 ONBUILD ENV ROOT_USER_DN="cn=administrator"
 
-ONBUILD ENV PATH="${BASE}:${SERVER_ROOT_DIR}/bin:${PATH}"
 
 ONBUILD ENV ENV="${BASE}/.profile"
 
@@ -232,8 +182,7 @@ ONBUILD ENV PING_CONTAINER_GNAME=identity
 
 ONBUILD ENV JAVA_HOME=/opt/java
 
-COPY build.sh /
-RUN /build.sh
+ONBUILD ENV PATH="${JAVA_HOME}/bin:${BASE}:${SERVER_ROOT_DIR}/bin:${PATH}"
 
 ### WARNING THE ENTRYPOINT WILL NEED TO BE UPDATED MANUALLY IF THE BASE IS CHANGED
 ### IT DOES NOT EXPAND VARIABLES -- REAL BUMMER

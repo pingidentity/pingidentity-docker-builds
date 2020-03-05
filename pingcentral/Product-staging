@@ -1,0 +1,12 @@
+FROM pingidentity/pingdownloader as staging
+ARG PRODUCT=pingcentral
+ARG VERSION=1.2.0
+
+# copy your product zip file into the staging image
+RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
+	&& unzip /tmp/product.zip -d /tmp/ \
+	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
+	&& mv /tmp/ping-central-* /opt/server
+
+FROM scratch
+COPY --from=staging ["/opt/","/opt/"]

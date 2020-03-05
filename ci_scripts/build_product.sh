@@ -1,27 +1,168 @@
 #!/usr/bin/env bash
-test -z "${1}" && exit 199
-productToBuild="${1}"
-shift
-defaultOS=${1:-alpine}
-shift
-OSList=${*}
 
-HERE=$(cd $(dirname "${0}");pwd)
-if test -n "${CI_COMMIT_REF_NAME}" ;then
-    . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
-else 
-    # shellcheck source=./ci_tools.lib.sh
-    . "${HERE}/ci_tools.lib.sh"
+#
+# Usage printing function
+#
+usage ()
+{
+cat <<END_USAGE
+Usage: ${0} {options}
+    where {options} include:
+    -d, --default-shim
+        The name of the shim that will be tagged as default
+    -p, --product
+        The name of the product for which to build a docker image
+    -s, --shim
+        the name of the operating system for which to build a docker image
+    -v, --version
+        the version of the product for which to build a docker image
+        this setting overrides the versions in the version file of the target product
+    --verbose-build
+        verbose docker build not using docker buildkit
+    --dry-run
+        does everything except actually call the docker command and prints it instead
+    --help
+        Display general usage information
+END_USAGE
+exit 99
+}
+
+DOCKER_BUILDKIT=1
+test -n "${VERBOSE}" && set -x
+while ! test -z "${1}" ; 
+do
+    case "${1}" in
+        -d|--default-shim)
+            shift
+            if test -z "${1}" ; then
+                echo "You must provide a default OS Shim"
+                usage
+            fi
+            defaultShim="${1}"
+            ;;
+        -p|--product)
+            shift
+            if test -z "${1}" ; then
+                echo "You must provide a product to build"
+                usage
+            fi
+            productToBuild="${1}"
+            ;;
+        -s|--shim)
+            shift
+            if test -z "${1}" ; then
+                echo "You must provide an OS Shim"
+                usage
+            fi
+            shimsToBuild="${shimsToBuild:+${shimsToBuild} }${1}"
+            ;;
+        -v|--version)
+            shift
+            if test -z "${1}" ; then
+                echo "You must provide a version to build"
+                usage
+            fi
+            versionsToBuild="${versionsToBuild:+${versionsToBuild} }${1}"
+            ;;
+        --no-build-kit)
+            DOCKER_BUILDKIT=0
+            noBuildKitArg="--no-build-kit"
+            ;;
+        --no-cache)
+            noCache="--no-cache"
+            ;;
+        --verbose-build)
+            progress="--progress plain"
+            verboseBuildArg="--verbose-build"
+            ;;
+        --dry-run)
+            dryRun="echo"
+            ;;
+        --help)
+            usage
+            ;;
+        *)
+            echo "Unrecognized option"
+            usage
+            ;;
+    esac
+    shift
+done
+
+if test -z "${productToBuild}" ; 
+then
+    echo "You must specify a product name to build, for example pingfederate or pingcentral"
+    usage
+fi
+
+if test -z "${CI_COMMIT_REF_NAME}" ;
+then
+    CI_PROJECT_DIR="$(cd $(dirname "${0}")/..;pwd)"
+fi
+CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
+# shellcheck source=./ci_tools.lib.sh
+. "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
+
+if test -z "${versionsToBuild}" ; 
+then
+  versionsToBuild=$( _getVersionsFor ${productToBuild} )
 fi
 
 exitCode=0
-for OSToBuild in ${OSList:-alpine centos ubuntu} ; do
-    "${HERE}/build_and_tag.sh" "${productToBuild}" "${OSToBuild}" "${defaultOS}" #"${versionsToBuild}"
-    exitCode=${?}
-    if test ${exitCode} -ne 0 ; then
-        echo "Build break for ${productToBuild} on ${OSToBuild}"
-        break
+for _version in ${versionsToBuild} ; 
+do
+    # if the default shim has been provided as an argument, get it from the versions file
+    if test -z "${defaultShim}" ; 
+    then 
+        _defaultShim=$( _getDefaultShimFor ${productToBuild} ${_version} )
+    else
+        _defaultShim="${defaultShim}"
     fi
+
+    # if the list of shims was not provided as agruments, get the list from the versions file
+    if test -z "${shimsToBuild}" ; 
+    then 
+        _shimsToBuild=$( _getShimsFor ${productToBuild} ${_version} ) 
+    else
+        _shimsToBuild=${shimsToBuild}
+    fi
+
+    if test -f "${productToBuild}/Product-staging" ;
+    then
+        # build the staging for each product so we don't need to download and stage the product each time
+        DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build \
+            -f ${productToBuild}/Product-staging \
+            -t "pingidentity/${productToBuild}:staging-${_version}" \
+            ${progress} ${noCache} \
+            --build-arg VERSION="${_version}" \
+            --build-arg PRODUCT="${productToBuild}" \
+            "${productToBuild}"
+        exitCode=${?}
+        if test ${exitCode} -ne 0 ; 
+        then
+            banner "Build break for ${productToBuild} staging for version ${_version}"
+            exit ${exitCode}
+        fi
+    fi
+    
+    # iterate over the shims (default to alpine)
+    for _shim in ${_shimsToBuild:-alpine} ; 
+    do
+        "${CI_SCRIPTS_DIR}/build_and_tag.sh" \
+            --product "${productToBuild}" \
+            --shim "${_shim}" \
+            --default-shim ${_defaultShim:-alpine} \
+            --version ${_version} \
+            ${dryRun:+--dry-run} ${noCache} ${noBuildKitArg} ${verboseBuildArg}
+        exitCode=${?}
+        if test ${exitCode} -ne 0 ; 
+        then
+            banner "Build break for ${productToBuild} on ${_shim} for version ${_version}"
+            exit ${exitCode}
+        fi
+    done
+    _defaultShim=""
+    _shimsToBuild=""
 done
 
 exit ${exitCode}

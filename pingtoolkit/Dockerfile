@@ -10,24 +10,38 @@
 #- 	>**This image inherits, and can use, Environment Variables from [pingidentity/pingbase](https://pingidentity-devops.gitbook.io/devops/docker-images/pingbase)**
 #- - pingidentity/pingcommon - Common Ping files (i.e. hook scripts)
 #-
+ARG PRODUCT
+ARG SHIM
+ARG SHIM_TAG
+ARG VERSION
+ARG JDK
 
-ARG SHIM=alpine
+FROM pingidentity/pingcommon as common
+FROM pingidentity/pingjvm:${JDK}_${SHIM_TAG} as jvm
+
+FROM ${SHIM} as final-staging
+ENV SHIM=${SHIM}
+
+# get Ping-wide common scripts
+#   this needs to happen after the bits have been laid down
+#   so they can be patched
+COPY --from=common ["/opt/","/opt/"]
+
+# get the jvm
+COPY --from=jvm ["/opt/java","/opt/java"]
+
+# apply product-specific hooks and patches
+COPY ["/opt","/opt"]
+
+# Run build
+RUN ["/opt/build.sh"]
 
 #
 # The final image 
 #
 # FROM pingidentity/pingbase:shim-${SHIM}
-FROM pingidentity/pingbase:${SHIM}
-
+FROM pingidentity/pingbase:${SHIM_TAG}
 ENV PING_PRODUCT="PingToolkit"
-
 ENV STARTUP_COMMAND="tail"
 ENV STARTUP_FOREGROUND_OPTS="-f /dev/null"
-
-COPY --from=pingidentity/pingcommon /opt ${BASE}
-
-RUN mkdir -p "/opt/server"
-COPY [ "liveness.sh", "/opt/"]
-COPY [ "hooks/","/opt/staging/hooks/" ]
-
-RUN ./post-build.sh
+COPY --from=final-staging ["/","/"]
