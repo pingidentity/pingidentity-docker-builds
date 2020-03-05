@@ -9,35 +9,40 @@
 #- - pingidentity/pingdatacommon - Common PingData files (i.e. hook scripts)
 #- - pingidentity/pingdownloader - Used to download product bits
 #-
+ARG PRODUCT
+ARG SHIM
+ARG SHIM_TAG
+ARG VERSION
+ARG JDK
 
-ARG SHIM=alpine
+FROM pingidentity/${PRODUCT}:staging-${VERSION} as product-staging
+FROM pingidentity/pingdatacommon as common
+FROM pingidentity/pingjvm:${JDK}_${SHIM_TAG} as jvm
 
-FROM pingidentity/pingdownloader as staging
-ARG PRODUCT=pingdatasync
-ARG VERSION=7.3.0.3
+FROM ${SHIM} as final-staging
+ENV SHIM=${SHIM}
 
-# copy your product zip file into the staging image
-RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
-    && unzip /tmp/product.zip -d /tmp/ \
-	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
-    && cd /tmp/PingDataSync && \
-	rm -rf \
-		bin/start-sync-server \
-		bin/stop-sync-server \
-	    docs \
-	    bat \
-	    uninstall \
-	    webapps \
-	    resource/*.zip \
-	&& mv /tmp/PingDataSync /opt/server 
-COPY [ "liveness.sh", "/opt/" ]
-COPY [ "hooks/", "/opt/staging/hooks/" ]
-COPY [ "build.test.sh", "/opt/tests/" ]
+# get the product bits FIRST
+COPY --from=product-staging ["/opt/","/opt/"]
+
+# get Ping-wide common scripts
+#   this needs to happen after the bits have been laid down
+#   so they can be patched
+COPY --from=common ["/opt/","/opt/"]
+
+# get the jvm
+COPY --from=jvm ["/opt/java","/opt/java"]
+
+# apply product-specific hooks and patches
+COPY ["/opt","/opt"]
+
+# Run build
+RUN ["/opt/build.sh"]
 
 #
 # The final image
 #
-FROM pingidentity/pingbase:${SHIM}
+FROM pingidentity/pingbase:${SHIM_TAG}
 #-- PingIdentity license version
 ARG LICENSE_VERSION
 
@@ -53,8 +58,7 @@ ENV PD_PROFILE="${STAGING_DIR}/pd.profile"
 
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT}
 
-COPY --from=pingidentity/pingdatacommon "/opt" "${BASE}"
-COPY --from=staging "/opt" "${BASE}"
+COPY --from=final-staging ["/","/"]
 
 #- ## Running a PingDataSync container
 #- ```
@@ -67,4 +71,3 @@ COPY --from=staging "/opt" "${BASE}"
 #-            --env SERVER_PROFILE_PATH=simple-sync/pingdatasync \
 #-            pingidentity/pingdatasync
 #- ```
-RUN ./post-build.sh

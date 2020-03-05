@@ -11,26 +11,40 @@
 #- - `pingidentity/pingdownloader` - Used to download product bits
 #-
 # Default to Alpine
-ARG SHIM=alpine
+ARG PRODUCT
+ARG SHIM
+ARG SHIM_TAG
+ARG VERSION
+ARG JDK
 
-FROM pingidentity/pingdownloader as staging
-# place the software being delivered in a conspicuous, unix-correct location
-ARG PRODUCT=pingaccess
-ARG VERSION=5.2.0
+FROM pingidentity/${PRODUCT}:staging-${VERSION} as product-staging
+FROM pingidentity/pingcommon as common
+FROM pingidentity/pingjvm:${JDK}_${SHIM_TAG} as jvm
 
-# copy your product zip file into the staging image
-RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
-	&& unzip /tmp/product.zip -d /tmp/ \
-	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
-	&& mv /tmp/pingaccess-* /opt/server
-COPY [ "run.sh", "/opt/server/bin/run.sh" ]
-COPY [ "liveness.sh", "/opt/" ]
-COPY [ "hooks/","/opt/staging/hooks/" ]
+FROM ${SHIM} as final-staging
+ENV SHIM=${SHIM}
+
+# get the product bits FIRST
+COPY --from=product-staging ["/opt/","/opt/"]
+
+# get Ping-wide common scripts
+#   this needs to happen after the bits have been laid down
+#   so they can be patched
+COPY --from=common ["/opt/","/opt/"]
+
+# get the jvm
+COPY --from=jvm ["/opt/java","/opt/java"]
+
+# apply product-specific hooks and patches
+COPY ["/opt","/opt"]
+
+# Run build
+RUN ["/opt/build.sh"]
 
 #
 # the final image 
 #
-FROM pingidentity/pingbase:${SHIM}
+FROM pingidentity/pingbase:${SHIM_TAG}
 # pingaccess comes ootb listening on 3000 but it is more natural for https traffic to be listened for on 443
 EXPOSE 9000 3000 ${HTTPS_PORT}
 ENV PING_PRODUCT="PingAccess"
@@ -41,8 +55,7 @@ ENV LICENSE_VERSION=5.2
 ENV INITIAL_ADMIN_PASSWORD="${INITIAL_ADMIN_PASSWORD:-2FederateM0re}"
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/pingaccess.log
-COPY --from=pingidentity/pingcommon "/opt" "${BASE}"
-COPY --from=staging "/opt" "${BASE}"
+COPY --from=final-staging ["/","/"]
 
 #- ## Running a PingDirectory container
 #- To run a PingAccess container: 
@@ -69,5 +82,3 @@ COPY --from=staging "/opt" "${BASE}"
 #- * https://localhost:9000
 #-   * Username: Administrator
 #-   * Password: 2FederateM0re
-
-RUN ./post-build.sh

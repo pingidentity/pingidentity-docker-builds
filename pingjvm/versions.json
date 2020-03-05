@@ -1,0 +1,24 @@
+{
+    "versions":[
+        {
+            "shims": ["alpine","alpine:latest","alpine:3.11","alpine:3.10"],
+            "version": "11",
+            "from": "azul/zulu-openjdk-alpine:11"
+        },
+        {
+            "shims": ["alpine"],
+            "version": "8",
+            "from": "azul/zulu-openjdk-alpine:8-jre"
+        },
+        {
+            "shims": ["centos","centos:latest","centos:7.5.1804","centos:7.6","centos:8"],
+            "version": "11",
+            "from": "openjdk:11-jre-slim"
+        },
+        {
+            "shims": ["ubuntu","ubuntu:latest","ubuntu:18.04"],
+            "version": "11",
+            "from": "adoptopenjdk:11-jre-hotspot"
+        }
+    ]
+}

@@ -9,24 +9,40 @@
 #- - pingidentity/pingcommon - Common Ping files (i.e. hook scripts)
 #- - pingidentity/pingdownloader - Used to download product bits
 #-
+ARG PRODUCT
+ARG SHIM
+ARG SHIM_TAG
+ARG VERSION
+ARG JDK
 
-ARG SHIM=centos
+FROM pingidentity/${PRODUCT}:staging-${VERSION} as product-staging
+FROM pingidentity/pingcommon as common
+FROM pingidentity/pingjvm:${JDK}_${SHIM_TAG} as jvm
 
-FROM pingidentity/pingdownloader as staging
-ARG PRODUCT=pingcentral
-ARG VERSION=1.2.0
+FROM ${SHIM} as final-staging
+ENV SHIM=${SHIM}
 
-# copy your product zip file into the staging image
-RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
-	&& unzip /tmp/product.zip -d /tmp/ \
-	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
-	&& mv /tmp/ping-central-* /opt/server
-COPY [ "liveness.sh", "/opt/"]
+# get the product bits FIRST
+COPY --from=product-staging ["/opt/","/opt/"]
+
+# get Ping-wide common scripts
+#   this needs to happen after the bits have been laid down
+#   so they can be patched
+COPY --from=common ["/opt/","/opt/"]
+
+# get the jvm
+COPY --from=jvm ["/opt/java","/opt/java"]
+
+# apply product-specific hooks and patches
+COPY ["/opt","/opt"]
+
+# Run build
+RUN ["/opt/build.sh"]
 
 #
 # The final image 
 #
-FROM pingidentity/pingbase:${SHIM}
+FROM pingidentity/pingbase:${SHIM_TAG}
 ARG LICENSE_VERSION
 EXPOSE 9022
 ENV PING_CENTRAL_SERVER_PORT=9022
@@ -39,8 +55,7 @@ ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/application.log
 ENV PING_CENTRAL_LOG_LEVEL="INFO"
 ENV PING_CENTRAL_BLIND_TRUST=false
-COPY --from=pingidentity/pingcommon /opt ${BASE}
-COPY --from=staging /opt ${BASE}
+COPY --from=final-staging ["/","/"]
 
 #- ## Running a PingCentral container
 #- To run a PingCentral container with your devops configuration file:
@@ -81,5 +96,3 @@ COPY --from=staging /opt ${BASE}
 #- * https://localhost:9022/
 #-   * Username: Administrator
 #-   * Password: 2Federate
-
-RUN ./post-build.sh

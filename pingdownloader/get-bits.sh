@@ -35,6 +35,8 @@ For product downloads:
                                      rename the file product.zip
     -n, --dry-run:                   This will cause the URL to be displayed 
                                      but the the bits not to be downloaded
+    --verify-gpg-signature           Verify the GPG signature. The bits are removed in
+                                     the event verification fails
 
 
 For license downloads:
@@ -69,6 +71,28 @@ Example:
 
 END_USAGE2
 	exit 77
+}
+
+FONT_RED='\033[0;31m'
+FONT_GREEN='\033[0;32m'
+FONT_NORMAL='\033[0m'
+CHAR_CHECKMARK='\xE2\x9C\x94'
+CHAR_CROSSMARK='\xE2\x9D\x8C'
+
+################################################################################
+# Echo message in red color
+################################################################################
+echo_red()
+{
+    echo -e "${FONT_RED}$*${FONT_NORMAL}"
+}
+
+################################################################################
+# Echo message in green color
+################################################################################
+echo_green()
+{
+    echo -e "${FONT_GREEN}$*${FONT_NORMAL}"
 }
 
 ##########################################################################################
@@ -159,6 +183,16 @@ getProductLicenseFile ()
     # test "${licenseFile}" = "null" && usage "Unable to determine license file for ${product}"
 }
 
+getGPGKeyServer ()
+{
+    jq -r ".gpg.server" ${outputProps}
+}
+
+getGPGKeyID ()
+{
+    jq -r ".gpg.key" ${outputProps}
+}
+
 saveOutcome ()
 {
     mv ${output} download-outcome.html
@@ -167,6 +201,68 @@ saveOutcome ()
 cleanup ()
 {
     test -z "${dryRun}" && rm -f ${outputProps}
+}
+
+download_and_verify ()
+{
+	export GNUPGHOME="$(mktemp -d)" 
+    TMP_VS="$( mktemp -d )"
+    PAYLOAD="${TMP_VS}/payload" 
+    SIGNATURE="${TMP_VS}/signature" 
+    OBJECT="${1}"
+    KEY_SERVER="${2}"
+    KEY_ID="${3}"
+    DESTINATION="${4}"
+    echo "disable-ipv6" >> "${GNUPGHOME}/dirmngr.conf"
+    curl -sSLo "${PAYLOAD}" --connect-timeout 2 --retry 6 --retry-max-time 30 --retry-connrefused --retry-delay 3 "${OBJECT}"
+    _returnCode=${?}
+    if test ${_returnCode} -ne 0 ;
+    then
+        echo_red "Downloading the payload failed"
+        return ${_returnCode}
+    fi
+    curl -sSLo "${SIGNATURE}"  --connect-timeout 2 --retry 6 --retry-max-time 30 --retry-connrefused --retry-delay 3 "${OBJECT}.asc"
+    _returnCode=${?}
+    if test ${_returnCode} -ne 0 ;
+    then
+        echo_red "Downloading the payload signature failed"
+        return ${_returnCode}
+    fi
+    #
+    # the gpg cli does not natively support retries, forcing us to 
+    # manually implement retries to fetch the signature from the 
+    # GPG public key server
+    #
+    _retries=4
+    while test ${_retries} -gt 0 ;
+    do
+        gpg --batch --keyserver ${KEY_SERVER} --recv-keys ${KEY_ID}
+        _returnCode=${?}
+        if test ${_returnCode} -eq 0 ;
+        then
+            _retries=${_returnCode}
+        else
+            _retries=$(( _retries - 1 ))
+        fi
+    done
+    if test ${_returnCode} -ne 0 ;
+    then
+        echo_red "Obtaining the public key to verify the payload signature failed"
+        return ${_returnCode}
+    fi
+    
+    gpg --batch --verify "${SIGNATURE}" "${PAYLOAD}"
+    _returnCode=${?}
+    if test ${_returnCode} -eq 0 ;
+    then
+        echo_green "The payload signature was successfully verified."
+        mv "${PAYLOAD}" "${DESTINATION}"
+    else
+        echo_red "The payload signature verification failed."
+        rm "${PAYLOAD}"
+    fi
+	gpgconf --kill all 
+    return ${_returnCode}
 }
 
 product=""
@@ -230,6 +326,9 @@ while ! test -z "${1}" ; do
 			version="${1}"
             licenseVersion=$( echo ${version} | cut -d. -f1,2 )
 			;;
+        --verify-gpg-signature)
+            verifyGPGSignature=true
+            ;;
 		*)
 			usage
 			;;
@@ -346,8 +445,15 @@ else
     if test -n "${dryRun}" ; then
         echo curl -kL -w '%{http_code}' -o "${output}" "${url}"
     else
-        curlResult=$( curl -kL -w '%{http_code}' -o "${output}" "${url}" )
-        test ${curlResult} -ne 200 && echo "Unable to download ${prodFile}" && saveOutcome && cleanup && exit 1
+        if test -n "${verifyGPGSignature}" ; 
+        then
+            server=$(getGPGKeyServer)
+            key=$(getGPGKeyID)
+            download_and_verify "${url}" "${server}" "${key}" "${output}"
+        else
+            curlResult=$( curl -kL -w '%{http_code}' -o "${output}" "${url}" )
+            test ${curlResult} -ne 200 && echo "Unable to download ${prodFile}" && saveOutcome && cleanup && exit 1
+        fi
     fi
 fi
 

@@ -2,12 +2,10 @@ stages:
   - ci_setup
   - build_foundation
   - build
-  - test
+  - smoke_test
+  - integration_test
   - deploy
   - cleanup
-
-## TODO: after getting multiple runners to work. add tags to product jobs. 
-# to minimize downloading. 
 
 env_setup:
   stage: ci_setup
@@ -18,7 +16,7 @@ env_setup:
     - docker info
     - docker-compose version
     - git --version
-    - ./ci_scripts/if_readme_only.sh 
+    - ci_scripts/if_readme_only.sh 
     - gcloud --version
   except:
     variables:
@@ -27,7 +25,7 @@ env_setup:
 refresh_external_images:
   stage: ci_setup
   script:
-    - ./ci_scripts/docker-cleanup.sh full
+    - ci_scripts/docker-cleanup.sh full
   only:
     refs:
       - schedules
@@ -39,7 +37,7 @@ refresh_external_images:
 build_pingfoundation:
   stage: build_foundation
   script:
-    - ./ci_scripts/build_foundation.sh
+    - ci_scripts/build_foundation.sh --no-cache
   only:
     changes:
       - pingbase/**/*
@@ -58,7 +56,7 @@ build_pingfoundation:
 deploy_pingfoundation:
   stage: deploy
   script:
-    - ./ci_scripts/deploy_foundation.sh
+    - ci_scripts/deploy_foundation.sh
   only:
     refs:
       - master
@@ -84,7 +82,7 @@ build_pingdownloader:
     - DOCKER_BUILDKIT=1 docker image build -t pingidentity/pingdownloader ./pingdownloader
     - docker tag "pingidentity/pingdownloader" "gcr.io/ping-identity/pingdownloader:edge"
     - docker push "gcr.io/ping-identity/pingdownloader:edge"
-    - ./ci_scripts/run_tests.sh pingdownloader alpine
+    - ci_scripts/run_tests.sh -p pingdownloader -s alpine
   only:
     changes:
       - pingdownloader/**/*
@@ -119,7 +117,7 @@ deploy_pingdownloader:
 build_apache-jmeter:
   stage: build
   script:
-    - ./ci_scripts/build_and_tag.sh apache-jmeter
+    - ci_scripts/build_and_tag.sh -p apache-jmeter
   only:
     changes:
       - apache-jmeter/**/*
@@ -135,8 +133,8 @@ build_apache-jmeter:
 deploy_apache-jmeter:
   stage: deploy
   script:
-    - ./ci_scripts/deploy_to_docker_hub.sh apache-jmeter
-    - ./ci_scripts/deploy_to_gcr.sh apache-jmeter
+    - ci_scripts/deploy_to_docker_hub.sh apache-jmeter
+    - ci_scripts/deploy_to_gcr.sh apache-jmeter
   only:
     refs:
       - master
@@ -157,7 +155,7 @@ deploy_apache-jmeter:
 build_ldap-sdk-tools:
   stage: build
   script:
-    - ./ci_scripts/build_and_tag.sh ldap-sdk-tools
+    - ci_scripts/build_and_tag.sh -p ldap-sdk-tools
   only:
     changes:
       - pingdownloader/**/*
@@ -173,9 +171,9 @@ build_ldap-sdk-tools:
       
 
 test_ldap-sdk-tools:
-  stage: test
+  stage: smoke_test
   script:
-    - ./ci_scripts/run_tests.sh ldap-sdk-tools alpine
+    - ci_scripts/run_tests.sh -p ldap-sdk-tools -s alpine
   only:
     changes:
       - pingdownloader/**/*
@@ -193,8 +191,8 @@ test_ldap-sdk-tools:
 deploy_ldap-sdk-tools:
   stage: deploy
   script:
-    - ./ci_scripts/deploy_to_docker_hub.sh ldap-sdk-tools
-    - ./ci_scripts/deploy_to_gcr.sh ldap-sdk-tools
+    - ci_scripts/deploy_to_docker_hub.sh ldap-sdk-tools
+    - ci_scripts/deploy_to_gcr.sh ldap-sdk-tools
   only:
     refs:
       - master
@@ -215,7 +213,7 @@ deploy_ldap-sdk-tools:
 build_pingaccess:
   stage: build
   script:
-    - ci_scripts/build_product.sh pingaccess
+    - ci_scripts/build_product.sh -p pingaccess
   only:
     changes:
       - pingaccess/**/*
@@ -235,9 +233,9 @@ build_pingaccess:
       
 
 test_pingaccess:
-  stage: test
+  stage: smoke_test
   script:
-    - ./ci_scripts/run_tests.sh pingaccess
+    - ci_scripts/run_tests.sh -p pingaccess
   only:
     changes:
       - pingaccess/**/*
@@ -259,8 +257,8 @@ test_pingaccess:
 deploy_pingaccess:
   stage: deploy
   script:
-    - ./ci_scripts/deploy_to_docker_hub.sh pingaccess
-    - ./ci_scripts/deploy_to_gcr.sh pingaccess
+    - ci_scripts/deploy_to_docker_hub.sh pingaccess
+    - ci_scripts/deploy_to_gcr.sh pingaccess
   only:
     refs:
       - master
@@ -286,7 +284,7 @@ deploy_pingaccess:
 build_pingcentral:
   stage: build
   script:
-    - ci_scripts/build_product.sh pingcentral centos centos
+    - ci_scripts/build_product.sh --product pingcentral --shim centos --default-shim centos
   only:
     changes:
       - pingcentral/**/*
@@ -306,9 +304,9 @@ build_pingcentral:
       
 
 test_pingcentral:
-  stage: test
+  stage: smoke_test
   script:
-    - ./ci_scripts/run_tests.sh pingcentral centos
+    - ci_scripts/run_tests.sh -p pingcentral 
   only:
     changes:
       - pingcentral/**/*
@@ -330,8 +328,8 @@ test_pingcentral:
 deploy_pingcentral:
   stage: deploy
   script:
-    - ./ci_scripts/deploy_to_docker_hub.sh pingcentral
-    - ./ci_scripts/deploy_to_gcr.sh pingcentral
+    - ci_scripts/deploy_to_docker_hub.sh pingcentral
+    - ci_scripts/deploy_to_gcr.sh pingcentral
   only:
     refs:
       - master
@@ -355,7 +353,7 @@ deploy_pingcentral:
 build_pingdirectory:
   stage: build
   script:
-    - ./ci_scripts/build_product.sh pingdirectory
+    - ci_scripts/build_product.sh -p pingdirectory
   only:
     changes:
       - pingdirectory/**/*
@@ -376,9 +374,9 @@ build_pingdirectory:
       
 
 test_pingdirectory:
-  stage: test
+  stage: smoke_test
   script:
-    - ./ci_scripts/run_tests.sh pingdirectory
+    - ci_scripts/run_tests.sh -p pingdirectory
   only:
     changes:
       - pingdirectory/**/*
@@ -401,8 +399,8 @@ test_pingdirectory:
 deploy_pingdirectory:
   stage: deploy
   script:
-    - ./ci_scripts/deploy_to_docker_hub.sh pingdirectory
-    - ./ci_scripts/deploy_to_gcr.sh pingdirectory
+    - ci_scripts/deploy_to_docker_hub.sh pingdirectory
+    - ci_scripts/deploy_to_gcr.sh pingdirectory
   only:
     refs:
       - master
@@ -427,7 +425,7 @@ deploy_pingdirectory:
 build_pingdataconsole:
   stage: build
   script:
-    - ./ci_scripts/build_and_tag.sh pingdataconsole
+    - ci_scripts/build_and_tag.sh -p pingdataconsole
   only:
     changes:
       - pingdataconsole/**/*
@@ -444,8 +442,8 @@ build_pingdataconsole:
 deploy_pingdataconsole:
   stage: deploy
   script:
-    - ./ci_scripts/deploy_to_docker_hub.sh pingdataconsole
-    - ./ci_scripts/deploy_to_gcr.sh pingdataconsole
+    - ci_scripts/deploy_to_docker_hub.sh pingdataconsole
+    - ci_scripts/deploy_to_gcr.sh pingdataconsole
   only:
     refs:
       - master
@@ -465,7 +463,7 @@ deploy_pingdataconsole:
 build_pingdatasync:
   stage: build
   script:
-    - ./ci_scripts/build_product.sh pingdatasync
+    - ci_scripts/build_product.sh -p pingdatasync
   only:
     changes:
       - pingdatasync/**/*
@@ -486,9 +484,9 @@ build_pingdatasync:
       
 
 test_pingdatasync:
-  stage: test
+  stage: smoke_test
   script:
-    - ./ci_scripts/run_tests.sh pingdatasync
+    - ci_scripts/run_tests.sh -p pingdatasync
   only:
     changes:
       - pingdatasync/**/*
@@ -511,8 +509,8 @@ test_pingdatasync:
 deploy_pingdatasync:
   stage: deploy
   script:
-    - ./ci_scripts/deploy_to_docker_hub.sh pingdatasync
-    - ./ci_scripts/deploy_to_gcr.sh pingdatasync
+    - ci_scripts/deploy_to_docker_hub.sh pingdatasync
+    - ci_scripts/deploy_to_gcr.sh pingdatasync
   only:
     refs:
       - master
@@ -536,7 +534,7 @@ deploy_pingdatasync:
 build_pingdatagovernance:
   stage: build
   script:
-    - ./ci_scripts/build_product.sh pingdatagovernance
+    - ci_scripts/build_product.sh -p pingdatagovernance
   only:
     changes:
       - pingdatagovernance/**/*
@@ -558,7 +556,7 @@ build_pingdatagovernance:
 build_pingdatagovernancepap:
   stage: build
   script:
-    - ./ci_scripts/build_product.sh pingdatagovernancepap
+    - ci_scripts/build_product.sh -p pingdatagovernancepap
   only:
     changes:
       - pingdatagovernancepap/**/*
@@ -579,9 +577,9 @@ build_pingdatagovernancepap:
       
 
 # test_pingdatagovernance:
-#   stage: test
+#   stage: smoke_test
 #   script:
-#     - ./ci_scripts/run_tests.sh pingdatagovernance
+#     - ci_scripts/run_tests.sh pingdatagovernance
 #   only:
 #     changes:
 #       - pingdatagovernance/**/*
@@ -600,8 +598,8 @@ build_pingdatagovernancepap:
 deploy_pingdatagovernance:
   stage: deploy
   script:
-    - ./ci_scripts/deploy_to_docker_hub.sh pingdatagovernance
-    - ./ci_scripts/deploy_to_gcr.sh pingdatagovernance
+    - ci_scripts/deploy_to_docker_hub.sh pingdatagovernance
+    - ci_scripts/deploy_to_gcr.sh pingdatagovernance
   only:
     refs:
       - master
@@ -626,8 +624,8 @@ deploy_pingdatagovernance:
 deploy_pingdatagovernancepap:
   stage: deploy
   script:
-    - ./ci_scripts/deploy_to_docker_hub.sh pingdatagovernancepap
-    - ./ci_scripts/deploy_to_gcr.sh pingdatagovernancepap
+    - ci_scripts/deploy_to_docker_hub.sh pingdatagovernancepap
+    - ci_scripts/deploy_to_gcr.sh pingdatagovernancepap
   only:
     refs:
       - master
@@ -652,7 +650,7 @@ deploy_pingdatagovernancepap:
 build_pingfederate:
   stage: build
   script:
-    - ./ci_scripts/build_product.sh pingfederate
+    - ci_scripts/build_product.sh -p pingfederate
   only:
     changes:
       - pingfederate/**/*
@@ -670,11 +668,10 @@ build_pingfederate:
   tags:
     - pingcommon
       
-
 test_pingfederate:
-  stage: test
+  stage: smoke_test
   script:
-    - ./ci_scripts/run_tests.sh pingfederate
+    - ci_scripts/run_tests.sh -p pingfederate
   only:
     changes:
       - pingfederate/**/*
@@ -691,13 +688,12 @@ test_pingfederate:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
     - pingcommon
-      
 
 deploy_pingfederate:
   stage: deploy
   script:
-    - ./ci_scripts/deploy_to_docker_hub.sh pingfederate
-    - ./ci_scripts/deploy_to_gcr.sh pingfederate
+    - ci_scripts/deploy_to_docker_hub.sh pingfederate
+    - ci_scripts/deploy_to_gcr.sh pingfederate
   only:
     refs:
       - master
@@ -720,7 +716,7 @@ deploy_pingfederate:
 build_pingtoolkit:
   stage: build
   script:
-    - ./ci_scripts/build_product.sh pingtoolkit alpine alpine
+    - ci_scripts/build_product.sh -p pingtoolkit -s alpine -d alpine
   only:
     changes:
       - pingtoolkit/**/*
@@ -737,12 +733,12 @@ build_pingtoolkit:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
     - pingcommon
-      
+
 
 test_pingtoolkit:
-  stage: test
+  stage: smoke_test
   script:
-    - ./ci_scripts/run_tests.sh pingtoolkit alpine
+    - ./ci_scripts/run_tests.sh -p pingtoolkit -s alpine
   only:
     changes:
       - pingtoolkit/**/*
@@ -759,13 +755,12 @@ test_pingtoolkit:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
   tags:
     - pingcommon
-      
 
 deploy_pingtoolkit:
   stage: deploy
   script:
-    - ./ci_scripts/deploy_to_docker_hub.sh pingtoolkit
-    - ./ci_scripts/deploy_to_gcr.sh pingtoolkit
+    - ci_scripts/deploy_to_docker_hub.sh pingtoolkit
+    - ci_scripts/deploy_to_gcr.sh pingtoolkit
   only:
     refs:
       - master
@@ -785,6 +780,27 @@ deploy_pingtoolkit:
   tags:
     - pingcommon
 
+      
+simple_stack:
+  stage: integration_test
+  script:
+    - integration_tests/run.sh
+  only:
+    changes:
+      - integration_tests/**/*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingfederate/**/*
+      - pingdirectory/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
 
 # pingdirectoryproxy:
 #   stage: build
@@ -831,8 +847,8 @@ push_to_github:
   stage: deploy
   script:
     - git --version
-    - ./ci_scripts/push_to_github.sh
-    - ./ci_scripts/deploy_docs.sh
+    - ci_scripts/push_to_github.sh
+    - ci_scripts/deploy_docs.sh
   only:
     refs:
       - master
@@ -846,7 +862,7 @@ push_to_github:
 clean_failure:
   stage: cleanup
   script:
-    - ./ci_scripts/failure_cleanup.sh
+    - ci_scripts/failure_cleanup.sh
   when: on_failure
   except:
     variables:
@@ -855,7 +871,7 @@ clean_failure:
 clean_environment:
   stage: cleanup
   script:
-    - ./ci_scripts/docker-cleanup.sh
+    - ci_scripts/docker-cleanup.sh full
   when: always
   except:
     variables:

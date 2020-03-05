@@ -11,26 +11,44 @@
 #- - pingidentity/pingdownloader - Used to download product bits
 #-
 
-ARG SHIM=alpine
+#
+# Staging product to a seperate image saves us the download + staging 
+# for each shim a product version is built for
+#
+ARG PRODUCT
+ARG SHIM
+ARG SHIM_TAG
+ARG VERSION
+ARG JDK
+FROM pingidentity/${PRODUCT}:staging-${VERSION} as product-staging
+FROM pingidentity/pingcommon as common
+FROM pingidentity/pingjvm:${JDK}_${SHIM_TAG} as jvm
 
-FROM pingidentity/pingdownloader as staging
-ARG PRODUCT=pingfederate
-ARG VERSION=9.3.3
+FROM ${SHIM} as final-staging
+ENV SHIM=${SHIM}
 
-# copy your product zip file into the staging image
-RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
-	&& unzip /tmp/product.zip -d /tmp/ \
-	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
-	&& mv /tmp/pingfederate-*/pingfederate /opt/server
-# COPY [ "liveness.sh", "/opt/" ]
-# COPY [ "run.sh", "/opt/server/bin/run.sh" ]
-COPY [ "/opt/", "/opt/"]
+# get the product bits FIRST
+COPY --from=product-staging ["/opt/","/opt/"]
+
+# get Ping-wide common scripts
+#   this needs to happen after the bits have been laid down
+#   so they can be patched
+COPY --from=common ["/opt/","/opt/"]
+
+# get the jvm
+COPY --from=jvm ["/opt/java","/opt/java"]
+
+# apply product-specific hooks and patches
+COPY ["/opt","/opt"]
+
+# Run build
+RUN ["/opt/build.sh"]
+
 
 #
 # The final image 
 #
-# FROM pingidentity/pingbase:shim-${SHIM}
-FROM pingidentity/pingbase:${SHIM}
+FROM pingidentity/pingbase:${SHIM_TAG}
 EXPOSE 9031 9999
 ARG LICENSE_VERSION
 ENV PING_PRODUCT="PingFederate"
@@ -45,11 +63,12 @@ ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/server.log
 ENV PF_ENGINE_DEBUG=false
 ENV PF_ADMIN_DEBUG=false
 ENV PF_DEBUG_PORT=9030
-ENV PF_ADMIN_PORT=9999
 ENV PF_ENGINE_PORT=9031
-COPY --from=pingidentity/pingcommon /opt ${BASE}
-COPY --from=staging /opt ${BASE}
-RUN ./post-build.sh
+ENV PF_ADMIN_PORT=9999
+
+# get the staged bits 
+COPY --from=final-staging ["/","/"]
+
 #- ## Running a PingFederate container
 #- To run a PingFederate container:
 #- 

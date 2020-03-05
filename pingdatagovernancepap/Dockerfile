@@ -6,23 +6,38 @@
 #- ## Related Docker Images
 #- - `tomcat:8-jre8-alpine` - Tomcat engine to serve PingDataConsole .war file
 #-
-ARG SHIM=alpine
+ARG PRODUCT
+ARG SHIM
+ARG SHIM_TAG
+ARG VERSION
+ARG JDK
 
-FROM pingidentity/pingdownloader as staging
-ARG PRODUCT=pingdatagovernancepap
-ARG VERSION=8.0.0.0
+FROM pingidentity/${PRODUCT}:staging-${VERSION} as product-staging
+FROM pingidentity/pingdatacommon as common
+FROM pingidentity/pingjvm:${JDK}_${SHIM_TAG} as jvm
+
+FROM ${SHIM} as final-staging
+ENV SHIM=${SHIM}
+
+# get the product bits FIRST
+COPY --from=product-staging ["/opt/","/opt/"]
+
+# get Ping-wide common scripts
+#   this needs to happen after the bits have been laid down
+#   so they can be patched
+COPY --from=common ["/opt/","/opt/"]
+
+# get the jvm
+COPY --from=jvm ["/opt/java","/opt/java"]
+
+# apply product-specific hooks and patches
+COPY ["/opt","/opt"]
+
+# Run build
+RUN ["/opt/build.sh"]
 
 
-# copy your product zip file into the staging image
-RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
-    && unzip /tmp/product.zip -d /tmp/ \
-    && mkdir /opt/out \
-	&& mv /tmp/PingDataGovernance-PAP /opt/server 
-COPY [ "liveness.sh", "/opt/" ]
-COPY [ "hooks/","/opt/staging/hooks/" ]
-
-
-FROM pingidentity/pingbase:${SHIM}
+FROM pingidentity/pingbase:${SHIM_TAG}
 #-- PingIdentity license version
 ARG LICENSE_VERSION
 #-- Ping product name
@@ -58,8 +73,7 @@ ENV DECISION_POINT_SHARED_SECRET="2FederateM0re"
 
 EXPOSE ${HTTPS_PORT}
 
-COPY --from=pingidentity/pingcommon /opt ${BASE}
-COPY --from=staging /opt ${BASE}
+COPY --from=final-staging ["/","/"]
 
 #- ## Running a PingDataGovernance PAP container
 #- To run a PingDataGovernance PAP container: 
@@ -82,4 +96,3 @@ COPY --from=staging /opt ${BASE}
 #- * https://localhost:8443/
 #-   * Username: admin
 #-   * Password: password123
-RUN ./post-build.sh

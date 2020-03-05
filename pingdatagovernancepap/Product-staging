@@ -1,0 +1,9 @@
+FROM pingidentity/pingdownloader as staging
+ARG PRODUCT=pingdatagovernancepap
+ARG VERSION
+
+# copy your product zip file into the staging image
+RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
+    && unzip /tmp/product.zip -d /tmp/ \
+    && mkdir /opt/out \
+	&& mv /tmp/PingDataGovernance-PAP /opt/server 

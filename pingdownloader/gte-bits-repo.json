@@ -1,5 +1,10 @@
 {
     "defaultURL": "https://s3.amazonaws.com/gte-bits-repo/",
+    "gpg" :{
+        "server": "pgpkeys.mit.edu",
+        "key": "F98F0E3F",
+        "key-file": "signing-key-public.gpg"
+    },
     "products": [
         {
             "name": "delegator",
@@ -9,7 +14,7 @@
         {
             "name": "ldapsdk",
             "mapping": "unboundid-ldapsdk-${version}.zip",
-            "latestVersion": "4.0.14",
+            "latestVersion": "5.0.0",
             "url": "https://github.com/pingidentity/ldapsdk/releases/download/${version}/"
         },
         {
@@ -63,7 +68,7 @@
         {
             "name": "pingfederate",
             "mapping": "pingfederate-${version}.zip",
-            "latestVersion": "10.0.0",
+            "latestVersion": "10.0.1",
             "licenseFile": "pingfederate.lic"
         }
     ]

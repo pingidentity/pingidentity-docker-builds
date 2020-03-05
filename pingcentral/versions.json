@@ -1,0 +1,15 @@
+{
+    "versions":[
+        {   
+            "version": "1.2.0",
+            "latest": true,
+            "distributions":[
+                {
+                    "shim": "centos",
+                    "preferred": true,
+                    "jdk": "11"
+                }
+            ]
+        }
+    ]
+}
