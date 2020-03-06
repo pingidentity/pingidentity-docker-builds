@@ -4,7 +4,7 @@ set -x
 company=pingidentity
 image=pingdataconsole
 tag=edge
-BITS_VERSION=8.0.0.0
+BITS_VERSION=8.0.0.1
 prefix=SERVER_PROFILE
 originalImage="tomcat:8-jre8-alpine"
 
