@@ -128,16 +128,16 @@ echo_green()
 
 if test -n "${CI_COMMIT_REF_NAME}" ; then
   #we are in CI pipeline
-  FOUNDATION_REGISTRY="gcr.io/ping-identity"
-  gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
-  gitRevLong=$( git rev-parse "$CI_COMMIT_SHA" )
-  ciTag="${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
+  export FOUNDATION_REGISTRY="gcr.io/ping-identity"
+  export gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
+  export gitRevLong=$( git rev-parse "$CI_COMMIT_SHA" )
+  export ciTag="${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
 else
   #we are on local
   isLocalBuild=true
-  FOUNDATION_REGISTRY="pingidentity"
-  gitBranch=$(git rev-parse --abbrev-ref HEAD)
-  gitRevShort=$( git rev-parse --short=4 HEAD)
-  gitRevLong=$( git rev-parse HEAD) 
-  ciTag="${gitBranch}-${gitRevShort}"
+  export FOUNDATION_REGISTRY="pingidentity"
+  export gitBranch=$(git rev-parse --abbrev-ref HEAD)
+  export gitRevShort=$( git rev-parse --short=4 HEAD)
+  export gitRevLong=$( git rev-parse HEAD) 
+  export ciTag="${gitBranch}-${gitRevShort}"
 fi
