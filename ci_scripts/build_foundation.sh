@@ -7,6 +7,7 @@ tag_and_push(){
         docker push "${2}"
     fi
 }
+_totalStart=$( date '+%s' )
 DOCKER_BUILDKIT=1
 while ! test -z "${1}" ; do
     case "${1}" in
@@ -148,8 +149,7 @@ for _shim in ${shims} ; do
                 tag_and_push "pingidentity/pingjvm:${_jvm}_${_shimTag}" "${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimTag}-${ciTag}"
             fi    
         fi
-        printf '%-45s|%10s|%7s\n' " pingjvm:${_jvm}_${_shimTag}" " ${_duration}" " ${_result}"  >> ${_resultsFile}
-
+        append_status "${_resultsFile}" ${_result} '%-44s|%10s|%7s' " pingjvm:${_jvm}_${_shimTag}" " ${_duration}" " ${_result}"
     done
 
     banner "Building pingbase for ${_shim}"
@@ -167,6 +167,7 @@ for _shim in ${shims} ; do
     then
         returnCode=${_returnCode}
         _result="FAIL"
+        # printf ${FONT_RED}${CHAR_CROSSMARK}'%-44s|%10s|%7s'${FONT_NORMAL}'\n' " pingbase:${_shimTag}${experimental:+-ea}" " ${_duration}" " ${_result}"  >> ${_resultsFile}
     else
         _result="PASS"
         if test -z "${isLocalBuild}" ; then
@@ -174,10 +175,12 @@ for _shim in ${shims} ; do
             tag_and_push "pingidentity/pingbase:${_shimTag}" "${FOUNDATION_REGISTRY}/pingbase:${_shimTag}-${ciTag}"
         fi    
     fi
-    printf '%-45s|%10s|%7s\n' " pingbase:${_shimTag}${experimental:+-ea}" " ${_duration}" " ${_result}"  >> ${_resultsFile}
+    append_status "${_resultsFile}" ${_result}  '%-44s|%10s|%7s' " pingbase:${_shimTag}${experimental:+-ea}" " ${_duration}" " ${_result}"
 done
 
 cat ${_resultsFile}
 rm ${_resultsFile}
-
+_totalStop=$( date '+%s' )
+_totalDuration=$(( _totalStop - _totalStart ))
+echo "Total duration: ${_totalDuration}s"
 exit ${returnCode}
