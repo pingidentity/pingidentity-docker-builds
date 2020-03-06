@@ -42,7 +42,7 @@ services:
       - pingnet-internal
 
   pingdirectory:
-    image: ${FOUNDATION_REGISTRY}/pingdirectory:8.0.0.0-alpine-edge-${ciTag}
+    image: ${FOUNDATION_REGISTRY}/pingdirectory:8.0.0.1-alpine-edge-${ciTag}
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
