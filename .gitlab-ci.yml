@@ -32,7 +32,7 @@ refresh_external_images:
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       
 build_pingfoundation:
   stage: build_foundation
@@ -73,15 +73,15 @@ deploy_pingfoundation:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       
 
 build_pingdownloader:
   stage: build_foundation
   script:
-    - DOCKER_BUILDKIT=1 docker image build -t pingidentity/pingdownloader ./pingdownloader
-    - docker tag "pingidentity/pingdownloader" "gcr.io/ping-identity/pingdownloader:edge"
-    - docker push "gcr.io/ping-identity/pingdownloader:edge"
+    - DOCKER_BUILDKIT=1 docker image build -t pingidentity/pingdownloader pingdownloader
+    - docker tag pingidentity/pingdownloader gcr.io/ping-identity/pingdownloader
+    - docker push gcr.io/ping-identity/pingdownloader
     - ci_scripts/run_tests.sh -p pingdownloader -s alpine
   only:
     changes:
@@ -93,11 +93,13 @@ build_pingdownloader:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
 
 deploy_pingdownloader:
   stage: deploy
   script:
+    - docker pull gcr.io/ping-identity/pingdownloader
+    - docker tag gcr.io/ping-identity/pingdownloader pingidentity/pingdownloader
     - docker push pingidentity/pingdownloader
   only:
     refs:
@@ -112,7 +114,7 @@ deploy_pingdownloader:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
 
 build_apache-jmeter:
   stage: build
@@ -128,7 +130,7 @@ build_apache-jmeter:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
 
 deploy_apache-jmeter:
   stage: deploy
@@ -148,7 +150,7 @@ deploy_apache-jmeter:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       
 
    
@@ -167,7 +169,7 @@ build_ldap-sdk-tools:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       
 
 test_ldap-sdk-tools:
@@ -185,7 +187,8 @@ test_ldap-sdk-tools:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
       
 
 deploy_ldap-sdk-tools:
@@ -206,7 +209,7 @@ deploy_ldap-sdk-tools:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       
       
 
@@ -250,6 +253,7 @@ test_pingaccess:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
   tags:
     - pingcommon
       
@@ -321,6 +325,7 @@ test_pingcentral:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
   tags:
     - pingcommon
       
@@ -392,6 +397,7 @@ test_pingdirectory:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
   tags:
     - pingdatacommon
       
@@ -457,7 +463,7 @@ deploy_pingdataconsole:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       
       
 build_pingdatasync:
@@ -502,6 +508,7 @@ test_pingdatasync:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
   tags:
     - pingdatacommon
       
@@ -686,6 +693,7 @@ test_pingfederate:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
   tags:
     - pingcommon
 
@@ -738,7 +746,7 @@ build_pingtoolkit:
 test_pingtoolkit:
   stage: smoke_test
   script:
-    - ./ci_scripts/run_tests.sh -p pingtoolkit -s alpine
+    - ci_scripts/run_tests.sh -p pingtoolkit -s alpine
   only:
     changes:
       - pingtoolkit/**/*
@@ -753,6 +761,7 @@ test_pingtoolkit:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
   tags:
     - pingcommon
 
@@ -805,7 +814,7 @@ simple_stack:
 # pingdirectoryproxy:
 #   stage: build
 #   script:
-#     - docker image build -t pingidentity/pingdirectoryproxy ./pingdirectoryproxy
+#     - docker image build -t pingidentity/pingdirectoryproxy pingdirectoryproxy
 #     - docker push pingidentity/pingdirectoryproxy
 #   only:
 #     changes:
@@ -828,7 +837,7 @@ simple_stack:
 #     - docker load -i images/pingcommon.tar
 #     - docker load -i images/pingdatacommon.tar
 #     - docker load -i images/pingbase.tar
-#     - docker image build -t pingidentity/pingdelegator ./pingdelegator
+#     - docker image build -t pingidentity/pingdelegator pingdelegator
 #     - docker push pingidentity/pingdelegator
 #   only:
 #     changes:

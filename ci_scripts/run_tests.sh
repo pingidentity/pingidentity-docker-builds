@@ -50,7 +50,7 @@ while ! test -z "${1}" ; do
             versions="${1}"
             ;;
         --fast-fail)
-            fast_fail=true
+            fastFail=true
             ;;
         --help)
             usage
@@ -71,6 +71,13 @@ then
 #   versions=$(grep -v "^#" "${product}"/versions)
   versions=$( _getVersionsFor ${product} )
   notVersionless="true"
+fi
+
+if test -n "${isLocalBuild}" ;
+then
+    set -a
+    . ~/.pingidentity/devops
+    set +a
 fi
 
 # result table header    
@@ -123,12 +130,11 @@ do
             then
                 returnCode=${_returnCode}
                 _result="FAIL"
-                printf '%-25s|%-10s|%-20s|%-38s|%10s|'${FONT_RED}'%7s'${CHAR_CROSSMARK}${FONT_NORMAL}'\n' " ${product}" " ${_version}" " ${_shim}" " $( basename ${_test} )" " ${_duration}" "${_result}" >> ${_resultsFile}
-                test -n ${fast_fail} && exit ${returnCode}
+                test -n "${fastFail}" && exit ${returnCode}
             else    
                 _result="PASS"
-                printf '%-25s|%-10s|%-20s|%-38s|%10s|'${FONT_GREEN}'%7s'${CHAR_CHECKMARK}${FONT_NORMAL}'\n' " ${product}" " ${_version}" " ${_shim}" " $( basename ${_test} )" " ${_duration}" "${_result}" >> ${_resultsFile}
             fi
+            append_status "${_resultsFile}" ${_result} '%-24s|%-10s|%-20s|%-38s|%10s|%7s' " ${product}" " ${_version}" " ${_shim}" " $( basename ${_test} )" " ${_duration}" "${_result}"
         done
     done
 done

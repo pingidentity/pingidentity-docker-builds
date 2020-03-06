@@ -124,20 +124,35 @@ echo_green()
     echo -e "${FONT_GREEN}$*${FONT_NORMAL}"
 }
 
+append_status ()
+{
+    _output="${1}"
+    shift
+    if test "${1}" = "PASS" ;
+    then
+        _prefix=${FONT_GREEN}${CHAR_CHECKMARK}
+    else
+        _prefix=${FONT_RED}${CHAR_CROSSMARK}
+    fi
+    shift
+    _pattern="${1}"
+    shift
+    printf ${_prefix}${_pattern}${FONT_NORMAL}'\n' "${@}" >> ${_output}
 
+}
 
 if test -n "${CI_COMMIT_REF_NAME}" ; then
   #we are in CI pipeline
-  FOUNDATION_REGISTRY="gcr.io/ping-identity"
-  gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
-  gitRevLong=$( git rev-parse "$CI_COMMIT_SHA" )
-  ciTag="${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
+  export FOUNDATION_REGISTRY="gcr.io/ping-identity"
+  export gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
+  export gitRevLong=$( git rev-parse "$CI_COMMIT_SHA" )
+  export ciTag="${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
 else
   #we are on local
   isLocalBuild=true
-  FOUNDATION_REGISTRY="pingidentity"
-  gitBranch=$(git rev-parse --abbrev-ref HEAD)
-  gitRevShort=$( git rev-parse --short=4 HEAD)
-  gitRevLong=$( git rev-parse HEAD) 
-  ciTag="${gitBranch}-${gitRevShort}"
+  export FOUNDATION_REGISTRY="pingidentity"
+  export gitBranch=$(git rev-parse --abbrev-ref HEAD)
+  export gitRevShort=$( git rev-parse --short=4 HEAD)
+  export gitRevLong=$( git rev-parse HEAD) 
+  export ciTag="${gitBranch}-${gitRevShort}"
 fi
