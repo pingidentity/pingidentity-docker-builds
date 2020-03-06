@@ -78,6 +78,9 @@ do
         --dry-run)
             dryRun="echo"
             ;;
+        --fail-fast)
+            failFast=true
+            ;;
         --help)
             usage
             ;;
@@ -108,7 +111,13 @@ then
   versionsToBuild=$( _getVersionsFor ${productToBuild} )
 fi
 
-exitCode=0
+
+# result table header    
+_resultsFile="/tmp/$$.results"
+printf '%-25s|%-10s|%-20s|%10s|%7s\n' " PRODUCT" " VERSION" " SHIM" " DURATION" " RESULT" > ${_resultsFile}
+_totalStart=$( date '+%s' )
+
+returnCode=0
 for _version in ${versionsToBuild} ; 
 do
     # if the default shim has been provided as an argument, get it from the versions file
@@ -129,6 +138,7 @@ do
 
     if test -f "${productToBuild}/Product-staging" ;
     then
+        _start=$( date '+%s' )
         # build the staging for each product so we don't need to download and stage the product each time
         DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build \
             -f ${productToBuild}/Product-staging \
@@ -137,32 +147,58 @@ do
             --build-arg VERSION="${_version}" \
             --build-arg PRODUCT="${productToBuild}" \
             "${productToBuild}"
-        exitCode=${?}
-        if test ${exitCode} -ne 0 ; 
+        _returnCode=${?}
+        _stop=$( date '+%s' )
+        _duration=$(( _stop - _start ))
+        if test ${_returnCode} -ne 0 ; 
         then
-            banner "Build break for ${productToBuild} staging for version ${_version}"
-            exit ${exitCode}
+            returnCode=${_returnCode}
+            _result=FAIL
+            if test -n "${failFast}" ;
+            then
+                banner "Build break for ${productToBuild} staging for version ${_version}"
+                exit ${exitCode}
+            fi
+        else
+            _result=PASS
         fi
+        append_status "${_resultsFile}" ${_result} '%-25s|%-10s|%-20s|%10s|%7s' " ${productToBuild}" " ${_version}" " Staging" " ${_duration}" "${_result}"
     fi
     
     # iterate over the shims (default to alpine)
     for _shim in ${_shimsToBuild:-alpine} ; 
     do
+        _start=$( date '+%s' )
         "${CI_SCRIPTS_DIR}/build_and_tag.sh" \
             --product "${productToBuild}" \
             --shim "${_shim}" \
             --default-shim ${_defaultShim:-alpine} \
             --version ${_version} \
             ${dryRun:+--dry-run} ${noCache} ${noBuildKitArg} ${verboseBuildArg}
-        exitCode=${?}
-        if test ${exitCode} -ne 0 ; 
+        _returnCode=${?}
+        _stop=$( date '+%s' )
+        _duration=$(( _stop - _start ))
+        if test ${_returnCode} -ne 0 ; 
         then
-            banner "Build break for ${productToBuild} on ${_shim} for version ${_version}"
-            exit ${exitCode}
+            returnCode=${_returnCode}
+            _result=FAIL
+            if test -n "${failFast}" ; 
+            then
+                banner "Build break for ${productToBuild} on ${_shim} for version ${_version}"
+                exit ${exitCode}
+            
+            fi
+        else
+            _result=PASS
         fi
+        append_status "${_resultsFile}" ${_result} '%-25s|%-10s|%-20s|%10s|%7s' " ${productToBuild}" " ${_version}" " ${_shim}" " ${_duration}" "${_result}"
     done
     _defaultShim=""
     _shimsToBuild=""
 done
-
-exit ${exitCode}
+cat ${_resultsFile}
+rm ${_resultsFile}
+_totalStop=$( date '+%s' )
+_totalDuration=$(( _totalStop - _totalStart ))
+echo "Total duration: ${_totalDuration}s"
+exit ${returnCode}

@@ -124,7 +124,22 @@ echo_green()
     echo -e "${FONT_GREEN}$*${FONT_NORMAL}"
 }
 
+append_status ()
+{
+    _output="${1}"
+    shift
+    if test "${1}" = "PASS" ;
+    then
+        _prefix=${FONT_GREEN}${CHAR_CHECKMARK}
+    else
+        _prefix=${FONT_RED}${CHAR_CROSSMARK}
+    fi
+    shift
+    _pattern="${1}"
+    shift
+    printf ${_prefix}${_pattern}${FONT_NORMAL}'\n' "${@}" >> ${_output}
 
+}
 
 if test -n "${CI_COMMIT_REF_NAME}" ; then
   #we are in CI pipeline
