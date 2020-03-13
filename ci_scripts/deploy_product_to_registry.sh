@@ -39,6 +39,7 @@ function tag_and_push ()
     then
         banner Pushing ${_target}
         ${dryRun} docker push ${_target}
+        ${dryRun} docker image rm -f ${_target}
     fi
 }
 
@@ -137,6 +138,7 @@ do
     do
         _shimLongTag=$( _getLongTag "${_shim}" )
         fullTag="${_version}-${_shimLongTag}-${ciTag}"
+        docker pull ${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}
         tag_and_push "${_version}-${_shimLongTag}"
 
         if test -n "${sprint}" ; 
@@ -173,5 +175,7 @@ do
                 tag_and_push "edge"
             fi
         fi
+        docker image rm -f ${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}
     done
 done
+exit 0
