@@ -1,36 +1,44 @@
 #!/usr/bin/env bash
 test -n "${VERBOSE}" && set -x
 
+if test -z "${CI_COMMIT_REF_NAME}" ;
+then
+    # shellcheck disable=SC2046
+    CI_PROJECT_DIR="$( cd $(dirname "${0}")/.. || exit 97 ; pwd )"
+    test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
+fi
+CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts";
+# shellcheck source=./ci_tools.lib.sh
+. "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
+
 rm -rf /tmp/docker-images
-cd ../"$( dirname "${0}" )" || exit 97
-THIS="$( basename "${0}" )"
+TOOL_NAME="$( basename "${0}" )"
 OUTPUT_DIR=/tmp
-THIS_DIR=`pwd`
-
-
-DOCKER_BUILD_DIR=$THIS_DIR
+DOCKER_BUILD_DIR="$( cd $( dirname "${0}" )/.. || exit 97 ; pwd )"
 
 #
 # Usage printing function
 #
-usage ()
+function usage ()
 {
-cat <<END_USAGE
-Usage: ${THIS} {options}
+    cat <<END_USAGE
+Usage: ${TOOL_NAME} {options}
     where {options} include:
 
     -d, --docker-image {docker-image}
         The name of the docker image to build dos for
+    --dry-run
+        Run without making attempts to upload to git
     -h, --help
         Display general usage information
 END_USAGE
-exit 99
+    exit 99
 }
 
 #
 # Append all arguments to the end of the current markdown document file
 #
-append_doc()
+function append_doc ()
 {
     echo "$*" >> "${_docFile}"
 }
@@ -38,7 +46,7 @@ append_doc()
 #
 # Append a header
 #
-append_header()
+function append_header ()
 {
    append_doc ""
 }
@@ -46,7 +54,7 @@ append_header()
 #
 # Append a footer including a link to the source file
 #
-append_footer()
+function append_footer ()
 {
     _srcFile="${1}"
 
@@ -60,7 +68,7 @@ append_footer()
 #
 # Start the section on environment variables
 #
-append_env_table_header()
+function append_env_table_header ()
 {
     case ${dockerImage} in pingaccess|pingdirectory|pingdatasync|pingfederate|pingdatagovernance|pingdatagovernancepap|pingtoolkit)
     if test "${ENV_TABLE_ACTIVE}" != "true" ; then
@@ -95,7 +103,7 @@ append_env_table_header()
 #
 #
 #
-append_env_variable()
+function append_env_variable ()
 {
     envVar=${1} && shift
     envDesc=${1} && shift
@@ -107,7 +115,7 @@ append_env_variable()
 #
 #
 #
-append_expose_ports()
+function append_expose_ports ()
 {
     exposePorts=${1}
 
@@ -115,7 +123,8 @@ append_expose_ports()
     append_doc "The following ports are exposed from the container.  If a variable is"
     append_doc "used, then it may come from a parent container"
 
-    for port in ${exposePorts}; do
+    for port in ${exposePorts} ; 
+    do
         append_doc "- $port"
     done
 
@@ -125,42 +134,40 @@ append_expose_ports()
 #
 #
 #
-parse_hooks()
+function parse_hooks ()
 {
     _dockerImage="${1}"
-    _hooksDir="${DOCKER_BUILD_DIR}/${_dockerImage}/hooks"
+    _hooksDir="${DOCKER_BUILD_DIR}/${_dockerImage}/opt/staging/hooks"
 
     mkdir -p "${OUTPUT_DIR}/docker-images/${_dockerImage}/hooks"
 
-    echo "Parsing hooks for ${_dockerImage}..."
+    banner "Parsing hooks for ${_dockerImage}..."
     
     _hookFiles=""
 
 
-    #
-    # this whole thing should be replaced with something like
-    # find . -type f \( -path '*/hooks/*' -a -name '*.sh' -a -not -path './.git/*' \) -exec awk '$0 ~/^#-/ {$1="";print;}' {} >> {}.md \;
-    for _hookFile in $( ls ${_hooksDir} ); do
-        _hookFiles="${_hookFiles} ${_hookFile}"
+    for _hookFilePath in ${_hooksDir}/* ; 
+    do
+        _hookFile=$( basename "${_hookFilePath}" )
+        _hookFiles="${_hookFiles:+${_hookFiles} }${_hookFile}"
         _docFile="${OUTPUT_DIR}/docker-images/${_dockerImage}/hooks/${_hookFile}.md"
         rm -f "${_docFile}"
         echo "  parsing hook ${_hookFile}"
         append_header
         append_doc "# Ping Identity DevOps \`${_dockerImage}\` Hook - \`${_hookFile}\`"
+        awk '$0~/^#-/ && $0!~/^#-$/ {gsub(/^#-/,"");print;}' ${_hookFilePath} >> ${_docFile}
+        # cat "${_hooksDir}/${_hookFile}" | while read -r line ; do
+        #     #
+        #     # Parse the remaining lines for "#-"
+        #     #
+        #     if [ "$(echo "${line}" | cut -c-2)" = "#-" ] ; then
+        #         md=$(echo "$line" | sed \
+        #          -e 's/^\#- //' \
+        #          -e 's/^\#-$//')
 
-        cat "${_hooksDir}/${_hookFile}" | while read -r line ; do
-            #
-            # Parse the remaining lines for "#-"
-            #
-            if [ "$(echo "${line}" | cut -c-2)" = "#-" ] ; then
-                md=$(echo "$line" | sed \
-                 -e 's/^\#- //' \
-                 -e 's/^\#-$//')
-
-                append_doc "$md"
-            fi
-        done
-
+        #         append_doc "$md"
+        #     fi
+        # done
         append_footer "${_dockerImage}/hooks/${_hookFile}"
     done
 
@@ -170,7 +177,8 @@ parse_hooks()
     append_header
     append_doc "# Ping Identity DevOps \`${_dockerImage}\` Hooks"
     append_doc "List of available hooks:"
-    for _hookFile in ${_hookFiles}; do
+    for _hookFile in ${_hookFiles} ;
+    do
         append_doc "* [${_hookFile}](${_hookFile}.md)"
     done
     append_footer "${_dockerImage}/hooks"
@@ -179,7 +187,7 @@ parse_hooks()
 #
 #
 #
-parse_dockerfile()
+function parse_dockerfile ()
 {
     _dockerImage="${1}"
     _dockerFile="${DOCKER_BUILD_DIR}/${_dockerImage}/Dockerfile"
@@ -193,13 +201,15 @@ parse_dockerfile()
         
     append_header
 
-    cat "${_dockerFile}" | while read -r line ; do
+    cat "${_dockerFile}" | while read -r line ; 
+    do
         
         #
         # Parse the ENV Description
         #   Example: $-- This is the description
         #
-        if [ "$(echo "${line}" | cut -c-3)" = "#--" ]; then
+        if [ "$(echo "${line}" | cut -c-3)" = "#--" ] ; 
+        then
             ENV_DESCRIPTION="${ENV_DESCRIPTION}$(echo "${line}" | cut -c5-) "
             continue
         fi
@@ -209,7 +219,8 @@ parse_dockerfile()
         #   Example: ENV VARIABLE=value
         #
         if [ "$(echo "${line}" | cut -c-4)" = "ENV " ] ||
-           [ "$(echo "${line}" | cut -c-12)" = "ONBUILD ENV " ]; then
+           [ "$(echo "${line}" | cut -c-12)" = "ONBUILD ENV " ]; 
+        then
             ENV_VARIABLE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*ENV \(.*\)x=x.*/\1/')
             ENV_VALUE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*x=x\(.*\)/\1/' -e 's/^"\(.*\)"$/\1/')
             
@@ -226,7 +237,8 @@ parse_dockerfile()
         #   Example: EXPOSE PORT1 PORT2
         #
         if [ "$(echo "${line}" | cut -c-7)" = "EXPOSE " ] ||
-           [ "$(echo "${line}" | cut -c-15)" = "ONBUILD EXPOSE " ]; then
+           [ "$(echo "${line}" | cut -c-15)" = "ONBUILD EXPOSE " ]; 
+        then
             EXPOSE_PORTS=$(echo "${line}" | sed 's/^.*EXPOSE \(.*\)$/\1/')
     
             append_expose_ports "${EXPOSE_PORTS}"
@@ -237,7 +249,8 @@ parse_dockerfile()
         #
         # Parse the remaining lines for "#-"
         #
-        if [ "$(echo "${line}" | cut -c-2)" = "#-" ] ; then
+        if [ "$(echo "${line}" | cut -c-2)" = "#-" ] ; 
+        then
             ENV_TABLE_ACTIVE="false"
 
             md=$(echo "$line" | sed \
@@ -263,7 +276,8 @@ pingdirectoryproxy pingdelegator apache-jmeter"
 #
 # Parse the provided arguments, if any
 #
-while ! test -z "${1}" ; do
+while ! test -z "${1}" ; 
+do
     case "${1}" in
         -d|--docker-image)
             shift
@@ -273,7 +287,9 @@ while ! test -z "${1}" ; do
             fi
             dockerImages="${1}"
             ;;
-        
+        --dry-run)
+            dryRun="echo"
+            ;;
         --help)
             usage
             ;;
@@ -295,15 +311,16 @@ do
     parse_dockerfile "${dockerImage}"
     parse_hooks "${dockerImage}"
 done
+
 set -x
 cd /tmp || exit 97
 rm -rf pingidentity-devops-getting-started
-git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-devops-getting-started.git
-cp -r docker-images pingidentity-devops-getting-started/docs
-cd pingidentity-devops-getting-started || exit 97
-git config user.email "devops_program@pingidentity.com"
-git config user.name "devops_program"
-git add .
-git commit -m "updated from docker-builds"
-git push origin master
-set +x
+${dryRun} git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-devops-getting-started.git
+${dryRun} cp -r docker-images pingidentity-devops-getting-started/docs
+${dryRun} cd pingidentity-devops-getting-started || exit 97
+${dryRun} git config user.email "devops_program@pingidentity.com"
+${dryRun} git config user.name "devops_program"
+${dryRun} git add .
+${dryRun} git commit -m "updated from docker-builds"
+${dryRun} git push origin master
+exit 0
