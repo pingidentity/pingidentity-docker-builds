@@ -139,7 +139,7 @@ do
         _shimLongTag=$( _getLongTag "${_shim}" )
         fullTag="${_version}-${_shimLongTag}-${ciTag}"
         docker pull ${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}
-        tag_and_push "${_version}-${_shimLongTag}"
+        tag_and_push "${_version}-${_shimLongTag}-edge"
 
         if test -n "${sprint}" ; 
         then
