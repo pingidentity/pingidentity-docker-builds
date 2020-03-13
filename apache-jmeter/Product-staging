@@ -1,0 +1,33 @@
+ARG REGISTRY
+ARG GIT_TAG
+
+FROM alpine as staging
+# place the software being delivered in a conspicuous, unix-correct location
+ARG PRODUCT
+ARG VERSION
+ARG DEVOPS_USER
+ARG DEVOPS_KEY
+COPY ["keys.gpg","/tmp"]
+RUN mkdir -p /opt \
+    && _payload="${PRODUCT}-${VERSION}" \
+    && t=$( mktemp -d ) \
+    && cd ${t} \
+    && apk --no-cache add gnupg \
+    && wget -S -T 1 http://mirrors.sonic.net/apache/jmeter/binaries/${_payload}.tgz \
+    && wget -S -T 1 https://www.apache.org/dist/jmeter/binaries/${_payload}.tgz.asc \
+    && ls \
+    && export GNUPGHOME="$( mktemp -d )" \
+    && gpg --keyserver pgpkeys.mit.edu --recv-key DE885DD3 \
+    && gpg --import /tmp/keys.gpg \
+    && gpg --batch --verify ${_payload}.tgz.asc ${_payload}.tgz \
+    && tar xzf ${_payload}.tgz \
+        --exclude *.bat \
+        --exclude *.exe \
+        --exclude *.dll \
+        --exclude *.ini \
+        --exclude */printable_docs/* \
+        --exclude */docs/* \
+    && mv ${t}/${_payload} /opt/server
+
+FROM scratch
+COPY --from=staging ["/opt/","/opt/"]

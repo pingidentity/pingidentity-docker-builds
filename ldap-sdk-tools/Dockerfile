@@ -7,43 +7,49 @@
 #- - `pingidentity/pingdownloader` - Image used to download ping product
 #- - `openjdk:8-jre8-alpine` - Alpine server to run LDAP SDK Tools from
 #-
+ARG PRODUCT
+ARG SHIM
+ARG SHIM_TAG
+ARG VERSION
+ARG JDK
+ARG REGISTRY
+ARG GIT_TAG
 
-FROM pingidentity/pingdownloader as staging
+FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
+FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
+FROM ${REGISTRY}/pingjvm:${JDK}_${SHIM_TAG}-${GIT_TAG} as jvm
 
-# copy your product zip file into the staging image
-RUN /get-bits.sh --product ldapsdk --version 4.0.14 \
-	&& unzip /tmp/product.zip -d /tmp/ \
-	&& rm /tmp/unboundid-ldapsdk-*/tools/*.bat \
-	&& mv /tmp/unboundid-ldapsdk-*/tools /opt/ \
-	&& mv /tmp/unboundid-ldapsdk-*/LICENSE* /opt/ \
-	&& mv /tmp/unboundid-ldapsdk-*/unboundid-ldapsdk.jar /opt/
-COPY wait-for /opt/tools/
+FROM ${SHIM} as final-staging
+ENV SHIM=${SHIM}
 
-FROM azul/zulu-openjdk-alpine:11 as jvm
-ENV JDK_HOME=/usr/lib/jvm/default-jvm 
-ENV JDK_MODULES=${JDK_HOME}/jmods/ 
-RUN ${JDK_HOME}/bin/jlink \
-    --compress=2 \
-    --no-header-files \
-    --no-man-pages \
-    --strip-debug \
-    --module-path ${JDK_MODULES} \
-    --add-modules java.base,java.logging,java.naming,java.security.sasl \
-    --output /opt/java
+# get the product bits FIRST
+COPY --from=product-staging ["/opt/","/opt/"]
 
-# FROM openjdk:8-jre-alpine as ldapsdk
-FROM alpine
-LABEL	maintainer=devops_program@pingidentity.com \
-		license="GPLv2, LGPLv2.1, Ping Identity UnboundID LDAP SDK Free Use" \
-		vendor="Ping Identity Corp." \
-		name="Ping Identity LDAP SDK Tools (Alpine/OpenJDK8) Image"
-COPY --from=staging ["/opt","/opt"]
+# get Ping-wide common scripts
+#   this needs to happen after the bits have been laid down
+#   so they can be patched
+COPY --from=common ["/opt/","/opt/"]
+
+# get the jvm
 COPY --from=jvm ["/opt/java","/opt/java"]
 
-ENV JAVA_HOME=/opt/java
-ENV PATH=/opt/tools:${JAVA_HOME}/bin:${PATH}
-WORKDIR /opt/tools
+# apply product-specific hooks and patches
+COPY ["/opt","/opt"]
+
+# Run build
+RUN ["/opt/build.sh"]
+
+#
+# the final image 
+#
+FROM ${REGISTRY}/pingbase:${SHIM_TAG}-${GIT_TAG}
+LABEL	maintainer=devops_program@pingidentity.com \
+		license="Apache License v2.0, GPLv2, LGPLv2.1, Ping Identity UnboundID LDAP SDK Free Use" \
+		vendor="Ping Identity Corp." \
+		name="Ping Identity LDAP SDK Tools (Alpine/OpenJDK8) Image"
+ENV PATH=/opt/tools:${PATH}
 VOLUME ["/opt/out"]
+COPY --from=final-staging ["/","/"]
 
 #- ## List all available tools
 #- `docker run -it --rm pingidentity/ldap-sdk-tools ls`

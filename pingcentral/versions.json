@@ -1,13 +1,15 @@
 {
+    "latest":"1.2.0",
     "versions":[
         {   
             "version": "1.2.0",
-            "latest": true,
+            "preferredShim": "alpine",
             "distributions":[
                 {
-                    "shim": "centos",
-                    "preferred": true,
-                    "jdk": "11"
+                    "shim": "alpine",
+                    "jdk": "11",
+                    "build": true,
+                    "deploy": true
                 }
             ]
         }

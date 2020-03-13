@@ -1,0 +1,6 @@
+version: "2"
+services:
+  sut:
+    image: ${REGISTRY}/ldap-sdk-tools:${TAG}
+    command: ldapsearch --help
+    

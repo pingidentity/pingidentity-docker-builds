@@ -1,0 +1,91 @@
+version: "3.1"
+
+services:
+  pingaccess:
+    image: ${REGISTRY}/pingaccess:6.0.0-alpine-${GIT_TAG}
+    command: wait-for pingfederate:9031 -t 900 -- entrypoint.sh start-server
+    environment: 
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=baseline/pingaccess
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+      - PING_IDENTITY_ACCEPT_EULA=YES
+    # env_file:
+      # Configuration file created when setup.sh (Getting-started project root directory) is first run to source
+      # devops user/key details for evaluation licenses and for docker image/git tags
+      # - ~/.pingidentity/devops
+    # Example: Examples below for mounting local directories for inbound server profile and persisting
+    #          server build.  The local /opt/out directory must be empty when building new server
+    #             /opt/out - Resulting server build
+    #             /opt/in  - Inbound server-profile detail in liue of SERVER_PROFILE_URL (must be commented out)
+    #volumes:
+    #   - ${HOME}/projects/devops/volumes/full-stack.pingaccess:/opt/out
+    #   - ${HOME}/projects/devops/pingidentity-server-profiles/baseline/pingaccess:/opt/in
+    # ports:
+    #   - 443:443
+    #   - 9000:9000
+    networks:
+      - pingnet-dmz
+    depends_on:
+      - pingfederate
+      - pingdirectory
+
+  pingfederate:
+    image: ${REGISTRY}/pingfederate:10.0.1-alpine-${GIT_TAG}
+    command: wait-for pingdirectory:389 -t 900 -- entrypoint.sh start-server
+    environment:
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=baseline/pingfederate
+      - PING_IDENTITY_ACCEPT_EULA=YES
+    # ports:
+    #   - 9031:9031
+    #   - 9999:9999
+    networks:
+      - pingnet-dmz
+      - pingnet-internal
+    depends_on:
+      - pingdirectory
+
+  pingdirectory:
+    image: ${REGISTRY}/pingdirectory:8.0.0.1-alpine-${GIT_TAG}
+    environment:
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=baseline/pingdirectory
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+      - PING_IDENTITY_ACCEPT_EULA=YES
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    # ports:
+    #   - 1389:389
+    #   - 1636:636
+    #   - 1443:443
+    networks:
+      - pingnet-internal
+
+  sut:
+    image: postman/newman
+    entrypoint: ["/usr/bin/env"]
+    command: sh -c "/tmp/wait-for pingaccess:443 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
+    # command: ["run","/tmp/collection.json","--insecure","--ignore-redirects"]
+    volumes:
+      - ./DockerBuildTestCollection.postman_collection.json:/tmp/collection.json
+      - ./wait-for:/tmp/wait-for
+    depends_on:
+      - pingaccess
+      - pingfederate
+      - pingdirectory
+    networks:
+      - pingnet-dmz
+      - pingnet-internal
+  
+networks:
+    pingnet-internal:
+    pingnet-dmz:

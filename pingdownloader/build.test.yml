@@ -1,6 +1,0 @@
-version: "2"
-
-services:
-  sut:
-    image: ${FOUNDATION_REGISTRY}/pingdownloader
-    command: -p pingdatagovernance -v 8.0.0.0 --verify-gpg-signature

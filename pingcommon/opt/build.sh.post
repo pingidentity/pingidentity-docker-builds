@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 echo "Post-build stage (like fixing permissions)"
+set -x
 # it is necessary to make the message of the day writable for the user
 # so that the motd facility can work with:
 #   - inside-out permissions (when stepped down via gosu or any setuid for that matter)
@@ -9,8 +10,9 @@ echo "Post-build stage (like fixing permissions)"
 chmod go+w /etc/motd
 
 # create the mounts
-for dir in backup in logs out ; do
-    mkdir /opt/${dir}
+for dir in "backup" "in" "logs" "out" ; do
+    mkdir "/opt/${dir}"
+    chmod -R +rwx "/opt/${dir}"
 done
 
 # # Ubuntu-specific post-install
@@ -29,10 +31,10 @@ done
 #     ln -s /opt/ping-jvm /opt/java
 # fi
 
-chmod -R +rwx /opt/backup /opt/in /opt/logs /opt/out    
-
 # give each file the same permission for others as for the user
 chmod -R go=u /opt
 
 # delete self
 rm -f "${0}"
+set +x
+echo "Post-build stage done."

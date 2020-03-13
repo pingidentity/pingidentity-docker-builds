@@ -15,10 +15,12 @@ ARG SHIM
 ARG SHIM_TAG
 ARG VERSION
 ARG JDK
+ARG REGISTRY
+ARG GIT_TAG
 
-FROM pingidentity/${PRODUCT}:staging-${VERSION} as product-staging
-FROM pingidentity/pingdatacommon as common
-FROM pingidentity/pingjvm:${JDK}_${SHIM_TAG} as jvm
+FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
+FROM ${REGISTRY}/pingdatacommon:${GIT_TAG} as common
+FROM ${REGISTRY}/pingjvm:${JDK}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${SHIM} as final-staging
 ENV SHIM=${SHIM}
@@ -40,7 +42,7 @@ COPY ["/opt","/opt"]
 # Run build
 RUN ["/opt/build.sh"]
 
-FROM pingidentity/pingbase:${SHIM_TAG}
+FROM ${REGISTRY}/pingbase:${SHIM_TAG}-${GIT_TAG}
 #-- PingIdentity license version
 ARG LICENSE_VERSION
 #-- Ping product name

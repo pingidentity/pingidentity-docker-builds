@@ -1,0 +1,17 @@
+{
+    "latest":"5.2.1",
+    "versions":[
+        { 
+            "version": "5.2.1",
+            "preferredShim": "alpine",
+            "distributions":[
+                {
+                     "shim": "alpine",
+                     "jdk": "8",
+                     "build": true,
+                     "deploy": true
+                }
+            ]
+        }
+    ]
+}

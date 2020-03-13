@@ -1,0 +1,26 @@
+ARG REGISTRY
+ARG GIT_TAG
+
+FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
+# place the software being delivered in a conspicuous, unix-correct location
+ARG PRODUCT
+ARG VERSION
+ARG DEVOPS_USER
+ARG DEVOPS_KEY
+
+# copy your product zip file into the staging image
+RUN /get-bits.sh \
+        --product ldapsdk \
+        --version ${VERSION} \
+        --devops-user ${DEVOPS_USER} \
+        --devops-key ${DEVOPS_KEY} \
+        --devops-app "pipeline-build-ldapsdk-${VERSION}" \
+	&& unzip /tmp/product.zip -d /tmp/ \
+	&& rm /tmp/unboundid-ldapsdk-*/tools/*.bat \
+	&& mv /tmp/unboundid-ldapsdk-*/tools /opt/ \
+	&& mv /tmp/unboundid-ldapsdk-*/LICENSE* /opt/ \
+	&& mv /tmp/unboundid-ldapsdk-*/unboundid-ldapsdk.jar /opt/
+COPY ["wait-for","/opt/"]
+
+FROM scratch
+COPY --from=staging ["/opt/","/opt/"]

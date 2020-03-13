@@ -20,7 +20,7 @@ if test "${SERVER_PROFILE_UPDATE}" = "true" ; then
     # Remote updates
     #
     set -x
-    cd "${SERVER_PROFILE_DIR}" || exit 99
+    cd "${SERVER_PROFILE_DIR}" || exit 97
     git pull
     # shellcheck disable=SC2035
     cp -af * "${STAGING_DIR}"

@@ -1,6 +1,8 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
+test -n "${VERBOSE}" && set -x
+
 rm -rf /tmp/docker-images
-cd ../"$( dirname "${0}" )"
+cd ../"$( dirname "${0}" )" || exit 97
 THIS="$( basename "${0}" )"
 OUTPUT_DIR=/tmp
 THIS_DIR=`pwd`
@@ -134,7 +136,11 @@ parse_hooks()
     
     _hookFiles=""
 
-    for _hookFile in $(ls ${_hooksDir}); do
+
+    #
+    # this whole thing should be replaced with something like
+    # find . -type f \( -path '*/hooks/*' -a -name '*.sh' -a -not -path './.git/*' \) -exec awk '$0 ~/^#-/ {$1="";print;}' {} >> {}.md \;
+    for _hookFile in $( ls ${_hooksDir} ); do
         _hookFiles="${_hookFiles} ${_hookFile}"
         _docFile="${OUTPUT_DIR}/docker-images/${_dockerImage}/hooks/${_hookFile}.md"
         rm -f "${_docFile}"
@@ -290,11 +296,11 @@ do
     parse_hooks "${dockerImage}"
 done
 set -x
-cd /tmp
+cd /tmp || exit 97
 rm -rf pingidentity-devops-getting-started
 git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-devops-getting-started.git
 cp -r docker-images pingidentity-devops-getting-started/docs
-cd pingidentity-devops-getting-started
+cd pingidentity-devops-getting-started || exit 97
 git config user.email "devops_program@pingidentity.com"
 git config user.name "devops_program"
 git add .

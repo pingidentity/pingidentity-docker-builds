@@ -1,13 +1,15 @@
 {
+    "latest": "1.0.0",
     "versions":[
         {   
             "version": "1.0.0",
-            "latest": true,
+            "preferredShim": "alpine",
             "distributions":[
                 {
                     "shim": "alpine",
-                    "preferred": true,
-                    "jdk": "11"
+                    "jdk": "11",
+                    "build": true,
+                    "deploy": true
                 }
             ]
         }

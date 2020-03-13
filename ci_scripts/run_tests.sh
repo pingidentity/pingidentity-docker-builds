@@ -1,52 +1,60 @@
 #!/usr/bin/env bash
-# TODO REMOVE THIS
-# product=${1}
-# shift
-# shimList=${*}
+test -n "${VERBOSE}" && set -x
 
-if test -z "${CI_COMMIT_REF_NAME}" ;
-then
-    CI_PROJECT_DIR="$(cd $(dirname "${0}")/..;pwd)"
-fi
-CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"   
-# shellcheck source=./ci_tools.lib.sh
-. "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
-
-
-pull_and_tag(){
-    if test "${FOUNDATION_REGISTRY}" = "gcr.io/ping-identity" ; 
-    then
-        docker pull "${1}"
-        docker tag "${1}" "${2}"
-    fi
-    #image is expected to be there if not on CI
+#
+# Usage printing function
+#
+usage ()
+{
+    echo "${*}"
+    cat <<END_USAGE
+Usage: ${0} {options}
+    where {options} include:
+    -p, --product
+        The name of the product for which to build a docker image
+    -s, --shim
+        the name of the operating system for which to build a docker image
+    -v, --version
+        the version of the product for which to build a docker image
+        this setting overrides the versions in the version file of the target product
+    --fast-fail
+        verbose docker build not using docker buildkit
+    --help
+        Display general usage information
+END_USAGE
+    exit 99
 }
 
+if test -z "${CI_COMMIT_REF_NAME}" ;then
+    # shellcheck disable=SC2046
+    CI_PROJECT_DIR="$( cd $(dirname "${0}")/.. || exit 97 ; pwd )"
+    test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
+fi
+CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts";
+# shellcheck source=./ci_tools.lib.sh
+. "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
 while ! test -z "${1}" ; do
     case "${1}" in
         -p|--product)
-            shift
-            if test -z "${1}" ; then
-                echo "You must provide a product to build"
-                usage
+            if test -z "${2}" ; then
+                usage "You must provide a product to build if you specify the ${1} option"
             fi
+            shift
             product="${1}"
             ;;
         -s|--shim)
-            shift
-            if test -z "${1}" ; then
-                echo "You must provide an OS Shim"
-                usage
+            if test -z "${2}" ; then
+                usage "You must provide an OS shim if you specify the ${1} option"
             fi
+            shift
             shimList="${shimList}${shimList:+ }${1}"
             ;;
         -v|--version)
-            shift
-            if test -z "${1}" ; then
-                echo "You must provide a version to build"
-                usage
+            if test -z "${2}" ; then
+                usage "You must provide a version to build if you specify the ${1} option"
             fi
+            shift
             versions="${1}"
             ;;
         --fast-fail)
@@ -66,16 +74,21 @@ done
 # assume tests will pass unless proven otherwise
 returnCode=0
 
+test -z "${product}" && usage "Providing a product is required"
+! test -d "${product}" && echo "invalid product ${product}" && exit 98
+! test -d "${product}/tests/" && echo "${product} has non tests" && exit 98
+
 if test -z "${versions}" && test  -f "${product}"/versions.json ; 
 then
 #   versions=$(grep -v "^#" "${product}"/versions)
-  versions=$( _getVersionsFor ${product} )
-  notVersionless="true"
+    versions=$( _getAllVersionsToBuildForProduct ${product} )
 fi
+test -n "${versions}" && notVersionless="true"
 
 if test -n "${isLocalBuild}" ;
 then
     set -a
+    # shellcheck disable=SC1090
     . ~/.pingidentity/devops
     set +a
 fi
@@ -88,7 +101,7 @@ for _version in ${versions} ;
 do      
     if test -z "${shimList}" ;
     then
-        _shimListForVersion=$( _getShimsFor ${product} ${_version} )
+        _shimListForVersion=$( _getShimsToBuildForProductVersion ${product} ${_version} )
     fi
 
     for _shim in ${_shimListForVersion:-${shimList}} ; 
@@ -96,36 +109,29 @@ do
         banner "Testing ${product} ${_version} on ${_shim}"
         # test this version of this product
         _shimTag=$( _getLongTag ${_shim} )
+        _tag="${_version}${notVersionless:+-${_shimTag}}${ciTag:+-${ciTag}}"
 
         if test -z "${isLocalBuild}" ;
         then
-            # runner build
-            _tag="${_version}${notVersionless:+-${_shimTag}}-edge${ciTag:+-${ciTag}}"
-            # since the build is distributed, the required image may have been built on a different
-            # runner and not be in the local repo
-            # we pull it from gcr
-            pull_and_tag "${FOUNDATION_REGISTRY}/${product}:${_tag}" "pingidentity/${product}:${_tag}"
+            # docker pull "${FOUNDATION_REGISTRY}/${product}:${_tag}"
             if test "${product}" = "pingdatasync" ; 
             then
                 # sync tests rely on the PingDirectory image being available too
-                pull_and_tag "${FOUNDATION_REGISTRY}/pingdirectory:${_tag}" "pingidentity/pingdirectory:${_tag}"
+                docker pull "${FOUNDATION_REGISTRY}/pingdirectory:${_tag}"
             fi
-        else
-            # local build
-            _tag="${_version}${notVersionless:+-${_shimTag}}-edge"
         fi
         
         # this is the loop where the actual test is run
-        for _test in ${product}/*.test.yml ; 
+        for _test in ${product}/tests/*.test.yml ; 
         do
             banner "Running test $( basename ${_test} ) on ${product} ${_version} ${_shim}"
             # sut = system under test
             _start=$( date '+%s' )
-            env TAG=${_tag} docker-compose -f ./"${_test}" up --exit-code-from sut --abort-on-container-exit
+            env TAG=${_tag} REGISTRY=${FOUNDATION_REGISTRY} docker-compose -f ./"${_test}" up --exit-code-from sut --abort-on-container-exit
             _returnCode=${?}
             _stop=$( date '+%s' )
             _duration=$(( _stop - _start ))
-            env TAG=${_tag} docker-compose -f ./"${_test}" down
+            env TAG=${_tag} REGISTRY=${FOUNDATION_REGISTRY} docker-compose -f ./"${_test}" down
             if test ${_returnCode} -ne 0 ;
             then
                 returnCode=${_returnCode}

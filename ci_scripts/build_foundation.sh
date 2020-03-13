@@ -1,12 +1,34 @@
 #!/usr/bin/env bash
-test -n "${VERSBOSE}" && set -x
+test -n "${VERBOSE}" && set -x
 
-tag_and_push(){
-    if test "${FOUNDATION_REGISTRY}" = "gcr.io/ping-identity" ; then
-        docker tag "${1}" "${2}"
-        docker push "${2}"
-    fi
+usage()
+{
+    test -n "${*}" && echo "${*}"
+
+    cat <<END_USAGE
+Usage: ${0} {options}
+    where {options} include:
+    -d, --default-shim
+        The name of the shim that will be tagged as default
+    -p, --product
+        The name of the product for which to build a docker image
+    -s, --shim
+        the name of the operating system for which to build a docker image
+    -v, --version
+        the version of the product for which to build a docker image
+        this setting overrides the versions in the version file of the target product
+    --verbose-build
+        verbose docker build using plain progress output
+    --no-cache
+        no docker cache
+    --no-build-kit
+        build without using build-kit
+    --help
+        Display general usage information
+END_USAGE
+    exit 99
 }
+
 _totalStart=$( date '+%s' )
 DOCKER_BUILDKIT=1
 while ! test -z "${1}" ; do
@@ -14,24 +36,21 @@ while ! test -z "${1}" ; do
         -p|--product)
             shift
             if test -z "${1}" ; then
-                echo "You must provide a product to build"
-                usage
+                usage "You must provide a product to build"
             fi
             productToBuild="${1}"
             ;;
         -s|--shim)
             shift
             if test -z "${1}" ; then
-                echo "You must provide an OS Shim"
-                usage
+                usage "You must provide an OS Shim"
             fi
             shimsToBuild="${shimsToBuild}${shimsToBuild:+ }${1}"
             ;;
         -v|--version)
             shift
             if test -z "${1}" ; then
-                echo "You must provide a version to build"
-                usage
+                usage "You must provide a version to build"
             fi
             versionToBuild="${1}"
             ;;
@@ -44,9 +63,6 @@ while ! test -z "${1}" ; do
         --verbose-build)
             progress="--progress plain"
             ;;
-        --dry-run)
-            dryRun="echo"
-            ;;
         --experimental)
             experimental=true
             ;;
@@ -54,15 +70,17 @@ while ! test -z "${1}" ; do
             usage
             ;;
         *)
-            echo "Unrecognized option"
-            usage
+            usage "Unrecognized option"
             ;;
     esac
     shift
 done
 
 if test -z "${CI_COMMIT_REF_NAME}" ;then
-    CI_PROJECT_DIR="$(cd $(dirname "${0}")/..;pwd)"
+    # shellcheck disable=SC2046 
+    CI_PROJECT_DIR="$( cd $( dirname "${0}" )/.. || exit 97 ; pwd )"
+    test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
+
 fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
@@ -77,52 +95,91 @@ if test -z "${isLocalBuild}" ; then
     # get list of all stopped containers lingering
     _containersList="$(docker container ls -aq | sort | uniq)"
     # remove all containers
+    # shellcheck disable=SC2046
     test -n "${_containersList}" && docker container rm -f $(docker container ls -aq)
     # get the list of all images in the local repo
     _imagesList="$(docker image ls -q | sort | uniq)"
     test -n "${_imagesList}" && docker image rm -f ${_imagesList}
 
     # wipe everything clean
-    docker container prune -f 
     docker image prune -f
     docker network prune
 else
     banner "LOCAL FOUNDATION BUILD"
 fi
 
-#build foundation and push to gcr for use in subsequent jobs. 
-DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
-    ${progress} ${noCache} \
-     -t "pingidentity/pingcommon" pingcommon
-docker tag "pingidentity/pingcommon" "pingidentity/pingcommon:${ciTag}"
-tag_and_push "pingidentity/pingcommon" "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}"
+# result table header    
+_resultsFile="/tmp/$$.results"
+_headerPattern='%-53s|%10s|%7s\n'
+_reportPattern='%-52s|%10s|%7s'
+printf ${_headerPattern} "  IMAGE" " DURATION" " RESULT" > ${_resultsFile}
 
+#build foundation and push to gcr for use in subsequent jobs. 
+banner Building PING COMMON
+_start=$( date '+%s' )
+_image="${FOUNDATION_REGISTRY}/pingcommon:${ciTag}"
 DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
     ${progress} ${noCache} \
-    -t "pingidentity/pingdatacommon" pingdatacommon
-docker tag "pingidentity/pingdatacommon" "pingidentity/pingdatacommon:${ciTag}"
-tag_and_push "pingidentity/pingdatacommon" "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}"
+     -t ${_image} pingcommon
+_returnCode=${?}
+_stop=$( date '+%s' )
+_duration=$(( _stop - _start ))
+if test ${_returnCode} -ne 0 ;
+then
+    returnCode=${_returnCode}
+    _result="FAIL"
+else
+    _result="PASS"
+    if test -z "${isLocalBuild}" ; then
+        banner Pushing ${_image} 
+        docker push ${_image}
+    fi    
+    append_status "${_resultsFile}" ${_result} ${_reportPattern} " pingcommon" " ${_duration}" " ${_result}"
+fi
+imagesToCleanup="${imagesToCleanup} ${_image}"
+
+banner Building PING DATA COMMON
+_start=$( date '+%s' )
+_image="${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}"
+DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
+    ${progress} ${noCache} \
+    --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
+    --build-arg GIT_TAG="${ciTag}" \
+    -t ${_image} pingdatacommon
+_returnCode=${?}
+_stop=$( date '+%s' )
+_duration=$(( _stop - _start ))
+if test ${_returnCode} -ne 0 ;
+then
+    returnCode=${_returnCode}
+    _result="FAIL"
+else
+    _result="PASS"
+    if test -z "${isLocalBuild}" ; then
+        banner Pushing ${_image}
+        docker push ${_image}
+    fi    
+    append_status "${_resultsFile}" ${_result} ${_reportPattern} " pingdatacommon" " ${_duration}" " ${_result}"
+fi
+imagesToCleanup="${imagesToCleanup} ${_image}"
 
 if test -n "${shimsToBuild}" ; then
     shims=${shimsToBuild}
 else
     if test -n "${productToBuild}" ; then
         if test -n "${versionToBuild}" ; then
-            shims=$( _getShimsFor ${productToBuild} ${versionToBuild} )
+            shims=$( _getShimsToBuildForProductVersion ${productToBuild} ${versionToBuild} )
         else
-            shims=$( _getAllShimsFor ${productToBuild} )
+            shims=$( _getAllShimsForProduct ${productToBuild} )
         fi
     else
         shims=$( _getAllShims )
     fi
 fi
 
-# result table header    
-_resultsFile="/tmp/$$.results"
-printf '%-45s|%10s|%7s\n' " IMAGE" " DURATION" " RESULT" > ${_resultsFile}
 
 for _shim in ${shims} ; do
-    _shimTag=$( _getLongTag ${_shim})
+    _shimTag=$( _getLongTag ${_shim} )
     
     # find which JVMs to build for each supported SHIM
     _jvms=$( jq -r '[.versions[]|select(.shims[]|contains("'${_shim}'"))|.version]|unique|.[]' pingjvm/versions.json )
@@ -130,11 +187,12 @@ for _shim in ${shims} ; do
     do
         banner "Building pingjvm for JDK ${_jvm} for ${_shim}"
         _start=$( date '+%s' )
+        _image="${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimTag}-${ciTag}"
         _jvm_from=$( jq -r '[.versions[]|select(.shims[]|contains("'${_shim}'"))| select(.version=="'${_jvm}'")|.from]|unique|.[]' pingjvm/versions.json )
         DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
             ${progress} ${noCache} \
             --build-arg SHIM=${_jvm_from} \
-            -t "pingidentity/pingjvm:${_jvm}_${_shimTag}" pingjvm
+            -t ${_image} pingjvm
         _returnCode=${?}
         _stop=$( date '+%s' )
         _duration=$(( _stop - _start ))
@@ -145,21 +203,22 @@ for _shim in ${shims} ; do
         else
             _result="PASS"
             if test -z "${isLocalBuild}" ; then
-                docker tag "pingidentity/pingjvm:${_jvm}_${_shimTag}" "pingidentity/pingjvm:${_jvm}_${_shimTag}-${ciTag}"
-                tag_and_push "pingidentity/pingjvm:${_jvm}_${_shimTag}" "${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimTag}-${ciTag}"
+                banner Pushing ${_image}
+                docker push ${_image}
             fi    
         fi
-        append_status "${_resultsFile}" ${_result} '%-44s|%10s|%7s' " pingjvm:${_jvm}_${_shimTag}" " ${_duration}" " ${_result}"
+        append_status "${_resultsFile}" ${_result} ${_reportPattern} " pingjvm:${_jvm}_${_shimTag}" " ${_duration}" " ${_result}"
+        imagesToCleanup="${imagesToCleanup} ${_image}"
     done
 
     banner "Building pingbase for ${_shim}"
-    # DOCKER_BUILDKIT=1 docker image build --build-arg SHIM=${_shim} -t "pingidentity/pingjvm:${_shimTag}" pingjvm
     _start=$( date '+%s' )
+    _image="${FOUNDATION_REGISTRY}/pingbase:${_shimTag}${experimental:+-ea}-${ciTag}"
     DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
         ${progress} ${noCache} \
         --build-arg SHIM=${_shim} \
         ${experimental:+--build-arg BUILD_OPTIONS=--experimental} \
-        -t "pingidentity/pingbase:${_shimTag}${experimental:+-ea}" pingbase
+        -t ${_image} pingbase
     _returnCode=${?}
     _stop=$( date '+%s' )
     _duration=$(( _stop - _start ))
@@ -167,16 +226,18 @@ for _shim in ${shims} ; do
     then
         returnCode=${_returnCode}
         _result="FAIL"
-        # printf ${FONT_RED}${CHAR_CROSSMARK}'%-44s|%10s|%7s'${FONT_NORMAL}'\n' " pingbase:${_shimTag}${experimental:+-ea}" " ${_duration}" " ${_result}"  >> ${_resultsFile}
     else
         _result="PASS"
         if test -z "${isLocalBuild}" ; then
-            docker tag "pingidentity/pingbase:${_shimTag}" "pingidentity/pingbase:${_shimTag}-${ciTag}"
-            tag_and_push "pingidentity/pingbase:${_shimTag}" "${FOUNDATION_REGISTRY}/pingbase:${_shimTag}-${ciTag}"
+            docker push ${_image}
         fi    
     fi
-    append_status "${_resultsFile}" ${_result}  '%-44s|%10s|%7s' " pingbase:${_shimTag}${experimental:+-ea}" " ${_duration}" " ${_result}"
+    append_status "${_resultsFile}" ${_result}  ${_reportPattern} " pingbase:${_shimTag}${experimental:+-ea}" " ${_duration}" " ${_result}"
+    imagesToCleanup="${imagesToCleanup} ${_image}"
 done
+
+# leave runner without clutter
+test -z "${isLocalBuild}" && docker image rm -f ${imagesToCleanup} && docker image prune -f
 
 cat ${_resultsFile}
 rm ${_resultsFile}

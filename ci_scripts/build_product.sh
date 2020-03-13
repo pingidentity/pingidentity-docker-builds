@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+test -n "${VERBOSE}" && set -x
 
 #
 # Usage printing function
@@ -28,7 +29,6 @@ exit 99
 }
 
 DOCKER_BUILDKIT=1
-test -n "${VERBOSE}" && set -x
 while ! test -z "${1}" ; 
 do
     case "${1}" in
@@ -100,7 +100,9 @@ fi
 
 if test -z "${CI_COMMIT_REF_NAME}" ;
 then
-    CI_PROJECT_DIR="$(cd $(dirname "${0}")/..;pwd)"
+    # shellcheck disable=SC2046 
+    CI_PROJECT_DIR="$( cd $( dirname "${0}" )/.. || exit 97 ; pwd )"
+    test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
@@ -108,30 +110,39 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 
 if test -z "${versionsToBuild}" ; 
 then
-  versionsToBuild=$( _getVersionsFor ${productToBuild} )
+  versionsToBuild=$( _getAllVersionsToBuildForProduct ${productToBuild} )
 fi
 
+if test -z "${isLocalBuild}" && test ${DOCKER_BUILDKIT} -eq 1 ;
+then
+    docker pull ${FOUNDATION_REGISTRY}/pingcommon:${ciTag} 
+    docker pull ${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}
+fi
 
 # result table header    
 _resultsFile="/tmp/$$.results"
-printf '%-25s|%-10s|%-20s|%10s|%7s\n' " PRODUCT" " VERSION" " SHIM" " DURATION" " RESULT" > ${_resultsFile}
+_headerPattern='%-25s|%-10s|%-20s|%10s|%7s\n'
+_reportPattern='%-24s|%-10s|%-20s|%10s|%7s\n'
+printf ${_headerPattern} " PRODUCT" " VERSION" " SHIM" " DURATION" " RESULT" > ${_resultsFile}
 _totalStart=$( date '+%s' )
+
+_date=$( date +"%y%m%d" )
 
 returnCode=0
 for _version in ${versionsToBuild} ; 
 do
-    # if the default shim has been provided as an argument, get it from the versions file
-    if test -z "${defaultShim}" ; 
-    then 
-        _defaultShim=$( _getDefaultShimFor ${productToBuild} ${_version} )
-    else
-        _defaultShim="${defaultShim}"
-    fi
+    # # if the default shim has been provided as an argument, get it from the versions file
+    # if test -z "${defaultShim}" ; 
+    # then 
+    #     _defaultShim=$( _getDefaultShimForProductVersion ${productToBuild} ${_version} )
+    # else
+    #     _defaultShim="${defaultShim}"
+    # fi
 
     # if the list of shims was not provided as agruments, get the list from the versions file
     if test -z "${shimsToBuild}" ; 
     then 
-        _shimsToBuild=$( _getShimsFor ${productToBuild} ${_version} ) 
+        _shimsToBuild=$( _getShimsToBuildForProductVersion ${productToBuild} ${_version} ) 
     else
         _shimsToBuild=${shimsToBuild}
     fi
@@ -139,14 +150,20 @@ do
     if test -f "${productToBuild}/Product-staging" ;
     then
         _start=$( date '+%s' )
+        _dependencies=$( _getDependenciesForProductVersion ${productToBuild} ${_version} )
+        _image="${FOUNDATION_REGISTRY}/${productToBuild}:staging-${_version}-${ciTag}"
         # build the staging for each product so we don't need to download and stage the product each time
         DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build \
             -f ${productToBuild}/Product-staging \
-            -t "pingidentity/${productToBuild}:staging-${_version}" \
+            -t ${_image} \
             ${progress} ${noCache} \
+            --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
+            --build-arg GIT_TAG="${ciTag}" \
+            --build-arg DEVOPS_USER="${PING_IDENTITY_DEVOPS_USER}" \
+            --build-arg DEVOPS_KEY="${PING_IDENTITY_DEVOPS_KEY}" \
             --build-arg VERSION="${_version}" \
             --build-arg PRODUCT="${productToBuild}" \
-            "${productToBuild}"
+            ${_dependencies} "${productToBuild}"
         _returnCode=${?}
         _stop=$( date '+%s' )
         _duration=$(( _stop - _start ))
@@ -157,24 +174,46 @@ do
             if test -n "${failFast}" ;
             then
                 banner "Build break for ${productToBuild} staging for version ${_version}"
-                exit ${exitCode}
+                exit ${_returnCode}
             fi
         else
             _result=PASS
         fi
-        append_status "${_resultsFile}" ${_result} '%-25s|%-10s|%-20s|%10s|%7s' " ${productToBuild}" " ${_version}" " Staging" " ${_duration}" "${_result}"
+        append_status "${_resultsFile}" ${_result} ${_reportPattern} " ${productToBuild}" " ${_version}" " Staging" " ${_duration}" "${_result}"
+        imagesToClean="${imagesToClean} ${_image}"
     fi
     
     # iterate over the shims (default to alpine)
     for _shim in ${_shimsToBuild:-alpine} ; 
     do
         _start=$( date '+%s' )
-        "${CI_SCRIPTS_DIR}/build_and_tag.sh" \
-            --product "${productToBuild}" \
-            --shim "${_shim}" \
-            --default-shim ${_defaultShim:-alpine} \
-            --version ${_version} \
-            ${dryRun:+--dry-run} ${noCache} ${noBuildKitArg} ${verboseBuildArg}
+        _shimLongTag=$( _getLongTag "${_shim}" )
+        _jdk=$( _getJDKForProductVersionShim ${productToBuild} ${_version} ${_shim} )
+        if test -z "${isLocalBuild}" && test ${DOCKER_BUILDKIT} -eq 1 ;
+        then
+            docker pull "${FOUNDATION_REGISTRY}/pingjvm:${_jdk}_${_shimLongTag}-${ciTag}"
+        fi
+
+        fullTag="${_version}-${_shimLongTag}-${ciTag}"
+        imageVersion="${productToBuild}-${_shimLongTag}-${_version}-${_date}-${gitRevShort}"
+        licenseVersion="$( _getLicenseVersion ${_version} )"
+
+        _image="${FOUNDATION_REGISTRY}/${productToBuild}:${fullTag}"
+        DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build \
+            -t ${_image} \
+            ${progress} ${noCache} \
+            --build-arg PRODUCT="${productToBuild}" \
+            --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
+            --build-arg GIT_TAG="${ciTag}" \
+            --build-arg JDK="${_jdk}" \
+            --build-arg SHIM="${_shim}" \
+            --build-arg SHIM_TAG="${_shimLongTag}" \
+            --build-arg VERSION="${_version}" \
+            --build-arg IMAGE_VERSION="${imageVersion}" \
+            --build-arg IMAGE_GIT_REV="${gitRevLong}" \
+            --build-arg LICENSE_VERSION="${licenseVersion}" \
+            "${productToBuild}"
+
         _returnCode=${?}
         _stop=$( date '+%s' )
         _duration=$(( _stop - _start ))
@@ -185,17 +224,24 @@ do
             if test -n "${failFast}" ; 
             then
                 banner "Build break for ${productToBuild} on ${_shim} for version ${_version}"
-                exit ${exitCode}
-            
+                exit ${_returnCode}
             fi
         else
             _result=PASS
+            if test -z "${isLocalBuild}" ;
+            then
+                ${dryRun} docker push "${_image}"
+                ${dryRun} docker image rm -f ${_image}
+            fi
         fi
-        append_status "${_resultsFile}" ${_result} '%-25s|%-10s|%-20s|%10s|%7s' " ${productToBuild}" " ${_version}" " ${_shim}" " ${_duration}" "${_result}"
+        append_status "${_resultsFile}" ${_result} ${_reportPattern} " ${productToBuild}" " ${_version}" " ${_shim}" " ${_duration}" "${_result}"
     done
-    _defaultShim=""
     _shimsToBuild=""
 done
+
+# leave the runner without clutter
+test -z "${isLocalBuild}" && docker image rm -f ${imagesToClean}
+
 cat ${_resultsFile}
 rm ${_resultsFile}
 _totalStop=$( date '+%s' )
