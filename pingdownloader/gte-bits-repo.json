@@ -3,7 +3,7 @@
     "gpg" :{
         "server": "pgpkeys.mit.edu",
         "key": "F98F0E3F",
-        "key-file": "signing-key-public.gpg"
+        "file": "signing-key-public.gpg"
     },
     "products": [
         {
@@ -70,6 +70,16 @@
             "mapping": "pingfederate-${version}.zip",
             "latestVersion": "10.0.1",
             "licenseFile": "pingfederate.lic"
+        },
+        {
+            "name": "apache-tomcat",
+            "mapping": "apache-tomcat-${version}.zip",
+            "latestVersion": "9.0.31"
+        },
+        {
+            "name": "apache-jmeter",
+            "mapping": "apache-jmeter-${version}.zip",
+            "latestVersion": "5.2.1"
         }
     ]
 }

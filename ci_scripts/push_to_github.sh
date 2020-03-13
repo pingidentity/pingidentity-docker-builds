@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
-HERE=$(cd $(dirname "${0}");pwd)
-if test ! -z "${CI_COMMIT_REF_NAME}" ; then
-  . ${CI_PROJECT_DIR}/ci_scripts/ci_tools.lib.sh
-else 
-  # shellcheck source=./ci_tools.lib.sh
-  . "${HERE}/ci_tools.lib.sh"
+test -n "${VERBOSE}" && set -x
+
+if test -z "${CI_COMMIT_REF_NAME}" ;then
+    # shellcheck disable=SC2046
+    CI_PROJECT_DIR="$( cd $(dirname "${0}")/.. || exit 97 ; pwd )"
+    test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
+CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts";
+# shellcheck source=./ci_tools.lib.sh
+. "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
 rm -rf ~/tmp/build
 mkdir -p ~/tmp/build && cd ~/tmp/build || exit 9
 
 git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.corp.pingidentity.com/devops-program/docker-builds
-cd docker-builds
+cd docker-builds || exit 97
 git config user.email "devops_program@pingidentity.com"
 git config user.name "devops_program"
 

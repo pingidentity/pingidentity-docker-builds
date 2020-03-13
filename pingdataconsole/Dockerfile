@@ -8,45 +8,48 @@
 #- - `tomcat:8-jre8-alpine` - Tomcat engine to serve PingDataConsole .war file
 #-
 
-FROM pingidentity/pingdownloader as staging
-ARG PRODUCT=pingdirectory
-ARG VERSION=8.0.0.1
-# copy your product zip file into the staging image
-RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
-	&& unzip -d /tmp/ /tmp/product.zip PingDirectory/resource/admin-console.zip \
-	&& unzip -d /tmp/ /tmp/PingDirectory/resource/admin-console.zip admin-console.war \
-    && mkdir /opt/console \
-    && unzip -d /opt/console /tmp/admin-console.war
+ARG PRODUCT
+ARG SHIM
+ARG SHIM_TAG
+ARG VERSION
+ARG JDK
+ARG REGISTRY
+ARG GIT_TAG
+
+FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
+FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
+FROM ${REGISTRY}/pingjvm:${JDK}_${SHIM_TAG}-${GIT_TAG} as jvm
+
+FROM ${SHIM} as final-staging
+ENV SHIM=${SHIM}
+
+# get the product bits FIRST
+COPY --from=product-staging ["/opt/","/opt/"]
+
+# get Ping-wide common scripts
+#   this needs to happen after the bits have been laid down
+#   so they can be patched
+COPY --from=common ["/opt/","/opt/"]
+
+# get the jvm
+COPY --from=jvm ["/opt/java","/opt/java"]
+
+# apply product-specific hooks and patches
+COPY ["/opt","/opt"]
+
+# Run build
+RUN ["/opt/build.sh"]
 
 #
 # the final image 
 #
-FROM tomcat:8-jre8-alpine
-ENV ORIGINAL_ENTRYPOINT=""
-ENV GIT_PREFIX=SERVER_PROFILE
-ENV ORIGINAL_CMD="catalina.sh run"
-LABEL	maintainer=devops_program@pingidentity.com \
-		license="Ping Identity Proprietary" \
-		vendor="Ping Identity Corp." \
-		name="Ping Identity PingDataConsole (Alpine/OpenJDK8) Image"
-EXPOSE 8443
-
-ENV VERBOSE=false
-ENV _DOLLAR_="$"
-RUN apk --no-cache --update add curl ca-certificates git \
-    && rm -rf /usr/local/tomcat/webapps/* \
-    && mkdir -p /usr/local/tomcat/webapps/ROOT \
-    && mkdir -p /opt/in
-
-COPY --from=staging ["/opt/console","/usr/local/tomcat/webapps/console"]
-COPY ["index.html","/usr/local/tomcat/webapps/ROOT/"]
-COPY ["server.xml","/usr/local/tomcat/conf/"]
-COPY ["keystore","/opt/in/"]
-COPY ["giterized-entrypoint.sh","/"]
-COPY [ "liveness.sh", "/usr/local/bin/" ]
-HEALTHCHECK --interval=31s --timeout=30s --start-period=5s --retries=3 CMD [ "/usr/local/bin/liveness.sh" ]
-# CMD ["catalina.sh","run"]
-ENTRYPOINT [ "/giterized-entrypoint.sh" ]
+FROM ${REGISTRY}/pingbase:${SHIM_TAG}-${GIT_TAG}
+COPY --from=final-staging ["/","/"]
+ENV HTTP_PORT=8080
+ENV HTTPS_PORT=8443
+ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/catalina.sh"
+ENV STARTUP_FOREGROUND_OPTS="run"
+ENV STARTUP_BACKGROUND_OPTS="start"
 
 #- ## Run
 #- To run a PingDataConsole container: 
@@ -54,7 +57,7 @@ ENTRYPOINT [ "/giterized-entrypoint.sh" ]
 #- ```shell
 #-   docker run \
 #-            --name pingdataconsole \
-#-            --publish 8443:8443 \
+#-            --publish ${HTTPS_PORT}:${HTTPS_PORT} \
 #-            --detach \
 #-            pingidentity/pingdataconsole
 #- ```
@@ -67,7 +70,7 @@ ENTRYPOINT [ "/giterized-entrypoint.sh" ]
 #- ```
 #- 
 #- If using the command above with the embedded [server profile](../server-profiles/README.md), log in with: 
-#- * http://localhost:8443/console/login
+#- * http://localhost:${HTTPS_PORT}/console/login
 #- ```
 #- Server: pingdirectory
 #- Username: administrator

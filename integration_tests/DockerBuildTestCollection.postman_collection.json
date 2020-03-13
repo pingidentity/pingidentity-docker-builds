@@ -13,11 +13,11 @@
 					"script": {
 						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
 						"exec": [
-							"var _retries = pm.environment.get(\"_retries\");",
+							"var _retries=pm.variables.has(\"_retries\")?pm.variables.get(\"_retries\"):pm.variables.get(\"request_retry_count\");",
 							"",
 							"// Checks to see if the server actually responded",
 							"if (pm.response.code == 200 ) {",
-							"    pm.environment.unset(\"_retries\");",
+							"    pm.variables.unset(\"_retries\");",
 							"    console.log(\"connection successful\");",
 							"    ",
 							"    pm.test(\"response is ok\", function(){",
@@ -28,18 +28,20 @@
 							"        pm.response.to.not.have.body();",
 							"    });",
 							"} else {",
-							"    if (!_retries) {",
-							"        _retries=10;",
-							"    }",
+							"    console.log(\". retries: \"+_retries);",
+							"    _retries--;",
+							"    console.log(\"- retries: \"+_retries);",
 							"    ",
 							"    if ( _retries > 0 ) {",
-							"        _retries--;",
-							"        pm.environment.set(\"_retries\", _retries);",
-							"        var timeout=_.random(1000,15000);",
-							"        console.log(\"Attempting next connection in \"+timeout+\"ms ...\");",
+							"        pm.variables.set(\"_retries\", _retries);",
+							"        var _retry_min=pm.variables.get(\"request_retry_delay_min_ms\");",
+							"        var _retry_max=pm.variable.get(\"request_retry_delay_max_ms\");",
+							"        var _timeout=_.random(_retry_min, _retry_max);",
+							"        console.log(_retries+\" retries left. Attempting next connection in \"+_timeout+\"ms ...\");",
 							"        // loop back to this request (request.name) after the timeout elapses",
 							"        setTimeout(function() {postman.setNextRequest(request.name);}, timeout);",
 							"    } else { ",
+							"        console.log(\"Attempts exhausted\");",
 							"        postman.setNextRequest(null);",
 							"    }",
 							"}",
@@ -63,6 +65,9 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "OPTIONS",
 				"header": [],
 				"url": {
@@ -146,19 +151,7 @@
 			],
 			"request": {
 				"auth": {
-					"type": "basic",
-					"basic": [
-						{
-							"key": "password",
-							"value": "{{admin_pwd}}",
-							"type": "string"
-						},
-						{
-							"key": "username",
-							"value": "{{admin_user}}",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "GET",
 				"header": [],
@@ -268,6 +261,64 @@
 			"response": []
 		},
 		{
+			"name": "PA CHECK PingDirectory engine honors requests",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "8b33294a-65a5-4865-9698-5f4c71965d01",
+						"exec": [
+							"var _host = pm.variables.get(\"pa_engine_hostname\");",
+							"var _port = pm.variables.get(\"pa_engine_port\");",
+							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "ddf0a6f6-ec88-4f05-896f-8c6db465d0c9",
+						"exec": [
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"",
+							"    pm.test(\"response is not JSON\", function(){",
+							"        pm.response.to.not.be.json;",
+							"    });",
+							"",
+							"    pm.test(\"response string is OK\", function(){",
+							"        pm.expect(pm.response.text()).to.include(\"OK\");",
+							"    });    "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pa_engine_hostname}}:{{pa_engine_port}}/pa/heartbeat.ping",
+					"protocol": "https",
+					"host": [
+						"{{pa_engine_hostname}}"
+					],
+					"port": "{{pa_engine_port}}",
+					"path": [
+						"pa",
+						"heartbeat.ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "PD CHECK HEAD available-or-degraded-state",
 			"event": [
 				{
@@ -289,6 +340,9 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "HEAD",
 				"header": [],
 				"url": {
@@ -327,6 +381,9 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "HEAD",
 				"header": [],
 				"url": {
@@ -366,6 +423,9 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "HEAD",
 				"header": [],
 				"url": {
@@ -417,6 +477,9 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -468,6 +531,9 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -521,6 +587,9 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "POST",
 				"header": [],
 				"url": {
@@ -573,6 +642,9 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "POST",
 				"header": [],
 				"url": {
@@ -1681,6 +1753,72 @@
 			"response": []
 		},
 		{
+			"name": "PA GET  anything without auth",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "8b33294a-65a5-4865-9698-5f4c71965d01",
+						"exec": [
+							"var _runId = Math.floor(Math.random()*100000);",
+							"pm.variables.set(\"_runId\",_runId);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "ddf0a6f6-ec88-4f05-896f-8c6db465d0c9",
+						"exec": [
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"",
+							"    pm.test(\"response is JSON\", function(){",
+							"        pm.response.to.be.json;",
+							"    });",
+							"",
+							"    pm.test(\"response has correct run ID\", function(){",
+							"        var jsonData = pm.response.json();",
+							"        pm.expect(jsonData.headers[\"X-Ping-Build-Run-Id\"]).to.equal(\"\"+pm.variables.get(\"_runId\"));",
+							"    });    "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Ping-Build-Run-Id",
+						"value": "{{_runId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://{{pa_engine_hostname}}:{{pa_engine_port}}/anything",
+					"protocol": "https",
+					"host": [
+						"{{pa_engine_hostname}}"
+					],
+					"port": "{{pa_engine_port}}",
+					"path": [
+						"anything"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "PD REST API delete group",
 			"event": [
 				{
@@ -1814,87 +1952,129 @@
 	],
 	"variable": [
 		{
-			"id": "f6f8de3f-933b-4ac9-af99-80e54d6007f8",
+			"id": "a632b00a-92f8-4539-95a5-a6b15717a2b7",
+			"key": "request_retry_count",
+			"value": "10",
+			"type": "string"
+		},
+		{
+			"id": "9205e908-065d-4f08-abb3-5b9c7bcc8d00",
+			"key": "request_retry_delay_max_ms",
+			"value": "15000",
+			"type": "string"
+		},
+		{
+			"id": "ad30bf71-d15b-4c99-a22e-618a1ca4d76d",
+			"key": "request_retry_delay_min_ms",
+			"value": "1000",
+			"type": "string"
+		},
+		{
+			"id": "c7621cd8-7b54-4e16-81bc-cb5d2cbd1c0a",
 			"key": "admin_user",
 			"value": "administrator",
 			"type": "string"
 		},
 		{
-			"id": "dcab7645-c9f0-492c-b27c-979fcabb6353",
+			"id": "bf7331eb-5090-4291-8401-7acdb4ccc7e5",
 			"key": "admin_pwd",
 			"value": "2FederateM0re",
 			"type": "string"
 		},
 		{
-			"id": "6f1261da-0686-4bc2-8ef5-5ff81a161e2d",
+			"id": "f670b160-484e-4dac-bd64-c2a124d2443f",
 			"key": "pd_admin_user",
 			"value": "cn={{admin_user}}",
 			"type": "string"
 		},
 		{
-			"id": "7a3da5ba-4668-4334-9a72-ed14d24df04c",
+			"id": "8e448ecf-ca68-4e4f-8737-369ea2c3ae67",
 			"key": "pd_admin_pwd",
 			"value": "{{admin_pwd}}",
 			"type": "string"
 		},
 		{
-			"id": "0bd90438-27c3-4791-918d-fbede5139149",
+			"id": "e5c59022-565e-4aff-ba35-f443b3daf4d7",
 			"key": "pd_hostname",
 			"value": "pingdirectory",
 			"type": "string"
 		},
 		{
-			"id": "bd5cd67f-0c13-4602-8aae-a0467a03df5e",
+			"id": "f7430cb1-5b23-4a31-901b-c0021d7f825a",
 			"key": "pd_port_https",
 			"value": "443",
 			"type": "string"
 		},
 		{
-			"id": "45f3cdb1-e762-4857-b417-94b73f3fffa1",
+			"id": "8a3476ff-bc17-4c08-9a16-1830f365aefc",
 			"key": "pd_port_ldaps",
 			"value": "636",
 			"type": "string"
 		},
 		{
-			"id": "bccf3599-498e-4b62-9652-c15354e26aec",
+			"id": "e42e2650-3f52-4203-b607-26d5a396fd00",
 			"key": "pd_port_ldap",
 			"value": "389",
 			"type": "string"
 		},
 		{
-			"id": "0185ff42-731c-46b7-88a0-d76e84130139",
+			"id": "a077361e-2584-4210-b52c-87805fa8ae51",
 			"key": "pf_engine_hostname",
 			"value": "pingfederate",
 			"type": "string"
 		},
 		{
-			"id": "7aee9d27-62be-4373-a462-7230428eead4",
+			"id": "7867c878-14f2-4103-a753-be6d5b79dde4",
 			"key": "pf_engine_port",
 			"value": "9031",
 			"type": "string"
 		},
 		{
-			"id": "51c83579-d3a1-4706-8a58-a2f2904cbd56",
+			"id": "6397095d-b5c0-4618-beb4-1f2ed392bdd1",
 			"key": "pf_admin_hostname",
 			"value": "pingfederate",
 			"type": "string"
 		},
 		{
-			"id": "81f70fb2-cbc9-47fc-86ba-e488a4f7fae8",
+			"id": "f6eedacf-fb65-42ba-b092-bd8cd6c2d1cb",
 			"key": "pf_admin_port",
 			"value": "9999",
 			"type": "string"
 		},
 		{
-			"id": "282540bb-ecb8-46ad-b35e-59f0e5112880",
+			"id": "c48e2037-18bc-4f30-a9f8-1f3f302ea0ed",
 			"key": "regular_user",
 			"value": "postman.user.0",
 			"type": "string"
 		},
 		{
-			"id": "acc7eba7-6244-491a-9f0e-78e6e43f4a69",
+			"id": "0ef9fd28-272f-4bef-9fd6-db7d77e149c7",
 			"key": "regular_pwd",
 			"value": "{{admin_pwd}}",
+			"type": "string"
+		},
+		{
+			"id": "8a7905d5-e4c1-4b3a-a17e-6a02ca101aa3",
+			"key": "pa_engine_hostname",
+			"value": "pingaccess",
+			"type": "string"
+		},
+		{
+			"id": "cd7c45d2-c61c-491d-b26e-b006bbe4a89b",
+			"key": "pa_engine_port",
+			"value": "443",
+			"type": "string"
+		},
+		{
+			"id": "a31169b7-c788-4c09-92da-1de5b2277fd4",
+			"key": "pa_admin_hostname",
+			"value": "pingaccess",
+			"type": "string"
+		},
+		{
+			"id": "5f7444e8-977d-4c9b-888c-1278a7a2c101",
+			"key": "pa_admin_port",
+			"value": "9000",
 			"type": "string"
 		}
 	],

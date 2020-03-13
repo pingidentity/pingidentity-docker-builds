@@ -2,8 +2,9 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
+test -n "${VERBOSE}" && set -x
 TOOL_NAME=$( basename "${0}" )
-cd "$( dirname "${0}" )" || exit 1
+cd "$( dirname "${0}" )" || exit 97
 
 ##########################################################################################
 usage ()
@@ -26,6 +27,13 @@ Options include:
     -v, --version {version-num}      The version of the product bits/license to download.
                                      by default, the downloader will pull the 
                                      latest version
+    -u, --devops-user {devops-user}  Your Ping DevOps Username
+                                     Alternately, you may pass PING_IDENTITY_DEVOPS_USER
+                                     environment variable
+    -k, --devops-key {devops-key}    Your Ping DevOps Key
+                                     Alternately, you may pass PING_IDENTITY_DEVOPS_KEY
+                                     environment variable
+    -a, --devops-app {app-name}      Your App Name
     -r, --repository                 The URL of the repository to use to get the bits
     -m, --metadata-file              The file name with the repository metadata
 
@@ -41,13 +49,6 @@ For product downloads:
 
 For license downloads:
     *-l, --license                   Download a license file
-    -u, --devops-user {devops-user}  Your Ping DevOps Username
-                                     Alternately, you may pass PING_IDENTITY_DEVOPS_USER
-                                     environment variable
-    -k, --devops-key {devops-key}    Your Ping DevOps Key
-                                     Alternately, you may pass PING_IDENTITY_DEVOPS_KEY
-                                     environment variable
-    -a, --devops-app {app-name}      Your App Name
     
 Where {product-name} is one of:
 END_USAGE1
@@ -112,7 +113,7 @@ echo_green()
 ##########################################################################################
 getProps ()
 {
-    curlResult=$( curl -kL -w '%{http_code}' ${repositoryURL}${metadataFile} -o ${outputProps} 2>/dev/null )
+    curlResult=$( curl -kL -w '%{http_code}' -H "devops-user: ${devopsUser}" -H "devops-key: ${devopsKey}" -H "devops-app: pingdownloader-get-metadata" ${repositoryURL}${metadataFile} -o ${outputProps} 2>/dev/null )
 
 	! test $curlResult -eq 200 && usage "Unable to get bits metadata. Network Issue?"
 
@@ -162,6 +163,7 @@ getProductFile ()
 getProductURL ()
 {
 	defaultURL=$( jq -r '.defaultURL' ${outputProps} ) 
+    #defaultURL="https://license.pingidentity.com/devops/v2/download/"
 	
 	prodURL=$( jq -r ".products[] | select(.name==\"${product}\").url" ${outputProps} )
 	
@@ -193,6 +195,11 @@ getGPGKeyID ()
     jq -r ".gpg.key" ${outputProps}
 }
 
+getGPGKeyFile ()
+{
+    jq -r ".gpg.file" ${outputProps}
+}
+
 saveOutcome ()
 {
     mv ${output} download-outcome.html
@@ -203,55 +210,96 @@ cleanup ()
     test -z "${dryRun}" && rm -f ${outputProps}
 }
 
+_curl ()
+{
+    _httpResultCode=$( 
+        curl \
+            --get \
+            --silent \
+            --show-error \
+            --write-out '%{http_code}' \
+            --location \
+            --connect-timeout 2 \
+            --retry 6 \
+            --retry-max-time 30 \
+            --retry-connrefused \
+            --retry-delay 3 \
+            --header "devops-user: ${devopsUser}" \
+            --header "devops-key: ${devopsKey}" \
+            --header "devops-app: ${devopsApp}" \
+            "${@}"
+    )
+    test ${_httpResultCode} -eq 200
+    return ${?}
+}
+
 download_and_verify ()
 {
 	export GNUPGHOME="$(mktemp -d)" 
     TMP_VS="$( mktemp -d )"
     PAYLOAD="${TMP_VS}/payload" 
-    SIGNATURE="${TMP_VS}/signature" 
+    SIGNATURE="${TMP_VS}/signature"
+    KEY="${TMP_VS}/key"
     OBJECT="${1}"
     KEY_SERVER="${2}"
     KEY_ID="${3}"
     DESTINATION="${4}"
     echo "disable-ipv6" >> "${GNUPGHOME}/dirmngr.conf"
-    curl -sSLo "${PAYLOAD}" --connect-timeout 2 --retry 6 --retry-max-time 30 --retry-connrefused --retry-delay 3 "${OBJECT}"
-    _returnCode=${?}
-    if test ${_returnCode} -ne 0 ;
-    then
-        echo_red "Downloading the payload failed"
-        return ${_returnCode}
-    fi
-    curl -sSLo "${SIGNATURE}"  --connect-timeout 2 --retry 6 --retry-max-time 30 --retry-connrefused --retry-delay 3 "${OBJECT}.asc"
-    _returnCode=${?}
-    if test ${_returnCode} -ne 0 ;
+
+    
+    if ! _curl --header "devops-purpose: signature" --output "${SIGNATURE}" "${OBJECT}.asc" ;
     then
         echo_red "Downloading the payload signature failed"
-        return ${_returnCode}
+        return 1
+    fi
+    
+    if ! _curl --header "devops-purpose: payload-signed" --output "${PAYLOAD}" "${OBJECT}" ;
+    then
+        echo_red "Downloading the payload failed"
+        return 2
     fi
     #
     # the gpg cli does not natively support retries, forcing us to 
     # manually implement retries to fetch the signature from the 
     # GPG public key server
     #
-    _retries=4
-    while test ${_retries} -gt 0 ;
-    do
-        gpg --batch --keyserver ${KEY_SERVER} --recv-keys ${KEY_ID}
-        _returnCode=${?}
-        if test ${_returnCode} -eq 0 ;
+    if test "${KEY_ID}" = "file" ;
+    then
+        # pass "file" as the key argument to have this function download the file instead
+        if _curl --header "devops-pupose: signature-key" --output "${KEY}" ${KEY_SERVER} ;
         then
-            _retries=${_returnCode}
+            gpg --import "${KEY}" >/dev/null 2>/dev/null
+            _returnCode=${?}
+            if test ${_returnCode} -ne 0 ;
+            then
+                echo_red "The PGP key file could not be imported"
+            fi
         else
-            _retries=$(( _retries - 1 ))
+            echo_red "The PGP key file could not be downloaded from ${KEY_SERVER}"
+            _returnCode=1
         fi
-    done
+    else
+        _retries=4
+        while test ${_retries} -gt 0 ;
+        do
+            gpg --batch --keyserver ${KEY_SERVER} --recv-keys ${KEY_ID} >/dev/null 2>/dev/null
+            _returnCode=${?}
+            if test ${_returnCode} -eq 0 ;
+            then
+                _retries=${_returnCode}
+            else
+                _retries=$(( _retries - 1 ))
+            fi
+        done
+    fi
+
     if test ${_returnCode} -ne 0 ;
     then
         echo_red "Obtaining the public key to verify the payload signature failed"
         return ${_returnCode}
     fi
     
-    gpg --batch --verify "${SIGNATURE}" "${PAYLOAD}"
+    gpg --batch --verify "${SIGNATURE}" "${PAYLOAD}" >/dev/null 2>/dev/null
     _returnCode=${?}
     if test ${_returnCode} -eq 0 ;
     then
@@ -261,7 +309,7 @@ download_and_verify ()
         echo_red "The payload signature verification failed."
         rm "${PAYLOAD}"
     fi
-	gpgconf --kill all 
+	gpgconf --kill all  >/dev/null 2>/dev/null
     return ${_returnCode}
 }
 
@@ -273,11 +321,11 @@ dryRun=""
 devopsUser="${PING_IDENTITY_DEVOPS_USER}"
 devopsKey="${PING_IDENTITY_DEVOPS_KEY}"
 # default to GTE public repo in S3
-repositoryURL="https://s3.amazonaws.com/gte-bits-repo/"
+repositoryURL="https://license.pingidentity.com/devops/v2/download/"
 # default to GTE metadata file
 metadataFile="gte-bits-repo.json"
 # default app name
-devopsApp="pingdownloader"
+devopsApp=""
 while ! test -z "${1}" ; do
     case "${1}" in
 		-a|--devops-app)
@@ -308,7 +356,7 @@ while ! test -z "${1}" ; do
             metadataFile="${1}"
             ;;
 		-n|--dry-run)
-			dryRun=true
+			dryRun=echo
 			;;
         -r|--repository)
             shift
@@ -335,32 +383,30 @@ while ! test -z "${1}" ; do
 	esac
     shift
 done
+outputProps="/tmp/${metadataFile}"
 
 # If we weren't passed a product option, then error
 test -z "${product}" && usage "Option --product {product} required"
+test -z "${devopsUser}" && usage "Option --devops-user {devops-user} required for eval license"
+test -z "${devopsKey}" && usage "Option --devops-key {devops-key} required for eval license"
 
-outputProps="/tmp/${metadataFile}"
-
+# calling getProps populates the list of available products from the metadata file
 getProps
-
-
 for prodName in ${availableProducts}; do
     if test "${product}" = "${prodName}" ; then
         foundProduct=true
     fi
 done
-
-
 # If we didn't find the product in the property file, then error
-! test ${foundProduct} && usage "Invalid product name ${product}"
+test ${foundProduct} || usage "Invalid product name ${product}"
 
 getProductVersion
 getProductFile
 getProductURL
 
+exitCode=1
+
 if test ${pullLicense} ; then
-    test -z ${devopsKey} && usage "Option --devops-key {devops-key} required for eval license"
-    test -z ${devopsUser} && usage "Option --devops-user {devops-user} required for eval license"
 
     case "${product}" in
         pingdirectory|pingdatasync|pingdirectoryproxy|pingdatametrics)
@@ -390,6 +436,8 @@ if test ${pullLicense} ; then
     getProductLicenseFile
     output="product.lic"
     test ${conserveName} && test -n "${licenseFile}" && output=${licenseFile}
+
+    test -z "${devopsApp}" && devopsApp="pingdownloader-license-${product}"
 else
     # Construct the url used to pull the product down
     url="${prodURL}${prodFile}"
@@ -399,8 +447,8 @@ else
     output="product.zip"
 
     test ${conserveName} && output=${prodFile}
+    test -z "${devopsApp}" && devopsApp="pingdownloader-download-${prodFile}"
 fi
-
 
 echo "
 ######################################################################
@@ -415,7 +463,7 @@ if test ${pullLicense} ; then
     cd /tmp || exit 2
     if test -n "${dryRun}" ; then
         cat<<END_CURL
-        curl -GkL \
+        curl -GsSL \
             -w '%{http_code}' \
             -H "product: ${productShortName}" \
             -H "version: ${licenseVersion}" \
@@ -426,16 +474,13 @@ if test ${pullLicense} ; then
             "${url}"
 END_CURL
     else
-        curlResult=$( curl -GkL \
-            -w '%{http_code}' \
-            -H "product: ${productShortName}" \
-            -H "version: ${licenseVersion}" \
-            -H "devops-user: ${devopsUser}" \
-            -H "devops-key: ${devopsKey}" \
-            -H "devops-app: ${devopsApp}" \
-            -o "${output}" \
-            "${url}"  )
-        test ${curlResult} -ne 200 && echo "Unable to download product.lic" && saveOutcome && cleanup && exit 1
+        if _curl -H "devops-purpose: license" -H "product: ${productShortName}" -H "version: ${licenseVersion}" -o "${output}" "${url}" ;
+        then
+            echo_green "Successful download of ${productShortName} ${licenseVersion} license"
+            exitCode=0
+        else
+            echo_red "Failed to obtain a license for ${productShortName} ${licenseVersion}"
+        fi
     fi
 else
     echo "#      DOWNLOADING: ${prodFile}"
@@ -443,16 +488,34 @@ else
     cd /tmp || exit 2
     
     if test -n "${dryRun}" ; then
-        echo curl -kL -w '%{http_code}' -o "${output}" "${url}"
+        echo curl -sSL -w '%{http_code}' -o "${output}" -H "devops-user: ${devopsUser}" -H "devops-key: ${devopsKey}" -H "devops-app: ${devopsApp}" "${url}"
     else
         if test -n "${verifyGPGSignature}" ; 
         then
-            server=$(getGPGKeyServer)
-            key=$(getGPGKeyID)
-            download_and_verify "${url}" "${server}" "${key}" "${output}"
+            keyFile=$( getGPGKeyFile )
+            if test -n "${keyFile}" && test "${keyFile}" != "null" ;
+            then
+                server="${defaultURL}${keyFile}"
+                key="file"
+            else
+                server=$( getGPGKeyServer )
+                key=$( getGPGKeyID )
+            fi
+            if download_and_verify "${url}" "${server}" "${key}" "${output}" ;
+            then
+                echo_green "Successful download and verification of ${url}"
+                exitCode=0
+            else
+                echo_red "Failed to obtain a verified copy of ${url}"
+            fi
         else
-            curlResult=$( curl -kL -w '%{http_code}' -o "${output}" "${url}" )
-            test ${curlResult} -ne 200 && echo "Unable to download ${prodFile}" && saveOutcome && cleanup && exit 1
+            if _curl --header "devops-purpose: payload-unsigned" --output "${output}" "${url}" ; 
+            then
+                echo_green "Sucessful download of ${url}"
+                exitCode=0
+            else
+                echo_red "Unable to download ${prodFile}"
+            fi
         fi
     fi
 fi
@@ -461,4 +524,5 @@ echo "######################################################################"
 
 # Need this exit of 0, since the last test of the curlResult will return a 1
 cleanup
-exit 0
+test ${exitCode} -ne 0 && saveOutcome
+exit ${exitCode}

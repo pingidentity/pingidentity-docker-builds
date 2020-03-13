@@ -1,24 +1,36 @@
-FROM pingidentity/pingdownloader as staging
+ARG REGISTRY
+ARG GIT_TAG
+
+FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
 ARG PRODUCT
 ARG VERSION
 # MODE could be standalone, egine, stock
 # the idea is to produce images with just-enough for their intended use
 # to improve bootstrap time and reduce pressure on backhaul 
 ARG MODE=standalone
+
+ARG DEVOPS_USER
+ARG DEVOPS_KEY
+
 # copy your product zip file into the staging image
 #
 # For the record, the "|| :" expression means "or null"
 # the null operator is no-op here but allows the subshell to return success either way 
-RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
+
+# copy your product zip file into the staging image
+RUN /get-bits.sh --product ${PRODUCT} \
+        --version ${VERSION} \
+        --devops-user ${DEVOPS_USER} \
+        --devops-key ${DEVOPS_KEY} \
+        --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
+        --verify-gpg-signature \
 	&& unzip /tmp/product.zip -d /tmp/ \
-	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe -o -iname \*.pdf -o -name pingfederate-service-installer.jar \) -exec rm -f {} \+ \
-    && find -type d -name bat -exec rm -rf {} \; \
-    && ( test "${MODE}" != "stock" && rm -rf /tmp/pingfederate-*/pingfederate/sdk || : ) \
-    && ( test "${MODE}" != "stock" && rm -rf /tmp/pingfederate-*/pingfederate/upgrade || : ) \
-    && ( test "${MODE}" = "engine" \
-        && rm -f /opt/server/etc/jetty-admin.xml /opt/server/server/default/deploy2 \
-        || : \
-       ) \
+        -x */pingfederate-service-installer.jar \
+        -x pingfederate-*/pingfederate/sdk/* \
+        -x pingfederate-*/pingfederate/upgrade/* \
+        -x *.bat \
+        -x *.dll \
+        -x *.exe \
     && mv /tmp/pingfederate-*/pingfederate /opt/server
 
 

@@ -1,23 +1,27 @@
 {
+    "latest":"8.0.0.1",
     "versions":[
         {   
             "version": "8.0.0.1",
-            "latest": true,
+            "preferredShim": "alpine",
             "distributions":[
                 {
                     "shim": "alpine",
-                    "preferred": true,
-                    "jdk": "11"
+                    "jdk": "11",
+                    "build": true,
+                    "deploy": true
                 }
             ]
         },
         {   
             "version": "7.3.0.7",
+            "preferredShim": "alpine",
             "distributions":[
                 {
                     "shim": "alpine",
-                    "preferred": true,
-                    "jdk": "11"
+                    "jdk": "11",
+                    "build": true,
+                    "deploy": true
                 }
             ]
         }

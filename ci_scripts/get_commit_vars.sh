@@ -1,4 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
+test -n "${VERBOSE}" && set -x
+
 message=$(git show -s --format=%B HEAD)
 # eval "$1"=true
 # echo "$test_only"

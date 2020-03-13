@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+echo "Pre-build stage (before package are laid down on the shim)"
+set -x
+find /opt/staging/hooks -type f -not -name pingcommon.lib.sh -exec rm -f {} +
+rm -rf /opt/server
+
+# delete self
+rm -f "${0}"
+set +x
+echo "Pre-build stage done."

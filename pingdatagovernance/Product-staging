@@ -1,19 +1,30 @@
-FROM pingidentity/pingdownloader as staging
+ARG REGISTRY
+ARG GIT_TAG
+
+FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
 ARG PRODUCT=pingdatagovernance
 ARG VERSION
+ARG DEVOPS_USER
+ARG DEVOPS_KEY
 
 # copy your product zip file into the staging image
-RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
+RUN /get-bits.sh --product ${PRODUCT} \
+        --version ${VERSION} \
+        --devops-user ${DEVOPS_USER} \
+        --devops-key ${DEVOPS_KEY} \
+        --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
+        --verify-gpg-signature \
     && unzip /tmp/product.zip -d /tmp/ \
-	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
-    && cd /tmp/PingDataGovernance \
-	&& rm -rf \
-		bin/start-ds \
-		bin/stop-ds \
-	    docs \
-	    uninstall \
-	    webapps \
-	    resource/*.zip \
+        -x *.bat \
+        -x *.dll \
+        -x *.exe \
+        -x */start-ds \
+        -x */stop-ds \
+        -x */docs/* \
+        -x */uninstall \
+        -x */webapps/* \
+        -x */resource/*.zip \
+        -x */_script-util.sh \
 	&& mv /tmp/PingDataGovernance /opt/server 
 
 FROM scratch

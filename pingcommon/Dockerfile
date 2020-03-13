@@ -5,7 +5,14 @@
 #-
 #-
 
+# This substrate layer will gather common bits for all images
+#  like gosu and tini
+FROM alpine as substrate
+COPY ["common-build.sh","/"]
+RUN ["/common-build.sh"]
+
 FROM scratch
+COPY --from=substrate ["/opt","/opt"]
 COPY ["opt/","/opt/"]
 # RUN mkdir -p ${BASE}/staging/hooks
 # COPY [ "post-build.sh", "bootstrap.sh", "entrypoint.sh", "wait-for", ".profile", "/opt/" ]

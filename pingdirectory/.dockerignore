@@ -1,3 +1,2 @@
-*.test.yml
 versions.json
-test.sh
+tests/

@@ -1,12 +1,27 @@
-FROM pingidentity/pingdownloader as staging
+ARG REGISTRY
+ARG GIT_TAG
+
+FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
 # place the software being delivered in a conspicuous, unix-correct location
 ARG PRODUCT=pingaccess
-ARG VERSION=5.2.0
+ARG VERSION
+ARG DEVOPS_USER
+ARG DEVOPS_KEY
 
 # copy your product zip file into the staging image
-RUN /get-bits.sh --product ${PRODUCT} --version ${VERSION} \
-	&& unzip /tmp/product.zip -d /tmp/ \
-	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
+RUN /get-bits.sh --product ${PRODUCT} \
+        --version ${VERSION} \
+        --devops-user ${DEVOPS_USER} \
+        --devops-key ${DEVOPS_KEY} \
+        --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
+        --verify-gpg-signature \
+	&& unzip  /tmp/product.zip \
+        -d /tmp \
+        -x pingaccess-*/upgrade/* \
+        -x pingaccess-*/sdk/* \
+        -x *.bat \
+        -x *.dll \
+        -x *.exe \
 	&& mv /tmp/pingaccess-* /opt/server
 
 FROM scratch

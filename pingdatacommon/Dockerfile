@@ -7,8 +7,9 @@
 #- ## Related Docker Images
 #- - `pingidentity/pingcommon` - Parent Image
 #-
-
-FROM pingidentity/pingcommon
+ARG REGISTRY
+ARG GIT_TAG
+FROM ${REGISTRY}/pingcommon:${GIT_TAG}
 # COPY [ "_script-util.sh", "/opt/server/lib/"  ]
 # COPY [ "hooks/", "/opt/staging/hooks/" ]
 COPY [ "/opt/","/opt/"]

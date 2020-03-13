@@ -14,10 +14,12 @@ ARG SHIM
 ARG SHIM_TAG
 ARG VERSION
 ARG JDK
+ARG REGISTRY
+ARG GIT_TAG
 
-FROM pingidentity/${PRODUCT}:staging-${VERSION} as product-staging
-FROM pingidentity/pingcommon as common
-FROM pingidentity/pingjvm:${JDK}_${SHIM_TAG} as jvm
+FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
+FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
+FROM ${REGISTRY}/pingjvm:${JDK}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${SHIM} as final-staging
 ENV SHIM=${SHIM}
@@ -42,7 +44,7 @@ RUN ["/opt/build.sh"]
 #
 # The final image 
 #
-FROM pingidentity/pingbase:${SHIM_TAG}
+FROM ${REGISTRY}/pingbase:${SHIM_TAG}-${GIT_TAG}
 ARG LICENSE_VERSION
 EXPOSE 9022
 ENV PING_CENTRAL_SERVER_PORT=9022

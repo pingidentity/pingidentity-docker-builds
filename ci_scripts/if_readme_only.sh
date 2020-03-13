@@ -1,5 +1,5 @@
-#!/usr/bin/env sh
-${VERBOSE}=true && set -x
+#!/usr/bin/env bash
+test -n "${VERBOSE}" && set -x
 
 #for local, uncomment:
 # CHANGED_FILES=$(git diff --name-only master HEAD)

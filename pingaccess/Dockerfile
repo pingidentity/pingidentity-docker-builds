@@ -16,10 +16,12 @@ ARG SHIM
 ARG SHIM_TAG
 ARG VERSION
 ARG JDK
+ARG REGISTRY
+ARG GIT_TAG
 
-FROM pingidentity/${PRODUCT}:staging-${VERSION} as product-staging
-FROM pingidentity/pingcommon as common
-FROM pingidentity/pingjvm:${JDK}_${SHIM_TAG} as jvm
+FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
+FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
+FROM ${REGISTRY}/pingjvm:${JDK}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${SHIM} as final-staging
 ENV SHIM=${SHIM}
@@ -44,14 +46,15 @@ RUN ["/opt/build.sh"]
 #
 # the final image 
 #
-FROM pingidentity/pingbase:${SHIM_TAG}
+FROM ${REGISTRY}/pingbase:${SHIM_TAG}-${GIT_TAG}
+ARG LICENSE_VERSION
 # pingaccess comes ootb listening on 3000 but it is more natural for https traffic to be listened for on 443
 EXPOSE 9000 3000 ${HTTPS_PORT}
 ENV PING_PRODUCT="PingAccess"
 ENV LICENSE_DIR="${SERVER_ROOT_DIR}/conf"
 ENV LICENSE_FILE_NAME=pingaccess.lic
 ENV LICENSE_SHORT_NAME=PA
-ENV LICENSE_VERSION=5.2
+ENV LICENSE_VERSION=${LICENSE_VERSION}
 ENV INITIAL_ADMIN_PASSWORD="${INITIAL_ADMIN_PASSWORD:-2FederateM0re}"
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/pingaccess.log
