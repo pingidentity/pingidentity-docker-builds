@@ -1,0 +1,17 @@
+version: "2"
+# Test change pw on a db with different pw with config import
+services:
+  sut:
+    image: ${REGISTRY}/pingaccess:${TAG}
+    environment:
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=ci-tests/pa-h2-2FedM0re
+      - PA_ADMIN_PASSWORD_INITIAL=2FederateM0re
+      - PA_ADMIN_PASSWORD=S0me_P@ssw0rd
+      
+      # default stuff
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+      - PING_IDENTITY_ACCEPT_EULA=YES
+      - VERBOSE=false
+    command: start-server /opt/wait-for localhost:9000 -t 180 -- liveness.sh
