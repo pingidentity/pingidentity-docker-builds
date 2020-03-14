@@ -1,5 +1,13 @@
 #!/usr/bin/env sh
-curl -ss -o /dev/null -k https://localhost:3000/pa/heartbeat.ping
+
+if test -z "${OPERATIONAL_MODE}" || test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" || test "${OPERATIONAL_MODE}" = "STANDALONE" ; then
+    if test -f ${STAGING_DIR}/instance/data/data.json -a -f ${STAGING_DIR}/instance/conf/pa.jwk ; then 
+        curl -k --silent -u "Administrator:${PA_ADMIN_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" https://localhost:9000/pa-admin-api/v3/config/import/workflows | jq '.items[-1].status' | grep "Complete"
+        exit $?
+    fi
+else    
+    curl -ss -o /dev/null -k https://localhost:3000/pa/heartbeat.ping
+fi
 # ^ this will succeed if PA has not been configured to a port other than the default
 
 if test ${?} -ne 0 ; then

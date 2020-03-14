@@ -9,16 +9,13 @@
 # shellcheck source=pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-echo `set`
-
-echo_green 'Checking if OPERATIONAL_MODE is set...'
-echo "OPERATIONAL_MODE:"${OPERATIONAL_MODE}
+echo "INFO: OPERATIONAL_MODE:"${OPERATIONAL_MODE}
 if [[ ! -z "${OPERATIONAL_MODE}" && "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" ]]; then
-  echo "Shutting down the eth01 interface..."
+  echo "INFO: Shutting down the eth01 interface..."
   ip link set eth0 down
 fi
 
 if [[ ! -z "${OPERATIONAL_MODE}" && "${OPERATIONAL_MODE}" = "CLUSTERED_ENGINE" ]]; then
-  echo "Adding engine..."
+  echo "INFO: Adding engine..."
   run_hook "51-add-engine.sh"
 fi

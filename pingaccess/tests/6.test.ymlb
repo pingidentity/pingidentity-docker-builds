@@ -1,0 +1,59 @@
+version: "3.1"
+# Validate PA Cluster
+
+services:
+  sut:
+    image: ${REGISTRY}/pingaccess:${TAG}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -u administrator:2FederateM0re -H \"X-XSRF-Header: PingAccess\" -k https://localhost:9000/pa-admin-api/v3/sites | jq -e '.items[0].name' "]
+      interval: 10s
+      timeout: 3s    
+    command: start-server /opt/wait-for localhost:9000 -t 180 -- /opt/staging/liveness.sh
+    container_name: pingaccess
+    environment: 
+      - SERVER_PROFILE_LIVENESS_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_LIVENESS_PATH=ci-tests/pa-cluster
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=pa-clustering/pingaccess
+      - SERVER_PROFILE_PARENT=LIVENESS
+      - OPERATIONAL_MODE=CLUSTERED_CONSOLE
+      - PA_CONSOLE_HOST=pingaccess  
+      - PA_ENGINE_PUBLIC_HOSTNAME=pingaccess-engine
+      ## default stuff
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+      - PING_IDENTITY_ACCEPT_EULA=YES
+      - VERBOSE=false
+    # volumes:
+      # - ${HOME}/projects/pingidentity-server-profiles/pa-clustering/pingaccess:/opt/in
+      #- ${HOME}/<PATH_TO_LOCAL_REPO>/pa-clustering/pingaccess:/opt/in
+    ports:
+      - 9000:9000
+      - 9090:9090
+    networks:
+      - pingnet
+    cap_add:
+      - NET_ADMIN
+
+  pingaccess-engine:
+    image: ${REGISTRY}/pingaccess:${TAG}
+    command: wait-for pingaccess:9000 -t 420 -- entrypoint.sh start-server
+    environment: 
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=pa-clustering/pingaccess
+      - OPERATIONAL_MODE=CLUSTERED_ENGINE
+      - PA_CONSOLE_HOST=pingaccess
+      ## default stuff
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+      - PING_IDENTITY_ACCEPT_EULA=YES
+      - VERBOSE=false
+    # volumes:
+    #  - ${HOME}/projects/devops/pingidentity-server-profiles/pa-clustering/pingaccess:/opt/in
+    #  - ${HOME}/<PATH_TO_LOCAL_REPO>/pa-clustering/pingaccess:/opt/in
+    ports:
+      - 3000-3010:3000
+    networks:
+      - pingnet              
+networks:
+    pingnet:

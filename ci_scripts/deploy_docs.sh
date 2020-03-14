@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 test -n "${VERBOSE}" && set -x
 
+<<<<<<< HEAD
+rm -rf /tmp/docker-images
+cd ../"$( dirname "${0}" )" || exit 97
+THIS="$( basename "${0}" )"
+=======
 if test -z "${CI_COMMIT_REF_NAME}" ;
 then
     # shellcheck disable=SC2046
@@ -13,6 +18,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts";
 
 rm -rf /tmp/docker-images
 TOOL_NAME="$( basename "${0}" )"
+>>>>>>> bbc156e53c1d787c6a3ad2d78bc015b21e206e4f
 OUTPUT_DIR=/tmp
 DOCKER_BUILD_DIR="$( cd $( dirname "${0}" )/.. || exit 97 ; pwd )"
 
@@ -146,10 +152,18 @@ function parse_hooks ()
     _hookFiles=""
 
 
+<<<<<<< HEAD
+    #
+    # this whole thing should be replaced with something like
+    # find . -type f \( -path '*/hooks/*' -a -name '*.sh' -a -not -path './.git/*' \) -exec awk '$0 ~/^#-/ {$1="";print;}' {} >> {}.md \;
+    for _hookFile in $( ls ${_hooksDir} ); do
+        _hookFiles="${_hookFiles} ${_hookFile}"
+=======
     for _hookFilePath in ${_hooksDir}/* ; 
     do
         _hookFile=$( basename "${_hookFilePath}" )
         _hookFiles="${_hookFiles:+${_hookFiles} }${_hookFile}"
+>>>>>>> bbc156e53c1d787c6a3ad2d78bc015b21e206e4f
         _docFile="${OUTPUT_DIR}/docker-images/${_dockerImage}/hooks/${_hookFile}.md"
         rm -f "${_docFile}"
         echo "  parsing hook ${_hookFile}"
@@ -315,6 +329,17 @@ done
 set -x
 cd /tmp || exit 97
 rm -rf pingidentity-devops-getting-started
+<<<<<<< HEAD
+git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-devops-getting-started.git
+cp -r docker-images pingidentity-devops-getting-started/docs
+cd pingidentity-devops-getting-started || exit 97
+git config user.email "devops_program@pingidentity.com"
+git config user.name "devops_program"
+git add .
+git commit -m "updated from docker-builds"
+git push origin master
+set +x
+=======
 ${dryRun} git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-devops-getting-started.git
 ${dryRun} cp -r docker-images pingidentity-devops-getting-started/docs
 ${dryRun} cd pingidentity-devops-getting-started || exit 97
@@ -324,3 +349,4 @@ ${dryRun} git add .
 ${dryRun} git commit -m "updated from docker-builds"
 ${dryRun} git push origin master
 exit 0
+>>>>>>> bbc156e53c1d787c6a3ad2d78bc015b21e206e4f

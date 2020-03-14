@@ -1,0 +1,20 @@
+version: "2"
+# Test passing a pw different than default, but not change it. 
+# 83-create-initial-password should never run
+services:
+  sut:
+    image: ${REGISTRY}/pingaccess:${TAG}
+    environment:
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=ci-tests/pa-h2-2FedM0re
+      - PA_ADMIN_PASSWORD=2FederateM0re
+    
+    # default stuff
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+      - PING_IDENTITY_ACCEPT_EULA=YES
+      - VERBOSE=false
+    volumes:
+      - /Users/samirgandhi/tmp/test-pa-pw-robert/instance/conf:/opt/in/instance/conf
+      - /Users/samirgandhi/tmp/test-pa-pw-robert/instance/data/data.json:/opt/in/instance/data/data.json
+    command: start-server /opt/wait-for localhost:9000 -t 180 -- liveness.sh
