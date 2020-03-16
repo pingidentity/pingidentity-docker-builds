@@ -127,21 +127,37 @@ ONBUILD ENV ORCHESTRATION_TYPE=""
 
 ONBUILD ENV USER_BASE_DN=dc=example,dc=com
 ONBUILD ENV DOLLAR='$'
+#-- PD (PingDirectory) public hostname that may be used in redirects
 ONBUILD ENV PD_ENGINE_PUBLIC_HOSTNAME="localhost"
+#-- PD (PingDirectory) private hostname
 ONBUILD ENV PD_ENGINE_PRIVATE_HOSTNAME="pingdirectory"
+#-- PDP (PingDirectoryProxy) public hostname that may be used in redirects
 ONBUILD ENV PDP_ENGINE_PUBLIC_HOSTNAME="localhost"
+#-- PDP (PingDirectoryProxy) private hostname
 ONBUILD ENV PDP_ENGINE_PRIVATE_HOSTNAME="pingdirectoryproxy"
+#-- PDS (PingDataSync) public hostname that may be used in redirects
 ONBUILD ENV PDS_ENGINE_PUBLIC_HOSTNAME="localhost"
+#-- PDS (PingDataSync) private hostname
 ONBUILD ENV PDS_ENGINE_PRIVATE_HOSTNAME="pingdatasync"
+#-- PDG (PingDataGovernance) public hostname that may be used in redirects
 ONBUILD ENV PDG_ENGINE_PUBLIC_HOSTNAME="localhost"
+#-- PDG (PingDataGovernance) private hostname
 ONBUILD ENV PDG_ENGINE_PRIVATE_HOSTNAME="pingdatagovernance"
+#-- PF (PingFederate) engine public hostname that may be used in redirects
 ONBUILD ENV PF_ENGINE_PUBLIC_HOSTNAME="localhost"
+#-- PF (PingFederate) engine private hostname
 ONBUILD ENV PF_ENGINE_PRIVATE_HOSTNAME="pingfederate"
+#-- PF (PingFederate) admin public hostname that may be used in redirects
 ONBUILD ENV PF_ADMIN_PUBLIC_HOSTNAME="localhost"
+#-- PF (PingFederate) admin private hostname
 ONBUILD ENV PF_ADMIN_PRIVATE_HOSTNAME="pingfederate-admin"
+#-- PA (PingAccess) engine prublic hostname that may be used in redirects
 ONBUILD ENV PA_ENGINE_PUBLIC_HOSTNAME="localhost"
+#-- PA (PingAccess) engine private hostname
 ONBUILD ENV PA_ENGINE_PRIVATE_HOSTNAME="pingaccess"
+#-- PA (PingAccess) admin public hostname that may be used in redirects
 ONBUILD ENV PA_ADMIN_PUBLIC_HOSTNAME="localhost"
+#-- PA (PingAccess) admin private hostname
 ONBUILD ENV PA_ADMIN_PRIVATE_HOSTNAME="pingaccess-admin"
 
 #-- the default administrative user for PingData
