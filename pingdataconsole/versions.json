@@ -1,36 +1,46 @@
 {
-    "latest":"8.0.0.1",
-    "versions":[
-        { 
+    "latest": "8.0.0.1",
+    "versions": [
+        {
             "version": "8.0.0.1",
             "preferredShim": "alpine",
-            "distributions":[
+            "shims": [
                 {
-                     "shim": "alpine",
-                     "jdk": "11",
-                     "build": true,
-                     "deploy": true
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true
+                        }
+                    ]
                 }
             ],
-            "dependencies":[
+            "dependencies": [
                 {
                     "product": "apache-tomcat",
                     "version": "9.0.31"
                 }
             ]
         },
-        { 
+        {
             "version": "7.3.0.7",
             "preferredShim": "alpine",
-            "distributions":[
+            "shims": [
                 {
-                     "shim": "alpine",
-                     "jdk": "8",
-                     "build": true,
-                     "deploy": true
+                    "shim": "alpine",
+                    "preferredJVM": "az8",
+                    "jvms": [
+                        {
+                            "jvm": "az8",
+                            "build": true,
+                            "deploy": true
+                        }
+                    ]
                 }
             ],
-            "dependencies":[
+            "dependencies": [
                 {
                     "product": "apache-tomcat",
                     "version": "8.5.51"

@@ -4,12 +4,17 @@
         {   
             "version": "1.0.0",
             "preferredShim": "alpine",
-            "distributions":[
+            "shims":[
                 {
                     "shim": "alpine",
-                    "jdk": "11",
-                    "build": true,
-                    "deploy": true
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true
+                        }
+                    ]
                 }
             ]
         }

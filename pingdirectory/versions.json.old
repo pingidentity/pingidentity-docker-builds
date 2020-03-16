@@ -7,7 +7,7 @@
                 {
                     "shim": "alpine",
                     "preferred": true,
-                    "jdk": "11"
+                    "jvm": "11"
                 }
             ]
         },
@@ -17,15 +17,15 @@
                 {
                     "shim": "alpine",
                     "preferred": true,
-                    "jdk": "11"
+                    "jvm": "11"
                 },
                 {
                     "shim":"centos",
-                    "jdk": "11"
+                    "jvm": "11"
                 },
                 {
                     "shim": "ubuntu:18.04",
-                    "jdk": "11"
+                    "jvm": "11"
                 }
             ]
         }

@@ -11,13 +11,13 @@ ARG PRODUCT
 ARG SHIM
 ARG SHIM_TAG
 ARG VERSION
-ARG JDK
+ARG JVM
 ARG REGISTRY
 ARG GIT_TAG
 
 FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
 FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
-FROM ${REGISTRY}/pingjvm:${JDK}_${SHIM_TAG}-${GIT_TAG} as jvm
+FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${SHIM} as final-staging
 ENV SHIM=${SHIM}
@@ -42,7 +42,7 @@ RUN ["/opt/build.sh"]
 #
 # the final image 
 #
-FROM ${REGISTRY}/pingbase:${SHIM_TAG}-${GIT_TAG}
+FROM ${REGISTRY}/pingbase:${GIT_TAG}
 LABEL	maintainer=devops_program@pingidentity.com \
 		license="Apache License v2.0, GPLv2, LGPLv2.1, Ping Identity UnboundID LDAP SDK Free Use" \
 		vendor="Ping Identity Corp." \

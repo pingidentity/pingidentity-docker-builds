@@ -16,7 +16,13 @@ RUN /get-bits.sh \
         --devops-key ${DEVOPS_KEY} \
         --devops-app "pipeline-build-ldapsdk-${VERSION}" \
 	&& unzip /tmp/product.zip -d /tmp/ \
-	&& rm /tmp/unboundid-ldapsdk-*/tools/*.bat \
+        -x *.bat \
+        -x *.dll \
+        -x *.exe \
+        -x *.ini \
+        -x */src.zip \
+        -x */android-ldap-client/* \
+        -x */docs/* \
 	&& mv /tmp/unboundid-ldapsdk-*/tools /opt/ \
 	&& mv /tmp/unboundid-ldapsdk-*/LICENSE* /opt/ \
 	&& mv /tmp/unboundid-ldapsdk-*/unboundid-ldapsdk.jar /opt/

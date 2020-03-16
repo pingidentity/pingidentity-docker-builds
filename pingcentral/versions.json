@@ -1,15 +1,30 @@
 {
-    "latest":"1.2.0",
-    "versions":[
-        {   
+    "latest": "1.2.0",
+    "versions": [
+        {
             "version": "1.2.0",
             "preferredShim": "alpine",
-            "distributions":[
+            "shims": [
                 {
                     "shim": "alpine",
-                    "jdk": "11",
-                    "build": true,
-                    "deploy": true
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true
+                        },
+                        {
+                            "jvm": "az13",
+                            "build": false,
+                            "deploy": false
+                        },
+                        {
+                            "jvm": "ao15",
+                            "build": false,
+                            "deploy": false
+                        }
+                    ]
                 }
             ]
         }

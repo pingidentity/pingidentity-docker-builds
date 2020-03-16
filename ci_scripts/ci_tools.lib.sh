@@ -9,14 +9,14 @@ export HISTTIMEFORMAT='%T'
 function _getAllVersionsToBuildForProduct ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '.|.versions[]|[. as $v | .distributions[]|select(.build==true)|$v.version]|unique|.[]' "${_file}"
+    test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.build==true)|$v.version]|unique|.[]' "${_file}"
 }
 
 # get all version for a product to build
 function _getAllVersionsToDeployForProduct ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '.|.versions[]|[. as $v | .distributions[]|select(.deploy==true)|$v.version]|unique|.[]' "${_file}"
+    test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.deploy==true)|$v.version]|unique|.[]' "${_file}"
 }
 
 # get the latest version of a product to build
@@ -37,27 +37,69 @@ function _getDefaultShimForProductVersion ()
 function _getShimsToBuildForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    jq -r '[.|.versions[]| select(.version == "'${2}'")|.distributions[]|select(.build==true)|.shim]|unique|.[]' "${_file}"
+    jq -r '[.|.versions[]| select(.version == "'${2}'")|.shims[]|. as $v|.jvms[]|select(.build==true)|$v.shim]|unique|.[]' "${_file}"
 }
 
 # get all the shims for a product version
 function _getShimsToDeployForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    jq -r '[.|.versions[]| select(.version == "'${2}'")|.distributions[]|select(.deploy==true)|.shim]|unique|.[]' "${_file}"
+    jq -r '[.|.versions[]| select(.version == "'${2}'")|.shims[]|. as $v|.jvms[]|select(.deploy==true)|$v.shim]|unique|.[]' "${_file}"
 }
 
 # get all the shims for a product
 function _getAllShimsForProduct ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    jq -r '[.|.versions[]|.distributions[]|.shim]|unique|.[]' "${_file}"
+    jq -r '[.|.versions[]|.shims[]|.shim]|unique|.[]' "${_file}"
 }
 
-function _getJDKForProductVersionShim ()
+function _getJVMsToBuildForProductVersionShim ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    jq -r '.|.versions[]|select(.version=="'${2}'").distributions[]|select(.shim=="'${3}'")|.jdk' "${_file}"
+    jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.jvms[]|select(.build==true)|.jvm' "${_file}"
+}
+
+function _getJVMsToDeployForProductVersionShim ()
+{
+    _file="${CI_PROJECT_DIR}/${1}/versions.json"
+    jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.jvms[]|select(.deploy==true)|.jvm' "${_file}"
+}
+
+function _getPreferredJVMForProductVersionShim ()
+{
+    _file="${CI_PROJECT_DIR}/${1}/versions.json"
+    jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.preferredJVM' "${_file}"
+}
+
+function _getJVMVersionForID ()
+{
+    _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+    jq -r '.|.versions[]|select(.id=="'${1}'")|.version' "${_file}"
+}
+
+function _getAllJVMIDsForShim ()
+{
+    _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+    jq -r '[.versions[]|select(.shims[]|contains("'${1}'"))|.id]|unique|.[]' ${_file}
+}
+
+function _getAllJVMsToBuildForShim ()
+{
+    # _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+    # jq -r '[.versions[]|select(.shims[]|contains("'${1}'"))|.id]|unique|.[]' ${_file}
+    find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|select(.shim=="'${1}'")|.jvms[]|select(.build==true)|.jvm' {} + 2>/dev/null| sort | uniq
+}
+
+function _getAllJVMsToBuild ()
+{
+    find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|.jvms[]|select(.build==true)|.jvm' {} + 2>/dev/null| sort | uniq
+}
+
+function _getJVMImageForShimID ()
+{
+    _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+    jq -r '[.versions[]|select(.shims[]|contains("'${1}'"))| select(.id=="'${2}'")|.from]|unique|.[]' ${_file}
 }
 
 function _getDependenciesForProductVersion ()
@@ -78,7 +120,7 @@ function _getShortTag ()
 
 function _getAllShims ()
 {    
-    find "${CI_PROJECT_DIR}" -type f -not -path "${PWD}/pingjvm/*" -name versions.json -exec jq -r '[.|.versions[]|.distributions[]|.shim]|unique|.[]' {} + | sort | uniq
+    find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '[.|.versions[]|.shims[]|.shim]|unique|.[]' {} + 2>/dev/null | sort | uniq
 }
 
 # returns the license version for a product full version
@@ -150,14 +192,14 @@ append_status ()
     shift
     if test "${1}" = "PASS" ;
     then
-        _prefix=${FONT_GREEN}${CHAR_CHECKMARK}
+        _prefix="${FONT_GREEN}${CHAR_CHECKMARK} "
     else
-        _prefix=${FONT_RED}${CHAR_CROSSMARK}
+        _prefix="${FONT_RED}${CHAR_CROSSMARK}"
     fi
     shift
     _pattern="${1}"
     shift
-    printf ${_prefix}${_pattern}${FONT_NORMAL}'\n' "${@}" >> ${_output}
+    printf "${_prefix}${_pattern}${FONT_NORMAL}\n" "${@}" >> ${_output}
 
 }
 

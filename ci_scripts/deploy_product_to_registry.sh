@@ -11,15 +11,21 @@ cat <<END_USAGE
 Usage: ${0} {options}
     where {options} include:
 
-    * -p, --product
-        The name of the product for which to build a docker image
     * -r, --registry
         The registry to deploy new image tags to
-    -s, --shim
-        the name of the operating system for which to build a docker image
+    * -p, --product
+        The name of the product for which to build a docker image
     -v, --version
         the version of the product for which to build a docker image
         this setting overrides the versions in the version file of the target product
+    -s, --shim
+        the name of the operating system shim for which to build a docker image
+    -d, --default-shim
+        the name of the operating system shim to consider default and override metadata
+    -j, --jvm
+        the id of the jvm to deploy
+    -J, --default-jvm
+        the id of the jvm to consider default and override metadata
     --verbose-build
         verbose docker build not using docker buildkit
     --dry-run
@@ -34,23 +40,21 @@ function tag_and_push ()
 {
     _source="${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
     _target="${registryToDeployTo}/${productToDeploy}:${1}"
-    ${dryRun} docker tag ${_source} ${_target}
-    if test -z "${isLocalBuild}" || test -n "${dryRun}" ; 
+    test -z "${dryRun}" \
+        && docker tag ${_source} ${_target}
+    if test -z "${isLocalBuild}" ; 
     then
-        banner Pushing ${_target}
+        echo Pushing ${_target}
         ${dryRun} docker push ${_target}
         ${dryRun} docker image rm -f ${_target}
+    else
+        echo ${_target}
     fi
 }
 
 while ! test -z "${1}" ; 
 do
     case "${1}" in
-        -d|--default-shim)
-            shift
-            test -z "${1}" && usage "You must provide a default OS Shim"
-            defaultShim="${1}"
-            ;;
         -p|--product)
             shift
             test -z "${1}" && usage "You must provide a product to build"
@@ -61,10 +65,25 @@ do
             test -z "${1}" && usage "You must provide a registry"
             registryToDeployTo=${1}
             ;;
+        -j|--jvm)
+            shift
+            test -z "${1}" && usage "You must provide a JVM id"
+            jvmsToDeploy="${jvmsToDeploy:+${jvmsToDeploy} }${1}"
+            ;;
+        -J|--default-jvm)
+            shift
+            test -z "${1}" && usage "You must provide a JVM id"
+            defaultJvm="${1}"
+            ;;
         -s|--shim)
             shift
             test -z "${1}" && usage "You must provide an OS Shim"
             shimsToDeploy="${shimsToDeploy:+${shimsToDeploy} }${1}"
+            ;;
+        -d|--default-shim)
+            shift
+            test -z "${1}" && usage "You must provide a default OS Shim"
+            defaultShim="${1}"
             ;;
         -v|--version)
             shift
@@ -121,8 +140,8 @@ for tag in $( git tag --points-at "$gitRevLong" ) ; do
         break
     fi
 done
-
-
+_dateStamp=$( date '%y%m%d')
+banner Deploying ${productToDeploy}
 for _version in ${versionsToDeploy} ; 
 do
     if test -z "${shimsToDeploy}" ; 
@@ -131,51 +150,75 @@ do
     else
         _shimsToDeploy=${shimsToDeploy}
     fi
-    if test -z "${defaultShim}" ; then 
+    if test -z "${defaultShim}" ; 
+    then 
         defaultShim=$( _getDefaultShimForProductVersion ${productToDeploy} ${_version} )
     fi
     for _shim in ${_shimsToDeploy} ; 
     do
         _shimLongTag=$( _getLongTag "${_shim}" )
         fullTag="${_version}-${_shimLongTag}-${ciTag}"
-        docker pull ${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}
-        tag_and_push "${_version}-${_shimLongTag}-edge"
 
-        if test -n "${sprint}" ; 
+        if test -z "${jvmsToDeploy}" ;
         then
-            tag_and_push "${sprint}-${_shimLongTag}-${_version}"
-            if test "${_version}" = "${latestVersion}" ;
-            then
-                tag_and_push "${sprint}-${_shimLongTag}-latest"
-                tag_and_push "${_shimLongTag}-latest"
-            fi
+            _jvmsToBuild=$( _getJVMsToDeployForProductVersionShim ${productToDeploy} ${_version} ${_shim} )
+        else
+            _jvmsToBuild=${jvmsToDeploy}
+        fi
 
-            if test "${_shim}" = "${defaultShim}" ;
-            then
-                tag_and_push "${sprint}-${_version}"
-                tag_and_push "${_version}-latest"
-                tag_and_push "${_version}"
+        if test -z "${defaultJvm}" ;
+        then
+            defaultJvm=$( _getPreferredJVMForProductVersionShim ${productToDeploy} ${_version} ${_shim} )
+        fi
 
-                #if it's latest product version and a sprint, then it's "latest" overall and also just "edge". 
+        for _jvm in ${_jvmsToBuild} ;
+        do
+            banner Processing ${productToDeploy} ${_shim} ${_jvm}
+            fullTag="${_version}-${_shimLongTag}-${_jvm}-${ciTag}"
+            test -z "${dryRun}" \
+                && docker pull ${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}
+            _jvmVersion=$( _getJVMVersionForID ${_jvm} )
+            tag_and_push "${_version}-${_shimLongTag}-java${_jvmVersion}-edge"
+            if test -n "${sprint}" ; 
+            then
+                tag_and_push "${sprint}-${_shimLongTag}-${_version}"
                 if test "${_version}" = "${latestVersion}" ;
                 then
-                    tag_and_push "latest"
-                    tag_and_push "${sprint}"
+                    tag_and_push "${sprint}-${_shimLongTag}-latest"
+                    tag_and_push "${_shimLongTag}-latest"
+                fi
+
+                if test "${_shim}" = "${defaultShim}" ;
+                then
+                    tag_and_push "${sprint}-${_version}"
+                    tag_and_push "${_version}-latest"
+                    tag_and_push "${_version}"
+
+                    #if it's latest product version and a sprint, then it's "latest" overall and also just "edge". 
+                    if test "${_version}" = "${latestVersion}" ;
+                    then
+                        tag_and_push "latest"
+                        tag_and_push "${sprint}"
+                    fi
                 fi
             fi
-        fi
 
-        if test "${_shim}" = "${defaultShim}" ; then
-            tag_and_push "${_version}-edge"
-        fi
-
-        if test "${_version}" = "${latestVersion}" ; then
-            tag_and_push "${_shimLongTag}-edge"
-            if test "${_shim}" = "${defaultShim}" ; then
-                tag_and_push "edge"
+            if test "${_jvm}" = "${defaultJvm}" ;
+            then
+                tag_and_push "${_version}-${_shimLongTag}-edge"
+                if test "${_shim}" = "${defaultShim}" ; 
+                then
+                    tag_and_push "${_version}-edge"
+                    if test "${_version}" = "${latestVersion}" ; 
+                    then
+                        tag_and_push "edge"
+                    fi
+                fi
             fi
-        fi
-        docker image rm -f ${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}
+
+            test -z "${dryRun}" \
+                && docker image rm -f ${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}
+        done
     done
 done
 exit 0

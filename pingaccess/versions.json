@@ -1,41 +1,54 @@
 {
     "latest": "6.0.0",
-    "versions":[
-        { 
+    "versions": [
+        {
             "version": "6.0.0",
             "preferredShim": "alpine",
-            "distributions":[
+            "shims": [
                 {
                     "shim": "alpine",
-                    "jdk": "11",
-                    "build": true,
-                    "deploy": true
-                    
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true
+                        }
+                    ]
                 }
             ]
         },
-        { 
+        {
             "version": "6.0.1",
             "preferredShim": "alpine",
-            "distributions":[
+            "shims": [
                 {
                     "shim": "alpine",
-                    "jdk": "11",
-                    "build": true,
-                    "deploy": true
-                    
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true
+                        }
+                    ]
                 }
             ]
         },
         {
             "version": "5.3.2",
             "preferredShim": "alpine",
-            "distributions":[
+            "shims": [
                 {
-                    "shim":"alpine",
-                    "jdk": "11",
-                    "build": true,
-                    "deploy": true
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true
+                        }
+                    ]
                 }
             ]
         }

@@ -1,21 +1,10 @@
 #- # Ping Identity Docker Image - `pingbase`
 #- 
 #- This docker image provides a base image for all Ping Identity DevOps 
-#- product images.  Primarly, the builder can provide an argument, `SHIM`,
-#- that will be used to determine the base OS used when building.  The options
-#- include:
-#- - alpine (default)
-#- - centos
-#- - ubuntu
+#- product images. 
 #-
-#- ## Related Docker Images
-#- - `openjdk:8-jre-alpine` - Parent Image for `SHIM=alpine`
-#- - `centos` - Parent Image for `SHIM=centos`
-#- - `ubuntu:disco` - Parent Image for `SHIM=ubuntu`
-#-
-ARG SHIM=alpine
-FROM ${SHIM}
-LABEL	name="Ping Identity Docker Image (${SHIM})" \
+FROM scratch
+LABEL	name="Ping Identity Docker Image" \
         maintainer="devops_program@pingidentity.com" \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp."

@@ -14,6 +14,8 @@ Usage: ${0} {options}
         The name of the product for which to build a docker image
     -s, --shim
         the name of the operating system for which to build a docker image
+    -j, --jvm
+        the id of the jvm to build
     -v, --version
         the version of the product for which to build a docker image
         this setting overrides the versions in the version file of the target product
@@ -30,28 +32,28 @@ END_USAGE
 }
 
 _totalStart=$( date '+%s' )
-DOCKER_BUILDKIT=1
+DOCKER_BUILDKIT=${DOCKER_BUILDKIT:-1}
+noCache=${DOCKER_BUILD_CACHE}
 while ! test -z "${1}" ; do
     case "${1}" in
         -p|--product)
             shift
-            if test -z "${1}" ; then
-                usage "You must provide a product to build"
-            fi
+            test -z "${1}" && usage "You must provide a product to build"
             productToBuild="${1}"
             ;;
         -s|--shim)
             shift
-            if test -z "${1}" ; then
-                usage "You must provide an OS Shim"
-            fi
+            test -z "${1}" && usage "You must provide an OS Shim"
             shimsToBuild="${shimsToBuild}${shimsToBuild:+ }${1}"
+            ;;
+        -j|--jvm)
+            shift
+            test -z "${1}" && usage "You must provide a JVM id"
+            jvmsToBuild="${jvmsToBuild}${jvmsToBuild:+ }${1}"
             ;;
         -v|--version)
             shift
-            if test -z "${1}" ; then
-                usage "You must provide a version to build"
-            fi
+            test -z "${1}" && usage "You must provide a version to build"
             versionToBuild="${1}"
             ;;
         --no-build-kit)
@@ -62,9 +64,6 @@ while ! test -z "${1}" ; do
             ;;
         --verbose-build)
             progress="--progress plain"
-            ;;
-        --experimental)
-            experimental=true
             ;;
         --help)
             usage
@@ -110,9 +109,9 @@ fi
 
 # result table header    
 _resultsFile="/tmp/$$.results"
-_headerPattern='%-53s|%10s|%7s\n'
-_reportPattern='%-52s|%10s|%7s'
-printf ${_headerPattern} "  IMAGE" " DURATION" " RESULT" > ${_resultsFile}
+_headerPattern=' %-53s| %10s| %7s\n'
+_reportPattern='%-52s| %10s| %7s'
+printf "${_headerPattern}" "IMAGE" "DURATION" "RESULT" > ${_resultsFile}
 
 #build foundation and push to gcr for use in subsequent jobs. 
 banner Building PING COMMON
@@ -134,7 +133,7 @@ else
         banner Pushing ${_image} 
         docker push ${_image}
     fi    
-    append_status "${_resultsFile}" ${_result} ${_reportPattern} " pingcommon" " ${_duration}" " ${_result}"
+    append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingcommon" "${_duration}" "${_result}"
 fi
 imagesToCleanup="${imagesToCleanup} ${_image}"
 
@@ -159,7 +158,7 @@ else
         banner Pushing ${_image}
         docker push ${_image}
     fi    
-    append_status "${_resultsFile}" ${_result} ${_reportPattern} " pingdatacommon" " ${_duration}" " ${_result}"
+    append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingdatacommon" "${_duration}" "${_result}"
 fi
 imagesToCleanup="${imagesToCleanup} ${_image}"
 
@@ -181,14 +180,20 @@ fi
 for _shim in ${shims} ; do
     _shimTag=$( _getLongTag ${_shim} )
     
-    # find which JVMs to build for each supported SHIM
-    _jvms=$( jq -r '[.versions[]|select(.shims[]|contains("'${_shim}'"))|.version]|unique|.[]' pingjvm/versions.json )
+    if test -z "${jvmsToBuild}" ;
+    then
+        # find which JVMs to build for each supported SHIM
+        _jvms=$( _getAllJVMsToBuildForShim ${_shim} )
+    else
+        _jvms=${jvmsToBuild}
+    fi
+
     for _jvm in ${_jvms} ;
     do
         banner "Building pingjvm for JDK ${_jvm} for ${_shim}"
         _start=$( date '+%s' )
         _image="${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimTag}-${ciTag}"
-        _jvm_from=$( jq -r '[.versions[]|select(.shims[]|contains("'${_shim}'"))| select(.version=="'${_jvm}'")|.from]|unique|.[]' pingjvm/versions.json )
+        _jvm_from=$( _getJVMImageForShimID ${_shim} ${_jvm} )
         DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
             ${progress} ${noCache} \
             --build-arg SHIM=${_jvm_from} \
@@ -207,37 +212,36 @@ for _shim in ${shims} ; do
                 docker push ${_image}
             fi    
         fi
-        append_status "${_resultsFile}" ${_result} ${_reportPattern} " pingjvm:${_jvm}_${_shimTag}" " ${_duration}" " ${_result}"
+        append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingjvm:${_jvm}_${_shimTag}" "${_duration}" "${_result}"
         imagesToCleanup="${imagesToCleanup} ${_image}"
     done
-
-    banner "Building pingbase for ${_shim}"
-    _start=$( date '+%s' )
-    _image="${FOUNDATION_REGISTRY}/pingbase:${_shimTag}${experimental:+-ea}-${ciTag}"
-    DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
-        ${progress} ${noCache} \
-        --build-arg SHIM=${_shim} \
-        ${experimental:+--build-arg BUILD_OPTIONS=--experimental} \
-        -t ${_image} pingbase
-    _returnCode=${?}
-    _stop=$( date '+%s' )
-    _duration=$(( _stop - _start ))
-    if test ${_returnCode} -ne 0 ;
-    then
-        returnCode=${_returnCode}
-        _result="FAIL"
-    else
-        _result="PASS"
-        if test -z "${isLocalBuild}" ; then
-            docker push ${_image}
-        fi    
-    fi
-    append_status "${_resultsFile}" ${_result}  ${_reportPattern} " pingbase:${_shimTag}${experimental:+-ea}" " ${_duration}" " ${_result}"
-    imagesToCleanup="${imagesToCleanup} ${_image}"
 done
 
+banner "Building pingbase"
+_start=$( date '+%s' )
+_image="${FOUNDATION_REGISTRY}/pingbase:${ciTag}"
+DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
+    ${progress} ${noCache} \
+    -t ${_image} pingbase
+_returnCode=${?}
+_stop=$( date '+%s' )
+_duration=$(( _stop - _start ))
+if test ${_returnCode} -ne 0 ;
+then
+    returnCode=${_returnCode}
+    _result="FAIL"
+else
+    _result="PASS"
+    if test -z "${isLocalBuild}" ; then
+        banner Pushing ${_image}
+        docker push ${_image}
+    fi    
+fi
+append_status "${_resultsFile}" "${_result}"  "${_reportPattern}" "pingbase" "${_duration}" "${_result}"
+imagesToCleanup="${imagesToCleanup} ${_image}"
+
 # leave runner without clutter
-test -z "${isLocalBuild}" && docker image rm -f ${imagesToCleanup} && docker image prune -f
+test -z "${isLocalBuild}" && docker image rm -f ${imagesToCleanup}
 
 cat ${_resultsFile}
 rm ${_resultsFile}
