@@ -1,96 +1,60 @@
 #!/usr/bin/env sh
-set -x
+test -n "${VERBOSE}" && set -x
+
 _osID=$( awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null )
-if test "${1}" = "--experimental" ; then
-    JDK_TAR="https://download.java.net/java/early_access/jdk15/8/GPL/openjdk-15-ea+8_linux-x64_bin.tar.gz"
-    # experimental mode gets an early access Java build
-    JDK_HOME=/jdk
+_javaMajor=$( "${JAVA_HOME}"/bin/java -version 2>&1 | awk '$0~ /version/ {gsub(/"/,"",$3);gsub(/\..*/,"",$3);gsub(/-.*/,"",$3);print $3;}' )
+
+if type ${JAVA_HOME}/bin/jlink >/dev/null 2>/dev/null ;
+then
+    _modules=""
     case "${_osID}" in
         ubuntu|debian)
-            apt-get -y update
         ;;
         centos)
-            yum update -y
         ;;
         alpine)
-            apk add curl
-            JDK_TAR="https://download.java.net/java/early_access/alpine/7/binaries/openjdk-15-ea+7_linux-x64-musl_bin.tar.gz"
+            case "${_javaMajor}" in
+                11)
+                    # optimized modules azul 11 alpine modules
+                    _modules="java.base,java.compiler,java.datatransfer,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,org.openjsse,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.jdwp.agent,jdk.httpserver,jdk.localedata,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.rmic,jdk.security.auth,jdk.security.jgss,jdk.xml.dom,jdk.zipfs"
+                ;;
+                *)
+                    # all azul modules
+                    # --add-modules java.base,java.compiler,java.datatransfer,java.desktop,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,jdk.accessibility,jdk.aot,jdk.attach,jdk.charsets,jdk.compiler,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.dynalink,jdk.editpad,jdk.hotspot.agent,jdk.httpserver,jdk.internal.ed,jdk.internal.jvmstat,jdk.internal.le,jdk.internal.opt,jdk.internal.vm.ci,jdk.internal.vm.compiler,jdk.internal.vm.compiler.management,jdk.jartool,jdk.javadoc,jdk.jcmd,jdk.jconsole,jdk.jdeps,jdk.jdi,jdk.jdwp.agent,jdk.jfr,jdk.jlink,jdk.jshell,jdk.jsobject,jdk.jstatd,jdk.localedata,jdk.management.agent,jdk.management.jfr,jdk.management,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.pack,jdk.rmic,jdk.scripting.nashorn,jdk.scripting.nashorn.shell,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported.desktop,jdk.unsupported,jdk.xml.dom,jdk.zipfs,org.openjsse \
+                    # all openjdk 11 modules
+                    # --add-modules java.base,java.compiler,java.datatransfer,java.desktop,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,jdk.accessibility,jdk.aot,jdk.attach,jdk.charsets,jdk.compiler,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.dynalink,jdk.editpad,jdk.hotspot.agent,jdk.httpserver,jdk.internal.ed,jdk.internal.jvmstat,jdk.internal.le,jdk.internal.opt,jdk.internal.vm.ci,jdk.internal.vm.compiler,jdk.internal.vm.compiler.management,jdk.jartool,jdk.javadoc,jdk.jcmd,jdk.jconsole,jdk.jdeps,jdk.jdi,jdk.jdwp.agent,jdk.jfr,jdk.jlink,jdk.jshell,jdk.jsobject,jdk.jstatd,jdk.localedata,jdk.management.agent,jdk.management.jfr,jdk.management,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.pack,jdk.rmic,jdk.scripting.nashorn,jdk.scripting.nashorn.shell,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported.desktop,jdk.unsupported,jdk.xml.dom,jdk.zipfs \
+                    # all openjdk 15 modules
+                    # --add-modules java.base,java.compiler,java.datatransfer,java.desktop,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,jdk.accessibility,jdk.aot,jdk.attach,jdk.charsets,jdk.compiler,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.dynalink,jdk.editpad,jdk.hotspot.agent,jdk.httpserver,jdk.incubator.foreign,jdk.incubator.jpackage,jdk.internal.ed,jdk.internal.jvmstat,jdk.internal.le,jdk.internal.opt,jdk.internal.vm.ci,jdk.internal.vm.compiler,jdk.internal.vm.compiler.management,jdk.jartool,jdk.javadoc,jdk.jcmd,jdk.jconsole,jdk.jdeps,jdk.jdi,jdk.jdwp.agent,jdk.jfr,jdk.jlink,jdk.jshell,jdk.jsobject,jdk.jstatd,jdk.localedata,jdk.management.agent,jdk.management.jfr,jdk.management,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.nio.mapmode,jdk.rmic,jdk.scripting.nashorn,jdk.scripting.nashorn.shell,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported.desktop,jdk.unsupported,jdk.xml.dom,jdk.zipfs \
+                ;;
+            esac
         ;;
     esac
-    curl -o /tmp/jdk.tgz ${JDK_TAR}
-    actual_signature=$( sha256sum /tmp/jdk.tgz | awk '{print $1}' )
-    expected_signature=$( curl ${JDK_TAR}.sha256 )
-    if test "${actual_signature}" = "${expected_signature}" ; then
-        tar xzf /tmp/jdk.tgz
-        mv jdk-* jdk
-        rm -f /tmp/jdk.tgz
+    # build the list of all modules.
+    # worst case scenario, when moving to a new JDK with different modules we haven't had time to prune
+    if test -z "${_modules}" ;
+    then
+        for i in ${JAVA_HOME}/jmods/*.jmod ;
+        do
+            _modules="${_modules:+${_modules},}$( basename ${i%.jmod} )"
+        done
     fi
-    JDK_HOME=/tmp/jdk
+    ${JAVA_HOME}/bin/jlink \
+        --compress=2 \
+        --no-header-files \
+        --no-man-pages \
+        --module-path ${JAVA_HOME}/jmods \
+        --add-modules ${_modules} \
+        --output /opt/java
 else
-    case "${_osID}" in
-        ubuntu|debian)
-            if type ${JAVA_HOME}/bin/jlink >/dev/null 2>/dev/null ;
-            then
-            ${JAVA_HOME}/bin/jlink \
-                --compress=2 \
-                --no-header-files \
-                --no-man-pages \
-                --module-path ${JAVA_HOME}/jmods \
-                --add-modules java.base,java.compiler,java.datatransfer,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.jdwp.agent,jdk.httpserver,jdk.localedata,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.rmic,jdk.security.auth,jdk.security.jgss,jdk.xml.dom,jdk.zipfs \
-                --output /opt/java
-            else
-                # this seemingly slightly over-complicated strategy to move the jre to /opt/java
-                # is necessary because some distros (namely adopt hotspot) have the jre under /opt/java/<something>
-                mkdir -p /opt 2>/dev/null
-                _java_actual=$( readlink -f ${JAVA_HOME}/bin/java )
-                _java_home_actual=$( dirname $( dirname "${_java_actual}" ) )
-                mv ${_java_home_actual} /tmp/java
-                rm -rf /opt/java
-                mv /tmp/java /opt/java
-            fi
-        ;;
-        centos)
-            if type ${JAVA_HOME}/bin/jlink >/dev/null 2>/dev/null ;
-            then
-                ${JAVA_HOME}/bin/jlink \
-                    --compress=2 \
-                    --no-header-files \
-                    --no-man-pages \
-                    --module-path ${JAVA_HOME}/jmods \
-                    --add-modules java.base,java.compiler,java.datatransfer,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.jdwp.agent,jdk.httpserver,jdk.localedata,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.rmic,jdk.security.auth,jdk.security.jgss,jdk.xml.dom,jdk.zipfs \
-                    --output /opt/java
-            else
-                # this seemingly slightly over-complicated strategy to move the jre to /opt/java
-                # is necessary because some distros (namely adopt hotspot) have the jre under /opt/java/<something>
-                mkdir -p /opt 2>/dev/null
-                _java_actual=$( readlink -f ${JAVA_HOME}/bin/java )
-                _java_home_actual=$( dirname $( dirname "${_java_actual}" ) )
-                mv ${_java_home_actual} /tmp/java
-                rm -rf /opt/java
-                mv /tmp/java /opt/java
-            fi
-        ;;
-        alpine)
-            if type ${JAVA_HOME}/bin/jlink >/dev/null 2>/dev/null ;
-            then
-                ${JAVA_HOME}/bin/jlink \
-                    --compress=2 \
-                    --no-header-files \
-                    --no-man-pages \
-                    --module-path ${JAVA_HOME}/jmods \
-                    --add-modules java.base,java.compiler,java.datatransfer,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,org.openjsse,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.jdwp.agent,jdk.httpserver,jdk.localedata,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.rmic,jdk.security.auth,jdk.security.jgss,jdk.xml.dom,jdk.zipfs \
-                    --output /opt/java
-            else
-                # this seemingly slightly over-complicated strategy to move the jre to /opt/java
-                # is necessary because some distros (namely adopt hotspot) have the jre under /opt/java/<something>
-                mkdir -p /opt 2>/dev/null
-                _java_actual=$( readlink -f ${JAVA_HOME}/bin/java )
-                _java_home_actual=$( dirname $( dirname "${_java_actual}" ) )
-                mv ${_java_home_actual} /tmp/java
-                rm -rf /opt/java
-                mv /tmp/java /opt/java
-            fi
-            ;;
-    esac
+    # this seemingly slightly over-complicated strategy to move the jre to /opt/java
+    # is necessary because some distros (namely adopt hotspot) have the jre under /opt/java/<something>
+    mkdir -p /opt 2>/dev/null
+    _java_actual=$( readlink -f ${JAVA_HOME}/bin/java )
+    _java_home_actual=$( dirname $( dirname "${_java_actual}" ) )
+    mv ${_java_home_actual} /tmp/java
+    rm -rf /opt/java
+    mv /tmp/java /opt/java
 fi
+
 rm ${0}
+exit 0

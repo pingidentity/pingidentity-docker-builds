@@ -22,7 +22,8 @@ END_USAGE
 
 _totalStart=$( date '+%s' )
 _resultsFile="/tmp/$$.results"
-DOCKER_BUILDKIT=1
+DOCKER_BUILDKIT=${DOCKER_BUILDKIT:-1}
+noCache=${DOCKER_BUILD_CACHE}
 while ! test -z "${1}" ; do
     case "${1}" in
         --no-build-kit)
@@ -54,7 +55,9 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
 banner "Building pingdownloader"
-printf '%-45s|%10s|%7s\n' " IMAGE" " DURATION" " RESULT" > ${_resultsFile}
+_headerPattern=' %-45s| %10s| %7s\n'
+_reportPattern='%-44s| %10s| %7s'
+printf "${_headerPattern}" "IMAGE" "DURATION" "RESULT" > ${_resultsFile}
 _start=$( date '+%s' )
 DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker \
     image build \
@@ -70,8 +73,13 @@ then
     _result="FAIL"
 else
     _result="PASS"
+    if test -z "${isLocalBuild}" ; then
+        banner Pushing ${FOUNDATION_REGISTRY}/pingdownloader:${ciTag}
+        docker push ${FOUNDATION_REGISTRY}/pingdownloader:${ciTag}
+        docker image rm ${FOUNDATION_REGISTRY}/pingdownloader:${ciTag}
+    fi
 fi
-append_status "${_resultsFile}" ${_result} '%-44s|%10s|%7s' " pingdownloader" " ${_duration}" " ${_result}"
+append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingdownloader" "${_duration}" "${_result}"
 
 cat ${_resultsFile}
 rm ${_resultsFile}

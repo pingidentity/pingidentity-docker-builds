@@ -11,7 +11,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 # shellcheck source=../ci_scripts/ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
-_exitCode=0
+_exitCode=""
 
 # shellcheck disable=SC2046
 cd $( dirname "${0}" ) || exit 97
@@ -19,8 +19,10 @@ export PING_IDENTITY_DEVOPS_USER
 export PING_IDENTITY_DEVOPS_KEY
 _totalStart=$( date '+%s' )
 _resultsFile="/tmp/$$.results"
-printf '%-58s|%10s|%10s\n' " TEST" " DURATION" " RESULT" > ${_resultsFile}
-for _test in ${1:-*}.test.yml ;
+_headerPattern=' %-58s| %10s| %10s\n'
+_reportPattern='%-57s| %10s| %10s'
+printf "${_headerPattern}" "TEST" "DURATION" "RESULT" > ${_resultsFile}
+for _test in ${CI_PROJECT_DIR}/integration_tests/${1:-*}.test.yml ;
 do
     banner "Running ${_test} integration test"
     _start=$( date '+%s' )
@@ -35,7 +37,7 @@ do
     else    
         _result="PASS"
     fi
-    append_status "${_resultsFile}" ${_result} '%57s|%10s|%10s' " ${_test}" " ${_duration}" "${_result}"
+    append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${_test}" "${_duration}" "${_result}"
     _exitCode=$(( _exitCode + _returnCode ))
 done
 
@@ -44,4 +46,7 @@ rm ${_resultsFile}
 _totalStop=$( date '+%s' )
 _totalDuration=$(( _totalStop - _totalStart ))
 echo "Total duration: ${_totalDuration}s"
-exit ${_exitCode}
+test -n "${_exitCode}" && exit ${_exitCode}
+
+# no test were run, this is likely an issue
+exit 1

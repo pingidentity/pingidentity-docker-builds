@@ -1,0 +1,7 @@
+spring.datasource.url=jdbc:h2:${pingcentral.home}/h2-data/pingcentral;TRACE_LEVEL_SYSTEM_OUT=0;TRACE_LEVEL_FILE=0;DB_CLOSE_ON_EXIT=FALSE;ALLOW_LITERALS=ALL
+spring.datasource.username=PingCentral
+spring.datasource.password=2PingCentral
+server.port=${PING_CENTRAL_SERVER_PORT}
+server.ssl.trust-any=${PING_CENTRAL_BLIND_TRUST}
+server.ssl.https.verify-hostname=${PING_CENTRAL_VERIFY_HOSTNAME}
+spring.thymeleaf.check-template-location=false

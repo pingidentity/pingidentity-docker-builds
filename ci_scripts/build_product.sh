@@ -6,15 +6,16 @@ test -n "${VERBOSE}" && set -x
 #
 usage ()
 {
-cat <<END_USAGE
+        test -n "${*}" && echo "${*}"
+    cat <<END_USAGE
 Usage: ${0} {options}
     where {options} include:
-    -d, --default-shim
-        The name of the shim that will be tagged as default
     -p, --product
         The name of the product for which to build a docker image
     -s, --shim
         the name of the operating system for which to build a docker image
+    -j, --jvm
+        the id of the jvm to build
     -v, --version
         the version of the product for which to build a docker image
         this setting overrides the versions in the version file of the target product
@@ -25,43 +26,32 @@ Usage: ${0} {options}
     --help
         Display general usage information
 END_USAGE
-exit 99
+    exit 99
 }
 
-DOCKER_BUILDKIT=1
+DOCKER_BUILDKIT=${DOCKER_BUILDKIT:-1}
+noCache=${DOCKER_BUILD_CACHE}
 while ! test -z "${1}" ; 
 do
     case "${1}" in
-        -d|--default-shim)
-            shift
-            if test -z "${1}" ; then
-                echo "You must provide a default OS Shim"
-                usage
-            fi
-            defaultShim="${1}"
-            ;;
         -p|--product)
             shift
-            if test -z "${1}" ; then
-                echo "You must provide a product to build"
-                usage
-            fi
+            test -z "${1}" && usage "You must provide a product to build"
             productToBuild="${1}"
             ;;
         -s|--shim)
             shift
-            if test -z "${1}" ; then
-                echo "You must provide an OS Shim"
-                usage
-            fi
+            test -z "${1}" && usage "You must provide an OS Shim"
             shimsToBuild="${shimsToBuild:+${shimsToBuild} }${1}"
+            ;;
+        -j|--jvm)
+            shift
+            test -z "${1}" && usage "You must provide a JVM id"
+            jvmsToBuild="${jvmsToBuild:+${jvmsToBuild} }${1}"
             ;;
         -v|--version)
             shift
-            if test -z "${1}" ; then
-                echo "You must provide a version to build"
-                usage
-            fi
+            test -z "${1}" && usage "You must provide a version to build"
             versionsToBuild="${versionsToBuild:+${versionsToBuild} }${1}"
             ;;
         --no-build-kit)
@@ -85,8 +75,7 @@ do
             usage
             ;;
         *)
-            echo "Unrecognized option"
-            usage
+            usage "Unrecognized option"
             ;;
     esac
     shift
@@ -121,9 +110,9 @@ fi
 
 # result table header    
 _resultsFile="/tmp/$$.results"
-_headerPattern='%-25s|%-10s|%-20s|%10s|%7s\n'
-_reportPattern='%-24s|%-10s|%-20s|%10s|%7s\n'
-printf ${_headerPattern} " PRODUCT" " VERSION" " SHIM" " DURATION" " RESULT" > ${_resultsFile}
+_headerPattern=' %-24s| %-10s| %-20s| %-10s| %10s| %7s\n'
+_reportPattern='%-23s| %-10s| %-20s| %-10s| %10s| %7s'
+printf "${_headerPattern}" "PRODUCT" "VERSION" "SHIM" "JDK" "DURATION" "RESULT" > ${_resultsFile}
 _totalStart=$( date '+%s' )
 
 _date=$( date +"%y%m%d" )
@@ -179,7 +168,7 @@ do
         else
             _result=PASS
         fi
-        append_status "${_resultsFile}" ${_result} ${_reportPattern} " ${productToBuild}" " ${_version}" " Staging" " ${_duration}" "${_result}"
+        append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${productToBuild}" "${_version}" "Staging" "N/A" "${_duration}" "${_result}"
         imagesToClean="${imagesToClean} ${_image}"
     fi
     
@@ -188,59 +177,73 @@ do
     do
         _start=$( date '+%s' )
         _shimLongTag=$( _getLongTag "${_shim}" )
-        _jdk=$( _getJDKForProductVersionShim ${productToBuild} ${_version} ${_shim} )
-        if test -z "${isLocalBuild}" && test ${DOCKER_BUILDKIT} -eq 1 ;
+        if test -z "${jvmsToBuild}" ;
         then
-            docker pull "${FOUNDATION_REGISTRY}/pingjvm:${_jdk}_${_shimLongTag}-${ciTag}"
-        fi
-
-        fullTag="${_version}-${_shimLongTag}-${ciTag}"
-        imageVersion="${productToBuild}-${_shimLongTag}-${_version}-${_date}-${gitRevShort}"
-        licenseVersion="$( _getLicenseVersion ${_version} )"
-
-        _image="${FOUNDATION_REGISTRY}/${productToBuild}:${fullTag}"
-        DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build \
-            -t ${_image} \
-            ${progress} ${noCache} \
-            --build-arg PRODUCT="${productToBuild}" \
-            --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
-            --build-arg GIT_TAG="${ciTag}" \
-            --build-arg JDK="${_jdk}" \
-            --build-arg SHIM="${_shim}" \
-            --build-arg SHIM_TAG="${_shimLongTag}" \
-            --build-arg VERSION="${_version}" \
-            --build-arg IMAGE_VERSION="${imageVersion}" \
-            --build-arg IMAGE_GIT_REV="${gitRevLong}" \
-            --build-arg LICENSE_VERSION="${licenseVersion}" \
-            "${productToBuild}"
-
-        _returnCode=${?}
-        _stop=$( date '+%s' )
-        _duration=$(( _stop - _start ))
-        if test ${_returnCode} -ne 0 ; 
-        then
-            returnCode=${_returnCode}
-            _result=FAIL
-            if test -n "${failFast}" ; 
-            then
-                banner "Build break for ${productToBuild} on ${_shim} for version ${_version}"
-                exit ${_returnCode}
-            fi
+            _jvmsToBuild=$( _getJVMsToBuildForProductVersionShim ${productToBuild} ${_version} ${_shim} )
         else
-            _result=PASS
-            if test -z "${isLocalBuild}" ;
-            then
-                ${dryRun} docker push "${_image}"
-                ${dryRun} docker image rm -f ${_image}
-            fi
+            _jvmsToBuild=${jvmsToBuild}
         fi
-        append_status "${_resultsFile}" ${_result} ${_reportPattern} " ${productToBuild}" " ${_version}" " ${_shim}" " ${_duration}" "${_result}"
+
+        for _jvm in ${_jvmsToBuild} ;
+        do
+            if test -z "${isLocalBuild}" && test ${DOCKER_BUILDKIT} -eq 1 ;
+            then
+                docker pull "${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimLongTag}-${ciTag}"
+            fi
+
+            fullTag="${_version}-${_shimLongTag}-${_jvm}-${ciTag}"
+            imageVersion="${productToBuild}-${_shimLongTag}-${_jvm}-${_version}-${_date}-${gitRevShort}"
+            licenseVersion="$( _getLicenseVersion ${_version} )"
+
+            _image="${FOUNDATION_REGISTRY}/${productToBuild}:${fullTag}"
+            DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build \
+                -t ${_image} \
+                ${progress} ${noCache} \
+                --build-arg PRODUCT="${productToBuild}" \
+                --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
+                --build-arg GIT_TAG="${ciTag}" \
+                --build-arg JVM="${_jvm}" \
+                --build-arg SHIM="${_shim}" \
+                --build-arg SHIM_TAG="${_shimLongTag}" \
+                --build-arg VERSION="${_version}" \
+                --build-arg IMAGE_VERSION="${imageVersion}" \
+                --build-arg IMAGE_GIT_REV="${gitRevLong}" \
+                --build-arg LICENSE_VERSION="${licenseVersion}" \
+                "${productToBuild}"
+
+            _returnCode=${?}
+            _stop=$( date '+%s' )
+            _duration=$(( _stop - _start ))
+            if test ${_returnCode} -ne 0 ; 
+            then
+                returnCode=${_returnCode}
+                _result=FAIL
+                if test -n "${failFast}" ; 
+                then
+                    banner "Build break for ${productToBuild} on ${_shim} for version ${_version}"
+                    exit ${_returnCode}
+                fi
+            else
+                _result=PASS
+                if test -z "${isLocalBuild}" ;
+                then
+                    ${dryRun} docker push "${_image}"
+                    ${dryRun} docker image rm -f ${_image}
+                fi
+            fi
+            append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${productToBuild}" "${_version}" "${_shim}" "${_jvm}" "${_duration}" "${_result}"
+        done
     done
-    _shimsToBuild=""
 done
 
 # leave the runner without clutter
-test -z "${isLocalBuild}" && docker image rm -f ${imagesToClean}
+if test -z "${isLocalBuild}" ;
+then
+    imagesToClean=$( docker image ls -qf "reference=*/*/*${ciTag}" | sort | uniq )
+    test -n "${imagesToClean}" && docker image rm -f ${imagesToClean}
+    imagesToClean=$( docker image ls -qf "dangling=true" )
+    test -n "${imagesToClean}" && docker image rm -f ${imagesToClean}
+fi
 
 cat ${_resultsFile}
 rm ${_resultsFile}

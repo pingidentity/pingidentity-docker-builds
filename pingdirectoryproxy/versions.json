@@ -4,10 +4,10 @@
         {   
             "version": "8.0.0.1",
             "preferredShim": "alpine",
-            "distributions":[
+            "shims":[
                 {
                     "shim": "alpine",
-                    "jdk": "11",
+                    "jvm": "11",
                     "build": true,
                     "deploy": true
                 }
@@ -16,10 +16,10 @@
         {   
             "version": "7.3.0.7",
             "preferredShim": "alpine",
-            "distributions":[
+            "shims":[
                 {
                     "shim": "alpine",
-                    "jdk": "11",
+                    "jvm": "11",
                     "build": true,
                     "deploy": true
                 }

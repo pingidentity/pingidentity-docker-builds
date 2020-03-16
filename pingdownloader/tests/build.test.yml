@@ -2,5 +2,8 @@ version: "2"
 
 services:
   sut:
-    image: ${REGISTRY}/pingdownloader
-    command: -p pingdatagovernance -v 8.0.0.0 --verify-gpg-signature
+    image: ${REGISTRY}/pingdownloader:${TAG}
+    environment:
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+    command: -p delegator --verify-gpg-signature

@@ -1,64 +1,29 @@
 <EntityDescriptor entityID="" xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:sid="urn:sourceid.org:saml2:local-metadata-extension:v2">
 
-  <!-- This block contains Ping's proprietary endpoints -->
-  <Extensions>
-     <sid:SourceIDExtension BaseURL="https://localhost:${PF_ENGINE_PORT}" >
-         <sid:LocalPathsDescriptor Suffix=".ping" ResumePathPrefix="/resume">
-             <sid:IDPLocalPaths>
-                 <!-- This endpoint is used by an IdP application to ask
-                      this local PingFederate server to initiate a Single
-                      Sign On.
-                 -->
-                 <sid:InitiateSingleSignOn>/idp/startSSO</sid:InitiateSingleSignOn>
-
-                 <!-- This endpoint is used by an IdP application to ask
-                      this local PingFederate server to initiate a Single
-                      Logout for the user session.
-                 -->
-                 <sid:InitiateSingleLogOut>/idp/startSLO</sid:InitiateSingleLogOut>
-        
-             </sid:IDPLocalPaths>
-             <sid:SPLocalPaths>
-                 <!-- This endpoint is used by a SP application to ask
-                      this local PingFederate server to initiate a Single
-                      Sign On.
-                 -->
-                 <sid:InitiateSingleSignOn>/sp/startSSO</sid:InitiateSingleSignOn>
-                 
-                 <!-- Initiate SSO with IdP Discovery enabled -->
-                 <sid:InitiateCDCSingleSignOn>/sp/cdcstartSSO</sid:InitiateCDCSingleSignOn>
-
-                 <!-- This endpoint is used by a SP application to ask
-                      this local PingFederate server to initiate a Single
-                      Logout for the user SSO session.
-                 -->
-                 <sid:InitiateSingleLogOut>/sp/startSLO</sid:InitiateSingleLogOut>
-                 
-                 <!-- This endpoint is used by an SP application to ask
-                      this PF server to defederate a account link(s).
-                 -->
-                 <sid:TerminateAccountLinks>/sp/defederate</sid:TerminateAccountLinks>
-                 
-                 <!-- This endpoint is used by a SP application to ask
-                      this local PingFederate server to initiate an Attribute
-                      Query.
-                 -->
-                 <sid:InitiateAttributeQuery>/sp/startAttributeQuery</sid:InitiateAttributeQuery>                 
-            </sid:SPLocalPaths>
-         </sid:LocalPathsDescriptor>
-
-
-
-      <sid:ApplicationURLs>
-        <sid:URLGroup name="idp.after.slo" successURL="" failureURL=""/>
-        <sid:URLGroup name="sp.after.sso" successURL="" failureURL=""/>
-        <sid:URLGroup name="sp.after.slo" successURL="" failureURL=""/>
-      </sid:ApplicationURLs>
-      
-    </sid:SourceIDExtension>
-  </Extensions>
+    <Extensions>
+        <sid:SourceIDExtension BaseURL="https://${PF_ENGINE_PUBLIC_HOSTNAME}:${PF_ENGINE_PORT}">
+            <sid:LocalPathsDescriptor Suffix=".ping" ResumePathPrefix="/resume">
+                <sid:IDPLocalPaths>
+                    <sid:InitiateSingleSignOn>/idp/startSSO</sid:InitiateSingleSignOn>
+                    <sid:InitiateSingleLogOut>/idp/startSLO</sid:InitiateSingleLogOut>
+                </sid:IDPLocalPaths>
+                <sid:SPLocalPaths>
+                    <sid:InitiateSingleSignOn>/sp/startSSO</sid:InitiateSingleSignOn>
+                    <sid:InitiateCDCSingleSignOn>/sp/cdcstartSSO</sid:InitiateCDCSingleSignOn>
+                    <sid:InitiateSingleLogOut>/sp/startSLO</sid:InitiateSingleLogOut>
+                    <sid:TerminateAccountLinks>/sp/defederate</sid:TerminateAccountLinks>
+                    <sid:InitiateAttributeQuery>/sp/startAttributeQuery</sid:InitiateAttributeQuery>
+                </sid:SPLocalPaths>
+            </sid:LocalPathsDescriptor>
+            <sid:ApplicationURLs>
+                <sid:URLGroup name="idp.after.slo" successURL="" failureURL="" />
+                <sid:URLGroup name="sp.after.sso" successURL="" failureURL="" />
+                <sid:URLGroup name="sp.after.slo" successURL="" failureURL="" />
+            </sid:ApplicationURLs>
+        </sid:SourceIDExtension>
+    </Extensions>
     <!--No longer used but needed for xml schema validation -->
     <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
-        <AssertionConsumerService Location="nope" index="0" Binding="nope"/>
-    </SPSSODescriptor> 
+        <AssertionConsumerService Location="nope" index="0" Binding="nope" />
+    </SPSSODescriptor>
 </EntityDescriptor>

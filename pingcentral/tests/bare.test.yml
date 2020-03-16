@@ -6,7 +6,6 @@ services:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
       - PING_IDENTITY_ACCEPT_EULA=YES
-      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
-      - SERVER_PROFILE_PATH=baseline/pingcentral/logging
+      - PING_CENTRAL_SERVER_PORT=9876
       - VERBOSE=true
-    command: start-server /opt/wait-for localhost:9022 -t 180 -- curl -k https://localhost:9022/
+    command: ["start-server","/opt/wait-for","localhost:9876","-t","180","--","curl","-k","https://localhost:9876/"]

@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
-${VERBOSE} && set -x
+test -n "${VERBOSE}" && set -x
 exec "${@}"
