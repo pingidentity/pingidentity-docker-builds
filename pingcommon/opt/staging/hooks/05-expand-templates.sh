@@ -38,8 +38,18 @@ export _DOLLAR_="$"
 expandFiles()
 {
     # shellcheck disable=SC2044
+    for template in $( find "." -type f -iname \*.subst.default ) ; do
+        echo "  d - ${template}"
+        _effectiveFile="${template%.subst.default}"
+        if ! test -f "${_effectiveFile}" ;
+        then
+            envsubst < "${template}" > "${_effectiveFile}"
+        fi
+        rm -f "${template}"
+    done
+    # shellcheck disable=SC2044
     for template in $( find "." -type f -iname \*.subst ) ; do
-        echo "  - ${template}"
+        echo "  t - ${template}"
         envsubst < "${template}" > "${template%.subst}"
         rm -f "${template}"
     done
