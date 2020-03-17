@@ -24,7 +24,7 @@ i.checks:
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      # - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
 
 i.unmerged:
   stage: intialization
@@ -863,7 +863,6 @@ d.github:
       - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_REF_NAME =~ /^\[skip deploy\]*/
       

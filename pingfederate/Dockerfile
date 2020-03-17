@@ -52,7 +52,6 @@ RUN ["/opt/build.sh"]
 # The final image 
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
-EXPOSE 9031 9999
 ARG LICENSE_VERSION
 ENV PING_PRODUCT="PingFederate"
 ENV LICENSE_DIR="${SERVER_ROOT_DIR}/server/default/conf"
@@ -68,6 +67,8 @@ ENV PF_ADMIN_DEBUG=false
 ENV PF_DEBUG_PORT=9030
 ENV PF_ENGINE_PORT=9031
 ENV PF_ADMIN_PORT=9999
+
+EXPOSE 9031 9999
 
 # get the staged bits 
 COPY --from=final-staging ["/","/"]
