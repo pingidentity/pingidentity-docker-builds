@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+echo "Pre-build stage (before package are laid down on the shim)"
+set -x
+
+_osID=$( awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null )
+
+case "${_osID}" in
+    alpine)
+        apk --update add python3
+        pip3 install --no-cache-dir --upgrade pip
+        pip3 install --no-cache-dir --upgrade awscli
+    ;;
+    *)
+    ;;
+esac
+# delete self
+rm -f "${0}"
+set +x
+echo "Pre-build stage done."
