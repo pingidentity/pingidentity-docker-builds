@@ -14,8 +14,12 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts";
 "${CI_SCRIPTS_DIR}/build_downloader.sh" 
 "${CI_SCRIPTS_DIR}/build_foundation.sh" 
 
-for p in apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingfederate pingtoolkit ;
+_products="${@}"
+test -z "${_products}" && _products="apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingfederate pingtoolkit"
+
+for p in ${_products} ;
 do
     "${CI_SCRIPTS_DIR}/build_product.sh" -p ${p} --no-cache --no-build-kit
     test ${?} -ne 0 && break
 done
+docker images
