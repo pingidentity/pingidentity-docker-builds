@@ -1,0 +1,17 @@
+version: "3.5"
+# test be able to provide a secret file to a defined location:
+# PING_IDENTITY_DEVOPS_FILE=devops-secret
+services:
+  sut:
+    image: ${REGISTRY}/pingaccess:${TAG}
+    environment:
+      - PING_IDENTITY_DEVOPS_FILE=
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=getting-started/pingaccess
+      - VERBOSE=false
+    secrets:
+      - devops-test
+    command: start-server /opt/wait-for localhost:9000 -t 180 -- curl -k https://localhost:9000/pa/heartbeat.ping
+secrets:
+  devops-test:
+    file: ${HOME}/.pingidentity/devops

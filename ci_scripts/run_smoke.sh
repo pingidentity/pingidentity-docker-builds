@@ -144,7 +144,7 @@ do
             fi
             
             # this is the loop where the actual test is run
-            for _test in ${product}/tests/*.test.yml ; 
+            for _test in ${product}/tests/*.test.y*ml ; 
             do
                 banner "Running test $( basename ${_test} ) on ${product}${_version:+ ${version}}${_shim:+ on ${shim}}${_jvm:+ with Java ${_jvmVersion}(${_jvm})}"
                 # sut = system under test
