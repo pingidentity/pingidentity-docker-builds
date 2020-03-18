@@ -9,6 +9,9 @@ ${VERBOSE} && set -x
 # capture the calling hook so it can be echo'd later on
 CALLING_HOOK=${0}
 
+# check for devops file in docker secrets location
+test -f "/run/secrets/${PING_IDENTITY_DEVOPS_FILE}" && . "/run/secrets/${PING_IDENTITY_DEVOPS_FILE}"
+
 # File holding State Properties
 STATE_PROPERTIES="${STAGING_DIR}/state.properties"
 
