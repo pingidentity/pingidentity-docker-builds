@@ -14,7 +14,7 @@
 # shellcheck source=pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 set -e
-echo "importing data.."
+echo "INFO: begin importing data.."
 
 # # to Test an import call from the container you can use: 
 # curl -k -v -X POST -u "Administrator:${PA_ADMIN_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
@@ -25,16 +25,22 @@ echo "importing data.."
 # curl -k -v -X GET -u "Administrator:${PA_ADMIN_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
 #   https://localhost:9000/pa-admin-api/v3/config/import/workflows/1
 
-curl -k --silent -X POST -u "Administrator:${PA_ADMIN_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
+curl -ks -X POST -u "Administrator:${PA_ADMIN_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
   -d @${STAGING_DIR}/instance/data/data.json \
   https://localhost:9000/pa-admin-api/v3/config/import/workflows > /dev/null
 
 while true ; do
-  _import_status=$(curl -kv -u "Administrator:${PA_ADMIN_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" https://localhost:9000/pa-admin-api/v3/config/import/workflows | jq '.items[-1].status')
-  if test "${_import_status}" = '"In Progress"' ; then
-    sleep 1
-  else
-    test "${_import_status}" = '"Complete"' && break
-  fi
-  die_on_error 85 "Unsuccessful import"
+  _import_status=$(curl -ks -u "Administrator:${PA_ADMIN_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" https://localhost:9000/pa-admin-api/v3/config/import/workflows | jq '.items[-1].status')
+  case "${_import_status}" in
+    '' | '"In Progress"')
+      test "${VERBOSE}" = "true" && echo "import in progress.."
+      sleep 2 ;;
+    '"Complete"')
+      test "${VERBOSE}" = "true" && echo "Import status: ${_import_status}"
+      break ;;
+    *)
+      echo "Import status: ${_import_status}"
+      echo_red "ERROR: Unsuccessful Import"
+      exit 85 ;;
+  esac
 done
