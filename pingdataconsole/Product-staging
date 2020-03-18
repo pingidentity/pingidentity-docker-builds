@@ -37,7 +37,10 @@ RUN /get-bits.sh \
     && unzip -d /tmp/ /tmp/product.zip PingDirectory/resource/admin-console.zip \
 	&& unzip -d /tmp/ /tmp/PingDirectory/resource/admin-console.zip admin-console.war \
     && mkdir /opt/server/webapps/console \
-    && unzip -d /opt/server/webapps/console /tmp/admin-console.war
+    && unzip /tmp/admin-console.war \
+        -d /opt/server/webapps/console \
+        -x *-sources.jar \
+        -x *unboundid-ldapsdk-*.jar
 
 FROM scratch
 COPY --from=staging ["/opt/","/opt/"]
