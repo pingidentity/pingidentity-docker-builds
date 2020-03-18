@@ -15,7 +15,8 @@ case "${_osID}" in
         # wipe the dependency
         apk del build_deps
         # altogether remove the package manager
-        rm -rf /sbin/apk /etc/apk /lib/apk /usr/share/apk /var/lib/apk
+        # rm -rf /sbin/apk /etc/apk /lib/apk /usr/share/apk /var/lib/apk
+        rm -rf /etc/apk /lib/apk /usr/share/apk /var/lib/apk
     ;;
     centos)
         rm -rf /var/lib/rpm
