@@ -49,7 +49,6 @@ RUN ["/opt/build.sh"]
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
 ARG LICENSE_VERSION
 # pingaccess comes ootb listening on 3000 but it is more natural for https traffic to be listened for on 443
-EXPOSE 9000 3000 ${HTTPS_PORT}
 ENV PING_PRODUCT="PingAccess"
 ENV LICENSE_DIR="${SERVER_ROOT_DIR}/conf"
 ENV LICENSE_FILE_NAME=pingaccess.lic
@@ -59,6 +58,8 @@ ENV PA_ADMIN_PASSWORD_INITIAL="2Access"
 ENV PA_ADMIN_PASSWORD="${INITIAL_ADMIN_PASSWORD:-2FederateM0re}"
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/pingaccess.log
+
+EXPOSE 9000 3000 ${HTTPS_PORT}
 COPY --from=final-staging ["/","/"]
 
 #- ## Running a PingDirectory container
