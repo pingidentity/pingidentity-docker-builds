@@ -83,6 +83,32 @@ fixPermissions ()
     chmod -Rf go-rwx /opt
 }
 
+removePackageManager_alpine ()
+{
+    rm -f /sbin/apk
+}
+
+removePackageManager_centos ()
+{
+    rpm --erase yum
+    rpm --erase --nodeps rpm
+}
+
+removePackageManager_ubuntu ()
+{
+    dpkg -P apt
+    dpkg -P --force-remove-essential --force-depends dpkg
+}
+
+
+removePackageManager ()
+{
+    isOS alpine && removePackageManager_alpine
+    isOS centos && removePackageManager_centos
+    isOS ubuntu && removePackageManager_ubuntu
+}
+
+
 echo "### Bootstrap"
 if test ${_userID} -eq 0 ; then
     # if the user is root we need to check if and how to step down
@@ -114,6 +140,8 @@ if test ${_userID} -eq 0 ; then
 
         # compute the step-down command that is going to be shimmed before tini
         _runUnprivileged="${BASE}/gosu ${PING_CONTAINER_UID}"
+
+        removePackageManager
     fi
 fi
 
