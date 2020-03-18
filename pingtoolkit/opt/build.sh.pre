@@ -1,14 +1,57 @@
 #!/usr/bin/env sh
 echo "Pre-build stage (before package are laid down on the shim)"
+
+# Common wrapper for reliable curl calls
+_curl ()
+{
+    _httpResultCode=$( 
+        curl \
+            --get \
+            --silent \
+            --show-error \
+            --write-out '%{http_code}' \
+            --location \
+            --connect-timeout 2 \
+            --retry 6 \
+            --retry-max-time 30 \
+            --retry-connrefused \
+            --retry-delay 3 \
+            "${@}"
+    )
+    test ${_httpResultCode} -eq 200
+    return ${?}
+}
+
 set -x
+
+
 
 _osID=$( awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null )
 
 case "${_osID}" in
     alpine)
+        # cause a failure if anything below raises an error 
+        set -e
         apk --update add python3
         pip3 install --no-cache-dir --upgrade pip
         pip3 install --no-cache-dir --upgrade awscli
+
+        apk --update add curl
+        _file=/tmp/version.$$
+        _curl -o "${_file}" https://storage.googleapis.com/kubernetes-release/release/stable.txt
+        _version=$( cat /tmp/version.$$ )
+        
+        _file=/opt/kubectl
+        _curl -o ${_file} https://storage.googleapis.com/kubernetes-release/release/${_version}/bin/linux/amd64/kubectl
+        chmod +x ${_file}
+
+        _file=/opt/kustomize
+        _curl -o ${_file}.tgz https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv3.5.4/kustomize_v3.5.4_linux_amd64.tar.gz
+        tar -C /opt -xzf ${_file}.tgz
+        chmod +x ${_file}
+        rm ${_file}.tgz
+
+        set +e
     ;;
     *)
     ;;
