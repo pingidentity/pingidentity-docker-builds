@@ -13,9 +13,9 @@ services:
     environment: 
       - SERVER_PROFILE_LIVENESS_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_LIVENESS_PATH=ci-tests/pa-cluster
+      - SERVER_PROFILE_PARENT=LIVENESS
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_PATH=pa-clustering/pingaccess
-      - SERVER_PROFILE_PARENT=LIVENESS
       - OPERATIONAL_MODE=CLUSTERED_CONSOLE
       - PA_CONSOLE_HOST=pingaccess  
       - PA_ENGINE_PUBLIC_HOSTNAME=pingaccess-engine
@@ -25,7 +25,7 @@ services:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
       - PING_IDENTITY_ACCEPT_EULA=YES
-      - VERBOSE=false
+      - VERBOSE=true
     # volumes:
       # - ${HOME}/projects/pingidentity-server-profiles/pa-clustering/pingaccess:/opt/in
       #- ${HOME}/<PATH_TO_LOCAL_REPO>/pa-clustering/pingaccess:/opt/in
@@ -50,7 +50,7 @@ services:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
       - PING_IDENTITY_ACCEPT_EULA=YES
-      - VERBOSE=true
+      - VERBOSE=false
     # volumes:
     #  - ${HOME}/projects/devops/pingidentity-server-profiles/pa-clustering/pingaccess:/opt/in
     #  - ${HOME}/<PATH_TO_LOCAL_REPO>/pa-clustering/pingaccess:/opt/in
