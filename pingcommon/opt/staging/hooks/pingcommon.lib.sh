@@ -58,6 +58,29 @@ upperVar()
 }
 
 #
+# Common wrapper for curl to make reliable calls
+#
+_curl ()
+{
+    _httpResultCode=$( 
+        curl \
+            --get \
+            --silent \
+            --show-error \
+            --write-out '%{http_code}' \
+            --location \
+            --connect-timeout 2 \
+            --retry 6 \
+            --retry-max-time 30 \
+            --retry-connrefused \
+            --retry-delay 3 \
+            "${@}"
+    )
+    test ${_httpResultCode} -eq 200
+    return ${?}
+}
+
+#
 # Stable function to retrieve OS information
 #
 parseOSRelease () 
