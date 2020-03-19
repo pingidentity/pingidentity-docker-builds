@@ -29,21 +29,22 @@ else
               Prod License: ${LICENSE_SHORT_NAME} - v${LICENSE_VERSION} 
                DevOps User: ${PING_IDENTITY_DEVOPS_USER}..."
         
-            licenseCurlResult=$( curl -kL -w '%{http_code}' -G \
-                -H "product: ${LICENSE_SHORT_NAME}" \
-                -H "version: ${LICENSE_VERSION}" \
-                -H "devops-user: ${PING_IDENTITY_DEVOPS_USER}" \
-                -H "devops-key: ${PING_IDENTITY_DEVOPS_KEY}" \
-                -H "devops-app: ${IMAGE_VERSION}" \
+            _curl \
+                --header "product: ${LICENSE_SHORT_NAME}" \
+                --header "version: ${LICENSE_VERSION}" \
+                --header "devops-user: ${PING_IDENTITY_DEVOPS_USER}" \
+                --header "devops-key: ${PING_IDENTITY_DEVOPS_KEY}" \
+                --header "devops-app: ${IMAGE_VERSION}" \
+                --header "devops-purpose: get-license" \
                 "https://license.pingidentity.com/devops/v2/license" \
-                -o "${LICENSE_FILE}" 2> /dev/null )
+                --output "${LICENSE_FILE}"
             #
             # Just testing the http code isn't sufficient, curl will return http 200 if it
             # can retrieve the file even if it can't actually write the file to disk. We
             # also need to capture & test the curl return code.
             #
             rc=${?}
-            if test $licenseCurlResult -eq 200 && test ${rc} -eq 0 ; then
+            if test ${rc} -eq 0 ; then
                 echo "Successfully pulled evaluation license from Ping Identity"
                 test "${PING_DEBUG}" = "true" && cat_indent "${LICENSE_FILE}"
                 echo ""
@@ -58,7 +59,7 @@ else
 
                 licenseFound="true"
             else
-                echo "Unable to download evaluation product.lic (${licenseCurlResult}), most likely due to invalid PING_IDENTITY_DEVOPS_USER/PING_IDENTITY_DEVOPS_KEY"
+                echo "Unable to download evaluation product.lic, most likely due to invalid PING_IDENTITY_DEVOPS_USER/PING_IDENTITY_DEVOPS_KEY"
                 rm -f "${LICENSE_FILE}"
             fi
         else
