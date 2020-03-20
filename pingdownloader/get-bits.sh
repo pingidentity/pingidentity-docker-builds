@@ -511,7 +511,7 @@ else
         else
             if _curl --header "devops-purpose: payload-unsigned" --output "${output}" "${url}" ; 
             then
-                echo_green "Sucessful download of ${url}"
+                echo_green "Successful download of ${prodFile}"
                 exitCode=0
             else
                 echo_red "Unable to download ${prodFile}"
