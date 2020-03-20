@@ -33,6 +33,12 @@
                         }
                     ]
                 }
+            ],
+            "dependencies": [
+                {
+                    "product": "pingfederate-patch",
+                    "version": "9.3.3-P3"
+                }
             ]
         },
         {
