@@ -72,6 +72,11 @@
             "licenseFile": "pingfederate.lic"
         },
         {
+            "name": "pingfederate-patch",
+            "mapping": "pingfederate-patch-${version}.zip",
+            "latestVersion": "9.3.3-P3"
+        },
+        {
             "name": "apache-tomcat",
             "mapping": "apache-tomcat-${version}.zip",
             "latestVersion": "9.0.31"
