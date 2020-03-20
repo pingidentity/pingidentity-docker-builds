@@ -37,20 +37,26 @@ export _DOLLAR_="$"
 #
 expandFiles()
 {
+    echo "  Processing templates"
+    # shellcheck disable=SC2044
+    for template in $( find "." -type f -iname \*.subst ) ; do
+        echo "    t - ${template}"
+        envsubst < "${template}" > "${template%.subst}"
+        rm -f "${template}"
+    done
+    
+    echo "  Processing defaults"
     # shellcheck disable=SC2044
     for template in $( find "." -type f -iname \*.subst.default ) ; do
-        echo "  d - ${template}"
+        echo -n "    d - ${template} .. "
         _effectiveFile="${template%.subst.default}"
         if ! test -f "${_effectiveFile}" ;
         then
             envsubst < "${template}" > "${_effectiveFile}"
+            echo_green "expanded"
+        else
+            echo_red "skipped"
         fi
-        rm -f "${template}"
-    done
-    # shellcheck disable=SC2044
-    for template in $( find "." -type f -iname \*.subst ) ; do
-        echo "  t - ${template}"
-        envsubst < "${template}" > "${template%.subst}"
         rm -f "${template}"
     done
 }
