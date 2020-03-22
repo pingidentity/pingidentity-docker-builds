@@ -20,6 +20,9 @@ ARG DEPENDENCY_0_VERSION
 # For the record, the "|| :" expression means "or null"
 # the null operator is no-op here but allows the subshell to return success either way 
 
+# The line below avoids extracting the upgrade utility
+#        -x pingfederate-*/pingfederate/upgrade/* \
+
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} \
         --version ${VERSION} \
@@ -30,7 +33,6 @@ RUN /get-bits.sh --product ${PRODUCT} \
 	&& unzip /tmp/product.zip -d /tmp/ \
         -x */pingfederate-service-installer.jar \
         -x pingfederate-*/pingfederate/sdk/* \
-        -x pingfederate-*/pingfederate/upgrade/* \
         -x *.bat \
         -x *.dll \
         -x *.exe \
