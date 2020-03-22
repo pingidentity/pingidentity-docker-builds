@@ -85,7 +85,11 @@ CHAR_CROSSMARK='\xE2\x9D\x8C'
 ################################################################################
 echo_red()
 {
-    echo -e "${FONT_RED}$*${FONT_NORMAL}"
+    if test $(uname) = "Darwin"; then
+        echo "${FONT_RED}$*${FONT_NORMAL}"
+    else
+        echo -e "${FONT_RED}$*${FONT_NORMAL}"
+    fi
 }
 
 ################################################################################
@@ -93,7 +97,11 @@ echo_red()
 ################################################################################
 echo_green()
 {
-    echo -e "${FONT_GREEN}$*${FONT_NORMAL}"
+    if test $(uname) = "Darwin"; then
+        echo "${FONT_GREEN}$*${FONT_NORMAL}"
+    else
+        echo -e "${FONT_GREEN}$*${FONT_NORMAL}"
+    fi
 }
 
 ##########################################################################################
@@ -113,11 +121,15 @@ echo_green()
 ##########################################################################################
 getProps ()
 {
-    curlResult=$( curl -kL -w '%{http_code}' -H "devops-user: ${devopsUser}" -H "devops-key: ${devopsKey}" -H "devops-app: pingdownloader-get-metadata" ${repositoryURL}${metadataFile} -o ${outputProps} 2>/dev/null )
-
-	! test $curlResult -eq 200 && usage "Unable to get bits metadata. Network Issue?"
+    _tmpApp=${devopsApp}
+    devopsApp="pingdownloader"
+    
+	if ! _curl -H "devops-purpose: get-metadata" ${repositoryURL}${metadataFile} -o ${outputProps}; then
+        usage "Unable to get bits metadata. Network Issue?"
+    fi
 
 	availableProducts=$( jq -r '.products[].name' ${outputProps} )
+    devopsApp=${_tmpApp}
 }
 
 ##########################################################################################
@@ -163,7 +175,6 @@ getProductFile ()
 getProductURL ()
 {
 	defaultURL=$( jq -r '.defaultURL' ${outputProps} ) 
-    #defaultURL="https://license.pingidentity.com/devops/v2/download/"
 	
 	prodURL=$( jq -r ".products[] | select(.name==\"${product}\").url" ${outputProps} )
 	
@@ -208,6 +219,7 @@ saveOutcome ()
 cleanup ()
 {
     test -z "${dryRun}" && rm -f ${outputProps}
+    test -d "${TMP_VS}" && rm -rf ${TMP_VS}
 }
 
 _curl ()
@@ -321,7 +333,8 @@ dryRun=""
 devopsUser="${PING_IDENTITY_DEVOPS_USER}"
 devopsKey="${PING_IDENTITY_DEVOPS_KEY}"
 # default to GTE public repo in S3
-repositoryURL="https://license.pingidentity.com/devops/v2/download/"
+repositoryURL="https://bits.pingidentity.com/"
+licenseURL="https://license.pingidentity.com/devops/v2/license"
 # default to GTE metadata file
 metadataFile="gte-bits-repo.json"
 # default app name
@@ -431,7 +444,6 @@ if test ${pullLicense} ; then
            usage "No license files available for $product"
         ;;
     esac
-    url="https://license.pingidentity.com/devops/v2/license"
     
     getProductLicenseFile
     output="product.lic"
@@ -471,10 +483,10 @@ if test ${pullLicense} ; then
             -H "devops-key: ${devopsKey}" \
             -H "devops-app: ${devopsApp}" \
             -o "${output}" \
-            "${url}"
+            "${licenseURL}"
 END_CURL
     else
-        if _curl -H "devops-purpose: license" -H "product: ${productShortName}" -H "version: ${licenseVersion}" -o "${output}" "${url}" ;
+        if _curl -H "devops-purpose: license" -H "product: ${productShortName}" -H "version: ${licenseVersion}" -o "${output}" "${licenseURL}" ;
         then
             echo_green "Successful download of ${productShortName} ${licenseVersion} license"
             exitCode=0
