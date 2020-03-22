@@ -658,7 +658,7 @@ b.pingfederate:
       - pingbase/**/*
       - pingaccess/**/*
       - pingdirectory/**/*
-      - pingfederate/**/*
+      - pingdownloader/**/*
       - integration_tests/**/*
       - ci_scripts/*
       - .gitlab-ci.yml
