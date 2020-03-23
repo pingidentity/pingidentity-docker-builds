@@ -276,6 +276,45 @@ copy_files()
 }
 
 ###############################################################################
+# security_filename_check (path)
+#
+#   path - Where to find any files following pattern
+#   pattern - pattern to search for (i.e. *.jwk)
+#
+# check files in the path for potential security issues based on pattern passed
+###############################################################################
+security_filename_check()
+{
+    _scPath="${1}"
+    _patternToCheck="${2}"
+
+    test -z ${_totalSecurityViolations} && _totalSecurityViolations=0
+
+    _tmpSC="/tmp/.securityCheck"
+    # Check for *.jwk files
+    test -d ${_scPath} && _tmpPWD=`pwd` && cd ${_scPath}
+    find . -type f -name "${_patternToCheck}" > ${_tmpSC}
+    test -d ${_scPath} && cd ${_tmpPWD}
+    
+    _numViolations=$(cat ${_tmpSC} | wc -l)
+
+    if test ${_numViolations} -gt 0; then
+        if test "${SECURITY_CHECKS_STRICT}" = "true"; then
+            echo_red "SECURITY_CHECKS_FILENAME: ${_numViolations} files found matching file pattern ${_patternToCheck}"
+        else
+            echo_green "SECURITY_CHECKS_FILENAME: ${_numViolations} files found matching file pattern ${_patternToCheck}"
+        
+        fi
+
+        cat_indent ${_tmpSC}
+
+        _totalSecurityViolations=$(( _totalSecurityViolations + _numViolations ))        
+    fi
+
+    export _totalSecurityViolations
+}
+
+###############################################################################
 # apply_local_server_profile (num_seconds)
 #
 # Sleep at least one second and at most the indicated duration and 

@@ -34,6 +34,7 @@ ${VERBOSE} && set -x
 # shellcheck source=pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
+
 ########################################################################################
 # performs a git clone on the server profile passed
 ########################################################################################
@@ -60,7 +61,30 @@ getProfile ()
 
         git clone --depth 1 ${serverProfileBranch:+--branch} ${serverProfileBranch} "${serverProfileUrl}" "${SERVER_PROFILE_DIR}"
         die_on_error 141 "Git clone failure"  || exit ${?}
-        
+       
+        #
+        # Perform Security Checks on the Server Profile cloned
+        #
+        # note: this will also search paths ouside of the SERVER_PROFILE_PATH.  
+        #       future enhancement may want to limit the directory checked.
+        #       i.e. ${SERVER_PROFILE_DIR}/${serverProfilePath}
+        #
+        echo "Checking for security filename issues...${SECURITY_CHECKS_FILENAME}"
+
+        for _scPatternCheck in ${SECURITY_CHECKS_FILENAME}; do
+            security_filename_check "${SERVER_PROFILE_DIR}" "${_scPatternCheck}"
+        done
+
+        if test ${_totalSecurityViolations} -gt 0; then
+            if test "${SECURITY_CHECKS_STRICT}" = "true"; then
+                container_failure 2 "Security Violations Found! (total=${_totalSecurityViolations})"
+            else
+                echo_green "Security Violations Allowed! (total=${_totalSecurityViolations}) SECURITY_CHECKS_STRICT=${SECURITY_CHECKS_STRICT}"
+            fi
+        else
+            echo "   PASSED"
+        fi 
+
         # shellcheck disable=SC2086
         cp -af ${SERVER_PROFILE_DIR}/${serverProfilePath}/* "${STAGING_DIR}"
         die_on_error 142 "Copy to staging failure"  || exit ${?}
