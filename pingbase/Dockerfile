@@ -67,6 +67,12 @@ ONBUILD ENV SERVER_PROFILE_PATH=""
 ONBUILD ENV SERVER_PROFILE_UPDATE="false"
 #-- Path from which the runtime executes
 ONBUILD ENV SERVER_ROOT_DIR=${OUT_DIR}/instance
+
+#-- Reuquires strict checks on security
+ONBUILD ENV SECURITY_CHECKS_STRICT=false
+#-- Perform a check for filenames that may violate security (i.e. secret material)
+ONBUILD ENV SECURITY_CHECKS_FILENAME="*.jwk *.pin"
+
 #-- License directory and filename
 ONBUILD ENV LICENSE_DIR="${SERVER_ROOT_DIR}"
 #-- The command that the entrypoint will execute in the foreground to 
