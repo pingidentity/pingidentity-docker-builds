@@ -68,7 +68,7 @@ ONBUILD ENV SERVER_PROFILE_UPDATE="false"
 #-- Path from which the runtime executes
 ONBUILD ENV SERVER_ROOT_DIR=${OUT_DIR}/instance
 
-#-- Reuquires strict checks on security
+#-- Requires strict checks on security
 ONBUILD ENV SECURITY_CHECKS_STRICT=false
 #-- Perform a check for filenames that may violate security (i.e. secret material)
 ONBUILD ENV SECURITY_CHECKS_FILENAME="*.jwk *.pin"
