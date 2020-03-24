@@ -1,5 +1,5 @@
-<EntityDescriptor entityID="" xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:sid="urn:sourceid.org:saml2:local-metadata-extension:v2">
-
+<?xml version="1.0" encoding="UTF-8" ?>
+<EntityDescriptor entityID="docker" xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:sid="urn:sourceid.org:saml2:local-metadata-extension:v2">
     <Extensions>
         <sid:SourceIDExtension BaseURL="https://${PF_ENGINE_PUBLIC_HOSTNAME}:${PF_ENGINE_PORT}">
             <sid:LocalPathsDescriptor Suffix=".ping" ResumePathPrefix="/resume">
@@ -22,7 +22,6 @@
             </sid:ApplicationURLs>
         </sid:SourceIDExtension>
     </Extensions>
-    <!--No longer used but needed for xml schema validation -->
     <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
         <AssertionConsumerService Location="nope" index="0" Binding="nope" />
     </SPSSODescriptor>
