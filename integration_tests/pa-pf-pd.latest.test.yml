@@ -76,7 +76,7 @@ services:
     command: sh -c "/tmp/wait-for pingaccess:443 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
     # command: ["run","/tmp/collection.json","--insecure","--ignore-redirects"]
     volumes:
-      - ./DockerBuildTestCollection.postman_collection.json:/tmp/collection.json
+      - ./pa-pf-pd.postman_collection.json:/tmp/collection.json
       - ./wait-for:/tmp/wait-for
     depends_on:
       - pingaccess
