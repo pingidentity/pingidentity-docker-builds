@@ -7,9 +7,14 @@
             "shims":[
                 {
                     "shim": "alpine",
-                    "jvm": "11",
-                    "build": true,
-                    "deploy": true
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true
+                        }
+                    ]
                 }
             ]
         },
@@ -19,9 +24,14 @@
             "shims":[
                 {
                     "shim": "alpine",
-                    "jvm": "11",
-                    "build": true,
-                    "deploy": true
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": false,
+                            "deploy": false
+                        }
+                    ]
                 }
             ]
         }

@@ -1,0 +1,37 @@
+ARG REGISTRY
+ARG GIT_TAG
+
+FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
+ARG PRODUCT
+ARG VERSION
+ARG DEVOPS_USER
+ARG DEVOPS_KEY
+
+        # -x */config/*.txt \
+# copy your product zip file into the staging image
+RUN /get-bits.sh --product ${PRODUCT} \
+        --version ${VERSION} \
+        --devops-user ${DEVOPS_USER} \
+        --devops-key ${DEVOPS_KEY} \
+        --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
+        --verify-gpg-signature \
+    && unzip /tmp/product.zip \
+        -d /tmp/ \
+        -x *.bat \
+        -x *.dll \
+        -x *.exe \
+        -x */start-ds \
+        -x */stop-ds \
+        -x */docs/* \
+        -x */uninstall \
+        -x */webapps/* \
+        -x */resource/*.zip \
+        -x */_script-util.sh \
+        -x */config/MakeLDIF/* \
+        -x */bin/make-ldif \
+        -x */lib/wrapper.jar \
+    && mv /tmp/PingDirectoryProxy /opt/server 
+
+FROM scratch
+# get the product staged above (single slender layer)
+COPY --from=staging ["/opt/","/opt/"]

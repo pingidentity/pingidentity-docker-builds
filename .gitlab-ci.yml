@@ -418,6 +418,78 @@ d.pingdirectory:
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
 
 ################################################
+#                  PING DIRECTORY PROXY
+################################################
+b.pingdirectoryproxy:
+  stage: products
+  script:
+    - ci_scripts/build_product.sh --product pingdirectoryproxy
+  only:
+    changes:
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - pingdirectoryproxy/**/*
+      - integration_tests/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
+
+t.pingdirectoryproxy:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_smoke.sh --product pingdirectoryproxy
+  only:
+    changes:
+      - pingdirectory/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/      
+
+d.pingdirectoryproxy:
+  stage: deploy
+  script:
+    - ci_scripts/deploy_product_to_registry.sh --registry docker.io/pingidentity --product pingdirectoryproxy
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - pingdirectoryproxy/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
+      - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+
+################################################
 #                  PING DATA CONSOLE
 ################################################
 b.pingdataconsole:
@@ -472,7 +544,8 @@ b.pingdatasync:
       - pingdatacommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
-      - pingdirectory/**/*
+      - pingdatasync/**/*
+      - integration_tests/**/*
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
@@ -489,11 +562,11 @@ t.pingdatasync:
     - ci_scripts/run_smoke.sh --product pingdatasync
   only:
     changes:
-      - pingdatasync/**/*
       - pingcommon/**/*
       - pingdatacommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
+      - pingdatasync/**/*
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
@@ -786,10 +859,10 @@ d.pingtoolkit:
 ################################################
 #                  INTEGRATION TESTS
 ################################################
-simple_stack.current:
+pa-pf-pd.latest:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh simple_stack.current
+    - ci_scripts/run_integration.sh pa-pf-pd.latest
   only:
     changes:
       - integration_tests/**/*
@@ -799,6 +872,30 @@ simple_stack.current:
       - pingaccess/**/*
       - pingdirectory/**/*
       - pingfederate/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    refs:
+      - schedules
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+
+pds-pd.latest:
+  stage: test.integration
+  script:
+    - ci_scripts/run_integration.sh pds-pd.latest
+  only:
+    changes:
+      - integration_tests/**/*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingdirectory/**/*
+      - pingdatasync/**/*
       - ci_scripts/*
       - .gitlab-ci.yml
   except:

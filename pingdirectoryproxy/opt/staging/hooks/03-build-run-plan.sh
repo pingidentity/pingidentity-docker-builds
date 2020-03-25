@@ -239,7 +239,7 @@ fi
 # Unkown ORCHESTRATION_TYPE
 #########################################################################
 if test -z "${ORCHESTRATION_TYPE}" && test "${PD_STATE}" = "SETUP"; then
-    echo "Replication will not be enabled. Unknown ORCHESTRATION_TYPE"
+    echo "Unknown ORCHESTRATION_TYPE"
     PD_STATE="GENESIS"
 fi
 
@@ -281,15 +281,11 @@ echo "#
         ;;
     SETUP)
         echo "#     Startup Plan
-#        - manage-profile setup
-#        - repl enable (from SEED Server-${_seedInstanceName})
-#        - repl init   (from topology.json, from SEED Server-${_seedInstanceName})" >> "${_planFile}"
+#        - manage-profile setup"
         ;;
     UPDATE)
         echo "#     Startup Plan
-#        - manage-profile update
-#        - repl enable (from SEED Server-${_seedInstanceName})
-#        - repl init   (from topology.json, from SEED Server-${_seedInstanceName})" >> "${_planFile}"
+#        - manage-profile update"
         ;;
     *)
         container_failure 08 "Unknown PD_STATE of ($PD_STATE)"
@@ -311,14 +307,12 @@ echo "##########################################################################
 #                      hostname: ${_podHostname}
 #                      location: ${_podLocation}
 #                    ldaps port: ${_podLdapsPort}
-#              replication port: ${_podReplicationPort}
 #
 # SEED Server Information
 #                 instance name: ${_seedInstanceName}
 #                      hostname: ${_seedHostname}
 #                      location: ${_seedLocation}
 #                    ldaps port: ${_seedLdapsPort}
-#              replication port: ${_seedReplicationPort}
 ###################################################################################
 " >> "${STATE_PROPERTIES}"
 
@@ -426,7 +420,7 @@ cat "${STATE_PROPERTIES}"
 
 echo "
 ###
-# PingDirectory orchestration, run plan and current state
+# PingDirectoryProxy orchestration, run plan and current state
 ###
 ORCHESTRATION_TYPE=${ORCHESTRATION_TYPE}
 RUN_PLAN=${RUN_PLAN}
@@ -454,5 +448,4 @@ _seedReplicationPort=${_seedReplicationPort}
 echo "
 LDAPS_PORT=${LDAPS_PORT}
 LOCATION=${_podLocation}
-REPLICATION_PORT=${REPLICATION_PORT}
 " >> "${STAGING_DIR}/env_vars"

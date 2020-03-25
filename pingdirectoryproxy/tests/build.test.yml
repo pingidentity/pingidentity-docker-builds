@@ -1,14 +1,14 @@
-version: "3"
+version: "3.7"
 
 services:
   sut:
-    image: ${REGISTRY}/pingdatasync:${TAG}
+    image: ${REGISTRY}/pingdirectoryproxy:${TAG}
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
       - PING_IDENTITY_ACCEPT_EULA=YES
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
-      - SERVER_PROFILE_PATH=simple-sync/pingdatasync
+      - SERVER_PROFILE_PATH=baseline/pingdirectoryproxy
     ulimits:
       nproc:
         soft: 16384

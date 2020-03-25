@@ -136,11 +136,6 @@ do
             if test -z "${isLocalBuild}" ;
             then
                 docker pull "${FOUNDATION_REGISTRY}/${product}:${_tag}"
-                if test "${product}" = "pingdatasync" ; 
-                then
-                    # sync tests rely on the PingDirectory image being available too
-                    docker pull "${FOUNDATION_REGISTRY}/pingdirectory:${_tag}"
-                fi
             fi
             
             # this is the loop where the actual test is run

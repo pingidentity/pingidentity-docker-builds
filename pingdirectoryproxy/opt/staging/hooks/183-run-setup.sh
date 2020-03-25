@@ -11,32 +11,6 @@ ${VERBOSE} && set -x
 test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 
 #
-# If we are the GENESIS state, then process any templates if they are defined.
-#
-if test "${PD_STATE}" = "GENESIS" ; then
-    echo "PD_STATE is GENESIS ==> Processing Templates"
-    
-    # TODO need to process all ldif subdirectories, not just userRoot
-    LDIF_DIR="${PD_PROFILE}/ldif/userRoot"
-    TEMPLATE_DIR="${LDIF_DIR}"
-    test -z "${MAKELDIF_USERS}" && MAKELDIF_USERS=0
-
-    for template in $( find "${TEMPLATE_DIR}" -type f -iname \*.template 2>/dev/null ) ; do 
-            echo "Processing (${template}) template with ${MAKELDIF_USERS} users..."
-            "${SERVER_ROOT_DIR}/bin/make-ldif" \
-                --templateFile "${template}"  \
-                --ldifFile "${template%.*}.ldif" \
-                --numThreads 3
-    done
-else
-    echo "PD_STATE is not GENESIS ==> Skipping Templates"
-    echo "PD_STATE is not GENESIS ==> Will not process ldif imports"
-    _skipImports="--skipImportLdif "
-fi
-
-# TODO - See the TODO in pingdata.lib.sh
-
-#
 # Build certification options
 #
 certificateOptions=$( getCertificateOptions )
@@ -54,7 +28,7 @@ jvmOptions=$( getJvmOptions )
 export certificateOptions encryptionOption jvmOptions 
 
 # This INSTANCE_NAME must be unique across all instances, hence the addition
-# of the K8S Cluster Name. This should be used in the PingDirectory profile
+# of the K8S Cluster Name. This should be used in the PingDirectoryProxy profile
 # setup-arguments.txt
 
 export INSTANCE_NAME="${_podInstanceName}"
@@ -67,6 +41,7 @@ fi
 
 # GDO-57 - If there isn't a setup-arguments.txt file, then we will create one based on the
 #          variables provided
+test -d "${PD_PROFILE}" || mkdir -p "${PD_PROFILE}"
 _setupArguments="${PD_PROFILE}/setup-arguments.txt"
 if test ! -f "${_setupArguments}"; then
     echo "Generating ${_setupArguments}"
@@ -76,17 +51,15 @@ if test ! -f "${_setupArguments}"; then
     --skipPortCheck \
     --instanceName ${INSTANCE_NAME} \
     --location ${LOCATION} \
-    $(test ! -z "${LDAP_PORT}" && echo "--ldapPort ${LDAP_PORT}") \
-    $(test ! -z "${LDAPS_PORT}" && echo "--ldapsPort ${LDAPS_PORT}") \
-    $(test ! -z "${HTTPS_PORT}" && echo "--httpsPort ${HTTPS_PORT}") \
+    ${LDAP_PORT:+--ldapPort ${LDAP_PORT}} \
+    ${LDAPS_PORT:+--ldapsPort ${LDAPS_PORT}} \
+    ${HTTPS_PORT:+--httpsPort ${HTTPS_PORT}} \
     --enableStartTLS \
     ${jvmOptions} \
     ${certificateOptions} \
     ${encryptionOption} \
     --rootUserDN "${ROOT_USER_DN}" \
-    --rootUserPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
-    --baseDN "${USER_BASE_DN}" \
-    --addBaseEntry
+    --rootUserPasswordFile "${ROOT_USER_PASSWORD_FILE}"
 EOSETUP
 
 fi
@@ -97,11 +70,8 @@ fi
     --useEnvironmentVariables \
     --tempProfileDirectory "/tmp" \
     --doNotStart \
-    --rejectFile /tmp/rejects.ldif \
-    ${_manageProfileOptions} \
-    ${_skipImports}
+    ${_manageProfileOptions}
 
-if test $? -ne 0 ; then
-    test -f /tmp/rejects.ldif && cat /tmp/rejects.ldif
+if test ${?} -ne 0 ; then
     exit 183
 fi
