@@ -12,8 +12,8 @@ LABEL	maintainer=devops_program@pingidentity.com \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity (Alpine) Image"
-RUN apk --no-cache add curl jq gnupg
-COPY get-bits.sh /
+RUN apk --no-cache add curl jq gnupg libxml2-utils
+COPY ["get-*.sh","/"]
 VOLUME /tmp
 ENTRYPOINT ["/get-bits.sh"]
 CMD ["--help"]

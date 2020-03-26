@@ -29,6 +29,7 @@ END_USAGE
     exit 99
 }
 
+# export PING_IDENTITY_SNAPSHOT=--snapshot to trigger snapshot build
 DOCKER_BUILDKIT=${DOCKER_BUILDKIT:-1}
 noCache=${DOCKER_BUILD_CACHE}
 while ! test -z "${1}" ; 
@@ -56,20 +57,21 @@ do
             ;;
         --no-build-kit)
             DOCKER_BUILDKIT=0
-            noBuildKitArg="--no-build-kit"
             ;;
         --no-cache)
             noCache="--no-cache"
             ;;
         --verbose-build)
             progress="--progress plain"
-            verboseBuildArg="--verbose-build"
             ;;
         --dry-run)
             dryRun="echo"
             ;;
         --fail-fast)
             failFast=true
+            ;;
+        --snapshot)
+            export PING_IDENTITY_SNAPSHOT="--snapshot"
             ;;
         --help)
             usage
@@ -97,9 +99,28 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
+if test -n "${PING_IDENTITY_SNAPSHOT}" ;
+then
+    case "${productToBuild}" in
+        pingdirectory|pingdirectoryproxy|pingdatasync|pingdatagovernance|pingdatagovernancepap)
+            ;;
+        *)
+            echo Snapshot not supported yet 
+            exit 0
+            ;;
+    esac
+fi
+
 if test -z "${versionsToBuild}" ; 
 then
-  versionsToBuild=$( _getAllVersionsToBuildForProduct ${productToBuild} )
+    if test -n "${PING_IDENTITY_SNAPSHOT}" ;
+    then
+        versionsToBuild=$( _getLatestSnapshotVersionForProduct ${productToBuild} )
+        shimsToBuild="alpine"
+        jvmsToBuild="az11"
+    else
+        versionsToBuild=$( _getAllVersionsToBuildForProduct ${productToBuild} )
+    fi
 fi
 
 if test -z "${isLocalBuild}" && test ${DOCKER_BUILDKIT} -eq 1 ;
@@ -152,7 +173,8 @@ do
             --build-arg DEVOPS_KEY="${PING_IDENTITY_DEVOPS_KEY}" \
             --build-arg VERSION="${_version}" \
             --build-arg PRODUCT="${productToBuild}" \
-            ${_dependencies} "${productToBuild}"
+            ${PING_IDENTITY_SNAPSHOT:+--build-arg PING_IDENTITY_SNAPSHOT="${PING_IDENTITY_SNAPSHOT}"} ${_dependencies} \
+            "${productToBuild}"
         _returnCode=${?}
         _stop=$( date '+%s' )
         _duration=$(( _stop - _start ))
@@ -228,6 +250,12 @@ do
                 if test -z "${isLocalBuild}" ;
                 then
                     ${dryRun} docker push "${_image}"
+                    if test -n "${PING_IDENTITY_SNAPSHOT}" ;
+                    then
+                        ${dryRun} docker tag ${_image} "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
+                        ${dryRun} docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
+                        ${dryRun} docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
+                    fi
                     ${dryRun} docker image rm -f ${_image}
                 fi
             fi
@@ -240,9 +268,9 @@ done
 if test -z "${isLocalBuild}" ;
 then
     imagesToClean=$( docker image ls -qf "reference=*/*/*${ciTag}" | sort | uniq )
-    test -n "${imagesToClean}" && docker image rm -f ${imagesToClean}
+    test -n "${imagesToClean}" && ${dryRun} docker image rm -f ${imagesToClean}
     imagesToClean=$( docker image ls -qf "dangling=true" )
-    test -n "${imagesToClean}" && docker image rm -f ${imagesToClean}
+    test -n "${imagesToClean}" && ${dryRun} docker image rm -f ${imagesToClean}
 fi
 
 cat ${_resultsFile}
