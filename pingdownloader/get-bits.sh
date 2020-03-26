@@ -45,6 +45,7 @@ For product downloads:
                                      but the the bits not to be downloaded
     --verify-gpg-signature           Verify the GPG signature. The bits are removed in
                                      the event verification fails
+    --snapshot                      Get snapshot build (Ping Internal)
 
 
 For license downloads:
@@ -332,6 +333,7 @@ dryRun=""
 # Default to the user/key that may have been provided via the devops environment file
 devopsUser="${PING_IDENTITY_DEVOPS_USER}"
 devopsKey="${PING_IDENTITY_DEVOPS_KEY}"
+getSnapshot="${PING_IDENTITY_SNAPSHOT}"
 # default to GTE public repo in S3
 repositoryURL="https://bits.pingidentity.com/"
 licenseURL="https://license.pingidentity.com/devops/v2/license"
@@ -371,6 +373,9 @@ while ! test -z "${1}" ; do
 		-n|--dry-run)
 			dryRun=echo
 			;;
+        --snapshot)
+            getSnapshot=true
+            ;;
         -r|--repository)
             shift
             test -z "${1}" && usage "Missing repository URL"
@@ -400,8 +405,11 @@ outputProps="/tmp/${metadataFile}"
 
 # If we weren't passed a product option, then error
 test -z "${product}" && usage "Option --product {product} required"
+test -n "${getSnapshot}" && exec /get-snapshots.sh ${product}
+
 test -z "${devopsUser}" && usage "Option --devops-user {devops-user} required for eval license"
 test -z "${devopsKey}" && usage "Option --devops-key {devops-key} required for eval license"
+
 
 # calling getProps populates the list of available products from the metadata file
 getProps

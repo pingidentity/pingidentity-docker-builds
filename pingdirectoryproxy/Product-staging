@@ -6,14 +6,16 @@ ARG PRODUCT
 ARG VERSION
 ARG DEVOPS_USER
 ARG DEVOPS_KEY
+ARG PING_IDENTITY_SNAPSHOT
 
-        # -x */config/*.txt \
+# -x */config/*.txt \
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} \
         --version ${VERSION} \
         --devops-user ${DEVOPS_USER} \
         --devops-key ${DEVOPS_KEY} \
         --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
+        ${PING_IDENTITY_SNAPSHOT} \
         --verify-gpg-signature \
     && unzip /tmp/product.zip \
         -d /tmp/ \

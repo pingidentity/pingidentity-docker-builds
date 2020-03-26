@@ -186,6 +186,9 @@ echo_green()
     echo -e "${FONT_GREEN}$*${FONT_NORMAL}"
 }
 
+################################################################################
+# append to output following a colorized pattern
+################################################################################
 append_status ()
 {
     _output="${1}"
@@ -203,24 +206,98 @@ append_status ()
 
 }
 
-if test -n "${CI_COMMIT_REF_NAME}" ; then
-  #we are in CI pipeline
-  export FOUNDATION_REGISTRY="gcr.io/ping-identity"
-  # shellcheck disable=SC2155
-  export gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
-  # shellcheck disable=SC2155
-  export gitRevLong=$( git rev-parse "$CI_COMMIT_SHA" )
-  export ciTag="${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
+################################################################################
+# Convenience function for curl
+################################################################################
+_curl ()
+{
+    curl \
+        --get \
+        --silent \
+        --show-error \
+        --location \
+        --connect-timeout 2 \
+        --retry 6 \
+        --retry-max-time 30 \
+        --retry-connrefused \
+        --retry-delay 3 \
+        "${@}"
+    return ${?}
+}
+
+################################################################################
+# Echo message in green color
+################################################################################
+_getURLForProduct ()
+{
+    _baseURL="http://nexus-qa.austin-eng.ping-eng.com:8081/nexus/service/local/repositories/snapshots/content"
+    case "${1}" in
+        pingdatagovernancepap)
+            _basePath="com/pingidentity/pd/governance"
+            ;;
+        pingdirectory|pingdirectoryproxy|pingdatasync|pingdatagovernance) 
+            _basePath="com/unboundid/product/ds"
+            ;;
+        *)
+            _baseURL=""
+            _basePath=""
+            ;;
+    esac
+    case "${1}" in
+        pingdirectory)
+            _product=directory
+            ;;
+        pingdirectoryproxy)
+            _product=proxy
+            ;;
+        pingdatasync)
+            _product=sync
+            ;;
+        pingdatagovernancepap)
+            _product=symphonic-pap-packaged
+            ;;
+        pingdatagovernance)
+            _product=broker
+            ;;
+    esac
+    echo "${_baseURL:+${_baseURL}/${_basePath}/${_product}}"
+}
+
+_getLatestSnapshotVersionForProduct ()
+{
+    _curl $( _getURLForProduct ${1} )/maven-metadata.xml | xmllint --xpath 'string(/metadata/versioning/latest)' -
+    return ${?}
+}
+
+if test -n "${PING_IDENTITY_SNAPSHOT}";
+then
+    #we are in building snapshot
+    export FOUNDATION_REGISTRY="art01.corp.pingidentity.com:5200"
+    # shellcheck disable=SC2155
+    export gitRevShort=$( date '+%H%M')
+    # shellcheck disable=SC2155
+    export gitRevLong=$( date '+%s' )
+    # shellcheck disable=SC2155
+    export ciTag="$( date '+%Y%m%d' )"
+elif test -n "${CI_COMMIT_REF_NAME}" ; 
+then
+    #we are in CI pipeline
+    export FOUNDATION_REGISTRY="gcr.io/ping-identity"
+    # shellcheck disable=SC2155
+    export gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
+    # shellcheck disable=SC2155
+    export gitRevLong=$( git rev-parse "$CI_COMMIT_SHA" )
+    export ciTag="${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
 else
-  #we are on local
-  # shellcheck disable=SC2034
-  isLocalBuild=true
-  export FOUNDATION_REGISTRY="pingidentity"
-  # shellcheck disable=SC2155
-  export gitBranch=$(git rev-parse --abbrev-ref HEAD)
-  # shellcheck disable=SC2155
-  export gitRevShort=$( git rev-parse --short=4 HEAD)
-  # shellcheck disable=SC2155
-  export gitRevLong=$( git rev-parse HEAD) 
-  export ciTag="${gitBranch}-${gitRevShort}"
+    #we are on local
+    # shellcheck disable=SC2034
+    isLocalBuild=true
+    export FOUNDATION_REGISTRY="pingidentity"
+    # shellcheck disable=SC2155
+    export gitBranch=$(git rev-parse --abbrev-ref HEAD)
+    # shellcheck disable=SC2155
+    export gitRevShort=$( git rev-parse --short=4 HEAD)
+    # shellcheck disable=SC2155
+    export gitRevLong=$( git rev-parse HEAD) 
+    export ciTag="${gitBranch}-${gitRevShort}"
 fi

@@ -35,20 +35,6 @@ i.unmerged:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
 
-# i.clean:
-#   stage: intialization
-#   script:
-#     - ci_scripts/cleanup_docker.sh full
-#   rules:
-#     - when: manual
-#   only:
-#     refs:
-#       - schedules
-#   except:
-#     variables:
-#       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-#       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-
 ################################################
 #                  FOUNDATION
 ################################################
@@ -119,6 +105,7 @@ b.apache-jmeter:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 d.apache-jmeter:
   stage: deploy
@@ -140,6 +127,7 @@ d.apache-jmeter:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 ################################################
 #                  LDAP SDK
@@ -161,6 +149,7 @@ b.ldap-sdk-tools:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       
 t.ldap-sdk-tools:
   stage: test.smoke
@@ -181,6 +170,7 @@ t.ldap-sdk-tools:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       
 d.ldap-sdk-tools:
   stage: deploy
@@ -202,6 +192,7 @@ d.ldap-sdk-tools:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       
 ################################################
 #                  PING ACCESS
@@ -228,6 +219,7 @@ b.pingaccess:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 t.pingaccess:
   stage: test.smoke
@@ -250,6 +242,7 @@ t.pingaccess:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/      
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       
 d.pingaccess:
   stage: deploy
@@ -273,6 +266,7 @@ d.pingaccess:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       
 ################################################
 #                  PING CENTRAL
@@ -296,6 +290,7 @@ b.pingcentral:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 t.pingcentral:
   stage: test.smoke
@@ -318,6 +313,7 @@ t.pingcentral:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/      
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       
 d.pingcentral:
   stage: deploy
@@ -341,6 +337,7 @@ d.pingcentral:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 ################################################
 #                  PING DIRECTORY
@@ -363,8 +360,6 @@ b.pingdirectory:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -392,6 +387,7 @@ t.pingdirectory:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/      
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 d.pingdirectory:
   stage: deploy
@@ -416,6 +412,7 @@ d.pingdirectory:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 ################################################
 #                  PING DIRECTORY PROXY
@@ -435,8 +432,6 @@ b.pingdirectoryproxy:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -464,6 +459,7 @@ t.pingdirectoryproxy:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/      
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 d.pingdirectoryproxy:
   stage: deploy
@@ -488,6 +484,7 @@ d.pingdirectoryproxy:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 ################################################
 #                  PING DATA CONSOLE
@@ -509,6 +506,7 @@ b.pingdataconsole:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 d.pingdataconsole:
   stage: deploy
@@ -530,6 +528,7 @@ d.pingdataconsole:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 ################################################
 #                  PING DATA SYNC
@@ -549,8 +548,6 @@ b.pingdatasync:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -578,6 +575,7 @@ t.pingdatasync:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       
 d.pingdatasync:
   stage: deploy
@@ -602,6 +600,7 @@ d.pingdatasync:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 ################################################
 #                  PING DATA GOVERNANCE
@@ -620,8 +619,6 @@ b.pingdatagovernance:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -650,24 +647,7 @@ d.pingdatagovernance:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
-
-# test_pingdatagovernance:
-#   stage: test.smoke
-#   script:
-#     - ci_scripts/run_smoke.sh pingdatagovernance
-#   only:
-#     changes:
-#       - pingdatagovernance/**/*
-#       - pingcommon/**/*
-#       - pingdatacommon/**/*
-#       - pingbase/**/*
-#       - pingdownloader/**/*
-#   except:
-#     refs:
-#       - schedules
-#     variables:
-#       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-#      - $CI_COMMIT_MESSAGE =~ 
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 ################################################
 # PING DATA GOVERNANCE POLICY ADMINISTRATION POINT 
@@ -686,8 +666,6 @@ b.pingdatagovernancepap:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -716,6 +694,7 @@ d.pingdatagovernancepap:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 ################################################
 #                  PING FEDERATE
@@ -742,6 +721,7 @@ b.pingfederate:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       
 t.pingfederate:
   stage: test.smoke
@@ -764,6 +744,7 @@ t.pingfederate:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 d.pingfederate:
   stage: deploy
@@ -787,6 +768,7 @@ d.pingfederate:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       
 ################################################
 #                  PING TOOL KIT
@@ -810,6 +792,7 @@ b.pingtoolkit:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 t.pingtoolkit:
   stage: test.smoke
@@ -832,6 +815,7 @@ t.pingtoolkit:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 d.pingtoolkit:
   stage: deploy
@@ -855,6 +839,7 @@ d.pingtoolkit:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       
 ################################################
 #                  INTEGRATION TESTS
@@ -883,6 +868,7 @@ pa-pf-pd.latest:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 pds-pd.latest:
   stage: test.integration
@@ -907,43 +893,7 @@ pds-pd.latest:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-
-# pingdirectoryproxy:
-#   stage: products
-#   script:
-#     - docker image build -t pingidentity/pingdirectoryproxy pingdirectoryproxy
-#     - docker push pingidentity/pingdirectoryproxy
-#   only:
-#     changes:
-#       - pingdirectoryproxy/**/*
-#       - pingcommon/**/*
-#       - pingdatacommon/**/*
-#       - pingbase/**/*
-#       - pingdownloader/**/*
-#     except:
-#       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-#       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-# 
-#       
-
-# pingdelegator:
-#   stage: products
-#   script:
-#     - docker load -i images/pingcommon.tar
-#     - docker load -i images/pingdatacommon.tar
-#     - docker load -i images/pingbase.tar
-#     - docker image build -t pingidentity/pingdelegator pingdelegator
-#     - docker push pingidentity/pingdelegator
-#   only:
-#     changes:
-#       - pingdelegator/**/*
-#       - pingcommon/**/*
-#       - pingbase/**/*
-#       - pingdownloader/**/*
-#     except:
-#       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-#       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-#       
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 d.github:
   stage: deploy
@@ -962,6 +912,7 @@ d.github:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_REF_NAME =~ /^\[skip deploy\]*/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       
 c.failure:
   stage: cleanup
