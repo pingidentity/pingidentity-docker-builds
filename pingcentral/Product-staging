@@ -3,6 +3,7 @@ ARG GIT_TAG
 FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
 ARG PRODUCT=pingcentral
 ARG VERSION=1.2.0
+ARG PING_IDENTITY_SNAPSHOT
 ARG DEVOPS_USER
 ARG DEVOPS_KEY
 
@@ -12,6 +13,7 @@ RUN /get-bits.sh --product ${PRODUCT} \
         --devops-user ${DEVOPS_USER} \
         --devops-key ${DEVOPS_KEY} \
         --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
+        ${PING_IDENTITY_SNAPSHOT} \
         --verify-gpg-signature \
 	&& unzip /tmp/product.zip -d /tmp/ \
 	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
