@@ -102,7 +102,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 if test -n "${PING_IDENTITY_SNAPSHOT}" ;
 then
     case "${productToBuild}" in
-        pingdirectory|pingdirectoryproxy|pingdatasync|pingdatagovernance|pingdatagovernancepap|pingfederate|pingcentral)
+        pingdirectory|pingdirectoryproxy|pingdatasync|pingdatagovernance|pingdatagovernancepap|pingfederate|pingcentral|pingaccess)
             ;;
         *)
             echo Snapshot not supported yet 

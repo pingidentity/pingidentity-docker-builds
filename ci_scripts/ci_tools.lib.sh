@@ -225,47 +225,45 @@ _curl ()
     return ${?}
 }
 
-################################################################################
-# Echo message in green color
-################################################################################
-_getURLForProduct ()
-{
-    _baseURL="http://nexus-qa.austin-eng.ping-eng.com:8081/nexus/service/local/repositories/snapshots/content"
-    case "${1}" in
-        pingdatagovernancepap)
-            _basePath="com/pingidentity/pd/governance"
-            ;;
-        pingdirectory|pingdirectoryproxy|pingdatasync|pingdatagovernance) 
-            _basePath="com/unboundid/product/ds"
-            ;;
-        *)
-            _baseURL=""
-            _basePath=""
-            ;;
-    esac
-    case "${1}" in
-        pingdirectory)
-            _product=directory
-            ;;
-        pingdirectoryproxy)
-            _product=proxy
-            ;;
-        pingdatasync)
-            _product=sync
-            ;;
-        pingdatagovernancepap)
-            _product=symphonic-pap-packaged
-            ;;
-        pingdatagovernance)
-            _product=broker
-            ;;
-    esac
-    echo "${_baseURL:+${_baseURL}/${_basePath}/${_product}}"
-}
-
 _getLatestSnapshotVersionForProduct ()
 {
-    _curl $( _getURLForProduct ${1} )/maven-metadata.xml | xmllint --xpath 'string(/metadata/versioning/latest)' -
+    _baseURL="http://nexus-qa.austin-eng.ping-eng.com:8081/nexus/service/local/repositories/snapshots/content"
+    _basePath="com/pingidentity/pd/governance"
+    case "${1}" in
+        pingdirectory)
+            _product="directory"
+            ;;
+        pingdirectoryproxy)
+            _product="proxy"
+            _basePath="com/unboundid/product/ds"
+            ;;
+        pingdatasync)
+            _product="sync"
+            ;;
+        pingdatagoverance)
+            _product="broker"
+            ;;
+        pingdatagovernancepap)
+            _product="symphonic-pap-packaged"
+            _basePath="com/pingidentity/pd/governance"
+            ;;        
+        *)
+            ;;
+    esac
+    case "${1}" in
+        pingdatagovernance|pingdatagovernancepap|pingdatasync|pingdirectory|pingdirectoryproxy)
+            _curl "${_baseURL}/${_basePath}/${_product}/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/latest)' -
+            ;;
+        pingcentral)
+            echo "1.3.0-SNAPSHOT"
+            ;;
+        pingfederate)
+            _curl "https://bld-fed01.corp.pingidentity.com/job/PingFederate_Mainline/lastSuccessfulBuild/artifact/pf-server/HuronPeak/assembly/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
+            ;;
+        pingaccess)
+            _curl "https://art01.corp.pingidentity.com/artifactory/repo/com/pingidentity/products/pingaccess/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/metadata/versioning/latest)' -
+            ;;
+    esac
     return ${?}
 }
 
