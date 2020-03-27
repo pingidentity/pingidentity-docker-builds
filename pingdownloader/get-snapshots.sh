@@ -1,11 +1,16 @@
 #!/usr/bin/env sh
 test -n "${VERBOSE}" && set -x
 
+TARGET_DIR="/tmp"
+TARGET_FILE="${TARGET_DIR}/product.zip"
+TARGET_SIGNATURE=${TARGET_FILE}.sig
+
 _curl ()
 {
     curl \
         --get \
         --silent \
+        --insecure \
         --show-error \
         --location \
         --connect-timeout 2 \
@@ -17,55 +22,116 @@ _curl ()
     return ${?}
 }
 
+_curlSafe ()
+{
+    _httpResultCode=$( _curl --write-out '%{http_code}' "${@}" )
+    test ${_httpResultCode} -eq 200
+    return ${?}
+}
+
+ _curlSafeFile ()
+ {
+    _file=${1}
+    shift
+    _curlSafe --output "${_file}" "${@}"
+    return ${?}
+ }
+
 _getURLForProduct ()
 {
     _baseURL="http://nexus-qa.austin-eng.ping-eng.com:8081/nexus/service/local/repositories/snapshots/content"
     case "${1}" in
         symphonic-pap-packaged)
             _basePath="com/pingidentity/pd/governance"
+            _url="${_baseURL:+${_baseURL}/${_basePath}/${1}}"
             ;;
         directory|proxy|sync|broker) 
             _basePath="com/unboundid/product/ds"
+            _url="${_baseURL:+${_baseURL}/${_basePath}/${1}}"
+            ;;
+        pingfederate)
+            _url="https://bld-fed01.corp.pingidentity.com/job/PingFederate_Mainline/lastSuccessfulBuild"
+            ;;
+        pingcentral)
+            _url="https://gitlab.corp.pingidentity.com/api/v4/projects/2990/jobs/artifacts/master/raw/distribution/target"
             ;;
         *)
-            _baseURL=""
-            _basePath=""
+            _url=""
             ;;
     esac
-    echo "${_baseURL:+${_baseURL}/${_basePath}/${1}}"
+    echo "${_url}"
 }
 
 _getLatestSnapshotVersionForProduct ()
 {
-    _curl $( _getURLForProduct ${1} )/maven-metadata.xml | xmllint --xpath 'string(/metadata/versioning/latest)' -
+    case "${1}" in
+        pingcentral)
+            echo "1.3.0-SNAPSHOT"
+            ;;
+        pingfederate)
+            _curl "$( _getURLForProduct ${1} )/artifact/pf-server/HuronPeak/assembly/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
+            ;;
+        *)
+            _curl "$( _getURLForProduct ${1} )/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/latest)' -
+        ;;
+    esac
     return ${?}
 }
 
 _getLatestSnapshotIDForProductVersion ()
 {
-    _curl $( _getURLForProduct ${1} )/${2}/maven-metadata.xml | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -
+    case "${1}" in
+        pingcentral)
+            date '+%Y%m%d'
+            ;;
+        pingfederate)
+            _curl "$( _getURLForProduct ${1} )/buildNumber" 
+            ;;
+        *)
+            _curl "$( _getURLForProduct ${1} )/${2}/maven-metadata.xml" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -
+            ;;
+    esac
     return ${?}
 }
 
 _getLatestSnapshotImageForProductVersionID ()
 {
-    _curl -o /tmp/product.zip $( _getURLForProduct ${1} )/${2}/${1}-${3}-image.zip
+    case "${1}" in
+        pingcentral)
+            _curlSafeFile ${TARGET_FILE} -H "PRIVATE-TOKEN: ${PING_IDENTITY_GITLAB_TOKEN}" "$( _getURLForProduct ${1} )/ping-central-${2}.zip?job=deploy-job"
+            ;;
+        pingfederate)
+            _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct ${1} )/artifact/pf-server/HuronPeak/assembly/target/${1}-${2}-${3}.zip"
+            ;;
+        *)
+            _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct ${1} )/${2}/${1}-${3}-image.zip"
+            ;;
+    esac
+    return ${?}
 }
 
 _getLatestSnapshotImageSignatureForProductVersionID ()
 {
-    _curl -o /tmp/product.zip.sha1 $( _getURLForProduct ${1} )/${2}/${1}-${3}-image.zip.sha1
+    case "${1}" in
+        pingfederate|pingcentral)
+            sha1sum /tmp/product.zip | awk '{print $1}' > "${TARGET_SIGNATURE}"
+            ;;
+        *)
+            _curlSafeFile "${TARGET_SIGNATURE}" "$( _getURLForProduct ${1} )/${2}/${1}-${3}-image.zip.sha1"
+            ;;
+    esac
+    return ${?}
 }
 
 _sha1SignaturesDoMatch ()
 {
-    _computedSignature=$( sha1sum /tmp/product.zip|awk '{print $1}' )
-    _downloadedSignature=$( cat /tmp/product.zip.sha1 )
+    _computedSignature=$( sha1sum "${TARGET_FILE}"|awk '{print $1}' )
+    _downloadedSignature=$( cat "${TARGET_SIGNATURE}" )
     if test -n "${_computedSignature}" && test -n "${_downloadedSignature}" && test "${_computedSignature}" = "${_downloadedSignature}" ;
     then
         return 0
     else
-        rm -f /tmp/product.zip /tmp/product.zip.sha1
+        rm -f "${TARGET_FILE}" "${TARGET_SIGNATURE}"
         return 1
     fi
 }
@@ -86,15 +152,26 @@ case "${1}" in
     pingdatagovernancepap)
         _product=symphonic-pap-packaged
         ;;
+    *)
+        _product="${1}"
+        ;;
 esac
 
 if test -n "${_product}" ;
 then
     _version=$( _getLatestSnapshotVersionForProduct ${_product} )
     _id=$( _getLatestSnapshotIDForProductVersion ${_product} ${_version} )
-    _getLatestSnapshotImageForProductVersionID ${_product} ${_version} ${_id}
-    _getLatestSnapshotImageSignatureForProductVersionID ${_product} ${_version} ${_id}
-    _sha1SignaturesDoMatch
-    exit ${?}
+    if _getLatestSnapshotImageForProductVersionID ${_product} ${_version} ${_id} ;
+    then
+        if _getLatestSnapshotImageSignatureForProductVersionID ${_product} ${_version} ${_id} ;
+        then
+            _sha1SignaturesDoMatch
+            exit ${?}
+        else
+            exit 2
+        fi
+    else
+        exit 3
+    fi
 fi
 exit 0
