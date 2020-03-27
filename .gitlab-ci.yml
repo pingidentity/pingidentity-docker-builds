@@ -73,8 +73,6 @@ d.pingdownloader:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -99,8 +97,6 @@ b.apache-jmeter:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -120,8 +116,6 @@ d.apache-jmeter:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -143,8 +137,6 @@ b.ldap-sdk-tools:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -162,8 +154,6 @@ t.ldap-sdk-tools:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -185,8 +175,6 @@ d.ldap-sdk-tools:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -213,13 +201,10 @@ b.pingaccess:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 t.pingaccess:
   stage: test.smoke
@@ -234,8 +219,6 @@ t.pingaccess:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -259,8 +242,6 @@ d.pingaccess:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -284,8 +265,6 @@ b.pingcentral:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -304,8 +283,6 @@ t.pingcentral:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -329,8 +306,6 @@ d.pingcentral:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -378,8 +353,6 @@ t.pingdirectory:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -404,8 +377,6 @@ d.pingdirectory:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -450,8 +421,6 @@ t.pingdirectoryproxy:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -476,8 +445,6 @@ d.pingdirectoryproxy:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -499,8 +466,7 @@ b.pingdataconsole:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
+    
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -520,8 +486,7 @@ d.pingdataconsole:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
+    
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -566,8 +531,7 @@ t.pingdatasync:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
+    
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -592,8 +556,7 @@ d.pingdatasync:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
+    
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -639,8 +602,7 @@ d.pingdatagovernance:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
+    
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -686,8 +648,7 @@ d.pingdatagovernancepap:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
+    
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -714,8 +675,7 @@ b.pingfederate:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
+    
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -734,8 +694,6 @@ t.pingfederate:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -759,8 +717,6 @@ d.pingfederate:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -784,8 +740,6 @@ b.pingtoolkit:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -805,8 +759,6 @@ t.pingtoolkit:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -830,8 +782,6 @@ d.pingtoolkit:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -858,8 +808,6 @@ pa-pf-pd.latest:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -883,8 +831,6 @@ pds-pd.latest:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -904,8 +850,6 @@ d.github:
       - master
       - tags
   except:
-    refs:
-      - schedules
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
