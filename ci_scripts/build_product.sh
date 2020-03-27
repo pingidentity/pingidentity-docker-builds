@@ -173,7 +173,9 @@ do
             --build-arg DEVOPS_KEY="${PING_IDENTITY_DEVOPS_KEY}" \
             --build-arg VERSION="${_version}" \
             --build-arg PRODUCT="${productToBuild}" \
-            ${PING_IDENTITY_SNAPSHOT:+--build-arg PING_IDENTITY_SNAPSHOT="${PING_IDENTITY_SNAPSHOT}"} ${_dependencies} \
+            ${PING_IDENTITY_SNAPSHOT:+--build-arg PING_IDENTITY_SNAPSHOT="${PING_IDENTITY_SNAPSHOT}"} \
+            ${PING_IDENTITY_GITLAB_TOKEN:+--build-arg PING_IDENTITY_GITLAB_TOKEN="${PING_IDENTITY_GITLAB_TOKEN}"} \
+            ${_dependencies} \
             "${productToBuild}"
         _returnCode=${?}
         _stop=$( date '+%s' )

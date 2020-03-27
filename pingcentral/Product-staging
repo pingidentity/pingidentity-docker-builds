@@ -4,9 +4,11 @@ FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
 ARG PRODUCT=pingcentral
 ARG VERSION=1.2.0
 ARG PING_IDENTITY_SNAPSHOT
+ARG PING_IDENTITY_GITLAB_TOKEN
 ARG DEVOPS_USER
 ARG DEVOPS_KEY
 
+ENV PING_IDENTITY_GITLAB_TOKEN=${PING_IDENTITY_GITLAB_TOKEN}
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} \
         --version ${VERSION} \
