@@ -73,10 +73,17 @@ then
     _result="FAIL"
 else
     _result="PASS"
-    if test -z "${isLocalBuild}" ; then
+    if test -z "${isLocalBuild}" ; 
+    then
         banner Pushing ${FOUNDATION_REGISTRY}/pingdownloader:${ciTag}
         docker push ${FOUNDATION_REGISTRY}/pingdownloader:${ciTag}
-        docker image rm ${FOUNDATION_REGISTRY}/pingdownloader:${ciTag}
+        if test -n "${PING_IDENTITY_SNAPSHOT}" ;
+        then
+            banner Pushing ${FOUNDATION_REGISTRY}/pingdownloader:latest
+            docker tag ${FOUNDATION_REGISTRY}/pingdownloader:${ciTag} ${FOUNDATION_REGISTRY}/pingdownloader:latest
+            docker push ${FOUNDATION_REGISTRY}/pingdownloader:latest
+            docker image rm ${FOUNDATION_REGISTRY}/pingdownloader:latest
+        fi
     fi
 fi
 append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingdownloader" "${_duration}" "${_result}"

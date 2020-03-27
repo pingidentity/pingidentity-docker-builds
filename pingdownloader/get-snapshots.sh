@@ -55,6 +55,9 @@ _getURLForProduct ()
         pingcentral)
             _url="https://gitlab.corp.pingidentity.com/api/v4/projects/2990/jobs/artifacts/master/raw/distribution/target"
             ;;
+        pingaccess)
+            _url="https://art01.corp.pingidentity.com/artifactory/repo/com/pingidentity/products/pingaccess"
+            ;;
         *)
             _url=""
             ;;
@@ -70,6 +73,9 @@ _getLatestSnapshotVersionForProduct ()
             ;;
         pingfederate)
             _curl "$( _getURLForProduct ${1} )/artifact/pf-server/HuronPeak/assembly/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
+            ;;
+        pingaccess)
+            _curl "$( _getURLForProduct ${1} )/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/metadata/versioning/latest)' -
             ;;
         *)
             _curl "$( _getURLForProduct ${1} )/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/latest)' -
@@ -87,6 +93,9 @@ _getLatestSnapshotIDForProductVersion ()
         pingfederate)
             _curl "$( _getURLForProduct ${1} )/buildNumber" 
             ;;
+        pingaccess)
+            _curl "$( _getURLForProduct ${1} )/${2}/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' |xmllint --xpath 'concat(string(/metadata/versioning/snapshot/timestamp),"-",string(/metadata/versioning/snapshot/buildNumber))' -
+            ;;
         *)
             _curl "$( _getURLForProduct ${1} )/${2}/maven-metadata.xml" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -
             ;;
@@ -103,6 +112,9 @@ _getLatestSnapshotImageForProductVersionID ()
         pingfederate)
             _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct ${1} )/artifact/pf-server/HuronPeak/assembly/target/${1}-${2}-${3}.zip"
             ;;
+        pingaccess)
+            _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct ${1} )/${2}/${1}-${2%-SNAPSHOT}-${3}.zip"
+            ;;
         *)
             _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct ${1} )/${2}/${1}-${3}-image.zip"
             ;;
@@ -113,7 +125,8 @@ _getLatestSnapshotImageForProductVersionID ()
 _getLatestSnapshotImageSignatureForProductVersionID ()
 {
     case "${1}" in
-        pingfederate|pingcentral)
+        # bad students who do not sign their work
+        pingfederate|pingcentral|pingaccess)
             sha1sum /tmp/product.zip | awk '{print $1}' > "${TARGET_SIGNATURE}"
             ;;
         *)
