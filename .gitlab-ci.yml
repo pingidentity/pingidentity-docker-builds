@@ -290,7 +290,6 @@ b.pingcentral:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 t.pingcentral:
   stage: test.smoke
@@ -721,7 +720,6 @@ b.pingfederate:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       
 t.pingfederate:
   stage: test.smoke
