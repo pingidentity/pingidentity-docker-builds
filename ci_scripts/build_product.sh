@@ -102,7 +102,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 if test -n "${PING_IDENTITY_SNAPSHOT}" ;
 then
     case "${productToBuild}" in
-        pingdirectory|pingdirectoryproxy|pingdatasync|pingdatagovernance|pingdatagovernancepap)
+        pingdirectory|pingdirectoryproxy|pingdatasync|pingdatagovernance|pingdatagovernancepap|pingfederate|pingcentral)
             ;;
         *)
             echo Snapshot not supported yet 
@@ -111,7 +111,7 @@ then
     esac
 fi
 
-if test -z "${versionsToBuild}" ; 
+if test -z "${versionsToBuild}" ;
 then
     if test -n "${PING_IDENTITY_SNAPSHOT}" ;
     then
