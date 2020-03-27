@@ -4,7 +4,10 @@ ARG GIT_TAG
 FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
 ARG PRODUCT
 ARG VERSION
-# MODE could be standalone, egine, stock
+ARG PING_IDENTITY_SNAPSHOT
+
+
+# MODE could be standalone, engine, upgrade
 # the idea is to produce images with just-enough for their intended use
 # to improve bootstrap time and reduce pressure on backhaul 
 ARG MODE=standalone
@@ -29,6 +32,7 @@ RUN /get-bits.sh --product ${PRODUCT} \
         --devops-user ${DEVOPS_USER} \
         --devops-key ${DEVOPS_KEY} \
         --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
+        ${PING_IDENTITY_SNAPSHOT} \
         --verify-gpg-signature \
 	&& unzip /tmp/product.zip -d /tmp/ \
         -x */pingfederate-service-installer.jar \
