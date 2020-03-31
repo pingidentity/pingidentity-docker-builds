@@ -69,7 +69,7 @@ _getLatestSnapshotVersionForProduct ()
 {
     case "${1}" in
         pingcentral)
-            echo "1.3.0-SNAPSHOT"
+            echo "1.4.0-SNAPSHOT"
             ;;
         pingfederate)
             _curl "$( _getURLForProduct ${1} )/artifact/pf-server/HuronPeak/assembly/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
