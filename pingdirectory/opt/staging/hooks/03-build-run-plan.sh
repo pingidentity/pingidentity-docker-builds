@@ -236,6 +236,33 @@ if test "${ORCHESTRATION_TYPE}" = "COMPOSE" ; then
 fi
 
 #########################################################################
+# DIRECTED ORCHESTRATION_TYPE
+#########################################################################
+if test "${ORCHESTRATION_TYPE}" = "DIRECTED" ; 
+then
+    if test "${RUN_PLAN}" = "START" ; 
+    then
+        # When the RUN_PLAN is for a fresh start (vs a restart of a container) 
+        if test -z "${REPLICATION_SEED_HOST}" ;
+        then
+            # either it is a genesis event for a standalone container
+            # or the first container of a topology
+            PD_STATE="GENESIS"
+        else
+            # OR the container is directed to replicate from a seed host
+            PD_STATE="SETUP"
+        fi
+    fi
+
+    _seedHostname="${REPLICATION_SEED_HOST}"
+    _seedInstanceName="${REPLICATION_SEED_NAME:-${REPLICATION_SEED_HOST}}"
+    _seedLocation="${REPLICATION_SEED_LOCATION:-${LOCATION}}"
+    _seedLdapsPort="${REPLICATION_SEED_LDAPS_PORT:-${LDAPS_PORT}}"
+    _seedReplicationPort="${REPLICATION_SEED_REPLICATION_PORT:-${REPLICATION_PORT}}"
+fi
+
+
+#########################################################################
 # Unkown ORCHESTRATION_TYPE
 #########################################################################
 if test -z "${ORCHESTRATION_TYPE}" && test "${PD_STATE}" = "SETUP"; then

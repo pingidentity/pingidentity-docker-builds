@@ -131,8 +131,8 @@ fi
 
 # result table header    
 _resultsFile="/tmp/$$.results"
-_headerPattern=' %-24s| %-10s| %-20s| %-10s| %10s| %7s\n'
-_reportPattern='%-23s| %-10s| %-20s| %-10s| %10s| %7s'
+_headerPattern=' %-24s| %-20s| %-20s| %-10s| %10s| %7s\n'
+_reportPattern='%-23s| %-20s| %-20s| %-10s| %10s| %7s'
 printf "${_headerPattern}" "PRODUCT" "VERSION" "SHIM" "JDK" "DURATION" "RESULT" > ${_resultsFile}
 _totalStart=$( date '+%s' )
 

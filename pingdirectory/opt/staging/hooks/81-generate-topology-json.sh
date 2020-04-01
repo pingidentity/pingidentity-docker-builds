@@ -53,6 +53,15 @@ case "${ORCHESTRATION_TYPE}" in
             echo "Seed server used to enable/init this server in replication is (${_seedServer})"
         fi
         ;;
+    DIRECTED)
+        if test -n "${REPLICATION_SEED_HOST}" ;
+        then
+            echo "Seed server used to enable/init this server in replication is (${_seedHostname})"
+        else
+            echo "variable REPLICATION_SEED_HOST is required"
+            exit 1
+        fi
+        ;;
     *)
         echo "Variable ORCHESTRATION_TYPE (${ORCHESTRATION_TYPE}) not supported."
         exit 1

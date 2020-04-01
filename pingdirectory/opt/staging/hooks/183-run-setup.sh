@@ -67,6 +67,26 @@ fi
 
 # GDO-57 - If there isn't a setup-arguments.txt file, then we will create one based on the
 #          variables provided
+
+if test -n "${PING_IDENTITY_PASSWORD}";
+then 
+    if ! test -f "${ROOT_USER_PASSWORD_FILE}" ;
+    then
+        mkdir -p "$( dirname "${ROOT_USER_PASSWORD_FILE}" )"
+        echo "${PING_IDENTITY_PASSWORD}" > "${ROOT_USER_PASSWORD_FILE}"
+    fi
+    if ! test -f "${ENCRYPTION_PASSWORD_FILE}" ;
+    then
+        mkdir -p "$( dirname "${ENCRYPTION_PASSWORD_FILE}" )"
+        echo "${PING_IDENTITY_PASSWORD}" > "${ENCRYPTION_PASSWORD_FILE}"
+    fi
+    if ! test -f "${ADMIN_USER_PASSWORD_FILE}" ;
+    then
+        mkdir -p "$( dirname "${ADMIN_USER_PASSWORD_FILE}" )"
+        echo "${PING_IDENTITY_PASSWORD}" > "${ADMIN_USER_PASSWORD_FILE}"
+    fi
+fi
+test -d "${PD_PROFILE}" || mkdir -p "${PD_PROFILE}"
 _setupArguments="${PD_PROFILE}/setup-arguments.txt"
 if test ! -f "${_setupArguments}"; then
     echo "Generating ${_setupArguments}"

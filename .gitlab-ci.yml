@@ -397,6 +397,7 @@ b.pingdirectoryproxy:
       - pingdatacommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
+      - pingdirectory/**/*
       - pingdirectoryproxy/**/*
       - integration_tests/**/*
       - ci_scripts/*
@@ -413,12 +414,12 @@ t.pingdirectoryproxy:
     - ci_scripts/run_smoke.sh --product pingdirectoryproxy
   only:
     changes:
-      - pingdirectory/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
       - ci_scripts/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingdirectoryproxy/**/*
       - .gitlab-ci.yml
   except:
     variables:
