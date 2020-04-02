@@ -103,7 +103,7 @@ COPY --from=final-staging ["/","/"]
 #- You can view the Docker logs with the command:
 #- 
 #- ```
-#-   docker logs -f pingdirectory
+#-   docker logs -f pingdirectoryproxy
 #- ```
 #- 
 #- You should see the ouptut from a PingDirectoryProxy install and configuration, ending with a message the the PingDirectoryProxy has started.  After it starts, you will see some typical access logs.  Simply ``Ctrl-C`` afer to stop tailing the logs.
@@ -145,11 +145,11 @@ COPY --from=final-staging ["/","/"]
 #- To stop the container:
 #- 
 #- ```
-#-   docker container stop pingdirectory
+#-   docker container stop pingdirectoryproxy
 #- ```
 #- 
 #- To remove the container:
 #- 
 #- ```
-#-   docker container rm -f pingdirectory
+#-   docker container rm -f pingdirectoryproxy
 #- ```
