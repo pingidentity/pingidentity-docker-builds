@@ -2,6 +2,29 @@
     "latest": "8.0.0.1",
     "versions": [
         {
+            "version": "8.1.0.0-EA",
+            "preferredShim": "alpine",
+            "shims": [
+                {
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true
+                        }
+                    ]
+                }
+            ],
+            "dependencies": [
+                {
+                    "product": "apache-tomcat",
+                    "version": "9.0.31"
+                }
+            ]
+        },
+        {
             "version": "8.0.0.1",
             "preferredShim": "alpine",
             "shims": [
