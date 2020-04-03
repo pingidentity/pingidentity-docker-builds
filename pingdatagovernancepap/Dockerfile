@@ -54,11 +54,11 @@ ENV LICENSE_VERSION=${LICENSE_VERSION}
 #-- Minimal Heap size required for Ping DataGovernance
 ENV MAX_HEAP_SIZE=384m
 
-ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/admin-point-application/bin/admin-point-application"
+ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
 
 #-- Adding lockdown mode so non administrive connections be made until server
 #-- has been started with replication enabled
-ENV STARTUP_FOREGROUND_OPTS="server ${SERVER_ROOT_DIR}/config/configuration.yml"
+ENV STARTUP_FOREGROUND_OPTS="--nodetach"
 
 #-- Adding lockdown mode so non administrive connections be made until server
 #-- has been started with replication enabled

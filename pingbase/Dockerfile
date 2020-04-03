@@ -152,6 +152,10 @@ ONBUILD ENV PDS_ENGINE_PRIVATE_HOSTNAME="pingdatasync"
 ONBUILD ENV PDG_ENGINE_PUBLIC_HOSTNAME="localhost"
 #-- PDG (PingDataGovernance) private hostname
 ONBUILD ENV PDG_ENGINE_PRIVATE_HOSTNAME="pingdatagovernance"
+#-- PDGP (PingDataGovernance-PAP) public hostname that may be used in redirects
+ONBUILD ENV PDGP_ENGINE_PUBLIC_HOSTNAME="localhost"
+#-- PDGP (PingDataGovernance-PAP) private hostname
+ONBUILD ENV PDGP_ENGINE_PRIVATE_HOSTNAME="pingdatagovernancepap"
 #-- PF (PingFederate) engine public hostname that may be used in redirects
 ONBUILD ENV PF_ENGINE_PUBLIC_HOSTNAME="localhost"
 #-- PF (PingFederate) engine private hostname
@@ -170,7 +174,8 @@ ONBUILD ENV PA_ADMIN_PUBLIC_HOSTNAME="localhost"
 ONBUILD ENV PA_ADMIN_PRIVATE_HOSTNAME="pingaccess-admin"
 
 #-- the default administrative user for PingData
-ONBUILD ENV ROOT_USER_DN="cn=administrator"
+ONBUILD ENV ROOT_USER="administrator"
+ONBUILD ENV ROOT_USER_DN="cn=${ROOT_USER}"
 
 
 ONBUILD ENV ENV="${BASE}/.profile"

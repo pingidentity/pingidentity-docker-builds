@@ -467,7 +467,6 @@ b.pingdataconsole:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -487,7 +486,6 @@ d.pingdataconsole:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -532,7 +530,6 @@ t.pingdatasync:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -557,7 +554,6 @@ d.pingdatasync:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -586,6 +582,28 @@ b.pingdatagovernance:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      
+t.pingdatagovernance:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_smoke.sh --product pingdatagovernance
+  only:
+    changes:
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - pingdatagovernance/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:    
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 d.pingdatagovernance:
   stage: deploy
@@ -602,8 +620,7 @@ d.pingdatagovernance:
       - pingbase/**/*
       - ci_scripts/*
       - .gitlab-ci.yml
-  except:
-    
+  except:    
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -632,7 +649,29 @@ b.pingdatagovernancepap:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-    
+
+t.pingdatagovernancepap:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_smoke.sh --product pingdatagovernancepap
+  only:
+    changes:
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - pingdatagovernancepap/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:    
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/    
+
 d.pingdatagovernancepap:
   stage: deploy
   script:
@@ -649,7 +688,6 @@ d.pingdatagovernancepap:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
@@ -676,7 +714,6 @@ b.pingfederate:
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
-    
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/

@@ -6,7 +6,7 @@ services:
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
-      - VERBOSE=false
-    command: start-server /opt/wait-for localhost:${HTTPS_PORT} -t 300 -- /opt/liveness.sh
+      - PING_IDENTITY_ACCEPT_EULA=YES
+    command: start-server /opt/wait-for localhost:443 -t 300 -- /opt/liveness.sh
 
     
