@@ -9,6 +9,6 @@
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 echo "INFO: waiting for PingDataGovernance-PAP to start before importing configuration"
-wait-for localhost:${HTTPS_PORT} -t 200 --  "echo pap running"
+wait-for localhost:${HTTPS_PORT} -t 200 --  echo "pap running"
 
 run_hook 81-install-policies.sh

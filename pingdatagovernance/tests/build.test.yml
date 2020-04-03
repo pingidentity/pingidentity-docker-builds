@@ -8,6 +8,14 @@ services:
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_PATH=getting-started/pingdatagovernance
+      - PING_IDENTITY_ACCEPT_EULA=YES
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
     command: start-server /opt/wait-for localhost:443 -t 300 -- /opt/liveness.sh
 
     

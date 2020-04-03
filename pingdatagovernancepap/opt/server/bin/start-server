@@ -1,0 +1,143 @@
+#!/usr/bin/env sh
+test -n "${VERBOSE}" && set -x
+
+###
+# #%L
+# PAP Setup CLI
+# %%
+# Copyright (C) 2019 - 2020 Ping Identity Corporation
+# %%
+# Copyright 2019 - 2020 Ping Identity Corporation
+# All Rights Reserved.
+# #L%
+###
+
+# Attempt to set APP_HOME
+# Resolve links: $0 may be a link
+
+isProcessRunning ()
+{
+    # the original ps -p does not work on Busybox
+    ps|awk 'BEGIN{x=1}$1~/^'${1}'$/{x=0}END{exit x}'
+    return ${?}
+}
+
+PRG="${0}"
+# Need this for relative symlinks.
+while test -h "${PRG}" ; 
+do
+    # TODO: Arno - use readlink here
+    ls=$( ls -ld "${PRG}" )
+    link=$( expr "$ls" : '.*-> \(.*\)$' )
+    if expr "${link}" : '/.*' > /dev/null ; 
+    then
+        PRG="${link}"
+    else
+        PRG="$( dirname "${PRG}" )/${link}"
+    fi
+done
+
+# Determine the APP_HOME without destroying the user's PWD
+SAVED=$( pwd )
+cd "$( dirname "${PRG}" )/.." >/dev/null || exit 1
+
+APP_HOME=$( pwd -P )
+
+# shellcheck disable=SC1090
+. "${APP_HOME}/bin/_common-vars"
+
+if ! test -f "${CONFIG_FILE}" || ! test -s "${CONFIG_FILE}" ; 
+then
+    echo "No configuration file found. Please run setup first."
+    exit 2
+fi
+
+if ! test -f "${DEFAULT_LICENSE}" && ! test -s "${DEFAULT_LICENSE}" ; 
+then
+echo "Could not find a valid PingDataGovernance license file."
+exit 3
+fi
+
+# Run remaining script from APP_HOME directory
+cd "$APP_HOME" >/dev/null || exit 1
+
+PAP_APP_NAME=admin-point-application
+PAP_PID_FILE="${PAP_APP_NAME}/run/${PAP_APP_NAME}.pid"
+
+# Check if an existing PID file indicates that the server has already started
+if test -f "${PAP_PID_FILE}" \
+    && test -s "${PAP_PID_FILE}" \
+    && test -r "${PAP_PID_FILE}" \
+    && isProcessRunning "$( cat "${PAP_PID_FILE}" )" ; 
+then
+    # Avoid long lines in code by breaking up the PID message
+    PID_MSG="The server appears to still be running. If this is not the case,"
+    PID_MSG="${PID_MSG} please remove the ${PAP_PID_FILE} file and try again."
+    echo "${PID_MSG}"
+    exit 4
+fi
+
+if test -n "${1}" && test "${1}" = "--nodetach" ;
+then
+    # shellcheck disable=SC2153
+    exec "${APP_HOME}/${PAP_APP_NAME}/bin/${PAP_APP_NAME}" server "${CONFIG_FILE}" >"${LOG_DIR}/${APP_NAME}.log" 2>&1
+else
+    "${APP_HOME}/${PAP_APP_NAME}/bin/${PAP_APP_NAME}" server "${CONFIG_FILE}" >"${LOG_DIR}/${APP_NAME}.log" 2>&1 &
+    # Restore user's cwd before script started
+    cd "$SAVED" >/dev/null || exit 5
+
+    # TODO - Arno - use awk here 
+    # url=$( grep 'REST_URL' "${CONFIG_FILE}" | sed -E "s/\"//g" )
+    # url="${url##*REST_URL: }"
+    # url="${url%api/}"
+    # url=$(eval echo \"${url}\")
+    # TODO - Arno - find a way to avoid using eval here
+    url=$( eval echo "$( awk '$1~/REST_URL/{gsub(/"/,"",$2);gsub(/api\//,"",$2);print $2}' "${CONFIG_FILE}" )" )
+
+    echo "Please wait a few moments for the PingDataGovernance Policy Administration GUI to start..."
+
+    timeout=20
+    while test ${timeout} -gt 0 ; 
+    do
+        # fgrep -iq -e "error" -e "exception:" -e "aborted" "${LOG_DIR}/${APP_NAME}.log" >/dev/null 2>&1
+        awk 'IGNORECASE=1;BEGIN{f=1}/error/||/exception:/||/aborted/{f=0}END{exit f}' "${LOG_DIR}/${APP_NAME}.log"
+        if test ${?} -eq 0 ; 
+        then
+            echo "An error occurred. Please see ${LOG_DIR}/${APP_NAME}.log for details."
+            exit 6
+        fi
+
+        if test -f "${PID_FILE}" ;
+        then
+            PID=$( cat "${PID_FILE}" )
+            if isProcessRunning ${PID} ;
+            then
+                # TODO - Arno - not convinced case-insensitivity is required or advisable here
+                grep -Fiq "Server: Started" "${LOG_DIR}/${APP_NAME}.log"
+                if test ${?} -eq 0 ;
+                then
+                    httpCode=$( curl -GkLSs -o /dev/null -w '%{http_code}' "${url}" )
+                        # substitute with curl built-in retry?
+                        # --connect-timeout 2 \
+                        # --retry 6 \
+                        # --retry-max-time 30 \
+                        # --retry-connrefused \
+                        # --retry-delay 3 \
+                    if test ${?} -eq 0 && test "${httpCode}" = "200" ; 
+                    then
+                        echo "To access the Policy Administration GUI, open ${url} in your browser."
+                        exit 0
+                    fi
+                fi
+            fi
+        fi
+
+        timeout=$(( timeout - 1 ))
+        sleep 7
+    done
+
+    echo
+    echo "Timed out while waiting for the Policy Administration GUI to start."
+    echo "Please see ${LOG_DIR}/${APP_NAME}.log for details."
+    exit 8
+fi

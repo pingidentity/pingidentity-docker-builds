@@ -11,13 +11,16 @@ ${VERBOSE} && set -x
 test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 
 # Move license to current location
-cp "${LICENSE_DIR}/${LICENSE_FILE_NAME}" .
+# cp "${LICENSE_DIR}/${LICENSE_FILE_NAME}" .
 
 # shellcheck disable=SC2039,SC2086
-"${SERVER_ROOT_DIR}"/bin/setup demo \
-    --licenseKeyFile "${LICENSE_DIR}/${LICENSE_FILE_NAME}" \
-    --port ${HTTPS_PORT} \
-    --hostname "${REST_API_HOSTNAME}" \
-    --generateSelfSignedCertificate \
-    --decisionPointSharedSecret "${DECISION_POINT_SHARED_SECRET}"
-    2>&1
+if ! test -f "${SERVER_ROOT_DIR}/config/conifguration.yml" ;
+then
+    "${SERVER_ROOT_DIR}"/bin/setup demo \
+        --licenseKeyFile "${LICENSE_DIR}/${LICENSE_FILE_NAME}" \
+        --port ${HTTPS_PORT} \
+        --hostname "${REST_API_HOSTNAME}" \
+        --generateSelfSignedCertificate \
+        --decisionPointSharedSecret "${DECISION_POINT_SHARED_SECRET}" \
+        2>&1
+fi
