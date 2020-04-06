@@ -34,4 +34,5 @@ cat "${STATE_PROPERTIES}"
 
 echo "
 RUN_PLAN=${RUN_PLAN}
+INSTANCE_NAME=$(hostname)
 " >> "${STATE_PROPERTIES}"

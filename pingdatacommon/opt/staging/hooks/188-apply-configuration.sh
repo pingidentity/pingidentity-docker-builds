@@ -8,31 +8,7 @@ ${VERBOSE} && set -x
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 if test -d "${STAGING_DIR}/dsconfig" ; then
-    for batch in $( find "${STAGING_DIR}/dsconfig/" -iname \*.dsconfig 2>/dev/null | sort | uniq ) ; do
-        cat "${batch}" >> "${SERVER_ROOT_DIR}/tmp/config.batch"
-        # this guards against provided config batches that don't end with a blank line
-        echo >> "${SERVER_ROOT_DIR}/tmp/config.batch"
-    done
+    echo_red "Configs in '${STAGING_DIR}/dsconfig' are deprecated."
+    echo_red "They should be placed in '${PD_PROFILE}/dsconfig' going foward."
+
 fi
-
-cat >>"${SERVER_ROOT_DIR}/tmp/config.batch" <<END
-dsconfig set-connection-handler-prop \
-    --handler-name "HTTPS Connection Handler"  \
-    --reset web-application-extension
-
-END
-
-if test "${PING_DEBUG}" = "true" ; then
-  DSCONFIG_OPT="--verbose"
-else
-  DSCONFIG_OPT="--quiet"
-  echo "Running dsconfig in QUIET mode (because PING_DEBUG=${PING_DEBUG})."
-  echo "Please refer to ${SERVER_ROOT_DIR}/logs/config-audit.log for audit."
-fi
-
-"${SERVER_ROOT_DIR}/bin/dsconfig" \
-    --no-prompt \
-    --suppressMirroredDataChecks \
-    --offline \
-    ${DSCONFIG_OPT} \
-    --batch-file "${SERVER_ROOT_DIR}/tmp/config.batch"
