@@ -706,9 +706,9 @@ b.pingfederate:
   only:
     changes:
       - pingfederate/**/*
+      - pingbase/**/*
       - pingcommon/**/*
       - pingdatacommon/**/*
-      - pingbase/**/*
       - pingaccess/**/*
       - pingdirectory/**/*
       - pingdownloader/**/*
