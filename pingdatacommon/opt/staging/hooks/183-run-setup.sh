@@ -114,7 +114,8 @@ if test ! -f "${_setupArguments}"; then
     ${certificateOptions} \
     --rootUserDN "${ROOT_USER_DN}" \
     --rootUserPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
-    ${_pingDataSetupArguments}
+    ${_pingDataSetupArguments} \
+    ${ADDITIONAL_SETUP_ARGS}
 EOSETUP
 
 fi
