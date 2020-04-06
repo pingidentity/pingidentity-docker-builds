@@ -10,7 +10,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts";
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
-images="$(gcloud container images list --repository=gcr.io/ping-identity)"
+images="$(gcloud container images list --repository=gcr.io/ping-gte)"
 for image in ${images:5} ; do
   echo "RUNNING FOR IMAGE: $image"
   tags=$(gcloud container images list-tags $image --format="value(tags)" --filter=TAGS:"${ciTag}" | sed -e 's/,/ /g' )
