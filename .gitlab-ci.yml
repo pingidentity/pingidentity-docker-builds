@@ -192,6 +192,7 @@ b.pingaccess:
   only:
     changes:
       - pingcommon/**/*
+      - pingdatacommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
       - pingaccess/**/*
@@ -706,6 +707,7 @@ b.pingfederate:
     changes:
       - pingfederate/**/*
       - pingcommon/**/*
+      - pingdatacommon/**/*
       - pingbase/**/*
       - pingaccess/**/*
       - pingdirectory/**/*
