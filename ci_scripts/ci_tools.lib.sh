@@ -280,7 +280,7 @@ then
 elif test -n "${CI_COMMIT_REF_NAME}" ; 
 then
     #we are in CI pipeline
-    export FOUNDATION_REGISTRY="gcr.io/ping-identity"
+    export FOUNDATION_REGISTRY="gcr.io/ping-gte"
     # shellcheck disable=SC2155
     export gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
     # shellcheck disable=SC2155
