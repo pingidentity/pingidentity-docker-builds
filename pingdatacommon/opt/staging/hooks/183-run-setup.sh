@@ -61,6 +61,20 @@ fi
 
 test -d "${PD_PROFILE}" || mkdir -p "${PD_PROFILE}"
 
+# Support legacy server-profile setups.  If a dsconfig directory is found in the STAGING_DIR
+# but not in the STAGING_DIR/pd.profile, then we will copy it on behalf, and emit a warning that
+# they should move this to pd.profile in the future.
+
+if test -d "${STAGING_DIR}/dsconfig"; then
+    echo_red "*****"
+    echo_red "A legacy server-profile with a top level 'dsconfig' directory was found."
+    echo_red "Please remove or move these configurations into a 'pd.profile/dsconfig'"
+    echo_red "directory in your server-profile."
+    echo_red "*****"
+    container_failure 183 "Resolve the location of your dsconfig directory in server-profile"
+fi
+
+
 # If there isn't a setup-arguments.txt file, then we will create one based on the variables provided
 
 _setupArguments="${PD_PROFILE}/setup-arguments.txt"
