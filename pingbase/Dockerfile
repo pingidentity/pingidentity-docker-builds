@@ -117,6 +117,9 @@ ONBUILD ENV PING_DEBUG=false
 ONBUILD ENV PING_PRODUCT=""
 ONBUILD ENV PING_PRODUCT_VALIDATION="true|i.e. PingFederate,PingDirectory|Must be a valid Ping prouduct type"
 
+#-- List of setup arguments passed to Ping Data setup-arguments.txt file
+ONBUILD ENV ADDITIONAL_SETUP_ARGS=""
+
 #-- Port over which to communicate for LDAP
 ONBUILD ENV LDAP_PORT=389
 #-- Port over which to communicate for LDAPS
