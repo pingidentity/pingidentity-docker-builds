@@ -14,7 +14,7 @@ test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 # cp "${LICENSE_DIR}/${LICENSE_FILE_NAME}" .
 
 # shellcheck disable=SC2039,SC2086
-if ! test -f "${SERVER_ROOT_DIR}/config/conifguration.yml" ;
+if ! test -f "${SERVER_ROOT_DIR}/config/configuration.yml" ;
 then
     "${SERVER_ROOT_DIR}"/bin/setup demo \
         --licenseKeyFile "${LICENSE_DIR}/${LICENSE_FILE_NAME}" \
