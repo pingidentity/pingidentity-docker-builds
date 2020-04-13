@@ -15,6 +15,9 @@ ${VERBOSE} && set -x
     # install custom extension provided
     run_hook "181-install-extensions.sh"
 
+    # allow products to run any pre-setup commands
+    run_hook "182-pre-setup.sh"
+
     # setup the instance given all the provided data
     run_hook "183-run-setup.sh"
 
