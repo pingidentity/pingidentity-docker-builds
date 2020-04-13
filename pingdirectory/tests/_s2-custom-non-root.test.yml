@@ -15,6 +15,7 @@ services:
       - PING_CONTAINER_PRIVILEGED=false
       - PING_CONTAINER_UID=1234
       - PING_CONTAINER_GID=9876
+      - MAKELDIF_USERS=1000
     ulimits:
       nproc:
         soft: 16384
