@@ -61,9 +61,8 @@ fi
 
 test -d "${PD_PROFILE}" || mkdir -p "${PD_PROFILE}"
 
-# Support legacy server-profile setups.  If a dsconfig directory is found in the STAGING_DIR
-# but not in the STAGING_DIR/pd.profile, then we will copy it on behalf, and emit a warning that
-# they should move this to pd.profile in the future.
+# If a dsconfig directory is found in the STAGING_DIR create some error text and fail the 
+# container.
 
 if test -d "${STAGING_DIR}/dsconfig"; then
     echo_red "*****"
