@@ -17,7 +17,7 @@ services:
         soft: 65535
         hard: 65535
 
-  sut:
+  pingdatasync:
     image: ${REGISTRY}/pingdatasync:8.0.0.1-alpine-az11-${GIT_TAG}
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
@@ -25,8 +25,6 @@ services:
       - PING_IDENTITY_ACCEPT_EULA=YES
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_PATH=simple-sync/pingdatasync
-    volumes:
-      - ./pds-pd.latest.test.sh:/opt/test.sh
     ulimits:
       nproc:
         soft: 16384
@@ -34,5 +32,13 @@ services:
       nofile:
         soft: 65535
         hard: 65535
-    command: start-server /opt/wait-for localhost:389 -t 300 -- /opt/test.sh
     depends_on: ["pingdirectory"]
+
+  sut:
+    image: postman/newman
+    entrypoint: ["/usr/bin/env"]
+    command: sh -c "/tmp/wait-for pingdirectory:389 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
+    volumes:
+      - ./pds-pd.postman_collection.json:/tmp/collection.json
+      - ./wait-for:/tmp/wait-for
+    depends_on: ["pingdatasync"]
