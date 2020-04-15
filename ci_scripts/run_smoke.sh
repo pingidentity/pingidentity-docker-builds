@@ -94,8 +94,9 @@ fi
 
 # result table header    
 _resultsFile="/tmp/$$.results"
-_headerPattern=' %-25s| %-10s| %-20s| %-10s| %-38s| %10s| %7s\n'
-_reportPattern='%-24s| %-10s| %-20s| %-10s| %-38s| %10s| %7s'
+_headerPattern=' %-25s| %-12s| %-20s| %-10s| %-38s| %10s| %7s\n'
+_reportPattern='%-24s| %-12s| %-20s| %-10s| %-38s| %10s| %7s'
+# shellcheck disable=SC2059
 printf "${_headerPattern}" "PRODUCT" "VERSION" "SHIM" "JVM" "TEST" "DURATION" "RESULT" > ${_resultsFile}
 _totalStart=$( date '+%s' )
 for _version in ${versions} ; 
@@ -144,11 +145,11 @@ do
                 banner "Running test $( basename ${_test} ) on ${product}${_version:+ ${version}}${_shim:+ on ${shim}}${_jvm:+ with Java ${_jvmVersion}(${_jvm})}"
                 # sut = system under test
                 _start=$( date '+%s' )
-                env TAG=${_tag} REGISTRY=${FOUNDATION_REGISTRY} docker-compose -f ./"${_test}" up --exit-code-from sut --abort-on-container-exit
+                env TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f ./"${_test}" up --exit-code-from sut --abort-on-container-exit
                 _returnCode=${?}
                 _stop=$( date '+%s' )
                 _duration=$(( _stop - _start ))
-                env TAG=${_tag} REGISTRY=${FOUNDATION_REGISTRY} docker-compose -f ./"${_test}" down
+                env TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f ./"${_test}" down
                 if test ${_returnCode} -ne 0 ;
                 then
                     _result="FAIL"
@@ -168,6 +169,7 @@ done
 if test -z "${isLocalBuild}" ;
 then
     imagesToClean=$( docker image ls -qf "reference=*/*/*${ciTag}" | sort | uniq )
+    # shellcheck disable=SC2086
     test -n "${imagesToClean}" && docker image rm -f ${imagesToClean}
 fi
 

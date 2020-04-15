@@ -1,4 +1,4 @@
-version: "3.1"
+version: "2"
 
 services:
   pingaccess:
@@ -21,6 +21,16 @@ services:
     #volumes:
     #   - ${HOME}/projects/devops/volumes/full-stack.pingaccess:/opt/out
     #   - ${HOME}/projects/devops/pingidentity-server-profiles/baseline/pingaccess:/opt/in
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: 1g
+    memswap_limit: 1g
+    mem_swappiness: 0
     networks:
       - pingnet-dmz
     depends_on:
@@ -36,6 +46,16 @@ services:
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_PATH=baseline/pingfederate
       - PING_IDENTITY_ACCEPT_EULA=YES
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: 1g
+    memswap_limit: 1g
+    mem_swappiness: 0
     networks:
       - pingnet-dmz
       - pingnet-internal
@@ -57,6 +77,9 @@ services:
       nofile:
         soft: 65535
         hard: 65535
+    mem_limit: 1g
+    memswap_limit: 1g
+    mem_swappiness: 0
     networks:
       - pingnet-internal
 

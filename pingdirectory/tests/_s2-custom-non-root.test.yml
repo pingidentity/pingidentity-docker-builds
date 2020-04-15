@@ -23,6 +23,9 @@ services:
       nofile:
         soft: 65535
         hard: 65535
+    mem_limit: 1g
+    memswap_limit: 1g
+    mem_swappiness: 0
     volumes:
       - ./_s2-custom-non-root.test.sh:/tmp/test.sh
     command: start-server /opt/wait-for localhost:1389 -t 300 -- /tmp/test.sh

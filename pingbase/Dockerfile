@@ -40,8 +40,6 @@ ONBUILD ENV SERVER_BITS_DIR=${BASE}/server
 ONBUILD ENV BAK_DIR=${BASE}/backup
 #-- Path to a volume generically used for logging
 ONBUILD ENV LOGS_DIR=${BASE}/logs
-#-- Default path to the secrets
-ONBUILD ENV SECRETS_DIR=/usr/local/secrets
 
 #-- File name for devops-creds passed as a Docker secret
 ONBUILD ENV PING_IDENTITY_DEVOPS_FILE=devops-secret
@@ -49,6 +47,8 @@ ONBUILD ENV PING_IDENTITY_DEVOPS_FILE=devops-secret
 #-- Path to the staging area where the remote and local server profiles
 #-- can be merged
 ONBUILD ENV STAGING_DIR=${BASE}/staging
+#-- Default path to the secrets
+ONBUILD ENV SECRETS_DIR=${STAGING_DIR}/.sec
 #-- Path to the topology file
 ONBUILD ENV TOPOLOGY_FILE=${STAGING_DIR}/topology.json
 #-- Path where all the hooks scripts are stored

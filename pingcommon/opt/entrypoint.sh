@@ -5,7 +5,7 @@ ${VERBOSE} && set -x
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 
-echo_green "Command: ${@}"
+echo_green "Command: ${*}"
 
 HOSTNAME=$(hostname -f)
 DOMAINNAME=$(hostname -d)
@@ -19,7 +19,8 @@ echo_header "Ping Identity DevOps Docker Image" \
     "      HOSTNAME: ${HOSTNAME}" \
     "    DOMAINNAME: ${DOMAINNAME}"
 
-if test -z "${1}" -o "$1" = "start-server" ; then
+if test -z "${1}" -o "$1" = "start-server" ; 
+then
     test -n "${1}" && shift
     # If there are local IN_DIR files, this will copy them to a STAGING_DIRECTORY
     # overwriting any fiiles that may alrady be in staging
@@ -32,6 +33,7 @@ if test -z "${1}" -o "$1" = "start-server" ; then
     # hence the name on-restart
     #
     run_hook "01-start-server.sh"
+    # shellcheck disable=SC1090
     . "${STATE_PROPERTIES}"
 
     case "${RUN_PLAN}" in
@@ -56,14 +58,16 @@ if test -z "${1}" -o "$1" = "start-server" ; then
     # is running before performing the actual post start tasks.
     run_if_present "${HOOKS_DIR}/80-post-start.sh" &
 
-    if ! test -z "${TAIL_LOG_FILES}" ; then
-        # shellcheck disable=SC2086
+    if test -n "${TAIL_LOG_FILES}" ; 
+    then
         echo "Tailing log files (${TAIL_LOG_FILES})"
+        # shellcheck disable=SC2086
         tail -F ${TAIL_LOG_FILES} 2>/dev/null &
     fi
 
     # If there is no startup command provided, provide error message and exit.
-    if test -z "${STARTUP_COMMAND}" ; then
+    if test -z "${STARTUP_COMMAND}" ; 
+    then
         echo_red "*** NO CONTAINER STARTUP COMMAND PROVIDED ***"
         echo_red "*** Please set the environment variable STARTUP_COMMAND with a command to run"
         echo_red "*** Example: STARTUP_COMMAND=/opt/out/instance/bin/start-server"
@@ -79,19 +83,21 @@ if test -z "${1}" -o "$1" = "start-server" ; then
     #   run docker .... start-server           # Starts server in foreground (same as previous)
     #   run docker .... start-server /bin/sh   # Starts server in background and runs shell
     #   run docker .... /bin/sh                # Doesn't start the server but drops into a shell
-    if test -z "${*}" ; then
+    if test -z "${*}" ; 
+    then
         # replace the shell with foreground server
         echo_green "Starting server in foreground: (${STARTUP_COMMAND} ${STARTUP_FOREGROUND_OPTS})"
+        # shellcheck disable=SC2086
         exec "${STARTUP_COMMAND}" ${STARTUP_FOREGROUND_OPTS}
     else
         # start server in the background and execute the provided command (useful for self-test)
         echo_green "Starting server in background: (${STARTUP_COMMAND} ${STARTUP_BACKGROUND_OPTS})"
         # shellcheck disable=SC2086
         "${STARTUP_COMMAND}" ${STARTUP_BACKGROUND_OPTS} &
-        echo_green "Running command: ${@}"
+        echo_green "Running command: ${*}"
         exec "${@}"
     fi
 else
-    echo_green "Running command: ${@}"
+    echo_green "Running command: ${*}"
     exec "${@}"
 fi

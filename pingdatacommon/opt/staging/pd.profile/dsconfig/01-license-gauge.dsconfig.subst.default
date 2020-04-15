@@ -1,0 +1,4 @@
+# relax the default license warning period
+dsconfig set-gauge-prop \
+    --gauge-name "License Expiration (Days)"  \
+    --set warning-value:10.0 

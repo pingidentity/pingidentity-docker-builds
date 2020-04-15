@@ -22,9 +22,21 @@ RUN /get-bits.sh \
         -x *.bat \
         -x *.dll \
         -x *.exe \
+        -x */temp/* \
         -x */webapps/docs/* \
         -x */webapps/examples/* \
         -x */webapps/*manager/* \
+        -x */bin/commons-daemon* \
+        -x */bin/tomcat-native.tar.gz \
+        -x */webapps/ROOT/*.svg \
+        -x */webapps/ROOT/*.png \
+        -x */webapps/ROOT/*.gif \
+        -x */webapps/ROOT/*.css \
+        -x */webapps/ROOT/*.jsp \
+        -x */webapps/ROOT/*.ico \
+        -x */webapps/ROOT/*.txt \
+        -x */conf/server.xml \
+        -x */conf/tomcat-users.xml \
 	&& mv /tmp/${DEPENDENCY_0_PRODUCT}-${DEPENDENCY_0_VERSION} /opt/server \
     && rm -f /tmp/product.zip \
     && /get-bits.sh \

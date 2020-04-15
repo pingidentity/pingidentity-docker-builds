@@ -8,4 +8,14 @@ services:
       - PING_IDENTITY_ACCEPT_EULA=YES
       - PING_CENTRAL_SERVER_PORT=9876
       - VERBOSE=true
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: 1g
+    memswap_limit: 1g
+    mem_swappiness: 0
     command: ["start-server","/opt/wait-for","localhost:9876","-t","180","--","curl","-k","https://localhost:9876/"]

@@ -9,4 +9,14 @@ services:
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_PATH=baseline/pingcentral/logging
       - VERBOSE=true
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: 1g
+    memswap_limit: 1g
+    mem_swappiness: 0
     command: start-server /opt/wait-for localhost:9022 -t 180 -- curl -k https://localhost:9022/
