@@ -10,6 +10,16 @@ services:
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_PATH=getting-started/pingfederate
       - PF_ENGINE_PORT=9031
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: 1g
+    memswap_limit: 1g
+    mem_swappiness: 0
     # the url to wait-for should be on the same port as the container is configured to listen on
     command: start-server /opt/wait-for localhost:9031 -t 300 -- /opt/liveness.sh
 

@@ -1,4 +1,4 @@
-version: "3"
+version: "2"
 
 services:
   pingdirectory:
@@ -16,6 +16,9 @@ services:
       nofile:
         soft: 65535
         hard: 65535
+    mem_limit: 1g
+    memswap_limit: 1g
+    mem_swappiness: 0
 
   pingdatasync:
     image: ${REGISTRY}/pingdatasync:8.0.0.1-alpine-az11-${GIT_TAG}
@@ -32,6 +35,9 @@ services:
       nofile:
         soft: 65535
         hard: 65535
+    mem_limit: 1g
+    memswap_limit: 1g
+    mem_swappiness: 0
     depends_on: ["pingdirectory"]
 
   sut:

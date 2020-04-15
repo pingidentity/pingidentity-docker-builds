@@ -1,0 +1,3 @@
+dsconfig set-monitor-provider-prop \
+    --provider-name "Host System" \
+    --reset enabled
