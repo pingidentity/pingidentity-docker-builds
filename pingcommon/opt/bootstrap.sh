@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 test "${VERBOSE}" = "true" && set -x
+# shellcheck source=staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 
@@ -77,10 +78,14 @@ addGroup ()
 
 fixPermissions ()
 {
-    chown -Rf ${PING_CONTAINER_UID}:${PING_CONTAINER_GID} /opt
     touch /etc/motd
-    chown -f ${PING_CONTAINER_UID}:${PING_CONTAINER_GID} /etc/motd
-    chmod -Rf go-rwx /opt
+    _candidateList=""
+    for directory in $( find ${BASE} -not -name in -mindepth 1 -maxdepth 1 ) ;
+    do
+        _candidateList="${_candidateList:+${_candidateList} }${directory}"
+    done
+    chown -Rf ${PING_CONTAINER_UID}:${PING_CONTAINER_GID} /etc/motd ${_candidateList}
+    chmod -Rf go-rwx ${_candidateList}
 }
 
 removePackageManager_alpine ()
@@ -150,4 +155,4 @@ if test $$ -ne 1 ; then
     _subReaper="-s"
 fi
 
-exec ${_runUnprivileged} tini ${_subReaper} -- ${BASE}/entrypoint.sh ${*}
+exec ${_runUnprivileged} ${BASE}/tini ${_subReaper} -- ${BASE}/entrypoint.sh ${*}

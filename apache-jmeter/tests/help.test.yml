@@ -1,0 +1,17 @@
+version: "2"
+services:
+  sut:
+    image: ${REGISTRY}/apache-jmeter:${TAG}
+    environment:
+      - VERBOSE=true
+      - STARTUP_FOREGROUND_OPTS=--help
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: 1g
+    memswap_limit: 1g
+    mem_swappiness: 0
