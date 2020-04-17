@@ -95,6 +95,7 @@ b.apache-jmeter:
     changes:
       - apache-jmeter/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -114,6 +115,7 @@ d.apache-jmeter:
     changes:
       - apache-jmeter/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -135,6 +137,7 @@ b.ldap-sdk-tools:
       - pingdownloader/**/*
       - ldap-sdk-tools/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -152,6 +155,7 @@ t.ldap-sdk-tools:
       - pingdownloader/**/*
       - ldap-sdk-tools/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -173,6 +177,7 @@ d.ldap-sdk-tools:
     changes:
       - ldap-sdk-tools/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -199,6 +204,7 @@ b.pingaccess:
       - pingdirectory/**/*
       - pingfederate/**/*
       - integration_tests/**/*
+      - pingjvm/*
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
@@ -217,6 +223,7 @@ t.pingaccess:
       - pingcommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
+      - pingjvm/*
       - ci_scripts/*
       - .gitlab-ci.yml
   except:
@@ -241,6 +248,7 @@ d.pingaccess:
       - pingcommon/**/*
       - pingbase/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -264,6 +272,7 @@ b.pingcentral:
       - pingbase/**/*
       - pingdownloader/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -282,6 +291,7 @@ t.pingcentral:
       - pingbase/**/*
       - pingdownloader/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -305,6 +315,7 @@ d.pingcentral:
       - pingcommon/**/*
       - pingbase/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -333,6 +344,7 @@ b.pingdirectory:
       - pingfederate/**/*
       - integration_tests/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -352,6 +364,7 @@ t.pingdirectory:
       - pingbase/**/*
       - pingdownloader/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -376,6 +389,7 @@ d.pingdirectory:
       - pingdatacommon/**/*
       - pingbase/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -402,6 +416,7 @@ b.pingdirectoryproxy:
       - pingdirectoryproxy/**/*
       - integration_tests/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -417,10 +432,11 @@ t.pingdirectoryproxy:
     changes:
       - pingbase/**/*
       - pingdownloader/**/*
-      - ci_scripts/*
       - pingcommon/**/*
       - pingdatacommon/**/*
       - pingdirectoryproxy/**/*
+      - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -445,6 +461,7 @@ d.pingdirectoryproxy:
       - pingdatacommon/**/*
       - pingbase/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -466,6 +483,7 @@ b.pingdataconsole:
       - pingdataconsole/**/*
       - pingdownloader/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -485,6 +503,7 @@ d.pingdataconsole:
     changes:
       - pingdataconsole/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -510,6 +529,7 @@ b.pingdatasync:
       - pingdatasync/**/*
       - integration_tests/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -529,6 +549,7 @@ t.pingdatasync:
       - pingdownloader/**/*
       - pingdatasync/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -553,6 +574,7 @@ d.pingdatasync:
       - pingdatacommon/**/*
       - pingbase/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -577,6 +599,7 @@ b.pingdatagovernance:
       - pingbase/**/*
       - pingdownloader/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -596,6 +619,7 @@ t.pingdatagovernance:
       - pingdownloader/**/*
       - pingdatagovernance/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:    
     variables:
@@ -620,6 +644,7 @@ d.pingdatagovernance:
       - pingdatacommon/**/*
       - pingbase/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:    
     variables:
@@ -644,6 +669,7 @@ b.pingdatagovernancepap:
       - pingbase/**/*
       - pingdownloader/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -663,6 +689,7 @@ t.pingdatagovernancepap:
       - pingdownloader/**/*
       - pingdatagovernancepap/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:    
     variables:
@@ -687,6 +714,7 @@ d.pingdatagovernancepap:
       - pingdatacommon/**/*
       - pingbase/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -714,6 +742,7 @@ b.pingfederate:
       - pingdownloader/**/*
       - integration_tests/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -732,6 +761,7 @@ t.pingfederate:
       - pingbase/**/*
       - pingdownloader/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -755,6 +785,7 @@ d.pingfederate:
       - pingcommon/**/*
       - pingbase/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -778,6 +809,7 @@ b.pingtoolkit:
       - pingbase/**/*
       - pingdownloader/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -797,6 +829,7 @@ t.pingtoolkit:
       - pingbase/**/*
       - pingdownloader/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -820,6 +853,7 @@ d.pingtoolkit:
       - pingcommon/**/*
       - pingbase/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -846,6 +880,7 @@ pa-pf-pd.latest:
       - pingdirectory/**/*
       - pingfederate/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
@@ -869,6 +904,7 @@ pds-pd.latest:
       - pingdirectory/**/*
       - pingdatasync/**/*
       - ci_scripts/*
+      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
