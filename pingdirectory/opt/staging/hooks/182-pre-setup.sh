@@ -31,5 +31,8 @@ if test "${PD_STATE}" = "GENESIS" ; then
 else
     echo "PD_STATE is not GENESIS ==> Skipping Templates"
     echo "PD_STATE is not GENESIS ==> Will not process ldif imports"
-    _skipImports="--skipImportLdif "
+
+    # GDO-191 - Following is used by 183-run-setup.sh.  Appended to env_vars, to allow for that
+    # hook to pick it up
+    echo "_skipImports=--skipImportLdif " >> "${STAGING_DIR}/env_vars"
 fi
