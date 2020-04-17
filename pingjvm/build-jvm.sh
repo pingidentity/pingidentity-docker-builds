@@ -16,7 +16,7 @@ then
             case "${_javaMajor}" in
                 11)
                     # optimized modules azul 11 alpine modules
-                    _modules="java.base,java.compiler,java.datatransfer,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,org.openjsse,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.jdwp.agent,jdk.httpserver,jdk.localedata,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.rmic,jdk.security.auth,jdk.security.jgss,jdk.xml.dom,jdk.zipfs"
+                    _modules="java.base,java.compiler,java.datatransfer,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,org.openjsse,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.jdwp.agent,jdk.httpserver,jdk.localedata,jdk.management,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.rmic,jdk.security.auth,jdk.security.jgss,jdk.xml.dom,jdk.zipfs"
                 ;;
                 *)
                     # all azul modules
@@ -38,11 +38,11 @@ then
             _modules="${_modules:+${_modules},}$( basename ${i%.jmod} )"
         done
     fi
-    ${JAVA_HOME}/bin/jlink \
+    "${JAVA_HOME}/bin/jlink" \
         --compress=2 \
         --no-header-files \
         --no-man-pages \
-        --module-path ${JAVA_HOME}/jmods \
+        --module-path "${JAVA_HOME}/jmods" \
         --add-modules ${_modules} \
         --output /opt/java
 else
@@ -50,8 +50,8 @@ else
     # is necessary because some distros (namely adopt hotspot) have the jre under /opt/java/<something>
     mkdir -p /opt 2>/dev/null
     _java_actual=$( readlink -f ${JAVA_HOME}/bin/java )
-    _java_home_actual=$( dirname $( dirname "${_java_actual}" ) )
-    mv ${_java_home_actual} /tmp/java
+    _java_home_actual=$( dirname "$( dirname "${_java_actual}" )" )
+    mv "${_java_home_actual}" /tmp/java
     rm -rf /opt/java
     mv /tmp/java /opt/java
 fi
