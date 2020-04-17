@@ -88,8 +88,7 @@ case "${PING_PRODUCT}" in
         _pingDataSetupArguments="${encryptionOption} \
                                  --baseDN \"${USER_BASE_DN}\" \
                                  --addBaseEntry"
-        _pingDataManageProfileSetupArgs="--rejectFile /tmp/rejects.ldif \
-                                         ${_skipImports}"
+        _pingDataManageProfileSetupArgs="--rejectFile /tmp/rejects.ldif ${_skipImports}"
         ;;
     *)
         echo_red "Unknown PING_PRODUCT value [${PING_PRODUCT}]"
@@ -120,13 +119,18 @@ EOSETUP
 fi
 
 # run the manage-profile to setup the server
-"${SERVER_ROOT_DIR}"/bin/manage-profile setup \
-    --profile "${PD_PROFILE}" \
+echo "Running manage_profile setup ....."
+_manage_profile_cmd="${SERVER_ROOT_DIR}/bin/manage-profile setup \
+    --profile ${PD_PROFILE} \
     --useEnvironmentVariables \
-    --tempProfileDirectory "/tmp" \
+    --tempProfileDirectory /tmp \
     --doNotStart \
     ${_manageProfileOptions} \
-    ${_pingDataManageProfileSetupArgs}
+    ${_pingDataManageProfileSetupArgs}"
+
+echo "  ${_manage_profile_cmd}"
+
+$_manage_profile_cmd
 
 if test $? -ne 0 ; then
     test -f /tmp/rejects.ldif && cat /tmp/rejects.ldif
