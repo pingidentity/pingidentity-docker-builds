@@ -9,6 +9,9 @@
 # shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
+# shellcheck source=pingdirectory.lib.sh
+. "${HOOKS_DIR}/pingdirectory.lib.sh"
+
 ${VERBOSE} && set -x
 
 rm -rf "${STATE_PROPERTIES}"
@@ -178,11 +181,9 @@ if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
             #
             # First, we will check to see if there are any servers available in
             # existing cluster
-            nslookup ${K8S_STATEFUL_SET_SERVICE_NAME}  2>/dev/null | awk '$0 ~ /^Address / {print $4}' >/tmp/_serviceHosts
-            _numHosts=$( grep -v "$(hostname -f)" /tmp/_serviceHosts | wc -l 2> /dev/null)
-
-            cat /tmp/_serviceHosts
-            # echo "Number of other services available = ${_numHosts}"
+            _numHosts=$( getIPsForDomain ${K8S_STATEFUL_SET_SERVICE_NAME} | wc -w 2>/dev/null )
+            
+            echo "Number of servers available in this domain: ${_numHosts}"
 
             if test ${_numHosts} -eq 0 ; then
                 #
@@ -220,7 +221,14 @@ if test "${ORCHESTRATION_TYPE}" = "COMPOSE" ; then
     # Assume GENESIS state for now, if we aren't kubernetes when setting up
     if test "${RUN_PLAN}" = "START" ; then
         PD_STATE="GENESIS"
-        nslookup ${COMPOSE_SERVICE_NAME}_1 2>/dev/null | awk '$0 ~ /^Address / {print $4}' | grep ${HOSTNAME} || PD_STATE="SETUP"
+
+        #
+        # Check to see 
+        if test $(getIP ${COMPOSE_SERVICE_NAME}_1) != \
+                $(getIP ${HOSTNAME}); then
+           echo "We are the SEED Server"
+           PD_STATE="SETUP"
+        fi
     fi
 
     if test -z "${COMPOSE_SERVICE_NAME}" ; then
@@ -301,7 +309,8 @@ case "${PD_STATE}" in
 #   3. KUBERNETES - There are no other servers currently running in the stateful set (${K8S_STATEFUL_SET_SERVICE_NAME})"
 
         test "${ORCHESTRATION_TYPE}" = "COMPOSE" && echo "#
-#   2. COMPOSE - There is no SEED Server (${COMPOSE_SERVICE_NAME}_1) found"
+#   2. COMPOSE - Our host name ($(hostname)) has the same IP address as the
+                 first host in the COMPOSE_SERVICE_NAME (${COMPOSE_SERVICE_NAME}_1)"
 echo "#
 ##################################################################################
 "

@@ -527,6 +527,7 @@ b.pingdatasync:
       - pingbase/**/*
       - pingdownloader/**/*
       - pingdatasync/**/*
+      - pingdirctory/**/*
       - integration_tests/**/*
       - ci_scripts/*
       - pingjvm/*
