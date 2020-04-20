@@ -7,7 +7,12 @@ getFirstHostInTopology ()
 
 getIP ()
 {
-    nslookup "${1}"  2>/dev/null | awk '$0 ~ /^Address 1/ {print $3; exit 0}'
+    getent hosts "${1}" 2>/dev/null | awk '{print $1}'
+}
+
+getIPsForDomain ()
+{
+    getent ahosts ${1} | grep STREAM | awk '{print $1}'
 }
 
 # Loops until a specific ldap host, port, basedn can be returned successfully
