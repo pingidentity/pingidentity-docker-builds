@@ -486,10 +486,8 @@ _seedHostname=${_seedHostname}
 _seedLocation=${_seedLocation}
 _seedLdapsPort=${_seedLdapsPort}
 _seedReplicationPort=${_seedReplicationPort}
-" >> "${STATE_PROPERTIES}"
 
-echo "
 LDAPS_PORT=${LDAPS_PORT}
 LOCATION=${_podLocation}
 REPLICATION_PORT=${REPLICATION_PORT}
-" >> "${STAGING_DIR}/env_vars"
+" >> "${CONTAINER_ENV}"
