@@ -53,6 +53,9 @@ ONBUILD ENV SECRETS_DIR=${STAGING_DIR}/.sec
 ONBUILD ENV TOPOLOGY_FILE=${STAGING_DIR}/topology.json
 #-- Path where all the hooks scripts are stored
 ONBUILD ENV HOOKS_DIR=${STAGING_DIR}/hooks
+#-- Environment Property file use to share variables between scripts in container
+ONBUILD ENV CONTAINER_ENV=${STAGING_DIR}/.env
+
 #-- Path where the remote server profile is checked out or cloned before
 #-- being staged prior to being applied on the runtime
 ONBUILD ENV SERVER_PROFILE_DIR=/tmp/server-profile

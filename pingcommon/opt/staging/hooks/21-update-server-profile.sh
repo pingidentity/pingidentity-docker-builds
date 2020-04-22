@@ -23,7 +23,7 @@ if test "${SERVER_PROFILE_UPDATE}" = "true" ; then
     cd "${SERVER_PROFILE_DIR}" || exit 97
     git pull
     # shellcheck disable=SC2035
-    cp -af * "${STAGING_DIR}"
+    cp -af . "${STAGING_DIR}"
     # shellcheck disable=SC2164
     cd -
 

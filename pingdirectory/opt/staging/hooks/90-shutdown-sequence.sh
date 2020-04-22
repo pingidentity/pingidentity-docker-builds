@@ -7,8 +7,6 @@ ${VERBOSE} && set -x
 # shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-# shellcheck source=/dev/null
-test -f "${STAGING_DIR}/env_vars" && . "${STAGING_DIR}/env_vars"
 # shellcheck source=pingdirectory.lib.sh
 test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib.sh"
 

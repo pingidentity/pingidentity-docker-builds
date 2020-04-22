@@ -34,7 +34,7 @@ then
     #
     run_hook "01-start-server.sh"
     # shellcheck disable=SC1090
-    . "${STATE_PROPERTIES}"
+    . "${CONTAINER_ENV}"
 
     case "${RUN_PLAN}" in
         START) 

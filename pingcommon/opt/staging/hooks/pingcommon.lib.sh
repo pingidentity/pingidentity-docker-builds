@@ -315,7 +315,7 @@ security_filename_check()
 }
 
 ###############################################################################
-# apply_local_server_profile (num_seconds)
+# sleep_at_most (num_seconds)
 #
 # Sleep at least one second and at most the indicated duration and 
 # echos a message
@@ -446,15 +446,8 @@ echo_vars()
 echo_green "----- Starting hook: ${CALLING_HOOK}"
 
 # shellcheck source=/dev/null
-if test -f "${STAGING_DIR}/env_vars" ; then
+if test -f "${CONTAINER_ENV}" ; then
     set -o allexport
-    . "${STAGING_DIR}/env_vars"
-    set +o allexport
-fi
-
-# shellcheck source=/dev/null
-if test -f "${STATE_PROPERTIES}" ; then
-    set -o allexport
-    . "${STATE_PROPERTIES}"
+    . "${CONTAINER_ENV}"
     set +o allexport
 fi
