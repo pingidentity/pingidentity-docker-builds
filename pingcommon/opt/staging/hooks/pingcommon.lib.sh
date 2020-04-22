@@ -445,5 +445,9 @@ echo_vars()
 ###############################################################################
 echo_green "----- Starting hook: ${CALLING_HOOK}"
 
-# Hooks env file used to pass variables between hook scripts
-test -f "${CONTAINER_ENV}" && . "${CONTAINER_ENV}"
+# shellcheck source=/dev/null
+if test -f "${CONTAINER_ENV}" ; then
+    set -o allexport
+    . "${CONTAINER_ENV}"
+    set +o allexport
+fi
