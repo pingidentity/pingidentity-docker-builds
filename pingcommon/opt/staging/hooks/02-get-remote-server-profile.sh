@@ -134,7 +134,7 @@ if test -f "${STAGING_DIR}/env_vars"; then
     echo_red "variables in this will override image and orchestration variables."
     echo_red "Consider moving these to orchestration variables"
 
-    cp "${STAGING_DIR}/env_vars" "${CONTAINER_ENV}"
+    cat "${STAGING_DIR}/env_vars" >> "${CONTAINER_ENV}"
 else
     touch "${CONTAINER_ENV}"
 fi
