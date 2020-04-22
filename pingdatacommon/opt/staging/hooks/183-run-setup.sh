@@ -51,12 +51,6 @@ encryptionOption=$( getEncryptionOption )
 #
 jvmOptions=$( getJvmOptions )
 
-# TODO - Maybe allow for an ENV_VARS variable specifying a file (default to "${STAGING_DIR}/env_vars")
-
-if test -f "${STAGING_DIR}/env_vars"  ; then
-    _manageProfileOptions="--profileVariablesFile ${STAGING_DIR}/env_vars "
-fi
-
 # Test to see if a Ping Data profile (i.e. pd.profile) is found.  If not, create it
 
 test -d "${PD_PROFILE}" || mkdir -p "${PD_PROFILE}"
@@ -125,7 +119,6 @@ _manage_profile_cmd="${SERVER_ROOT_DIR}/bin/manage-profile setup \
     --useEnvironmentVariables \
     --tempProfileDirectory /tmp \
     --doNotStart \
-    ${_manageProfileOptions} \
     ${_pingDataManageProfileSetupArgs}"
 
 echo "  ${_manage_profile_cmd}"
