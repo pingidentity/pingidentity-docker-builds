@@ -86,7 +86,7 @@ getProfile ()
         fi 
 
         # shellcheck disable=SC2086
-        cp -af ${SERVER_PROFILE_DIR}/${serverProfilePath}/* "${STAGING_DIR}"
+        cp -af ${SERVER_PROFILE_DIR}/${serverProfilePath}/. "${STAGING_DIR}"
         die_on_error 142 "Copy to staging failure"  || exit ${?}
     fi    
 }
@@ -126,3 +126,15 @@ done
 
 #Finally after all are processed, get the final top level SERVER_PROFILE
 getProfile ${serverProfilePrefix}
+
+# GDO-200 - Try to encourage orchestration variables over env_vars
+if test -f "${STAGING_DIR}/env_vars"; then
+    echo ""
+    echo_red "Found an 'env_vars' file in server profile.  Be aware that any"
+    echo_red "variables in this will override image and orchestration variables."
+    echo_red "Consider moving these to orchestration variables"
+
+    cp "${STAGING_DIR}/env_vars" "${CONTAINER_ENV}"
+else
+    touch "${CONTAINER_ENV}"
+fi
