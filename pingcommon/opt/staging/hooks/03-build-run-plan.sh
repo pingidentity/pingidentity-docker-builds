@@ -25,11 +25,11 @@ echo_header "
 ###################################################################################
 #                      RUN_PLAN: ${RUN_PLAN}
 ###################################################################################
-" >"${STATE_PROPERTIES}"
+" >> "${STATE_PROPERTIES}"
 
 # Display the new state properties
 cat "${STATE_PROPERTIES}"
 
 echo "
 RUN_PLAN=${RUN_PLAN}
-" >> "${STATE_PROPERTIES}"
+" >> "${CONTAINER_ENV}"
