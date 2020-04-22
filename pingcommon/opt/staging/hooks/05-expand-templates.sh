@@ -7,7 +7,7 @@
 #- variables.
 #-
 #- Variables may come from (in order of precedence):
-#-  - The 'env_vars' file from the profiles
+#-  - The '.env' file from the profiles and intra container env variables
 #-  - The environment variables or env-file passed to continaer on startup
 #-  - The container's os
 #-
