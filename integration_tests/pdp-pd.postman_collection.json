@@ -1,0 +1,2697 @@
+{
+	"info": {
+		"_postman_id": "4f60799e-f8c2-4427-bdac-99c771f4a1e4",
+		"name": "integrationtest_pdp+pd",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PD CHECK PingDiretory honors requests",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"exec": [
+							"var _retries=pm.variables.has(\"_retries\")?pm.variables.get(\"_retries\"):pm.variables.get(\"request_retry_count\");",
+							"",
+							"// Checks to see if the server actually responded",
+							"if (pm.response.code == 200 ) {",
+							"    pm.variables.unset(\"_retries\");",
+							"    console.log(\"connection successful\");",
+							"    ",
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is empty\", function(){",
+							"        pm.response.to.not.have.body();",
+							"    });",
+							"} else {",
+							"    console.log(\". retries: \"+_retries);",
+							"    _retries--;",
+							"    console.log(\"- retries: \"+_retries);",
+							"    ",
+							"    if ( _retries > 0 ) {",
+							"        pm.variables.set(\"_retries\", _retries);",
+							"        var _retry_min=pm.variables.get(\"request_retry_delay_min_ms\");",
+							"        var _retry_max=pm.variable.get(\"request_retry_delay_max_ms\");",
+							"        var _timeout=_.random(_retry_min, _retry_max);",
+							"        console.log(_retries+\" retries left. Attempting next connection in \"+_timeout+\"ms ...\");",
+							"        // loop back to this request (request.name) after the timeout elapses",
+							"        setTimeout(function() {postman.setNextRequest(request.name);}, timeout);",
+							"    } else { ",
+							"        console.log(\"Attempts exhausted\");",
+							"        postman.setNextRequest(null);",
+							"    }",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "05e7a877-6ace-4d57-bf76-93c0d411f558",
+						"exec": [
+							"var _host = pm.variables.get(\"pd_hostname\");",
+							"var _port = pm.variables.get(\"pd_port_https\");",
+							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP CHECK PingDiretory honors requests",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"exec": [
+							"var _retries=pm.variables.has(\"_retries\")?pm.variables.get(\"_retries\"):pm.variables.get(\"request_retry_count\");",
+							"",
+							"// Checks to see if the server actually responded",
+							"if (pm.response.code == 200 ) {",
+							"    pm.variables.unset(\"_retries\");",
+							"    console.log(\"connection successful\");",
+							"    ",
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is empty\", function(){",
+							"        pm.response.to.not.have.body();",
+							"    });",
+							"} else {",
+							"    console.log(\". retries: \"+_retries);",
+							"    _retries--;",
+							"    console.log(\"- retries: \"+_retries);",
+							"    ",
+							"    if ( _retries > 0 ) {",
+							"        pm.variables.set(\"_retries\", _retries);",
+							"        var _retry_min=pm.variables.get(\"request_retry_delay_min_ms\");",
+							"        var _retry_max=pm.variable.get(\"request_retry_delay_max_ms\");",
+							"        var _timeout=_.random(_retry_min, _retry_max);",
+							"        console.log(_retries+\" retries left. Attempting next connection in \"+_timeout+\"ms ...\");",
+							"        // loop back to this request (request.name) after the timeout elapses",
+							"        setTimeout(function() {postman.setNextRequest(request.name);}, timeout);",
+							"    } else { ",
+							"        console.log(\"Attempts exhausted\");",
+							"        postman.setNextRequest(null);",
+							"    }",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "05e7a877-6ace-4d57-bf76-93c0d411f558",
+						"exec": [
+							"var _host = pm.variables.get(\"pdp_hostname\");",
+							"var _port = pm.variables.get(\"pdp_port_https\");",
+							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD CHECK HEAD available-or-degraded-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "HEAD",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-or-degraded-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-or-degraded-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP CHECK HEAD available-or-degraded-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "HEAD",
+				"header": [],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/available-or-degraded-state",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"available-or-degraded-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD CHECK HEAD available-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "HEAD",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP CHECK HEAD available-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "HEAD",
+				"header": [],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD CHECK GET available-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP CHECK GET available-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD CHECK GET available-or-degraded-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-or-degraded-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-or-degraded-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP CHECK GET available-or-degraded-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/available-or-degraded-state",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"available-or-degraded-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD CHECK POST available-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pdp_port_https}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP CHECK POST available-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD CHECK POST available-or-degraded-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-or-degraded-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-or-degraded-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP CHECK POST available-or-degraded-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/available-or-degraded-state",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"available-or-degraded-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD Config API get all Back-ends",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c4268d00-4562-45db-9f6c-4c39400fbed1",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Resources  key is present\", function(){",
+							"    pm.expect(jsonData[\"Resources\"]).to.exist;",
+							"    console.log(\"Back-ends reported in configuration:\");",
+							"    jsonData[\"Resources\"].forEach(function(backend){console.log(\"  - \"+backend[\"backendID\"]);});",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/config/backends",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"config",
+						"backends"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP Config API get all Back-ends",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c4268d00-4562-45db-9f6c-4c39400fbed1",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Resources  key is present\", function(){",
+							"    pm.expect(jsonData[\"Resources\"]).to.exist;",
+							"    console.log(\"Back-ends reported in configuration:\");",
+							"    jsonData[\"Resources\"].forEach(function(backend){console.log(\"  - \"+backend[\"backendID\"]);});",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/config/backends",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"config",
+						"backends"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD Config API get userRoot Back-end",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c4268d00-4562-45db-9f6c-4c39400fbed1",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"baseDN  key is present\", function(){",
+							"    pm.expect(jsonData[\"baseDN\"]).to.exist;",
+							"    console.log(\"Base DNs reported in userRoot configuration:\");",
+							"    jsonData[\"baseDN\"].forEach(function(baseDN){console.log(\"  - \"+baseDN);});",
+							"});",
+							"",
+							"pm.test(\"Base DN is as expected\", function(){",
+							"    pm.expect(jsonData[\"baseDN\"][0]).to.be.equal(\"dc=example,dc=com\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/config/backends/userRoot",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"config",
+						"backends",
+						"userRoot"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get schemas",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Schemas key is present\",function(){",
+							"    pm.expect(jsonData[\"schemas\"]).to.exist;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/schemas",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"schemas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP REST API get schemas",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Schemas key is present\",function(){",
+							"    pm.expect(jsonData[\"schemas\"]).to.exist;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/directory/v1/schemas",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"schemas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get inetOrgPerson schema",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Schema key is present\",function(){",
+							"    pm.expect(jsonData[\"$schema\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"classType key is present\",function(){",
+							"    pm.expect(jsonData[\"classType\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"classType is structural\",function(){",
+							"    pm.expect(jsonData[\"classType\"]).to.be.equal(\"structural\");",
+							"});",
+							"",
+							"pm.test(\"Type key is present\",function(){",
+							"    pm.expect(jsonData[\"type\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Type is object\",function(){",
+							"    pm.expect(jsonData[\"type\"]).to.be.equal(\"object\");",
+							"});",
+							"",
+							"pm.test(\"properties key is present\",function(){",
+							"    pm.expect(jsonData[\"properties\"]).to.exist;",
+							"});",
+							"",
+							"console.log(\"Attributes of the inetOrgPerson class:\");",
+							"for ( var key in jsonData[\"properties\"] ) {",
+							"    if (jsonData[\"properties\"].hasOwnProperty(key)){",
+							"        console.log(\" - \"+key);",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/schemas/inetOrgPerson",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"schemas",
+						"inetOrgPerson"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP REST API get inetOrgPerson schema",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Schema key is present\",function(){",
+							"    pm.expect(jsonData[\"$schema\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"classType key is present\",function(){",
+							"    pm.expect(jsonData[\"classType\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"classType is structural\",function(){",
+							"    pm.expect(jsonData[\"classType\"]).to.be.equal(\"structural\");",
+							"});",
+							"",
+							"pm.test(\"Type key is present\",function(){",
+							"    pm.expect(jsonData[\"type\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Type is object\",function(){",
+							"    pm.expect(jsonData[\"type\"]).to.be.equal(\"object\");",
+							"});",
+							"",
+							"pm.test(\"properties key is present\",function(){",
+							"    pm.expect(jsonData[\"properties\"]).to.exist;",
+							"});",
+							"",
+							"console.log(\"Attributes of the inetOrgPerson class:\");",
+							"for ( var key in jsonData[\"properties\"] ) {",
+							"    if (jsonData[\"properties\"].hasOwnProperty(key)){",
+							"        console.log(\" - \"+key);",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/directory/v1/schemas/inetOrgPerson",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"schemas",
+						"inetOrgPerson"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get RootDSE",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Vendor string is present\",function(){",
+							"    pm.expect(jsonData[\"vendorName\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Vendor string is as expected\",function(){",
+							"    pm.expect(jsonData[\"vendorName\"]).to.be.equal(\"Ping Identity Corporation\");",
+							"});",
+							"",
+							"pm.test(\"publicBaseDNs key is present\", function(){",
+							"    pm.expect(jsonData[\"publicBaseDNs\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Base DN is as expected\", function(){",
+							"    pm.expect(jsonData[\"publicBaseDNs\"][0]).to.be.equal(\"dc=example,dc=com\");",
+							"    pm.environment.set(\"_base_dn\",jsonData[\"publicBaseDNs\"][0]);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP REST API get RootDSE",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Vendor string is present\",function(){",
+							"    pm.expect(jsonData[\"vendorName\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Vendor string is as expected\",function(){",
+							"    pm.expect(jsonData[\"vendorName\"]).to.be.equal(\"Ping Identity Corporation\");",
+							"});",
+							"",
+							"pm.test(\"publicBaseDNs key is present\", function(){",
+							"    pm.expect(jsonData[\"publicBaseDNs\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Base DN is as expected\", function(){",
+							"    pm.expect(jsonData[\"publicBaseDNs\"][0]).to.be.equal(\"dc=example,dc=com\");",
+							"    pm.environment.set(\"_base_dn\",jsonData[\"publicBaseDNs\"][0]);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get base",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"_dn string is present\",function(){",
+							"    pm.expect(jsonData[\"_dn\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Base DN is as expected\",function(){",
+							"    var base_dn = pm.environment.get(\"pd_base_dn\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP REST API get base",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"_dn string is present\",function(){",
+							"    pm.expect(jsonData[\"_dn\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Base DN is as expected\",function(){",
+							"    var base_dn = pm.environment.get(\"pd_base_dn\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/directory/v1/{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get people branch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"_dn string is present\",function(){",
+							"    pm.expect(jsonData[\"_dn\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Base DN is as expected\",function(){",
+							"    var _base_dn = pm.environment.get(\"_base_dn\");",
+							"    var dn = \"ou=people,\"+_base_dn;",
+							"    pm.expect(jsonData[\"_dn\"].toLowerCase()).to.be.equal(dn.toLowerCase());",
+							"});",
+							"",
+							"if (pm.response.code == 200) {",
+							"    postman.setNextRequest(\"PD REST API get groups branch\");",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"ou=People,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API create people branch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"_dn\": \"ou=People,{{_base_dn}}\",\n\t\"objectClass\": [\"organizationalUnit\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get groups branch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"    ",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"_dn string is present\",function(){",
+							"    pm.expect(jsonData[\"_dn\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Base DN is as expected\",function(){",
+							"    var _base_dn = pm.environment.get(\"_base_dn\");",
+							"    pm.expect(jsonData[\"_dn\"]).to.be.equal(\"ou=Groups,\"+_base_dn);",
+							"});",
+							"",
+							"if (pm.response.code == 200) {",
+							"    postman.setNextRequest(\"PD REST API create user\");",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/ou=Groups,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"ou=Groups,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP REST API get people branch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"_dn string is present\",function(){",
+							"    pm.expect(jsonData[\"_dn\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Base DN is as expected\",function(){",
+							"    var _base_dn = pm.environment.get(\"_base_dn\");",
+							"    var dn = \"ou=people,\"+_base_dn;",
+							"    pm.expect(jsonData[\"_dn\"].toLowerCase()).to.be.equal(dn.toLowerCase());",
+							"});",
+							"",
+							"if (pm.response.code == 200) {",
+							"    postman.setNextRequest(\"PD REST API get groups branch\");",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/directory/v1/ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"ou=People,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API create groups branch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"_dn\": \"ou=groups,{{_base_dn}}\",\n\t\"objectClass\": [\"organizationalUnit\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API create user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    // 201 means means the creation worked",
+							"    // 409 means the entry already existed",
+							"    pm.expect([201,409]).to.include(pm.response.code);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"mail\": [\n        \"{{regular_user}}@example.com\"\n    ],\n    \"sn\": [\n        \"postman\"\n    ],\n    \"cn\": [\n        \"Postman User.0\"\n    ],\n    \"givenName\": [\n        \"user.0\"\n    ],\n    \"userPassword\": [\n    \t\"{{regular_pwd}}\"\n    \t],\n    \"pf-connected-identity\": [\n        \"auth-source=pf-local-identity:user-id=postman.user.0\"\n    ],\n    \"uid\": [\n        \"{{regular_user}}\"\n    ],\n    \"objectClass\": [\n        \"top\",\n        \"person\",\n        \"organizationalPerson\",\n        \"inetOrgPerson\",\n        \"pf-connected-identities\"\n    ],\n    \"description\": [\"hello from directory\"],\n    \"_dn\": \"uid={{regular_user}},ou=people,{{_base_dn}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get user before becoming member of group",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"description is directory\", function(){",
+							"    pm.expect(jsonData[\"description\"][0].toLowerCase()).to.be.equal(\"hello from directory\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/uid=postman.user.0,ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=postman.user.0,ou=People,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP REST API get user before becoming member of group",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"description is proxy\", function(){",
+							"    pm.expect(jsonData[\"description\"][0].toLowerCase()).to.be.equal(\"hello from proxy\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/directory/v1/uid=postman.user.0,ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=postman.user.0,ou=People,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API create group",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    // 201 means means the creation worked",
+							"    // 409 means the entry already existed",
+							"    pm.expect([201,409]).to.include(pm.response.code);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"member is correct\", function(){",
+							"    pm.expect(jsonData[\"member\"][0].toLowerCase()).to.be.equal(\"uid=postman.user.0,ou=people,\"+pm.environment.get(\"_base_dn\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"member\": [\n        \"uid=postman.user.0,ou=people,{{_base_dn}}\"\n    ],\n    \"cn\": [\n        \"postman.group.0\"\n    ],\n    \"objectClass\": [\n        \"top\",\n        \"groupOfNames\"\n    ],\n    \"_dn\": \"cn=postman.group.0,ou=groups,{{_base_dn}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get user afet becoming member of group",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"membership is correct\", function(){",
+							"    pm.expect(jsonData[\"isMemberOf\"][0].toLowerCase()).to.be.equal(\"cn=postman.group.0,ou=groups,\"+pm.environment.get(\"_base_dn\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/uid=postman.user.0,ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=postman.user.0,ou=People,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API delete group",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(204);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/cn=postman.group.0,ou=groups,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"cn=postman.group.0,ou=groups,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API delete user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(204);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/uid=postman.user.0,ou=people,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=postman.user.0,ou=people,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP REST API create user thru proxy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    // 201 means means the creation worked",
+							"    // 409 means the entry already existed",
+							"    pm.expect([201,409]).to.include(pm.response.code);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"mail\": [\n        \"proxy.user.0@example.com\"\n\t],\n    \"sn\": [\n        \"proxy\"\n    ],\n    \"cn\": [\n        \"Proxy User.0\"\n    ],\n    \"givenName\": [\n        \"proxy.user.0\"\n    ],\n    \"userPassword\": [\n    \t\"{{regular_pwd}}\"\n    \t],\n    \"pf-connected-identity\": [\n        \"auth-source=pf-local-identity:user-id=proxy.user.0\"\n    ],\n    \"uid\": [\n        \"{{regular_user}}\"\n    ],\n    \"objectClass\": [\n        \"top\",\n        \"person\",\n        \"organizationalPerson\",\n        \"inetOrgPerson\",\n        \"pf-connected-identities\"\n    ],\n    \"description\": [\n    \t\"created thru proxy\"\n\t],\n    \"_dn\": \"uid=proxy.user.0,ou=people,{{_base_dn}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API check user created thru proxy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"description is directory\", function(){",
+							"    pm.expect(jsonData[\"description\"][0].toLowerCase()).to.be.equal(\"created thru proxy\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/uid=proxy.user.0,ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=proxy.user.0,ou=People,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP REST API get user created thru proxy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"description is proxy\", function(){",
+							"    pm.expect(jsonData[\"description\"][0].toLowerCase()).to.be.equal(\"hello from proxy\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/directory/v1/uid=proxy.user.0,ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=proxy.user.0,ou=People,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP REST API create group thru proxy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    // 201 means means the creation worked",
+							"    // 409 means the entry already existed",
+							"    pm.expect([201,409]).to.include(pm.response.code);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"member is correct\", function(){",
+							"    pm.expect(jsonData[\"member\"][0].toLowerCase()).to.be.equal(\"uid=proxy.user.0,ou=people,\"+pm.environment.get(\"_base_dn\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"member\": [\n        \"uid=proxy.user.0,ou=people,{{_base_dn}}\"\n    ],\n    \"cn\": [\n        \"proxy.group.0\"\n    ],\n    \"objectClass\": [\n        \"top\",\n        \"groupOfNames\"\n    ],\n    \"_dn\": \"cn=proxy.group.0,ou=groups,{{_base_dn}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP REST API get user after becoming member of group thru proxy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"description is proxy\", function(){",
+							"    pm.expect(jsonData[\"description\"][0].toLowerCase()).to.be.equal(\"hello from proxy\");",
+							"});",
+							"",
+							"pm.test(\"membership is correct\", function(){",
+							"    pm.expect(jsonData[\"isMemberOf\"][0].toLowerCase()).to.be.equal(\"cn=proxy.group.0,ou=groups,\"+pm.environment.get(\"_base_dn\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/directory/v1/uid=proxy.user.0,ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=proxy.user.0,ou=People,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP REST API delete group thru proxy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(204);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://{{pdp_hostname}}:{{pdp_port_https}}/directory/v1/cn=proxy.group.0,ou=groups,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pdp_hostname}}"
+					],
+					"port": "{{pdp_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"cn=proxy.group.0,ou=groups,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP REST API delete user thru proxy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(204);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/uid=proxy.user.0,ou=people,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=proxy.user.0,ou=people,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "{{pd_admin_pwd}}",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "{{pd_admin_user}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "5d64bf06-2f98-4cf7-b0f4-f88b22825417",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "cf8e98ff-a67a-4841-bfa6-24e7944e2ace",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "ec7d38e2-f29b-41c4-a43b-3f922889a1ad",
+			"key": "request_retry_count",
+			"value": "10",
+			"type": "string"
+		},
+		{
+			"id": "95632e18-d62f-424f-a087-6ada49d8c46a",
+			"key": "request_retry_delay_max_ms",
+			"value": "15000",
+			"type": "string"
+		},
+		{
+			"id": "061f9441-cfff-4d28-ab5d-bef4bfd6de9a",
+			"key": "request_retry_delay_min_ms",
+			"value": "1000",
+			"type": "string"
+		},
+		{
+			"id": "34647554-7584-42e4-8d1a-5240969db79a",
+			"key": "admin_user",
+			"value": "administrator",
+			"type": "string"
+		},
+		{
+			"id": "feece39d-9667-4885-94be-1abb69aa6689",
+			"key": "admin_pwd",
+			"value": "2FederateM0re",
+			"type": "string"
+		},
+		{
+			"id": "4dbbc4fc-63d7-476d-a815-1c609bc2aade",
+			"key": "pd_admin_user",
+			"value": "cn={{admin_user}}",
+			"type": "string"
+		},
+		{
+			"id": "557d3511-d169-4244-ac92-a5481cf37d8e",
+			"key": "pd_admin_pwd",
+			"value": "{{admin_pwd}}",
+			"type": "string"
+		},
+		{
+			"id": "92f22af5-8d95-4f29-9fdf-ddcf8bfdb570",
+			"key": "pd_hostname",
+			"value": "pingdirectory",
+			"type": "string"
+		},
+		{
+			"id": "f085cf8e-df14-4b4c-8427-3104bc39cca4",
+			"key": "pd_port_https",
+			"value": "443",
+			"type": "string"
+		},
+		{
+			"id": "b4cc6519-62ce-4e1a-bfba-4fb691a70ecc",
+			"key": "pd_port_ldaps",
+			"value": "636",
+			"type": "string"
+		},
+		{
+			"id": "215f8a68-2ea3-4e46-88c9-a002592ae1a5",
+			"key": "pd_port_ldap",
+			"value": "389",
+			"type": "string"
+		},
+		{
+			"id": "074db093-9bc6-45bd-8aa5-e41206218791",
+			"key": "pf_engine_hostname",
+			"value": "pingfederate",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"id": "6b2861df-5fb2-48b1-a2b6-d0ec8b02d179",
+			"key": "pf_engine_port",
+			"value": "9031",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"id": "c0a27ff6-cbc5-4d82-92b7-a487dd7fc7d1",
+			"key": "pf_admin_hostname",
+			"value": "pingfederate",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"id": "38c9d6bd-7525-4fef-b49a-28860d45871f",
+			"key": "pf_admin_port",
+			"value": "9999",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"id": "fe41ad99-b5fc-4b3f-ab58-9530475488ef",
+			"key": "regular_user",
+			"value": "postman.user.0",
+			"type": "string"
+		},
+		{
+			"id": "9a272079-0fbe-4d82-b2df-ffd854e80378",
+			"key": "regular_pwd",
+			"value": "{{admin_pwd}}",
+			"type": "string"
+		},
+		{
+			"id": "2a79e69a-9502-4fc0-81d7-1288265424ac",
+			"key": "pa_engine_hostname",
+			"value": "pingaccess",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"id": "e95c1106-6cf4-4b57-931d-3c0c5f0fb3de",
+			"key": "pa_engine_port",
+			"value": "443",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"id": "91738c2e-a45d-4bda-8f76-27f418bbaa61",
+			"key": "pa_admin_hostname",
+			"value": "pingaccess",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"id": "4d707358-445c-4cf1-8483-978d814d9611",
+			"key": "pa_admin_port",
+			"value": "9000",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"id": "b8aeb583-df4d-4098-93b0-8b4ddf5941e2",
+			"key": "pdp_hostname",
+			"value": "pingdirectoryproxy",
+			"type": "string"
+		},
+		{
+			"id": "d43cf02f-8fb2-4056-b146-6186cb567a81",
+			"key": "pdp_port_https",
+			"value": "443",
+			"type": "string"
+		},
+		{
+			"id": "3fc6c112-da23-4113-9f79-f04411198b98",
+			"key": "pdp_port_ldap",
+			"value": "389",
+			"type": "string"
+		},
+		{
+			"id": "70455eae-6f47-4e70-a14f-01c2d39b94d0",
+			"key": "pdp_port_ldaps",
+			"value": "636",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

@@ -1,0 +1,51 @@
+version: "2"
+
+services:
+  pingdirectory:
+    image: ${REGISTRY}/pingdirectory:8.0.0.1-alpine-az11-${GIT_TAG}
+    environment:
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+      - PING_IDENTITY_ACCEPT_EULA=YES
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=baseline/pingdirectory
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: 1g
+    memswap_limit: 1g
+    mem_swappiness: 0
+
+  pingdirectoryproxy:
+    image: ${REGISTRY}/pingdirectoryproxy:8.0.0.1-alpine-az11-${GIT_TAG}
+    command: wait-for pingdirectory:389 -t 900 -- entrypoint.sh start-server
+    environment:
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+      - PING_IDENTITY_ACCEPT_EULA=YES
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=baseline/pingdirectoryproxy
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: 1g
+    memswap_limit: 1g
+    mem_swappiness: 0
+    depends_on: ["pingdirectory"]
+
+  sut:
+    image: postman/newman
+    entrypoint: ["/usr/bin/env"]
+    command: sh -c "/tmp/wait-for pingdirectoryproxy:389 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
+    volumes:
+      - ./pdp-pd.postman_collection.json:/tmp/collection.json
+      - ./wait-for:/tmp/wait-for
+    depends_on: ["pingdirectoryproxy"]

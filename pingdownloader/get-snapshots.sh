@@ -165,8 +165,12 @@ case "${1}" in
     pingdatagovernancepap)
         _product=symphonic-pap-packaged
         ;;
-    *)
+    pingfederate|pingaccess|pingcentral)
         _product="${1}"
+        ;;
+    *)
+        echo unsupported product
+        exit 4
         ;;
 esac
 
