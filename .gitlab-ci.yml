@@ -93,6 +93,7 @@ b.apache-jmeter:
     - ci_scripts/build_product.sh --product apache-jmeter
   only:
     changes:
+      - pingdownloader/**/*
       - apache-jmeter/**/*
       - ci_scripts/*
       - pingjvm/*
@@ -102,6 +103,26 @@ b.apache-jmeter:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+
+t.apache-jmeter:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_smoke.sh --product apache-jmeter
+  only:
+    changes:
+      - pingdownloader/**/*
+      - apache-jmeter/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 d.apache-jmeter:
@@ -490,6 +511,29 @@ b.pingdataconsole:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+
+t.pingdataconsole:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_smoke.sh --product pingdataconsole
+  only:
+    changes:
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - pingdataconsole/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 d.pingdataconsole:
@@ -896,6 +940,30 @@ pds-pd.latest:
   stage: test.integration
   script:
     - ci_scripts/run_integration.sh pds-pd.latest
+  only:
+    changes:
+      - integration_tests/**/*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingdirectory/**/*
+      - pingdatasync/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+
+pdp-pd.latest:
+  stage: test.integration
+  script:
+    - ci_scripts/run_integration.sh pdp-pd.latest
   only:
     changes:
       - integration_tests/**/*

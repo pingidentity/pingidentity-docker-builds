@@ -14,7 +14,7 @@ if test -d "${EXTENSIONS_DIR}" ;
 then
     extensionID=0
     # shellcheck disable=SC2044
-    for remoteInstallFile in $(find ${EXTENSIONS_DIR} -type f -name \*remote.list ) ; 
+    for remoteInstallFile in $(find "${EXTENSIONS_DIR}" -type f -name \*remote.list ) ; 
     do
         if test -n "${remoteInstallFile}" && test -f "${remoteInstallFile}" ; then
             while IFS=" " read -r extensionUrl extensionSignatureUrl keyServer keyID || test -n "${extensionUrl}" ;
