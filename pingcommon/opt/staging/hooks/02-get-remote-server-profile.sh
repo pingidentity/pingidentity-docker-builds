@@ -128,13 +128,22 @@ done
 getProfile ${serverProfilePrefix}
 
 # GDO-200 - Try to encourage orchestration variables over env_vars
-if test -f "${STAGING_DIR}/env_vars"; then
-    echo ""
-    echo_red "Found an 'env_vars' file in server profile.  Be aware that any"
-    echo_red "variables in this will override image and orchestration variables."
-    echo_red "Consider moving these to orchestration variables"
+_env_vars_file="${STAGING_DIR}/env_vars"
+if test -f "${_env_vars_file}"; then
+    grep '.suppress-container-warning' "${_env_vars_file}" 2>/dev/null >/dev/null
 
-    cat "${STAGING_DIR}/env_vars" >> "${CONTAINER_ENV}"
+    if test $? -ne 0; then
+        echo ""
+        echo_red "WARNING: Found an 'env_vars' file in server profile.  Variables set"
+        echo_red "         in 'env_vars' may override image and orchestration variables."
+        echo ""
+        echo_red "         To suppress this warning in the future, include the following"
+        echo_red "         string in a comment"
+        echo ""
+        echo_red "         # .surpress-container-warning"
+    fi
+
+    cat "${_env_vars_file}" >> "${CONTAINER_ENV}"
 else
     touch "${CONTAINER_ENV}"
 fi
