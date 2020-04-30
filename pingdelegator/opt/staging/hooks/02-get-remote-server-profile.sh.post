@@ -1,0 +1,50 @@
+#!/usr/bin/env sh
+#
+# Ping Identity DevOps - Docker Build Hooks
+#
+#- This hook may be used to set the server if there is a setup procedure
+# 
+#- >Note: The PingData (i.e. Directory, DataSync, DataGovernance, DirectoryProxy) 
+#- products will all provide this
+
+# shellcheck source=pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
+
+mkdir -p "${SECRETS_DIR}"
+_nginxCrt="${SECRETS_DIR}/nginx.crt"
+_nginxKey="${SECRETS_DIR}/nginx.key"
+if ! test -f "${_nginxCrt}" ;
+then
+    if ! test -f "${_nginxKey}" ;
+    then
+        head -c 1024 /dev/urandom | tr -dc 'a-zA-Z0-9-' | cut -c 1-64 > "${_nginxKey}"
+    fi
+    _pin="$( cat "${_nginxKey}" )"
+
+    openssl req \
+        -x509 \
+        -nodes \
+        -days 365 \
+        -subj "/C=US/ST=CO/O=PingIdentity Corp./OU=Docker/CN=ephemeral" \
+        -addext "subjectAltName=DNS:ping-devops.com" \
+        -newkey rsa:2048 \
+        -keyout "${_nginxKey}" \
+        -out ${_nginxCrt};
+
+    # keytool \
+    #     -genkey \
+    #     -keyalg RSA \
+    #     -alias server-cert \
+    #     -keystore "${_keystoreFile}" \
+    #     -storepass "${_pin}" \
+    #     -validity 30 \
+    #     -keysize 2048 \
+    #     -noprompt \
+    #     -dname "CN=ephemeral, OU=Docker, O=PingIdentity Corp., L=Denver, ST=CO, C=US"
+fi
+
+# if test -z "${NGINX_PIN}" ;
+# then
+#     # shellcheck disable=SC2016
+#     echo 'KEYSTORE_PIN=$( cat "'"${_nginxKey}"'")' >> "${CONTAINER_ENV}"
+# fi

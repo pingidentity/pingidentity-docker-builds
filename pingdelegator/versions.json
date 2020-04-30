@@ -1,0 +1,24 @@
+{
+    "latest": "4.0.0",
+    "versions": [
+        {
+            "version": "4.0.0",
+            "preferredShim": "alpine",
+            "shims": [
+                {
+                    "shim": "alpine",
+                    "preferredJVM": "",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true
+                        }
+                    ]
+                }
+            ],
+            "dependencies": [
+            ]
+        }
+    ]
+}
