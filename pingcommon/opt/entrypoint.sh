@@ -61,8 +61,14 @@ then
     if test -n "${TAIL_LOG_FILES}" ; 
     then
         echo "Tailing log files (${TAIL_LOG_FILES})"
-        # shellcheck disable=SC2086
-        tail -F ${TAIL_LOG_FILES} 2>/dev/null &
+        if test -n "${TAIL_LOG_PARALLEL}";
+        then
+            # shellcheck disable=SC2086
+            parallel --tagstring "{}:" --line-buffer tail -F {} ::: ${TAIL_LOG_FILES} &
+        else
+            # shellcheck disable=SC2086
+            tail -F ${TAIL_LOG_FILES} 2>/dev/null &
+        fi
     fi
 
     # If there is no startup command provided, provide error message and exit.
