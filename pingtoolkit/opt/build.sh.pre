@@ -51,6 +51,8 @@ case "${_osID}" in
         chmod +x ${_file}
         rm ${_file}.tgz
 
+        apk --update add openssl
+
         set +e
     ;;
     *)
