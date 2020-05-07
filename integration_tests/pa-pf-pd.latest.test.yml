@@ -1,121 +1,2155 @@
-version: "2"
-
-services:
-  pingaccess:
-    image: ${REGISTRY}/pingaccess:6.0.2-alpine-az11-${GIT_TAG}
-    command: wait-for pingfederate:9031 -t 900 -- entrypoint.sh start-server
-    environment: 
-      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
-      - SERVER_PROFILE_PATH=baseline/pingaccess
-      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
-      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
-      - PING_IDENTITY_ACCEPT_EULA=YES
-    # env_file:
-      # Configuration file created when setup.sh (Getting-started project root directory) is first run to source
-      # devops user/key details for evaluation licenses and for docker image/git tags
-      # - ~/.pingidentity/devops
-    # Example: Examples below for mounting local directories for inbound server profile and persisting
-    #          server build.  The local /opt/out directory must be empty when building new server
-    #             /opt/out - Resulting server build
-    #             /opt/in  - Inbound server-profile detail in liue of SERVER_PROFILE_URL (must be commented out)
-    #volumes:
-    #   - ${HOME}/projects/devops/volumes/full-stack.pingaccess:/opt/out
-    #   - ${HOME}/projects/devops/pingidentity-server-profiles/baseline/pingaccess:/opt/in
-    ulimits:
-      nproc:
-        soft: 16384
-        hard: 16384
-      nofile:
-        soft: 65535
-        hard: 65535
-    mem_limit: 1g
-    memswap_limit: 1g
-    mem_swappiness: 0
-    networks:
-      - pingnet-dmz
-      - pingnet-internal
-    depends_on:
-      - pingfederate
-      - pingdirectory
-
-  pingfederate:
-    image: ${REGISTRY}/pingfederate:10.0.2-alpine-az11-${GIT_TAG}
-    command: wait-for pingdirectory:389 -t 900 -- entrypoint.sh start-server
-    environment:
-      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
-      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
-      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
-      - SERVER_PROFILE_PATH=baseline/pingfederate
-      - PING_IDENTITY_ACCEPT_EULA=YES
-    ulimits:
-      nproc:
-        soft: 16384
-        hard: 16384
-      nofile:
-        soft: 65535
-        hard: 65535
-    mem_limit: 1g
-    memswap_limit: 1g
-    mem_swappiness: 0
-    networks:
-      - pingnet-dmz
-      - pingnet-internal
-    depends_on:
-      - pingdirectory
-
-  pingdirectory:
-    image: ${REGISTRY}/pingdirectory:8.0.0.1-alpine-az11-${GIT_TAG}
-    environment:
-      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
-      - SERVER_PROFILE_PATH=baseline/pingdirectory
-      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
-      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
-      - PING_IDENTITY_ACCEPT_EULA=YES
-    ulimits:
-      nproc:
-        soft: 16384
-        hard: 16384
-      nofile:
-        soft: 65535
-        hard: 65535
-    mem_limit: 1g
-    memswap_limit: 1g
-    mem_swappiness: 0
-    networks:
-      - pingnet-internal
-
-  sut:
-    image: postman/newman
-    entrypoint: ["/usr/bin/env"]
-    command: sh -c "/tmp/wait-for pingaccess:443 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
-    volumes:
-      - ./pa-pf-pd.postman_collection.json:/tmp/collection.json
-      - ./wait-for:/tmp/wait-for
-    depends_on:
-      - pingaccess
-      - pingfederate
-      - pingdirectory
-    networks:
-      - pingnet-dmz
-      - pingnet-internal
-
-  httpbin:
-    image: kennethreitz/httpbin
-    ports:
-      - "80:80"
-    ulimits:
-      nproc:
-        soft: 16384
-        hard: 16384
-      nofile:
-        soft: 65535
-        hard: 65535
-    mem_limit: 512m
-    memswap_limit: 512m
-    mem_swappiness: 0
-    networks:
-      - pingnet-internal
-  
-networks:
-    pingnet-internal:
-    pingnet-dmz:
+{
+	"info": {
+		"_postman_id": "dccb7a15-9a16-426b-8da4-1f86c9b9508f",
+		"name": "pa-pf-pd",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PD CHECK PingDiretory honors requests",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "769a4994-38bf-4b08-97a1-c7c342becd1f",
+						"exec": [
+							"var _retries=pm.variables.has(\"_retries\")?pm.variables.get(\"_retries\"):pm.variables.get(\"request_retry_count\");",
+							"",
+							"// Checks to see if the server actually responded",
+							"if (pm.response.code == 200 ) {",
+							"    pm.variables.unset(\"_retries\");",
+							"    console.log(\"connection successful\");",
+							"    ",
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is empty\", function(){",
+							"        pm.response.to.not.have.body();",
+							"    });",
+							"} else {",
+							"    console.log(\". retries: \"+_retries);",
+							"    _retries--;",
+							"    console.log(\"- retries: \"+_retries);",
+							"    ",
+							"    if ( _retries > 0 ) {",
+							"        pm.variables.set(\"_retries\", _retries);",
+							"        var _retry_min=pm.variables.get(\"request_retry_delay_min_ms\");",
+							"        var _retry_max=pm.variable.get(\"request_retry_delay_max_ms\");",
+							"        var _timeout=_.random(_retry_min, _retry_max);",
+							"        console.log(_retries+\" retries left. Attempting next connection in \"+_timeout+\"ms ...\");",
+							"        // loop back to this request (request.name) after the timeout elapses",
+							"        setTimeout(function() {postman.setNextRequest(request.name);}, timeout);",
+							"    } else { ",
+							"        console.log(\"Attempts exhausted\");",
+							"        postman.setNextRequest(null);",
+							"    }",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "27594026-b0da-4deb-a355-e7846f7dab8a",
+						"exec": [
+							"var _host = pm.variables.get(\"pd_hostname\");",
+							"var _port = pm.variables.get(\"pd_port_https\");",
+							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PF CHECK PingFederate engine honors requests",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d1c5c5a1-e996-44f9-93aa-4840e96b34b0",
+						"exec": [
+							"var _retries = pm.environment.get(\"_retries\");",
+							"",
+							"// Checks to see if the server actually responded",
+							"if (pm.response.code == 200 ) {",
+							"    pm.environment.unset(\"_retries\");",
+							"    console.log(\"connection successful\");",
+							"",
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"",
+							"    pm.test(\"response is not JSON\", function(){",
+							"        pm.response.to.not.be.json;",
+							"    });",
+							"",
+							"    pm.test(\"response string is OK\", function(){",
+							"        pm.expect(pm.response.text()).to.include(\"OK\");",
+							"    });",
+							"} else {",
+							"    if (!_retries){",
+							"        _retries=10;",
+							"    }",
+							"    ",
+							"    if ( _retries > 0 ) {",
+							"        _retries--;",
+							"        pm.environment.set(\"_retries\", _retries);",
+							"        var timeout=_.random(1000,15000);",
+							"        console.log(\"Attempting next connection in \"+timeout+\"ms ...\");",
+							"        // loop back to this request (request.name) after the timeout elapses",
+							"        setTimeout(function() {postman.setNextRequest(request.name);}, timeout);",
+							"    } else { ",
+							"        postman.setNextRequest(null);",
+							"    }",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "8985c2df-a953-4ae2-85e8-8fbc32beb726",
+						"exec": [
+							"var _host = pm.variables.get(\"pf_engine_hostname\");",
+							"var _port = pm.variables.get(\"pf_engine_port\");",
+							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pf_engine_hostname}}:{{pf_engine_port}}/pf/heartbeat.ping",
+					"protocol": "https",
+					"host": [
+						"{{pf_engine_hostname}}"
+					],
+					"port": "{{pf_engine_port}}",
+					"path": [
+						"pf",
+						"heartbeat.ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PF CHECK PingFederate admin honors requests",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5c4b4526-eb6f-4265-bb1a-e7dd2c8ce67d",
+						"exec": [
+							"var _retries = pm.environment.get(\"_retries\");",
+							"",
+							"// Checks to see if the server actually responded",
+							"if (pm.response.code == 200 ) {",
+							"    pm.environment.unset(\"_retries\");",
+							"    console.log(\"connection successful\");",
+							"",
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"} else {",
+							"    if (!_retries){",
+							"        _retries=10;",
+							"    }",
+							"    ",
+							"    if ( _retries > 0 ) {",
+							"        _retries--;",
+							"        pm.environment.set(\"_retries\", _retries);",
+							"        var timeout=_.random(1000,15000);",
+							"        console.log(\"Attempting next connection in \"+timeout+\"ms ...\");",
+							"        // loop back to this request (request.name) after the timeout elapses",
+							"        setTimeout(function() {postman.setNextRequest(request.name);}, timeout);",
+							"    } else { ",
+							"        postman.setNextRequest(null);",
+							"    }",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "fb8c9f1e-b074-43c1-a922-af077f3ab6b3",
+						"exec": [
+							"var _host = pm.variables.get(\"pf_admin_hostname\");",
+							"var _port = pm.variables.get(\"pf_admin_port\");",
+							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{admin_pwd}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{admin_user}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pf_admin_hostname}}:{{pf_admin_port}}/pingfederate/app",
+					"protocol": "https",
+					"host": [
+						"{{pf_admin_hostname}}"
+					],
+					"port": "{{pf_admin_port}}",
+					"path": [
+						"pingfederate",
+						"app"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PA CHECK PingDirectory engine honors requests",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "093e85b8-7664-479b-8873-199b0bd15b06",
+						"exec": [
+							"var _host = pm.variables.get(\"pa_engine_hostname\");",
+							"var _port = pm.variables.get(\"pa_engine_port\");",
+							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "6710d1b6-a6e5-45ac-be9c-ba45f2decf33",
+						"exec": [
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"",
+							"    pm.test(\"response is not JSON\", function(){",
+							"        pm.response.to.not.be.json;",
+							"    });",
+							"",
+							"    pm.test(\"response string is OK\", function(){",
+							"        pm.expect(pm.response.text()).to.include(\"OK\");",
+							"    });    "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pa_engine_hostname}}:{{pa_engine_port}}/pa/heartbeat.ping",
+					"protocol": "https",
+					"host": [
+						"{{pa_engine_hostname}}"
+					],
+					"port": "{{pa_engine_port}}",
+					"path": [
+						"pa",
+						"heartbeat.ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD CHECK HEAD available-or-degraded-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e0053e26-10ec-40ae-83cb-f1b321575b79",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "HEAD",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-or-degraded-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-or-degraded-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD CHECK HEAD available-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "610be2f3-7e70-4148-876d-29be4acd7301",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "HEAD",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD CHECK HEAD available-or-degraded-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "82602eb2-69c7-43cc-8881-e62176efe86d",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "HEAD",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-or-degraded-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-or-degraded-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD CHECK GET available-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "512565c2-5af6-40e6-a395-d1508416f52a",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD CHECK GET available-or-degraded-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "08f9f595-4175-4484-835a-a946e12ec7e6",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-or-degraded-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-or-degraded-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD CHECK POST available-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f5169953-4559-49be-95c3-db2015ccc5df",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD CHECK POST available-or-degraded-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "79ef4b14-b10a-4581-8034-657ea8583c40",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-or-degraded-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-or-degraded-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD Config API get all Back-ends",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "35dec528-1a82-4f2d-bad7-97552ed4845b",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Resources  key is present\", function(){",
+							"    pm.expect(jsonData[\"Resources\"]).to.exist;",
+							"    console.log(\"Back-ends reported in configuration:\");",
+							"    jsonData[\"Resources\"].forEach(function(backend){console.log(\"  - \"+backend[\"backendID\"]);});",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/config/backends",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"config",
+						"backends"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD Config API get userRoot Back-end",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d36607c7-7b4d-4610-9de8-f823c2b377a0",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"baseDN  key is present\", function(){",
+							"    pm.expect(jsonData[\"baseDN\"]).to.exist;",
+							"    console.log(\"Base DNs reported in userRoot configuration:\");",
+							"    jsonData[\"baseDN\"].forEach(function(baseDN){console.log(\"  - \"+baseDN);});",
+							"});",
+							"",
+							"pm.test(\"Base DN is as expected\", function(){",
+							"    pm.expect(jsonData[\"baseDN\"][0]).to.be.equal(\"dc=example,dc=com\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/config/backends/userRoot",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"config",
+						"backends",
+						"userRoot"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get schemas",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6039ddd9-263a-4b4d-8e33-3f6e2e343e4a",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Schemas key is present\",function(){",
+							"    pm.expect(jsonData[\"schemas\"]).to.exist;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/schemas",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"schemas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get inetOrgPerson schema",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0a2bf8a6-5da1-4998-b351-9bfabd9148a8",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Schema key is present\",function(){",
+							"    pm.expect(jsonData[\"$schema\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"classType key is present\",function(){",
+							"    pm.expect(jsonData[\"classType\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"classType is structural\",function(){",
+							"    pm.expect(jsonData[\"classType\"]).to.be.equal(\"structural\");",
+							"});",
+							"",
+							"pm.test(\"Type key is present\",function(){",
+							"    pm.expect(jsonData[\"type\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Type is object\",function(){",
+							"    pm.expect(jsonData[\"type\"]).to.be.equal(\"object\");",
+							"});",
+							"",
+							"pm.test(\"properties key is present\",function(){",
+							"    pm.expect(jsonData[\"properties\"]).to.exist;",
+							"});",
+							"",
+							"console.log(\"Attributes of the inetOrgPerson class:\");",
+							"for ( var key in jsonData[\"properties\"] ) {",
+							"    if (jsonData[\"properties\"].hasOwnProperty(key)){",
+							"        console.log(\" - \"+key);",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/schemas/inetOrgPerson",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"schemas",
+						"inetOrgPerson"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get RootDSE",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "38284896-269e-495f-969d-8c98ee42917a",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Vendor string is present\",function(){",
+							"    pm.expect(jsonData[\"vendorName\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Vendor string is as expected\",function(){",
+							"    pm.expect(jsonData[\"vendorName\"]).to.be.equal(\"Ping Identity Corporation\");",
+							"});",
+							"",
+							"pm.test(\"publicBaseDNs key is present\", function(){",
+							"    pm.expect(jsonData[\"publicBaseDNs\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Base DN is as expected\", function(){",
+							"    pm.expect(jsonData[\"publicBaseDNs\"][0]).to.be.equal(\"dc=example,dc=com\");",
+							"    pm.environment.set(\"_base_dn\",jsonData[\"publicBaseDNs\"][0]);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get base",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3e72ff64-5e34-46dc-93c4-8f62212f36e7",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"_dn string is present\",function(){",
+							"    pm.expect(jsonData[\"_dn\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Base DN is as expected\",function(){",
+							"    var base_dn = pm.environment.get(\"pd_base_dn\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get people branch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "73dd8671-f940-4aa2-bfa0-0a5ede80a3c4",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"_dn string is present\",function(){",
+							"    pm.expect(jsonData[\"_dn\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Base DN is as expected\",function(){",
+							"    var _base_dn = pm.environment.get(\"_base_dn\");",
+							"    var dn = \"ou=people,\"+_base_dn;",
+							"    pm.expect(jsonData[\"_dn\"].toLowerCase()).to.be.equal(dn.toLowerCase());",
+							"});",
+							"",
+							"if (pm.response.code == 200) {",
+							"    postman.setNextRequest(\"PD REST API get groups branch\");",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"ou=People,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API create people branch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "43a00c99-cfea-4b63-b08f-cfbfc06a03ab",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"_dn\": \"ou=People,{{_base_dn}}\",\n\t\"objectClass\": [\"organizationalUnit\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get groups branch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f2fa8112-742c-4991-9003-6ad013c1cf82",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"    ",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"_dn string is present\",function(){",
+							"    pm.expect(jsonData[\"_dn\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Base DN is as expected\",function(){",
+							"    var _base_dn = pm.environment.get(\"_base_dn\");",
+							"    pm.expect(jsonData[\"_dn\"]).to.be.equal(\"ou=Groups,\"+_base_dn);",
+							"});",
+							"",
+							"if (pm.response.code == 200) {",
+							"    postman.setNextRequest(\"PD REST API create user\");",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/ou=Groups,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"ou=Groups,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API create groups branch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "213dd49f-ed51-4c97-afa3-5cdab8b5ec14",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"_dn\": \"ou=groups,{{_base_dn}}\",\n\t\"objectClass\": [\"organizationalUnit\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API create user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c53a1075-38cf-44c0-9f90-66ae8dc29946",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    // 201 means means the creation worked",
+							"    // 409 means the entry already existed",
+							"    pm.expect([201,409]).to.include(pm.response.code);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"mail\": [\n        \"{{regular_user}}@example.com\"\n    ],\n    \"sn\": [\n        \"postman\"\n    ],\n    \"cn\": [\n        \"Postman User.0\"\n    ],\n    \"givenName\": [\n        \"user.0\"\n    ],\n    \"userPassword\": [\n    \t\"{{regular_pwd}}\"\n    \t],\n    \"pf-connected-identity\": [\n        \"auth-source=pf-local-identity:user-id=postman.user.0\"\n    ],\n    \"uid\": [\n        \"{{regular_user}}\"\n    ],\n    \"objectClass\": [\n        \"top\",\n        \"person\",\n        \"organizationalPerson\",\n        \"inetOrgPerson\",\n        \"pf-connected-identities\"\n    ],\n    \"_dn\": \"uid={{regular_user}},ou=people,{{_base_dn}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get user before becoming member of group",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "abc823e4-d053-4108-bb5d-78658b1b952e",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/uid=postman.user.0,ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=postman.user.0,ou=People,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API create group",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bd993e0f-78e4-4eef-a74c-51f01a48f66a",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    // 201 means means the creation worked",
+							"    // 409 means the entry already existed",
+							"    pm.expect([201,409]).to.include(pm.response.code);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"member\": [\n        \"uid=postman.user.0,ou=people,{{_base_dn}}\"\n    ],\n    \"cn\": [\n        \"postman.group.0\"\n    ],\n    \"objectClass\": [\n        \"top\",\n        \"groupOfNames\"\n    ],\n    \"_dn\": \"cn=postman.group.0,ou=groups,{{_base_dn}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get user afet becoming member of group",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c5fda10e-f55c-4b72-a3e2-a851d54d2aae",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/uid=postman.user.0,ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=postman.user.0,ou=People,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PF Admin API CHECK PingFederate has PingID adapter",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8f0ba1b0-7349-41cf-a4b0-e7568d8d0235",
+						"exec": [
+							"// Checks to see if the server actually responded",
+							"if (pm.response.code == 200 ) {",
+							"    console.log(\"connection successful\");",
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"    ",
+							"    pm.test(\"response is JSON\", function(){",
+							"        pm.response.to.be.json;",
+							"    });",
+							"    ",
+							"    var jsonData = JSON.parse(responseBody);",
+							"    ",
+							"    pm.test(\"id key is present\",function(){",
+							"        pm.expect(jsonData[\"id\"]).to.exist;",
+							"    });",
+							"    ",
+							"    pm.test(\"ID is as expected\",function(){",
+							"        pm.expect(jsonData[\"id\"]).to.be.equal(\"com.pingidentity.adapters.pingid.PingIDAdapter\");",
+							"    });",
+							"} else {",
+							"    ",
+							"    // Generate a random group ID (one in 10,000,000 chance of collision)",
+							"    var timeout=_.random(1000,15000);",
+							"    console.log(\"Attempting next connection in \"+timeout+\"ms ...\");",
+							"    setTimeout(function() {postman.setNextRequest(request.name);}, timeout);",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "182038de-788c-4880-a624-244ccfb790b0",
+						"exec": [
+							"var _host = pm.variables.get(\"pf_admin_hostname\");",
+							"var _port = pm.variables.get(\"pf_admin_port\");",
+							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{admin_pwd}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{admin_user}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-XSRF-Header",
+						"value": "pingfederate",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://{{pf_admin_hostname}}:{{pf_admin_port}}/pf-admin-api/v1/idp/adapters/descriptors/com.pingidentity.adapters.pingid.PingIDAdapter",
+					"protocol": "https",
+					"host": [
+						"{{pf_admin_hostname}}"
+					],
+					"port": "{{pf_admin_port}}",
+					"path": [
+						"pf-admin-api",
+						"v1",
+						"idp",
+						"adapters",
+						"descriptors",
+						"com.pingidentity.adapters.pingid.PingIDAdapter"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PF OAuth code-flow leg-1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e4b460b2-5efa-458c-8e44-33d391171f30",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(302);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							"",
+							"pm.test(\"OIDC AuthZ Code returned\", function () {",
+							"    var loc = pm.response.headers.get(\"location\").split(\"=\");",
+							"    var _authzCode = loc[1];",
+							"    pm.expect(_authzCode).to.not.equal(undefined);",
+							"    pm.expect(_authzCode).to.not.equal(null);",
+							"    pm.expect(_authzCode).to.not.be.empty;",
+							"",
+							"    // Parse out the Code value",
+							"    pm.environment.set(\"_authzCode\", _authzCode);",
+							"    console.log(\"AuthZ Code:\", _authzCode);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "pf.username",
+							"value": "{{regular_user}}",
+							"type": "text"
+						},
+						{
+							"key": "pf.pass",
+							"value": "{{regular_pwd}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://{{pf_engine_hostname}}:{{pf_engine_port}}/as/authorization.oauth2?response_type=code&client_id=ac_client&redirect_uri=https://localhost:9031/OAuthPlayground/authorization_code/callback",
+					"protocol": "https",
+					"host": [
+						"{{pf_engine_hostname}}"
+					],
+					"port": "{{pf_engine_port}}",
+					"path": [
+						"as",
+						"authorization.oauth2"
+					],
+					"query": [
+						{
+							"key": "response_type",
+							"value": "code"
+						},
+						{
+							"key": "client_id",
+							"value": "ac_client"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://localhost:9031/OAuthPlayground/authorization_code/callback"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PF OAuth code-flow leg-2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "755c13ac-7318-456a-8b85-025401600ce5",
+						"exec": [
+							"function parseJwt (token) {",
+							"            var base64Url = token.split('.')[1];",
+							"            var base64 = base64Url.replace('-', '+').replace('_', '/');",
+							"            return JSON.parse(atob(base64));",
+							"        }",
+							"",
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"pm.test(\"Tokens returned\", function () {",
+							"    pm.expect(jsonData[\"access_token\"]).not.equal(null);",
+							"    pm.expect(jsonData[\"access_token\"]).not.empty;",
+							"     pm.environment.set(\"accessToken\",jsonData[\"access_token\"]);",
+							"    console.log(\"Access Token: \", parseJwt(jsonData.access_token));",
+							"    console.log(\"--------------\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "ac_client",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://{{pf_engine_hostname}}:{{pf_engine_port}}/as/token.oauth2?grant_type=authorization_code&redirect_uri=https://localhost:9031/OAuthPlayground/authorization_code/callback&code={{_authzCode}}",
+					"protocol": "https",
+					"host": [
+						"{{pf_engine_hostname}}"
+					],
+					"port": "{{pf_engine_port}}",
+					"path": [
+						"as",
+						"token.oauth2"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "authorization_code"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://localhost:9031/OAuthPlayground/authorization_code/callback"
+						},
+						{
+							"key": "code",
+							"value": "{{_authzCode}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PA GET  anything without auth",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "6b30b0ca-3ce5-4c49-ae8d-7eafe5e499d3",
+						"exec": [
+							"var _runId = Math.floor(Math.random()*100000);",
+							"pm.variables.set(\"_runId\",_runId);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "ea6ea690-3ab5-4b2c-b415-0f3f785c5e24",
+						"exec": [
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"",
+							"    pm.test(\"response is JSON\", function(){",
+							"        pm.response.to.be.json;",
+							"    });",
+							"",
+							"    pm.test(\"response has correct run ID\", function(){",
+							"        var jsonData = pm.response.json();",
+							"        pm.expect(jsonData.headers[\"X-Ping-Build-Run-Id\"]).to.equal(\"\"+pm.variables.get(\"_runId\"));",
+							"    });    "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Ping-Build-Run-Id",
+						"value": "{{_runId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://{{pa_engine_hostname}}:{{pa_engine_port}}/anything/get",
+					"protocol": "https",
+					"host": [
+						"{{pa_engine_hostname}}"
+					],
+					"port": "{{pa_engine_port}}",
+					"path": [
+						"anything",
+						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PA GET  through PD REST API",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "b575feff-3dfc-4f24-8698-67dec3ff32dd",
+						"exec": [
+							"var _runId = Math.floor(Math.random()*100000);",
+							"pm.variables.set(\"_runId\",_runId);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "803d53de-f1a0-4eb2-9d70-6cfa7e7ba32c",
+						"exec": [
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"",
+							"    pm.test(\"response is JSON\", function(){",
+							"        pm.response.to.be.json;",
+							"    });",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Ping-Build-Run-Id",
+						"type": "text",
+						"value": "{{_runId}}"
+					}
+				],
+				"url": {
+					"raw": "https://{{pa_engine_hostname}}:{{pa_engine_port}}/directory/v1/uid=postman.user.0,ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pa_engine_hostname}}"
+					],
+					"port": "{{pa_engine_port}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=postman.user.0,ou=People,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API delete group",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9ff4125d-0ec4-4c83-bde3-f683723d4d16",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(204);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/cn=postman.group.0,ou=groups,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"cn=postman.group.0,ou=groups,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API delete user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c81ecce4-70d8-4b3c-9173-3e91178effa4",
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(204);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/directory/v1/uid=postman.user.0,ou=people,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=postman.user.0,ou=people,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "{{pd_admin_pwd}}",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "{{pd_admin_user}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "46f93cac-8c26-477e-97be-03106c9975e6",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "e52e41e7-4dc2-4db8-ad1b-1660499bfbcd",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "38fb581a-5c9b-4578-86dd-162d9bc319f0",
+			"key": "request_retry_count",
+			"value": "10",
+			"type": "string"
+		},
+		{
+			"id": "526a2ef4-f7e7-4827-8e7d-d687779bef81",
+			"key": "request_retry_delay_max_ms",
+			"value": "15000",
+			"type": "string"
+		},
+		{
+			"id": "adbd312b-3926-40d7-889c-38042bf1c076",
+			"key": "request_retry_delay_min_ms",
+			"value": "1000",
+			"type": "string"
+		},
+		{
+			"id": "ab83bfa8-8be9-4c98-98a2-5df3fd6f2bbd",
+			"key": "admin_user",
+			"value": "administrator",
+			"type": "string"
+		},
+		{
+			"id": "636cf746-b030-4938-a77a-db568adc1fbb",
+			"key": "admin_pwd",
+			"value": "2FederateM0re",
+			"type": "string"
+		},
+		{
+			"id": "f7abdd55-6e24-4894-aef1-a16cdb3d4167",
+			"key": "pd_admin_user",
+			"value": "cn={{admin_user}}",
+			"type": "string"
+		},
+		{
+			"id": "6c465f3b-f1ef-4e1e-9f05-03e7b59fbc76",
+			"key": "pd_admin_pwd",
+			"value": "{{admin_pwd}}",
+			"type": "string"
+		},
+		{
+			"id": "826dddf0-836f-4bb6-97c7-098069fc6919",
+			"key": "pd_hostname",
+			"value": "pingdirectory",
+			"type": "string"
+		},
+		{
+			"id": "df1e1c58-bd53-45a6-8370-bd842fc5ea19",
+			"key": "pd_port_https",
+			"value": "443",
+			"type": "string"
+		},
+		{
+			"id": "22b3fe33-7fc6-4127-8d60-a5977cf73133",
+			"key": "pd_port_ldaps",
+			"value": "636",
+			"type": "string"
+		},
+		{
+			"id": "06e23cfa-ff89-49c0-9184-ed2b7b1c8362",
+			"key": "pd_port_ldap",
+			"value": "389",
+			"type": "string"
+		},
+		{
+			"id": "dfecbb80-7b15-4142-a99f-63e58545ed3a",
+			"key": "pf_engine_hostname",
+			"value": "pingfederate",
+			"type": "string"
+		},
+		{
+			"id": "a9245409-9412-4cfd-bea9-46c915d91ae3",
+			"key": "pf_engine_port",
+			"value": "9031",
+			"type": "string"
+		},
+		{
+			"id": "12c0727a-5754-44fe-a0a8-bff845a8b9c9",
+			"key": "pf_admin_hostname",
+			"value": "pingfederate",
+			"type": "string"
+		},
+		{
+			"id": "b112a874-663c-4ce0-9b0d-695a10c92af5",
+			"key": "pf_admin_port",
+			"value": "9999",
+			"type": "string"
+		},
+		{
+			"id": "4ce7de03-555e-4f37-a305-5f8ef065108d",
+			"key": "regular_user",
+			"value": "postman.user.0",
+			"type": "string"
+		},
+		{
+			"id": "91afd96f-a522-4c85-84dd-8f92f1167627",
+			"key": "regular_pwd",
+			"value": "{{admin_pwd}}",
+			"type": "string"
+		},
+		{
+			"id": "a4ab65a9-7407-4313-9631-5ef177b27687",
+			"key": "pa_engine_hostname",
+			"value": "pingaccess",
+			"type": "string"
+		},
+		{
+			"id": "759c5d5a-08c0-4f4e-85e7-8a68301f3bc6",
+			"key": "pa_engine_port",
+			"value": "3000",
+			"type": "string"
+		},
+		{
+			"id": "b07ef339-bb94-40ee-b6ff-0ab671aeca06",
+			"key": "pa_admin_hostname",
+			"value": "pingaccess",
+			"type": "string"
+		},
+		{
+			"id": "2b26e5ff-00f3-4d21-878d-7c261a09acce",
+			"key": "pa_admin_port",
+			"value": "9000",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
