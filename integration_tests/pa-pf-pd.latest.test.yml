@@ -33,6 +33,7 @@ services:
     mem_swappiness: 0
     networks:
       - pingnet-dmz
+      - pingnet-internal
     depends_on:
       - pingfederate
       - pingdirectory
@@ -96,6 +97,23 @@ services:
       - pingdirectory
     networks:
       - pingnet-dmz
+      - pingnet-internal
+
+  httpbin:
+    image: kennethreitz/httpbin
+    ports:
+      - "80:80"
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: 512m
+    memswap_limit: 512m
+    mem_swappiness: 0
+    networks:
       - pingnet-internal
   
 networks:
