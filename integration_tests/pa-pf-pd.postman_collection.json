@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "161b2f5c-0e1c-4bc6-a744-dd75a6216e24",
-		"name": "DockerBuildTestCollection",
+		"_postman_id": "dccb7a15-9a16-426b-8da4-1f86c9b9508f",
+		"name": "pa-pf-pd",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -11,7 +11,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"id": "769a4994-38bf-4b08-97a1-c7c342becd1f",
 						"exec": [
 							"var _retries=pm.variables.has(\"_retries\")?pm.variables.get(\"_retries\"):pm.variables.get(\"request_retry_count\");",
 							"",
@@ -53,7 +53,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "05e7a877-6ace-4d57-bf76-93c0d411f558",
+						"id": "27594026-b0da-4deb-a355-e7846f7dab8a",
 						"exec": [
 							"var _host = pm.variables.get(\"pd_hostname\");",
 							"var _port = pm.variables.get(\"pd_port_https\");",
@@ -90,7 +90,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"id": "d1c5c5a1-e996-44f9-93aa-4840e96b34b0",
 						"exec": [
 							"var _retries = pm.environment.get(\"_retries\");",
 							"",
@@ -138,7 +138,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "05e7a877-6ace-4d57-bf76-93c0d411f558",
+						"id": "8985c2df-a953-4ae2-85e8-8fbc32beb726",
 						"exec": [
 							"var _host = pm.variables.get(\"pf_engine_hostname\");",
 							"var _port = pm.variables.get(\"pf_engine_port\");",
@@ -176,7 +176,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"id": "5c4b4526-eb6f-4265-bb1a-e7dd2c8ce67d",
 						"exec": [
 							"var _retries = pm.environment.get(\"_retries\");",
 							"",
@@ -216,7 +216,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "05e7a877-6ace-4d57-bf76-93c0d411f558",
+						"id": "fb8c9f1e-b074-43c1-a922-af077f3ab6b3",
 						"exec": [
 							"var _host = pm.variables.get(\"pf_admin_hostname\");",
 							"var _port = pm.variables.get(\"pf_admin_port\");",
@@ -266,7 +266,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "8b33294a-65a5-4865-9698-5f4c71965d01",
+						"id": "093e85b8-7664-479b-8873-199b0bd15b06",
 						"exec": [
 							"var _host = pm.variables.get(\"pa_engine_hostname\");",
 							"var _port = pm.variables.get(\"pa_engine_port\");",
@@ -278,7 +278,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "ddf0a6f6-ec88-4f05-896f-8c6db465d0c9",
+						"id": "6710d1b6-a6e5-45ac-be9c-ba45f2decf33",
 						"exec": [
 							"    pm.test(\"response is ok\", function(){",
 							"        pm.response.to.have.status(200);",
@@ -324,7 +324,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"id": "e0053e26-10ec-40ae-83cb-f1b321575b79",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -365,7 +365,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"id": "610be2f3-7e70-4148-876d-29be4acd7301",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -406,7 +406,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"id": "82602eb2-69c7-43cc-8881-e62176efe86d",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -448,7 +448,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"id": "512565c2-5af6-40e6-a395-d1508416f52a",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -502,7 +502,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"id": "08f9f595-4175-4484-835a-a946e12ec7e6",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -556,7 +556,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"id": "f5169953-4559-49be-95c3-db2015ccc5df",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -612,7 +612,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"id": "79ef4b14-b10a-4581-8034-657ea8583c40",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -667,7 +667,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c4268d00-4562-45db-9f6c-4c39400fbed1",
+						"id": "35dec528-1a82-4f2d-bad7-97552ed4845b",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -718,7 +718,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c4268d00-4562-45db-9f6c-4c39400fbed1",
+						"id": "d36607c7-7b4d-4610-9de8-f823c2b377a0",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -775,7 +775,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"id": "6039ddd9-263a-4b4d-8e33-3f6e2e343e4a",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -825,7 +825,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"id": "0a2bf8a6-5da1-4998-b351-9bfabd9148a8",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -902,7 +902,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"id": "38284896-269e-495f-969d-8c98ee42917a",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -964,7 +964,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"id": "3e72ff64-5e34-46dc-93c4-8f62212f36e7",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -1018,7 +1018,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"id": "73dd8671-f940-4aa2-bfa0-0a5ede80a3c4",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -1077,7 +1077,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"id": "43a00c99-cfea-4b63-b08f-cfbfc06a03ab",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(201);",
@@ -1136,7 +1136,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"id": "f2fa8112-742c-4991-9003-6ad013c1cf82",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -1195,7 +1195,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"id": "213dd49f-ed51-4c97-afa3-5cdab8b5ec14",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(201);",
@@ -1254,7 +1254,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"id": "c53a1075-38cf-44c0-9f90-66ae8dc29946",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    // 201 means means the creation worked",
@@ -1317,7 +1317,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"id": "abc823e4-d053-4108-bb5d-78658b1b952e",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -1370,7 +1370,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"id": "bd993e0f-78e4-4eef-a74c-51f01a48f66a",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    // 201 means means the creation worked",
@@ -1433,7 +1433,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"id": "c5fda10e-f55c-4b72-a3e2-a851d54d2aae",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -1486,7 +1486,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
+						"id": "8f0ba1b0-7349-41cf-a4b0-e7568d8d0235",
 						"exec": [
 							"// Checks to see if the server actually responded",
 							"if (pm.response.code == 200 ) {",
@@ -1527,7 +1527,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "05e7a877-6ace-4d57-bf76-93c0d411f558",
+						"id": "182038de-788c-4880-a624-244ccfb790b0",
 						"exec": [
 							"var _host = pm.variables.get(\"pf_admin_hostname\");",
 							"var _port = pm.variables.get(\"pf_admin_port\");",
@@ -1587,7 +1587,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "bc6b5143-869c-4bb1-b81e-e5d4a03511ea",
+						"id": "e4b460b2-5efa-458c-8e44-33d391171f30",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(302);",
@@ -1673,7 +1673,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "dbee2997-28a8-42e5-ab46-915d74cada50",
+						"id": "755c13ac-7318-456a-8b85-025401600ce5",
 						"exec": [
 							"function parseJwt (token) {",
 							"            var base64Url = token.split('.')[1];",
@@ -1697,6 +1697,7 @@
 							"pm.test(\"Tokens returned\", function () {",
 							"    pm.expect(jsonData[\"access_token\"]).not.equal(null);",
 							"    pm.expect(jsonData[\"access_token\"]).not.empty;",
+							"     pm.environment.set(\"accessToken\",jsonData[\"access_token\"]);",
 							"    console.log(\"Access Token: \", parseJwt(jsonData.access_token));",
 							"    console.log(\"--------------\");",
 							"});"
@@ -1758,7 +1759,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "8b33294a-65a5-4865-9698-5f4c71965d01",
+						"id": "6b30b0ca-3ce5-4c49-ae8d-7eafe5e499d3",
 						"exec": [
 							"var _runId = Math.floor(Math.random()*100000);",
 							"pm.variables.set(\"_runId\",_runId);"
@@ -1769,7 +1770,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "ddf0a6f6-ec88-4f05-896f-8c6db465d0c9",
+						"id": "ea6ea690-3ab5-4b2c-b415-0f3f785c5e24",
 						"exec": [
 							"    pm.test(\"response is ok\", function(){",
 							"        pm.response.to.have.status(200);",
@@ -1805,14 +1806,86 @@
 					}
 				],
 				"url": {
-					"raw": "https://{{pa_engine_hostname}}:{{pa_engine_port}}/anything",
+					"raw": "https://{{pa_engine_hostname}}:{{pa_engine_port}}/anything/get",
 					"protocol": "https",
 					"host": [
 						"{{pa_engine_hostname}}"
 					],
 					"port": "{{pa_engine_port}}",
 					"path": [
-						"anything"
+						"anything",
+						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PA GET  through PD REST API",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "b575feff-3dfc-4f24-8698-67dec3ff32dd",
+						"exec": [
+							"var _runId = Math.floor(Math.random()*100000);",
+							"pm.variables.set(\"_runId\",_runId);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "803d53de-f1a0-4eb2-9d70-6cfa7e7ba32c",
+						"exec": [
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"",
+							"    pm.test(\"response is JSON\", function(){",
+							"        pm.response.to.be.json;",
+							"    });",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Ping-Build-Run-Id",
+						"type": "text",
+						"value": "{{_runId}}"
+					}
+				],
+				"url": {
+					"raw": "https://{{pa_engine_hostname}}:{{pa_engine_port}}/directory/v1/uid=postman.user.0,ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pa_engine_hostname}}"
+					],
+					"port": "{{pa_engine_port}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=postman.user.0,ou=People,{{_base_dn}}"
 					]
 				}
 			},
@@ -1824,7 +1897,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"id": "9ff4125d-0ec4-4c83-bde3-f683723d4d16",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(204);",
@@ -1871,7 +1944,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
+						"id": "c81ecce4-70d8-4b3c-9173-3e91178effa4",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(204);",
@@ -1932,7 +2005,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "5d64bf06-2f98-4cf7-b0f4-f88b22825417",
+				"id": "46f93cac-8c26-477e-97be-03106c9975e6",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1942,7 +2015,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "cf8e98ff-a67a-4841-bfa6-24e7944e2ace",
+				"id": "e52e41e7-4dc2-4db8-ad1b-1660499bfbcd",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1952,127 +2025,127 @@
 	],
 	"variable": [
 		{
-			"id": "a632b00a-92f8-4539-95a5-a6b15717a2b7",
+			"id": "ccd1da37-843f-478c-a83f-18de490ef68b",
 			"key": "request_retry_count",
 			"value": "10",
 			"type": "string"
 		},
 		{
-			"id": "9205e908-065d-4f08-abb3-5b9c7bcc8d00",
+			"id": "044d6293-abfe-435e-b7a9-208bd6a0cf5d",
 			"key": "request_retry_delay_max_ms",
 			"value": "15000",
 			"type": "string"
 		},
 		{
-			"id": "ad30bf71-d15b-4c99-a22e-618a1ca4d76d",
+			"id": "34db9e99-ba77-46d1-9b3b-0ae97200e043",
 			"key": "request_retry_delay_min_ms",
 			"value": "1000",
 			"type": "string"
 		},
 		{
-			"id": "c7621cd8-7b54-4e16-81bc-cb5d2cbd1c0a",
+			"id": "1d6d536c-2e9e-48b3-bf51-9d6c2c3a036d",
 			"key": "admin_user",
 			"value": "administrator",
 			"type": "string"
 		},
 		{
-			"id": "bf7331eb-5090-4291-8401-7acdb4ccc7e5",
+			"id": "6154a996-a6ee-4ea7-a2fa-132c0d30dc77",
 			"key": "admin_pwd",
 			"value": "2FederateM0re",
 			"type": "string"
 		},
 		{
-			"id": "f670b160-484e-4dac-bd64-c2a124d2443f",
+			"id": "e593c9ee-9329-4deb-bef9-b21d4065fa13",
 			"key": "pd_admin_user",
 			"value": "cn={{admin_user}}",
 			"type": "string"
 		},
 		{
-			"id": "8e448ecf-ca68-4e4f-8737-369ea2c3ae67",
+			"id": "d11681ef-024f-48bc-9d5e-41edb2bb4602",
 			"key": "pd_admin_pwd",
 			"value": "{{admin_pwd}}",
 			"type": "string"
 		},
 		{
-			"id": "e5c59022-565e-4aff-ba35-f443b3daf4d7",
+			"id": "552c95b6-d375-48ac-969b-bfc713d44525",
 			"key": "pd_hostname",
 			"value": "pingdirectory",
 			"type": "string"
 		},
 		{
-			"id": "f7430cb1-5b23-4a31-901b-c0021d7f825a",
+			"id": "a401345f-57f8-4c24-a7f9-73708b5260cc",
 			"key": "pd_port_https",
 			"value": "443",
 			"type": "string"
 		},
 		{
-			"id": "8a3476ff-bc17-4c08-9a16-1830f365aefc",
+			"id": "115e532d-ba07-4002-9630-f84fb3413eb7",
 			"key": "pd_port_ldaps",
 			"value": "636",
 			"type": "string"
 		},
 		{
-			"id": "e42e2650-3f52-4203-b607-26d5a396fd00",
+			"id": "36cbea24-be35-4299-9808-4022febb2d7b",
 			"key": "pd_port_ldap",
 			"value": "389",
 			"type": "string"
 		},
 		{
-			"id": "a077361e-2584-4210-b52c-87805fa8ae51",
+			"id": "23650854-f438-40de-b8d8-78d4f221816e",
 			"key": "pf_engine_hostname",
 			"value": "pingfederate",
 			"type": "string"
 		},
 		{
-			"id": "7867c878-14f2-4103-a753-be6d5b79dde4",
+			"id": "f36de475-5932-40e6-ab49-a5097700cf3e",
 			"key": "pf_engine_port",
 			"value": "9031",
 			"type": "string"
 		},
 		{
-			"id": "6397095d-b5c0-4618-beb4-1f2ed392bdd1",
+			"id": "1079ed04-3cf4-4bb3-9eac-099ae0ebba42",
 			"key": "pf_admin_hostname",
 			"value": "pingfederate",
 			"type": "string"
 		},
 		{
-			"id": "f6eedacf-fb65-42ba-b092-bd8cd6c2d1cb",
+			"id": "18e39d4f-1e0c-4d92-a37d-3ed580bf18fc",
 			"key": "pf_admin_port",
 			"value": "9999",
 			"type": "string"
 		},
 		{
-			"id": "c48e2037-18bc-4f30-a9f8-1f3f302ea0ed",
+			"id": "1761d0f6-e0d1-4f26-91d4-d2fd66f13580",
 			"key": "regular_user",
 			"value": "postman.user.0",
 			"type": "string"
 		},
 		{
-			"id": "0ef9fd28-272f-4bef-9fd6-db7d77e149c7",
+			"id": "ab6cb01b-6bac-450c-b1d1-d1204e966bb4",
 			"key": "regular_pwd",
 			"value": "{{admin_pwd}}",
 			"type": "string"
 		},
 		{
-			"id": "8a7905d5-e4c1-4b3a-a17e-6a02ca101aa3",
+			"id": "3c0113b1-79c1-43c5-aef7-bc84e48c763c",
 			"key": "pa_engine_hostname",
 			"value": "pingaccess",
 			"type": "string"
 		},
 		{
-			"id": "cd7c45d2-c61c-491d-b26e-b006bbe4a89b",
+			"id": "5982d1c3-c668-4f93-9394-9a04a5160b60",
 			"key": "pa_engine_port",
-			"value": "443",
+			"value": "3000",
 			"type": "string"
 		},
 		{
-			"id": "a31169b7-c788-4c09-92da-1de5b2277fd4",
+			"id": "1f596dd9-6c6f-4a62-927c-b0ac04b4cbbc",
 			"key": "pa_admin_hostname",
 			"value": "pingaccess",
 			"type": "string"
 		},
 		{
-			"id": "5f7444e8-977d-4c9b-888c-1278a7a2c101",
+			"id": "da912dd7-7f67-467f-8229-31d458c37b21",
 			"key": "pa_admin_port",
 			"value": "9000",
 			"type": "string"
