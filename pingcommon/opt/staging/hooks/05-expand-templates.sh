@@ -50,7 +50,21 @@ expandFiles()
     for template in $( find "." -type f -iname \*.subst.default ) ; do
         echo -n "    d - ${template} .. "
         _effectiveFile="${template%.subst.default}"
-        if ! test -f "${_effectiveFile}" ;
+        _processDefault="true"
+        if test "${RUN_PLAN}" = "RESTART" ;
+        then
+            _targetInstanceFile="${OUT_DIR}${_effectiveFile#.}"
+            if test -f "${_targetInstanceFile}" || test -f "${_effectiveFile}" ;
+            then
+                _processDefault="false"
+            fi
+        else
+            if test -f "${_effectiveFile}" ;
+            then
+                _processDefault="false"
+            fi
+        fi
+        if test "${_processDefault}" = "true" ;
         then
             envsubst < "${template}" > "${_effectiveFile}"
             echo_green "expanded"
