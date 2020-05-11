@@ -502,8 +502,11 @@ b.pingdataconsole:
     - ci_scripts/build_product.sh --product pingdataconsole
   only:
     changes:
-      - pingdataconsole/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
       - pingdownloader/**/*
+      - pingdataconsole/**/*
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml
