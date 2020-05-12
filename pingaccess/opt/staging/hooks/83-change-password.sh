@@ -1,24 +1,63 @@
 #!/usr/bin/env sh
+# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-_pwCheckInitial=$( curl -ks --write-out %{http_code} --output /dev/null -X GET \
-  -u administrator:${PA_ADMIN_PASSWORD_INITIAL} -H "X-Xsrf-Header: PingAccess" \
-  https://localhost:9000/pa-admin-api/v3/users/1 )
+# attempt to authenticate with the expected initial administrator password
+_pwCheckInitial=$( 
+    curl \
+        --insecure \
+        --silent \
+        --write-out '%{http_code}' \
+        --output /dev/null \
+        --request GET \
+        --user ${ROOT_USER}:${PA_ADMIN_PASSWORD_INITIAL} \
+        --header "X-Xsrf-Header: PingAccess" \
+        https://localhost:9000/pa-admin-api/v3/users/1 \
+        2>/dev/null
+    )
 # echo "${_pwCheckInitial}"
-test ! "${_pwCheckInitial}" -gt 200
-die_on_error 83 "Bad password - check vars PA_ADMIN_PASSWORD PA_ADMIN_PASSWORD_INITIAL" || exit ${?}
+if test "${_pwCheckInitial}" -ne 200
+then
+    die_on_error 83 "Bad password - check vars PA_ADMIN_PASSWORD PA_ADMIN_PASSWORD_INITIAL" || exit ${?}
+fi
 
-curl -ks -X PUT -u Administrator:"${PA_ADMIN_PASSWORD_INITIAL}" -H "X-Xsrf-Header: PingAccess" -d '{ "email": null,
-    "slaAccepted": true,
-    "firstLogin": false,
-    "showTutorial": false,
-    "username": "Administrator"
-}' https://localhost:9000/pa-admin-api/v3/users/1 > /dev/null
+# Quiesce the license acceptance screen
+# TODO: we should handle the returned HTTP code and display a useful error if the PUT returns a message
+_license_http_code=$( 
+    curl \
+        --insecure \
+        --silent \
+        --request PUT \
+        --write-out '%{http_code}' \
+        --user "${ROOT_USER}:${PA_ADMIN_PASSWORD_INITIAL}" \
+        --output /tmp/license.acceptance \
+        --header "X-Xsrf-Header: PingAccess" \
+        --data '{ "email": null, "slaAccepted": true, "firstLogin": false, "showTutorial": false,"username": "'${ROOT_USER}'"}' \
+        https://localhost:9000/pa-admin-api/v3/users/1 \
+        2 >/dev/null
+    )
+if test "${_license_http_code}" -ne 200 
+then
+    die_on_error 83 "Could not accept license" || exit ${?}
+fi
 
 echo "INFO: changing admin password"
-_pwChange=$(curl -ks --write-out %{http_code} --output /dev/null -X PUT -u Administrator:"${PA_ADMIN_PASSWORD_INITIAL}" -H "X-Xsrf-Header: PingAccess" -d '{
-  "currentPassword": "'"${PA_ADMIN_PASSWORD_INITIAL}"'",
-  "newPassword": "'"${PA_ADMIN_PASSWORD}"'"
-}' https://localhost:9000/pa-admin-api/v3/users/1/password)
-test ! "${_pwChange}" -gt 200
-die_on_error 83 "Password not accepted" || exit ${?}
+PASSWORD=${PING_IDENTITY_PASSWORD:-${PA_ADMIN_PASSWORD:-INITIAL_ADMIN_PASSWORD}}
+_pwChange=$(
+    curl \
+        --insecure \
+        --silent \
+        --write-out '%{http_code}' \
+        --output /dev/null \
+        --request PUT \
+        --user "${ROOT_USER}:${PA_ADMIN_PASSWORD_INITIAL}" \
+        --header "X-Xsrf-Header: PingAccess" \
+        --data '{"currentPassword": "'"${PA_ADMIN_PASSWORD_INITIAL}"'","newPassword": "'"${PASSWORD}"'"}' \
+        https://localhost:9000/pa-admin-api/v3/users/1/password \
+        2>/dev/null
+    )
+
+if test "${_pwChange}" -ne 200
+then
+    die_on_error 83 "Password not accepted" || exit ${?}
+fi
