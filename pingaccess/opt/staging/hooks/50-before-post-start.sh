@@ -6,16 +6,18 @@
 #- the server within the container starts
 #
 
-# shellcheck source=pingcommon.lib.sh
+# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-echo "INFO: OPERATIONAL_MODE:"${OPERATIONAL_MODE}
-if [[ ! -z "${OPERATIONAL_MODE}" && "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" ]]; then
-  echo "INFO: Shutting down the eth01 interface..."
-  ip link set eth0 down
+echo "INFO: OPERATIONAL_MODE: ${OPERATIONAL_MODE}"
+if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE"
+then
+    echo "INFO: Shutting down the eth01 interface..."
+    ip link set eth0 down
 fi
 
-if [[ ! -z "${OPERATIONAL_MODE}" && "${OPERATIONAL_MODE}" = "CLUSTERED_ENGINE" ]]; then
-  echo "INFO: Adding engine..."
-  run_hook "51-add-engine.sh"
+if test -n "${OPERATIONAL_MODE}" && "${OPERATIONAL_MODE}" = "CLUSTERED_ENGINE" 
+then
+    echo "INFO: Adding engine..."
+    run_hook "51-add-engine.sh"
 fi

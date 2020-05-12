@@ -19,6 +19,7 @@ STATE_PROPERTIES="${STAGING_DIR}/state.properties"
 if test "${COLORIZE_LOGS}" = "true" ; then
     RED_COLOR='\033[0;31m'
     GREEN_COLOR='\033[0;32m'
+    YELLOW_COLOR='\033[0;33m'
     NORMAL_COLOR='\033[0m'
 fi
 
@@ -117,7 +118,7 @@ isOS ()
 ###############################################################################
 # echo_red (message)
 #
-# Echo a message in the color red
+# Prints a message in the color red
 ###############################################################################
 echo_red ()
 {
@@ -132,7 +133,7 @@ echo_red ()
 ###############################################################################
 # echo_green (message)
 #
-# Echos a message in the color green
+# Prints a message in the color green
 ###############################################################################
 echo_green ()
 {
@@ -142,6 +143,21 @@ echo_green ()
     fi
     # shellcheck disable=SC2039
     echo ${echoEscape} "${GREEN_COLOR}$*${NORMAL_COLOR}"
+}
+
+###############################################################################
+# echo_yellow (message)
+#
+# Prints a message in the color yellow
+###############################################################################
+echo_yellow ()
+{
+    echoEscape="-e"
+    if isOS ubuntu || test "${COLORIZE_LOGS}" != "true" ; then
+        echoEscape=""
+    fi
+    # shellcheck disable=SC2039
+    echo ${echoEscape} "${YELLOW_COLOR}$*${NORMAL_COLOR}"
 }
 
 ###############################################################################

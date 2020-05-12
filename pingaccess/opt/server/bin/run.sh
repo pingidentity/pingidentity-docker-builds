@@ -1,22 +1,21 @@
 #!/usr/bin/env sh
 
-
-DIRNAME=$( dirname "$0" )
-PROGNAME=$( basename "$0" )
+DIRNAME=$( dirname "${0}" )
+PROGNAME=$( basename "${0}" )
 
 #
 # helper to abort.
 #
-die() {
-    (>&2 echo "$*")
+die () {
+    (>&2 echo "${*}")
     exit 1
 }
 
 #
 # Helper to complain.
 #
-warn() {
-    echo "${PROGNAME}: $*"
+warn () {
+    echo "${PROGNAME}: ${*}"
 }
 
 
@@ -33,15 +32,19 @@ esac
 MAX_FD="maximum"
 
 MAX_FD_LIMIT=$( ulimit -H -n )
-if test ${?} -eq 0 ; then
-    if test "${MAX_FD}" = "maximum" || "${MAX_FD}" = "max" ; then
+if test ${?} -eq 0
+then
+    if test "${MAX_FD}" = "maximum" || test "${MAX_FD}" = "max"
+    then
         # use the system max
         MAX_FD="${MAX_FD_LIMIT}"
     fi
 
-    if test "$darwin" = "false" ; then
+    if test "$darwin" = "false" 
+    then
         ulimit -n "${MAX_FD}"
-        if [ ${?} -ne 0 ]; then
+        if test ${?} -ne 0
+        then
             warn "Could not set maximum file descriptor limit: ${MAX_FD}"
         fi
     fi
@@ -50,8 +53,10 @@ else
 fi
 
 # Setup the JVM
-if test "${JAVA}" = "" ; then
-    if test "${JAVA_HOME}" != "" ; then
+if test "${JAVA}" = ""
+then
+    if test "${JAVA_HOME}" != ""
+    then
         JAVA="${JAVA_HOME}/bin/java"
     else
         JAVA="java"
@@ -62,7 +67,8 @@ fi
 
 # Ensure that Java is accessible
 JAVA_VERSION_OUTPUT=$( "${JAVA}" -version 2>&1 )
-if [ ${?} -ne 0 ]; then
+if test ${?} -ne 0 
+then
     echo "${JAVA_VERSION_OUTPUT}"
     die "Error running Java: ${JAVA}"
 fi
@@ -89,17 +95,20 @@ case "${JAVA_VERSION_STRING}" in
         ;;
 esac
 
-if test ${javaSupportedVersion} -eq 0 ; then
-        die "Java version ${JAVA_VERSION_STRING} is not supported for running PingAccess. Exiting."
+if test ${javaSupportedVersion} -eq 0
+then
+    die "Java version ${JAVA_VERSION_STRING} is not supported for running PingAccess. Exiting."
 fi
 
 # Setup PA_HOME
-if test "x${PA_HOME}" = "x" ; then
-    PA_HOME=$( cd "${DIRNAME}/.."; pwd )
+if test -z "${PA_HOME}" 
+then
+    PA_HOME=$( cd "${DIRNAME}/.." || exit 99 ; pwd )
+    test -z "${PA_HOME}" && exit 99
 fi
 export PA_HOME
 # PA_HOME_ESC=${PA_HOME// /%20}
-PA_HOME_ESC=$( echo ${PA_HOME} | awk '{gsub(/ /,"%20");print;}' )
+PA_HOME_ESC=$( echo "${PA_HOME}" | awk '{gsub(/ /,"%20");print;}' )
 
 runprops="${PA_HOME}/conf/run.properties"
 pajwk="${PA_HOME}/conf/pa.jwk"
@@ -108,19 +117,22 @@ bootprops="${PA_HOME}/conf/bootstrap.properties"
 jvmmemoryopts="${PA_HOME}/conf/jvm-memory.options"
 
 # Check for run.properties (used by PingAccess to configure ports, etc.)
-if [ ! -f "${runprops}" ]; then
+if test ! -f "${runprops}"
+then
     warn "Missing run.properties; using defaults."
     runprops=""
 fi
 
 # Check for bootstrap.properties (used by PingAccess to configure bootstrapping information for engines)
-if [ ! -f "${bootprops}" ]; then
+if test ! -f "${bootprops}"
+then
     # warn "Missing bootstrap.properties;"
     bootprops=""
 fi
 
 # Check for jvm-memory.options (used by PingAccess to set JVM memory settings)
-if [ ! -f "${jvmmemoryopts}" ]; then
+if test ! -f "${jvmmemoryopts}" 
+then
     die "Missing ${jvmmemoryopts}"
 fi
 
@@ -134,7 +146,7 @@ fi
 #     ( [[ $line =~ ^#.*$ ]] || [[ -z $line ]] ) && continue
 #     JVM_MEMORY_OPTS="$JVM_MEMORY_OPTS $line"
 # done < "$jvmmemoryopts"
-JVM_MEMORY_OPTS=$( awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print}' <${jvmmemoryopts} )
+JVM_MEMORY_OPTS=$( awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print}' <"${jvmmemoryopts}" )
 
 JAVA_8_OPTS="
     -XX:+AggressiveOpts"
@@ -146,13 +158,16 @@ POST_JAVA_8_OPTS="
 #
 # Preparation for Java 8 runtime.
 #
-if test ${javaIsJava8} -eq 1 ; then
+if test ${javaIsJava8} -eq 1
+then
 
     # If JAVA_OPTS is not set, at least set server JVM
-    if test "${JAVA_OPTS}" = "" ; then
+    if test "${JAVA_OPTS}" = ""
+    then
 
         # MacOS does not support -server flag
-        if test "${darwin}" != "true" ; then
+        if test "${darwin}" != "true"
+        then
             JAVA_OPTS="-server"
         fi
     fi
@@ -185,7 +200,7 @@ RANDOM_SOURCE="-Djava.security.egd=file:/dev/./urandom"
 
 JAVA_OPTS="${JAVA_OPTS} ${B4J_LIVE_CONFIG} ${JVM_MEMORY_OPTS} ${DEBUG} ${ERROR_FILE} ${HEAP_DUMP} ${RANDOM_SOURCE}"
 
-cd "$PA_HOME"
+cd "$PA_HOME" || exit 99
 "${JAVA}" -classpath "${CLASSPATH}" ${JAVA_OPTS} \
     -Djavax.net.ssl.sessionCacheSize=5000 \
     -Djava.net.preferIPv4Stack=true \
