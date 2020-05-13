@@ -95,38 +95,43 @@
 							"var _retries = pm.environment.get(\"_retries\");",
 							"",
 							"// Checks to see if the server actually responded",
-							"if (pm.response.code == 200 ) {",
+							"if (pm.response.code == 200) {",
 							"    pm.environment.unset(\"_retries\");",
 							"    console.log(\"connection successful\");",
 							"",
-							"    pm.test(\"response is ok\", function(){",
+							"    pm.test(\"response is ok\", function () {",
 							"        pm.response.to.have.status(200);",
 							"    });",
-							"    ",
-							"    pm.test(\"response is not empty\", function(){",
+							"",
+							"    pm.test(\"response is not empty\", function () {",
 							"        pm.response.to.have.body();",
 							"    });",
 							"",
-							"    pm.test(\"response is not JSON\", function(){",
-							"        pm.response.to.not.be.json;",
+							"    pm.test(\"response is JSON\", function(){",
+							"        pm.response.to.be.json;",
 							"    });",
 							"",
-							"    pm.test(\"response string is OK\", function(){",
-							"        pm.expect(pm.response.text()).to.include(\"OK\");",
+							"    var jsonData = JSON.parse(responseBody);",
+							"",
+							"    pm.test(\"items key is present\", function () {",
+							"        pm.expect(jsonData[\"items\"]).to.exist;",
+							"    });",
+							"    pm.test(\"cpu.load key is present\", function () {",
+							"        pm.expect(jsonData[\"items\"][0][\"cpu.load\"]).to.exist;",
 							"    });",
 							"} else {",
-							"    if (!_retries){",
-							"        _retries=10;",
+							"    if (!_retries) {",
+							"        _retries = 10;",
 							"    }",
-							"    ",
-							"    if ( _retries > 0 ) {",
+							"",
+							"    if (_retries > 0) {",
 							"        _retries--;",
 							"        pm.environment.set(\"_retries\", _retries);",
-							"        var timeout=_.random(1000,15000);",
-							"        console.log(\"Attempting next connection in \"+timeout+\"ms ...\");",
+							"        var timeout = _.random(1000, 15000);",
+							"        console.log(\"Attempting next connection in \" + timeout + \"ms ...\");",
 							"        // loop back to this request (request.name) after the timeout elapses",
-							"        setTimeout(function() {postman.setNextRequest(request.name);}, timeout);",
-							"    } else { ",
+							"        setTimeout(function () { postman.setNextRequest(request.name); }, timeout);",
+							"    } else {",
 							"        postman.setNextRequest(null);",
 							"    }",
 							"}",
@@ -261,7 +266,7 @@
 			"response": []
 		},
 		{
-			"name": "PA CHECK PingDirectory engine honors requests",
+			"name": "PA CHECK PingAccess engine honors requests",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -280,21 +285,27 @@
 					"script": {
 						"id": "6710d1b6-a6e5-45ac-be9c-ba45f2decf33",
 						"exec": [
-							"    pm.test(\"response is ok\", function(){",
-							"        pm.response.to.have.status(200);",
-							"    });",
-							"    ",
-							"    pm.test(\"response is not empty\", function(){",
-							"        pm.response.to.have.body();",
-							"    });",
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
 							"",
-							"    pm.test(\"response is not JSON\", function(){",
-							"        pm.response.to.not.be.json;",
-							"    });",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
 							"",
-							"    pm.test(\"response string is OK\", function(){",
-							"        pm.expect(pm.response.text()).to.include(\"OK\");",
-							"    });    "
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"items key is present\", function () {",
+							"    pm.expect(jsonData[\"items\"]).to.exist;",
+							"});",
+							"pm.test(\"cpu.load key is present\", function () {",
+							"    pm.expect(jsonData[\"items\"][0][\"cpu.load\"]).to.exist;",
+							"});",
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -2025,127 +2036,127 @@
 	],
 	"variable": [
 		{
-			"id": "ccd1da37-843f-478c-a83f-18de490ef68b",
+			"id": "f3c2308b-e03e-4732-ac0d-cafe844b49c7",
 			"key": "request_retry_count",
 			"value": "10",
 			"type": "string"
 		},
 		{
-			"id": "044d6293-abfe-435e-b7a9-208bd6a0cf5d",
+			"id": "51866fd6-4241-49ce-adaf-e5d49f5bfe24",
 			"key": "request_retry_delay_max_ms",
 			"value": "15000",
 			"type": "string"
 		},
 		{
-			"id": "34db9e99-ba77-46d1-9b3b-0ae97200e043",
+			"id": "025e22dc-d2cf-4597-9430-8170ce90ba93",
 			"key": "request_retry_delay_min_ms",
 			"value": "1000",
 			"type": "string"
 		},
 		{
-			"id": "1d6d536c-2e9e-48b3-bf51-9d6c2c3a036d",
+			"id": "a86920e5-ea6c-443b-971d-a63fa5996a91",
 			"key": "admin_user",
 			"value": "administrator",
 			"type": "string"
 		},
 		{
-			"id": "6154a996-a6ee-4ea7-a2fa-132c0d30dc77",
+			"id": "6bd25ec5-5d63-4b7d-a082-301e2aad03e2",
 			"key": "admin_pwd",
 			"value": "2FederateM0re",
 			"type": "string"
 		},
 		{
-			"id": "e593c9ee-9329-4deb-bef9-b21d4065fa13",
+			"id": "5a49abd3-87ff-4ab5-8077-2dbddfb13146",
 			"key": "pd_admin_user",
 			"value": "cn={{admin_user}}",
 			"type": "string"
 		},
 		{
-			"id": "d11681ef-024f-48bc-9d5e-41edb2bb4602",
+			"id": "4375b94a-a3bf-41c0-861c-6c05d94274a5",
 			"key": "pd_admin_pwd",
 			"value": "{{admin_pwd}}",
 			"type": "string"
 		},
 		{
-			"id": "552c95b6-d375-48ac-969b-bfc713d44525",
+			"id": "4c57f96a-d14d-47f9-a1fc-af1f5166624b",
 			"key": "pd_hostname",
 			"value": "pingdirectory",
 			"type": "string"
 		},
 		{
-			"id": "a401345f-57f8-4c24-a7f9-73708b5260cc",
+			"id": "e346f012-67e8-479f-bd74-0d8f49fe2db9",
 			"key": "pd_port_https",
 			"value": "443",
 			"type": "string"
 		},
 		{
-			"id": "115e532d-ba07-4002-9630-f84fb3413eb7",
+			"id": "f55a97f0-a418-49fc-8a3a-8597187987aa",
 			"key": "pd_port_ldaps",
 			"value": "636",
 			"type": "string"
 		},
 		{
-			"id": "36cbea24-be35-4299-9808-4022febb2d7b",
+			"id": "580fc75b-290c-47a6-b244-34aa40a9e3af",
 			"key": "pd_port_ldap",
 			"value": "389",
 			"type": "string"
 		},
 		{
-			"id": "23650854-f438-40de-b8d8-78d4f221816e",
+			"id": "d03fbf50-2797-4099-99fb-d78811994c91",
 			"key": "pf_engine_hostname",
 			"value": "pingfederate",
 			"type": "string"
 		},
 		{
-			"id": "f36de475-5932-40e6-ab49-a5097700cf3e",
+			"id": "e7b4fbe8-55e4-4fc3-9e01-542679c9e853",
 			"key": "pf_engine_port",
 			"value": "9031",
 			"type": "string"
 		},
 		{
-			"id": "1079ed04-3cf4-4bb3-9eac-099ae0ebba42",
+			"id": "c4d9b98e-a671-4c65-8bd1-e2d2d92d2aa9",
 			"key": "pf_admin_hostname",
 			"value": "pingfederate",
 			"type": "string"
 		},
 		{
-			"id": "18e39d4f-1e0c-4d92-a37d-3ed580bf18fc",
+			"id": "1171fad8-2488-414a-a165-34f99ebbe45d",
 			"key": "pf_admin_port",
 			"value": "9999",
 			"type": "string"
 		},
 		{
-			"id": "1761d0f6-e0d1-4f26-91d4-d2fd66f13580",
+			"id": "f1f56043-2427-4b50-9128-691822271102",
 			"key": "regular_user",
 			"value": "postman.user.0",
 			"type": "string"
 		},
 		{
-			"id": "ab6cb01b-6bac-450c-b1d1-d1204e966bb4",
+			"id": "a0d67373-1bdc-4060-9128-ad348ac43f8f",
 			"key": "regular_pwd",
 			"value": "{{admin_pwd}}",
 			"type": "string"
 		},
 		{
-			"id": "3c0113b1-79c1-43c5-aef7-bc84e48c763c",
+			"id": "a7239971-0d58-4c61-8591-5e0d917a2de1",
 			"key": "pa_engine_hostname",
 			"value": "pingaccess",
 			"type": "string"
 		},
 		{
-			"id": "5982d1c3-c668-4f93-9394-9a04a5160b60",
+			"id": "af5b8118-1946-4d4c-956f-8c11d1dbcd90",
 			"key": "pa_engine_port",
 			"value": "3000",
 			"type": "string"
 		},
 		{
-			"id": "1f596dd9-6c6f-4a62-927c-b0ac04b4cbbc",
+			"id": "16aa9247-412f-41dd-b67b-50d4c44ed714",
 			"key": "pa_admin_hostname",
 			"value": "pingaccess",
 			"type": "string"
 		},
 		{
-			"id": "da912dd7-7f67-467f-8229-31d458c37b21",
+			"id": "fb158cca-6e3b-4ee4-a773-f37f932c5bb8",
 			"key": "pa_admin_port",
 			"value": "9000",
 			"type": "string"
