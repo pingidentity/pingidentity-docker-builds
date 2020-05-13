@@ -17,7 +17,7 @@ MAX_FD="maximum"
 #
 warn () 
 {
-    echo "${PROGNAME}: $*"
+    echo "${PROGNAME}: ${*}"
 }
 
 #
@@ -25,7 +25,7 @@ warn ()
 #
 die () 
 {
-    warn ${*}
+    warn "${@}"
     exit 1
 }
 
@@ -34,25 +34,30 @@ die ()
 #
 require ()
 {
-    _requiredFile=$1
+    _requiredFile=${1}
     shift
-    if ! test -f ${_requiredFile} ; then
+    if ! test -f "${_requiredFile}"
+    then
         die "Missing required file: ${_requiredFile}"
     fi
 }
 
 # Read an optional running configuration file
-if test -z "${RUN_CONF}" ; then
+if test -z "${RUN_CONF}"
+then
     RUN_CONF="${DIRNAME}/run.conf"
 fi
-if test -r "${RUN_CONF}" ; then
+if test -r "${RUN_CONF}"
+then
+    # shellcheck disable=SC1090
     . "${RUN_CONF}"
 fi
 
 # Setup PF_HOME
-if test -z "${PF_HOME}" ; then
+if test -z "${PF_HOME}"
+then
     # get the full path (without any relative bits)
-    PF_HOME=$(cd "${DIRNAME}/.."; pwd)
+    PF_HOME=$( cd "${DIRNAME}/.."||exit 99; pwd )
 fi
 export PF_HOME
 PF_BIN="${PF_HOME}/bin"
@@ -61,18 +66,20 @@ PF_SERVER_LIB="${PF_SERVER_HOME}/lib"
 
 # Set PF_HOME_ESC - this is PF_HOME but with spaces that are replaced with %20
 # PF_HOME_ESC=${PF_HOME// /%20}
-PF_HOME_ESC=$( echo ${PF_HOME} | awk '{gsub(/ /,"%20");print;}' )
+PF_HOME_ESC=$( echo "${PF_HOME}" | awk '{gsub(/ /,"%20");print;}' )
 
 # Check for currently running instance of PingFederate
 RUNFILE="${PF_BIN}/pingfederate.pid"
-if test ! -f "${RUNFILE}" ; then
+if test ! -f "${RUNFILE}"
+then
   touch "${RUNFILE}"
   chmod 664 "${RUNFILE}"
 fi
 
 CURRENT_PID=$(cat "${RUNFILE}")
-if test -n "${CURRENT_PID}" ; then
-    kill -0 ${CURRENT_PID} 2>/dev/null
+if test -n "${CURRENT_PID}"
+then
+    kill -0 "${CURRENT_PID}" 2>/dev/null
     if test ${?} -eq 0 ; then
       /bin/echo "Another PingFederate instance with pid ${CURRENT_PID} is already running. Exiting."
       exit 1
@@ -80,14 +87,17 @@ if test -n "${CURRENT_PID}" ; then
 fi
 
 MAX_FD_LIMIT=$(ulimit -H -n)
-if test ${?} -eq 0 ; then
-    if test "${MAX_FD}" = "maximum" -o "${MAX_FD}" = "max" ; then
+if test ${?} -eq 0
+then
+    if test "${MAX_FD}" = "maximum" -o "${MAX_FD}" = "max"
+    then
         # use the system max
         MAX_FD="${MAX_FD_LIMIT}"
     fi
 
     ulimit -n ${MAX_FD}
-    if test ${?} -ne 0 ; then
+    if test ${?} -ne 0
+    then
             warn "Could not set maximum file descriptor limit: ${MAX_FD}"
     fi
 else
@@ -95,9 +105,12 @@ else
 fi
 
 # Setup the JVM
-if test -z "${JAVA}" ; then
-    if test -n "${JAVA_HOME}" ; then
-        if ! [ -n "${JAVA_HOME}" ] || ! [ -x "${JAVA_HOME}/bin/java" ];  then
+if test -z "${JAVA}"
+then
+    if test -n "${JAVA_HOME}"
+    then
+        if test -z "${JAVA_HOME}" || ! test -x "${JAVA_HOME}/bin/java"
+        then
             echo "No executable java found in JAVA_HOME, please correct and start PingFederate again. Exiting."
             exit 1
         fi
@@ -118,7 +131,8 @@ jettystartjar="${PF_BIN}/jetty-start.jar"
 xmlbeans="${PF_SERVER_LIB}/xmlbeans.jar"
 pfxml="${PF_SERVER_LIB}/pf-xml.jar"
 PF_BOOT_CLASSPATH=""
-for requiredFile in ${runjar} ${pfrunjar} ${jettystartjar} ${xmlbeans} ${pfxml}; do
+for requiredFile in ${runjar} ${pfrunjar} ${jettystartjar} ${xmlbeans} ${pfxml}
+do
     require ${requiredFile}
     PF_BOOT_CLASSPATH="${PF_BOOT_CLASSPATH}${PF_BOOT_CLASSPATH:+:}${requiredFile}"
 done
@@ -133,13 +147,14 @@ PF_CLASSPATH="${PF_CLASSPATH}${PF_CLASSPATH:+:}${PF_BOOT_CLASSPATH}"
 
 # If JAVA_OPTS is not set try check for Hotspot
 HAS_HOTSPOT=$( ${JAVA} -version 2>&1 | ${GREP} -i HotSpot )
-if test -z "${JAVA_OPTS}" && test -n "${HAS_HOTSPOT}" ; then
+if test -z "${JAVA_OPTS}" && test -n "${HAS_HOTSPOT}"
+then
     JAVA_OPTS="-server"
 fi
 
 jvmmemoryopts="${PF_BIN}/jvm-memory.options"
 require ${jvmmemoryopts}
-JVM_MEMORY_OPTS=$( awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print OPTS}' <${jvmmemoryopts} )
+JVM_MEMORY_OPTS=$( awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print OPTS}' <"${jvmmemoryopts}" )
 
 JAVA_OPTS="${JAVA_OPTS} ${JVM_MEMORY_OPTS}"
 
@@ -156,7 +171,8 @@ JAVA_OPTS="${JAVA_OPTS} -Dcom.ncipher.provider.announcemode=on"
 # JAVA_OPTS="-Djetty51.encode.cookies=CookieName1,CookieName2 $JAVA_OPTS"
 
 # Debugger arguments
-if test "${PF_ENGINE_DEBUG}" = "true" || test "${PF_ADMIN_DEBUG}" = "true" ; then
+if test "${PF_ENGINE_DEBUG}" = "true" || test "${PF_ADMIN_DEBUG}" = "true"
+then
     JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=${PF_DEBUG_PORT},server=y,suspend=n $JAVA_OPTS"
 fi
 
@@ -173,13 +189,16 @@ ERROR_FILE="-XX:ErrorFile=${PF_HOME_ESC}/log/java_error%p.log"
 #HEAP_DUMP="-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$PF_HOME_ESC/log"
 
 ENDORSED_DIRS_FLAG=""
-if test "${JAVA_MAJOR_VERSION}" = "1" ; then
-    ENDORSED_DIRS_FLAG='-Djava.endorsed.dirs="$PF_ENDORSED_DIRS"'
+if test "${JAVA_MAJOR_VERSION}" = "1"
+then
+    # shellcheck disable=SC2089
+    ENDORSED_DIRS_FLAG="-Djava.endorsed.dirs=\"${PF_ENDORSED_DIRS}\""
 fi
 
 # Check for run.properties (used by PingFederate to configure ports, etc.)
 runprops="${PF_BIN}/run.properties"
-if ! test -f "${runprops}" ; then
+if ! test -f "${runprops}"
+then
     warn "Missing run.properties; using defaults."
     runprops=""
 fi
@@ -190,25 +209,26 @@ trap 'kill -9 ${PID}; cat </dev/null >${RUNFILE} 2>/dev/null' 15
 STATUS=10
 while test ${STATUS} -eq 10
 do
-# Execute the JVM
-   "${JAVA}" ${JAVA_OPTS} \
-   	  ${ERROR_FILE} \
-   	  ${HEAP_DUMP} \
-      ${ENDORSED_DIRS_FLAG} \
-   	  -Dlog4j2.AsyncQueueFullPolicy=Discard \
-   	  -Dlog4j2.DiscardThreshold=INFO \
-      -Dlog4j.configurationFile="${PF_HOME_ESC}/server/default/conf/log4j2.xml" \
-      -Drun.properties="${runprops}" \
-      -Dpf.home="${PF_HOME}" \
-      -Djetty.home="${PF_HOME}" \
-      -Djetty.base="${PF_BIN}" \
-      -Djetty.server=com.pingidentity.appserver.jetty.PingFederateInit \
-      -Dpf.server.default.dir="${PF_SERVER_HOME}" \
-      -Dpf.java="${JAVA}" \
-      -Dpf.java.opts="${JAVA_OPTS} -Drun.properties=${runprops}" \
-      -Dpf.classpath="${PF_CLASSPATH}" \
-      -classpath "${PF_CLASSPATH}" \
-      org.pingidentity.RunPF "$@" &
+    # Execute the JVM
+    # shellcheck disable=SC2086,SC2090
+    "${JAVA}" ${JAVA_OPTS} \
+        ${ERROR_FILE} \
+        ${HEAP_DUMP} \
+        ${ENDORSED_DIRS_FLAG} \
+        -Dlog4j2.AsyncQueueFullPolicy=Discard \
+        -Dlog4j2.DiscardThreshold=INFO \
+        -Dlog4j.configurationFile="${PF_HOME_ESC}/server/default/conf/log4j2.xml" \
+        -Drun.properties="${runprops}" \
+        -Dpf.home="${PF_HOME}" \
+        -Djetty.home="${PF_HOME}" \
+        -Djetty.base="${PF_BIN}" \
+        -Djetty.server=com.pingidentity.appserver.jetty.PingFederateInit \
+        -Dpf.server.default.dir="${PF_SERVER_HOME}" \
+        -Dpf.java="${JAVA}" \
+        -Dpf.java.opts="${JAVA_OPTS} -Drun.properties=${runprops}" \
+        -Dpf.classpath="${PF_CLASSPATH}" \
+        -classpath "${PF_CLASSPATH}" \
+        org.pingidentity.RunPF "$@" &
    PID=${!}
    /bin/echo ${PID} 2>/dev/null >"${RUNFILE}"
    wait ${PID}
