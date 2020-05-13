@@ -241,10 +241,14 @@ t.pingaccess:
     - ci_scripts/run_smoke.sh --product pingaccess
   only:
     changes:
-      - pingaccess/**/*
       - pingcommon/**/*
+      - pingdatacommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
+      - pingaccess/**/*
+      - pingdirectory/**/*
+      - pingfederate/**/*
+      - integration_tests/**/*
       - pingjvm/*
       - ci_scripts/*
       - .gitlab-ci.yml
