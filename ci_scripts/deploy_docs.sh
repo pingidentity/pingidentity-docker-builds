@@ -148,6 +148,7 @@ function parse_hooks ()
 
     for _hookFilePath in ${_hooksDir}/* ; 
     do
+        test -f "${_hookFilePath}" || continue
         _hookFile=$( basename "${_hookFilePath}" )
         _hookFiles="${_hookFiles:+${_hookFiles} }${_hookFile}"
         _docFile="${OUTPUT_DIR}/docker-images/${_dockerImage}/hooks/${_hookFile}.md"
