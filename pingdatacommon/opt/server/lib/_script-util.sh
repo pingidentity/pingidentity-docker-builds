@@ -224,7 +224,9 @@ set_environment_vars () {
 
     if test "$(uname)" != "Darwin"
     then
+      # shellcheck disable=SC2039
       ulimit -n ${NUM_FILE_DESCRIPTORS} > "${INSTANCE_ROOT}/logs/ulimit-num-file-descriptors.out" 2>&1
+      # shellcheck disable=SC2039
       ACTUAL_FDS=$( ulimit -n )
       if test "${NUM_FILE_DESCRIPTORS}" -ne "${ACTUAL_FDS}"
       then
@@ -238,6 +240,7 @@ set_environment_vars () {
         echo >&2
       fi
     else
+      # shellcheck disable=SC2039
       ulimit -n ${NUM_FILE_DESCRIPTORS} > "${INSTANCE_ROOT}/logs/ulimit-num-file-descriptors.out" 2>&1
       RETURN_CODE=$?
       if test ${RETURN_CODE} -ne 0
@@ -258,11 +261,12 @@ set_environment_vars () {
     # variable is set through some other form), then we'll use that value.
     # Otherwise, on Linux only, we'll use a minimum of 16383, and on other
     # platforms we will use the existing value.
-    _osID=$( awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null ) 
+    _osID=$( test -f /etc/os-release && awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null || uname ) 
     PROCESSES_OPTION=-u
     ulimit ${PROCESSES_OPTION} >/dev/null 2>&1
-    if test ${?} -ne 0 && test "${_osID}" = "alpine"
+    if test ${?} -ne 0 &&  test "${_osID}" = "alpine"
     then
+      # shellcheck disable=SC2039
         ulimit -p >/dev/null 2>/dev/null
         if test ${?} -eq 0
         then
