@@ -1,0 +1,42 @@
+version: "2"
+
+services:
+  pingdirectory:
+    image: ${REGISTRY}/pingdirectory:8.0.0.1-alpine-az11-${GIT_TAG}
+    scale: 2
+    environment:
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=baseline/pingdirectory
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+      - PING_IDENTITY_ACCEPT_EULA=YES
+      - MAX_HEAP_SIZE=900m
+      - ORCHESTRATION_TYPE=COMPOSE
+      - COMPOSE_SERVICE_NAME=integration_tests_pingdirectory
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: 1200m
+    memswap_limit: 1200m
+    mem_swappiness: 0
+    networks:
+      - pingnet-internal
+  
+  sut:
+    image: postman/newman
+    entrypoint: ["/usr/bin/env"]
+    command: sh -c "/tmp/wait-for pingdirectory:3000 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
+    volumes:
+      - ./pd-replicated.postman_collection.json:/tmp/collection.json
+      - ./wait-for:/tmp/wait-for
+    depends_on:
+      - pingdirectory
+    networks:
+      - pingnet-internal
+  
+networks:
+    pingnet-internal:
