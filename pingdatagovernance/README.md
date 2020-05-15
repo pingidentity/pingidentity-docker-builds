@@ -2,7 +2,7 @@
 
 ## Documentation
 
-* [PingDataGovernance Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-images/pingdatagovernance) - Information on this image
+* [PingDataGovernance Docker Image](https://pingidentity-devops.gitbook.io/devops/dockerimagesref/pingdatagovernance) - Information on this image
 
 * [DevOps Program Documentation](https://pingidentity-devops.gitbook.io/devops) - Getting started with Ping Identity DevOps Program
 

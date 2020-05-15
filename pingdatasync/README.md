@@ -2,7 +2,7 @@
 
 ## Documentation
 
-* [PingDataSync Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-images/pingdatasync) - Information on this image
+* [PingDataSync Docker Image](https://pingidentity-devops.gitbook.io/devops/dockerimagesref/pingdatasync) - Information on this image
 
 * [DevOps Program Documentation](https://pingidentity-devops.gitbook.io/devops) - Getting started with Ping Identity DevOps Program
 
