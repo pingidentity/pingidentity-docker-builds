@@ -2,7 +2,7 @@
 
 ## Documentation
 
-* [PingDelegator Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-builds/ping_delegator) - Information on this image
+* [PingDelegator Docker Image](https://pingidentity-devops.gitbook.io/devops/dockerimagesref/ping_delegator) - Information on this image
 
 * [DevOps Program Documentation](https://pingidentity-devops.gitbook.io/devops) - Getting started with Ping Identity DevOps Program
 

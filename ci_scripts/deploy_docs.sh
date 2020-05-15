@@ -14,7 +14,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts";
 rm -rf /tmp/docker-images
 TOOL_NAME="$( basename "${0}" )"
 OUTPUT_DIR=/tmp
-DOCKER_BUILD_DIR="$( cd $( dirname "${0}" )/.. || exit 97 ; pwd )"
+DOCKER_BUILD_DIR="$( cd "$( dirname "${0}" )"/.. || exit 97 ; pwd )"
 
 #
 # Usage printing function
@@ -60,7 +60,7 @@ function append_footer ()
 
     append_doc ""
     append_doc "---"
-    append_doc "This document auto-generated from _[${_srcFile}](https://github.com/pingidentity/pingidentity-docker-builds/blob/master/${_srcFile})_"
+    test -n "${_srcFile}" && append_doc "This document auto-generated from _[${_srcFile}](https://github.com/pingidentity/pingidentity-docker-builds/blob/master/${_srcFile})_"
     append_doc ""
     append_doc "Copyright (c)  2019 Ping Identity Corporation. All rights reserved."
 }
@@ -145,8 +145,11 @@ function parse_hooks ()
     
     _hookFiles=""
 
-
-    for _hookFilePath in ${_hooksDir}/* ; 
+    #
+    # The following creates a set of .../product/hooks/{hook-name}.md file for each hook
+    # pulling in docs in that hook file.
+    #
+    for _hookFilePath in "${_hooksDir}"/* ; 
     do
         test -f "${_hookFilePath}" || continue
         _hookFile=$( basename "${_hookFilePath}" )
@@ -156,33 +159,40 @@ function parse_hooks ()
         echo "  parsing hook ${_hookFile}"
         append_header
         append_doc "# Ping Identity DevOps \`${_dockerImage}\` Hook - \`${_hookFile}\`"
-        awk '$0~/^#-/ && $0!~/^#-$/ {gsub(/^#-/,"");print;}' ${_hookFilePath} >> ${_docFile}
-        # cat "${_hooksDir}/${_hookFile}" | while read -r line ; do
-        #     #
-        #     # Parse the remaining lines for "#-"
-        #     #
-        #     if [ "$(echo "${line}" | cut -c-2)" = "#-" ] ; then
-        #         md=$(echo "$line" | sed \
-        #          -e 's/^\#- //' \
-        #          -e 's/^\#-$//')
-
-        #         append_doc "$md"
-        #     fi
-        # done
+        awk '$0~/^#-/ && $0!~/^#-$/ {gsub(/^#-/,"");print;}' "${_hookFilePath}" >> "${_docFile}"
+        
         append_footer "${_dockerImage}/hooks/${_hookFile}"
     done
 
-
+    #
+    # The following creates a set of .../product/hooks/README.md file as a table of 
+    # contents for all the hooks for that product.
+    #
+    # If there are no hooks for that product, then a message will be provided
+    # to that effect.
+    #
     _docFile="${OUTPUT_DIR}/docker-images/${_dockerImage}/hooks/README.md"
-    rm -f ${_docFile}
+    rm -f "${_docFile}"
     append_header
     append_doc "# Ping Identity DevOps \`${_dockerImage}\` Hooks"
-    append_doc "List of available hooks:"
-    for _hookFile in ${_hookFiles} ;
-    do
-        append_doc "* [${_hookFile}](${_hookFile}.md)"
-    done
-    append_footer "${_dockerImage}/hooks"
+
+    if test -z "${_hookFiles}"
+    then
+        append_doc "There are no default hooks defined for the \`${_dockerImage}\` image."
+        append_doc ""
+        append_doc "Hooks defined by parent images (i.e. pingcommon/pingdatacommon)"
+        append_doc "will be inherited by this image."
+        append_footer ""
+    else
+        append_doc "List of available hooks:"
+        for _hookFile in ${_hookFiles} ;
+        do
+            append_doc "* [${_hookFile}](${_hookFile}.md)"
+        done
+        append_doc ""
+        append_doc "These hooks will replace hooks defined by parent images (i.e. pingcommon/pingdatacommon)"
+        append_footer "${_dockerImage}/hooks"
+    fi
 }
 
 #
@@ -202,7 +212,7 @@ function parse_dockerfile ()
         
     append_header
 
-    cat "${_dockerFile}" | while read -r line ; 
+    while read -r line ;
     do
         
         #
@@ -240,6 +250,7 @@ function parse_dockerfile ()
         if [ "$(echo "${line}" | cut -c-7)" = "EXPOSE " ] ||
            [ "$(echo "${line}" | cut -c-15)" = "ONBUILD EXPOSE " ]; 
         then
+            # shellcheck disable=SC2001
             EXPOSE_PORTS=$(echo "${line}" | sed 's/^.*EXPOSE \(.*\)$/\1/')
     
             append_expose_ports "${EXPOSE_PORTS}"
@@ -260,7 +271,7 @@ function parse_dockerfile ()
 
             append_doc "$md"
         fi
-    done
+    done < "${_dockerFile}"
 
     append_doc "## Docker Container Hook Scripts"
     append_doc "Please go [here](https://github.com/pingidentity/pingidentity-devops-getting-started/tree/master/docs/docker-images/${_dockerImage}/hooks/README.md) for details on all ${_dockerImage} hook scripts"
@@ -316,7 +327,7 @@ done
 set -x
 cd /tmp || exit 97
 rm -rf pingidentity-devops-getting-started
-${dryRun} git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-devops-getting-started.git
+${dryRun} git clone "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-devops-getting-started.git"
 ${dryRun} cp -r docker-images pingidentity-devops-getting-started/docs
 ${dryRun} cd pingidentity-devops-getting-started || exit 97
 ${dryRun} git config user.email "devops_program@pingidentity.com"
