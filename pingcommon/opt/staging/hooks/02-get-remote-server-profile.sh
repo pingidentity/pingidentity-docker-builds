@@ -43,6 +43,27 @@ getProfile ()
     serverProfileUrl=$( get_value "${1}_URL" )
     serverProfileBranch=$( get_value "${1}_BRANCH" )
     serverProfilePath=$( get_value "${1}_PATH" )
+    serverProfileGitUserVariable="${1}_GIT_USER"
+    serverProfileGitUser=$( get_value "${serverProfileGitUserVariable}" )
+    serverProfileGitPasswordVariable="${1}_GIT_PASSWORD"
+    serverProfileGitPassword=$( get_value "${serverProfileGitPasswordVariable}" )
+
+    # Get defaults for git user/password if there are no layer-specific values
+    if test -z "${serverProfileGitUser}" ; then
+        serverProfileGitUserVariable="SERVER_PROFILE_GIT_USER"
+        serverProfileGitUser=$( get_value "${serverProfileGitUserVariable}" )
+    fi
+    if test -z "${serverProfileGitPassword}" ; then
+        serverProfileGitPasswordVariable="SERVER_PROFILE_GIT_PASSWORD"
+        serverProfileGitPassword=$( get_value "${serverProfileGitPasswordVariable}" )
+    fi
+
+    if [ -n "${serverProfileGitUser}" ] || [ -n "${serverProfileGitPassword}" ]; then
+        # Expand user and password in the url
+        serverProfileUrl=$( echo "${serverProfileUrl}" | envsubst "\${${serverProfileGitUserVariable}} \${${serverProfileGitPasswordVariable}}" )
+        # Redact URL if it includes user/password
+        SERVER_PROFILE_URL_REDACT=true
+    fi
 
     # this is a precaution because git clone needs an empty target
     rm -rf "${SERVER_PROFILE_DIR}"
