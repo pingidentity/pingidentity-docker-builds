@@ -6,7 +6,7 @@
 #-
 ${VERBOSE} && set -x
 
-# shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
+# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 # shellcheck source=pingdirectory.lib.sh
@@ -27,6 +27,7 @@ echo "Updating the Server Instance hostname/ldaps-port:
          hostname: ${_podHostname}
        ldaps-port: ${_podLdapsPort}"
 
+# shellcheck disable=SC2086
 dsconfig set-server-instance-prop --no-prompt --quiet \
     --instance-name "${_podInstanceName}" \
     --set hostname:${_podHostname} \

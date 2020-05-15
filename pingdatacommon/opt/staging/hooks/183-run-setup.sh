@@ -4,10 +4,10 @@
 #
 ${VERBOSE} && set -x
 
-# shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
+# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-# shellcheck source=../../pingdatacommon/hooks/pingdata.lib.sh
+# shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
 test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 
 # If there is a PING_IDENTITY_PASSWORD, create the possible PASSWORD_FILEs with that value if the
