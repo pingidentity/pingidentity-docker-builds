@@ -119,9 +119,11 @@ do
     shift
 done
 
+_commitHasTags=$( git tag --points-at "${CI_COMMIT_SHA}" )
+_commitBranch=$( git rev-parse --abbrev-ref "${CI_COMMIT_SHA}" )
 test -z "${dryRun}" \
-    && test -z "$( git tag --points-at "${CI_COMMIT_SHA}" )" \
-    && test "$( git rev-parse --abbrev-ref "${CI_COMMIT_SHA}" )" != "master" \
+    && test -z "${_commitHasTags}" \
+    && test "${_commitBranch}" != "master" \
     && echo "ERROR: are you sure this script should be running??" \
     && exit 1
 
