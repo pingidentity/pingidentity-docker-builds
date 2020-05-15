@@ -17,11 +17,20 @@ i.checks:
     - pwd
     - env
     - echo $USER
+    - type jq
+    - type aws
+    - aws --version
+    - type az
+    - az --version
+    - type docker
     - docker info
+    - type docker-compose
     - docker-compose version
+    - type gcloud
+    - gcloud --version
+    - type git
     - git --version
     - ci_scripts/if_readme_only.sh 
-    - gcloud --version
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
