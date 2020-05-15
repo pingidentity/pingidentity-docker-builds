@@ -26,6 +26,8 @@ i.checks:
     - docker info
     - type docker-compose
     - docker-compose version
+    - type envsubst
+    - envsubst --version
     - type gcloud
     - gcloud --version
     - type git
