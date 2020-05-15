@@ -119,10 +119,9 @@ do
     shift
 done
 
-# shellcheck disable=SC2046
 test -z "${dryRun}" \
-    && test ! $( git tag --points-at "$CI_COMMIT_SHA" ) \
-    && test ! "$(git rev-parse --abbrev-ref "$CI_COMMIT_SHA")" = "master" \
+    && test -z "$( git tag --points-at "${CI_COMMIT_SHA}" )" \
+    && test "$( git rev-parse --abbrev-ref "${CI_COMMIT_SHA}" )" != "master" \
     && echo "ERROR: are you sure this script should be running??" \
     && exit 1
 
