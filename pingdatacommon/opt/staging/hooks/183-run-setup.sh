@@ -81,8 +81,8 @@ case "${PING_PRODUCT}" in
     PingDirectory)
         _pingDataSetupArguments="${encryptionOption} \
                                  --baseDN \"${USER_BASE_DN}\" \
-                                 --addBaseEntry"
-        _pingDataManageProfileSetupArgs="--rejectFile /tmp/rejects.ldif ${_skipImports}"
+                                 --addBaseEntry "
+        _pingDataManageProfileSetupArgs="--addMissingRdnAttributes --rejectFile /tmp/rejects.ldif ${_skipImports}"
         ;;
     *)
         echo_red "Unknown PING_PRODUCT value [${PING_PRODUCT}]"
@@ -123,7 +123,7 @@ _manage_profile_cmd="${SERVER_ROOT_DIR}/bin/manage-profile setup \
 
 echo "  ${_manage_profile_cmd}"
 
-$_manage_profile_cmd
+${_manage_profile_cmd}
 
 if test $? -ne 0 ; then
     test -f /tmp/rejects.ldif && cat /tmp/rejects.ldif
