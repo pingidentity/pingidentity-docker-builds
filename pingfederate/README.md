@@ -2,7 +2,7 @@
 
 ## Documentation
 
-* [PingFederate Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-images/pingfederate) - Information on this image
+* [PingFederate Docker Image](https://pingidentity-devops.gitbook.io/devops/dockerimagesref/pingfederate) - Information on this image
 
 * [DevOps Program Documentation](https://pingidentity-devops.gitbook.io/devops) - Getting started with Ping Identity DevOps Program
 

@@ -5,6 +5,7 @@ stages:
   - test.smoke
   - test.integration
   - deploy
+  - publish
   - cleanup
 
 ################################################
@@ -16,11 +17,22 @@ i.checks:
     - pwd
     - env
     - echo $USER
+    - type jq
+    - type aws
+    - aws --version
+    - type az
+    - az --version
+    - type docker
     - docker info
+    - type docker-compose
     - docker-compose version
+    - type envsubst
+    - envsubst --version
+    - type gcloud
+    - gcloud --version
+    - type git
     - git --version
     - ci_scripts/if_readme_only.sh 
-    - gcloud --version
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -62,8 +74,7 @@ d.pingdownloader:
   stage: deploy
   script:
     - docker pull gcr.io/ping-gte/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}
-    - docker tag gcr.io/ping-gte/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA} pingidentity/pingdownloader
-    - docker push pingidentity/pingdownloader
+    - while read -r _registry ; do docker tag gcr.io/ping-gte/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA} ${_registry}/pingdownloader ; docker push ${_registry}/pingdownloader ; done < registry.list
   only:
     refs:
       - master
@@ -191,7 +202,7 @@ t.ldap-sdk-tools:
 d.ldap-sdk-tools:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product ldap-sdk-tools
+    - VERBOSE=true ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product ldap-sdk-tools
   only:
     refs:
       - master
@@ -992,8 +1003,31 @@ pdp-pd.latest:
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
-d.github:
-  stage: deploy
+pd-repl.latest:
+  stage: test.integration
+  script:
+    - ci_scripts/run_integration.sh pd-replicated.latest
+  only:
+    changes:
+      - integration_tests/**/pd-replicated*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingdirectory/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+
+p.github:
+  stage: publish
   script:
     - git --version
     - ci_scripts/push_to_github.sh

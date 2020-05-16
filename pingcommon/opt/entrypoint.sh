@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 ${VERBOSE} && set -x
 
-# shellcheck source=hooks/pingcommon.lib.sh
+# shellcheck source=staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 

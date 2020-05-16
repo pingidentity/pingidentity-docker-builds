@@ -239,7 +239,7 @@ _getLatestSnapshotVersionForProduct ()
         pingdatasync)
             _product="sync"
             ;;
-        pingdatagoverance)
+        pingdatagovernance)
             _product="broker"
             ;;
         pingdatagovernancepap)
