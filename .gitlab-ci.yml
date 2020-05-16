@@ -17,11 +17,22 @@ i.checks:
     - pwd
     - env
     - echo $USER
+    - type jq
+    - type aws
+    - aws --version
+    - type az
+    - az --version
+    - type docker
     - docker info
+    - type docker-compose
     - docker-compose version
+    - type envsubst
+    - envsubst --version
+    - type gcloud
+    - gcloud --version
+    - type git
     - git --version
     - ci_scripts/if_readme_only.sh 
-    - gcloud --version
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -980,6 +991,29 @@ pdp-pd.latest:
       - pingdatacommon/**/*
       - pingdirectory/**/*
       - pingdatasync/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+
+pd-repl.latest:
+  stage: test.integration
+  script:
+    - ci_scripts/run_integration.sh pd-replicated.latest
+  only:
+    changes:
+      - integration_tests/**/pd-replicated*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingdirectory/**/*
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml

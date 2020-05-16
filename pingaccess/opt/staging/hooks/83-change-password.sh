@@ -10,13 +10,13 @@ _pwCheckInitial=$(
         --write-out '%{http_code}' \
         --output /dev/null \
         --request GET \
-        --user ${ROOT_USER}:${PA_ADMIN_PASSWORD_INITIAL} \
+        --user "${ROOT_USER}:${PA_ADMIN_PASSWORD_INITIAL}" \
         --header "X-Xsrf-Header: PingAccess" \
         https://localhost:9000/pa-admin-api/v3/users/1 \
         2>/dev/null
     )
 # echo "${_pwCheckInitial}"
-if test "${_pwCheckInitial}" -ne 200
+if test "${_pwCheckInitial}" != "200"
 then
     die_on_error 83 "Bad password - check vars PA_ADMIN_PASSWORD PA_ADMIN_PASSWORD_INITIAL" || exit ${?}
 fi
@@ -32,17 +32,17 @@ _license_http_code=$(
         --user "${ROOT_USER}:${PA_ADMIN_PASSWORD_INITIAL}" \
         --output /tmp/license.acceptance \
         --header "X-Xsrf-Header: PingAccess" \
-        --data '{ "email": null, "slaAccepted": true, "firstLogin": false, "showTutorial": false,"username": "'${ROOT_USER}'"}' \
+        --data '{ "email": null, "slaAccepted": true, "firstLogin": false, "showTutorial": false,"username": "'"${ROOT_USER}"'"}' \
         https://localhost:9000/pa-admin-api/v3/users/1 \
-        2 >/dev/null
+        2>/dev/null
     )
-if test "${_license_http_code}" -ne 200 
+if test "${_license_http_code}" != "200" 
 then
     die_on_error 83 "Could not accept license" || exit ${?}
 fi
 
 echo "INFO: changing admin password"
-PASSWORD=${PING_IDENTITY_PASSWORD:-${PA_ADMIN_PASSWORD:-INITIAL_ADMIN_PASSWORD}}
+PASSWORD=${PING_IDENTITY_PASSWORD:-${PA_ADMIN_PASSWORD:-${INITIAL_ADMIN_PASSWORD}}}
 _pwChange=$(
     curl \
         --insecure \
@@ -57,7 +57,7 @@ _pwChange=$(
         2>/dev/null
     )
 
-if test "${_pwChange}" -ne 200
+if test "${_pwChange}" != "200"
 then
     die_on_error 83 "Password not accepted" || exit ${?}
 fi

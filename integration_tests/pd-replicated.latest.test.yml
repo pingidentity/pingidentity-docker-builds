@@ -1,4 +1,4 @@
-version: "2"
+version: "2.4"
 
 services:
   pingdirectory:
@@ -29,7 +29,7 @@ services:
   sut:
     image: postman/newman
     entrypoint: ["/usr/bin/env"]
-    command: sh -c "/tmp/wait-for pingdirectory:3000 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
+    command: sh -c "/tmp/wait-for integration_tests_pingdirectory_1:443 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
     volumes:
       - ./pd-replicated.postman_collection.json:/tmp/collection.json
       - ./wait-for:/tmp/wait-for
