@@ -27,6 +27,7 @@ RUN /get-bits.sh --product ${PRODUCT} \
         -x */webapps/* \
         -x */resource/*.zip \
         -x */_script-util.sh \
+        -x */lib/wrapper.jar \
 	&& mv /tmp/PingDataGovernance /opt/server 
 
 FROM scratch
