@@ -55,6 +55,9 @@
 					"script": {
 						"id": "27594026-b0da-4deb-a355-e7846f7dab8a",
 						"exec": [
+							"// we wait 30 seconds or we may beat PA config import time",
+							"setTimeout(function () { console.log(\"Delaying request by 30 seconds\"); }, 30000);",
+							"",
 							"var _host = pm.variables.get(\"pd_hostname\");",
 							"var _port = pm.variables.get(\"pd_port_https\");",
 							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");",
@@ -2036,127 +2039,127 @@
 	],
 	"variable": [
 		{
-			"id": "f3c2308b-e03e-4732-ac0d-cafe844b49c7",
+			"id": "632410ba-c738-46ee-b398-6632518e8cf2",
 			"key": "request_retry_count",
 			"value": "10",
 			"type": "string"
 		},
 		{
-			"id": "51866fd6-4241-49ce-adaf-e5d49f5bfe24",
+			"id": "049188c9-beeb-4167-86fc-cce40ab7dc71",
 			"key": "request_retry_delay_max_ms",
 			"value": "15000",
 			"type": "string"
 		},
 		{
-			"id": "025e22dc-d2cf-4597-9430-8170ce90ba93",
+			"id": "0b9fec68-dcc7-4faa-9112-b8f374d0b279",
 			"key": "request_retry_delay_min_ms",
 			"value": "1000",
 			"type": "string"
 		},
 		{
-			"id": "a86920e5-ea6c-443b-971d-a63fa5996a91",
+			"id": "f89333a0-039e-4d2f-967b-ba065cbd7f10",
 			"key": "admin_user",
 			"value": "administrator",
 			"type": "string"
 		},
 		{
-			"id": "6bd25ec5-5d63-4b7d-a082-301e2aad03e2",
+			"id": "bdb6177f-05ad-44df-8771-0b30200f8f0c",
 			"key": "admin_pwd",
 			"value": "2FederateM0re",
 			"type": "string"
 		},
 		{
-			"id": "5a49abd3-87ff-4ab5-8077-2dbddfb13146",
+			"id": "89f7f7fa-6d94-4e6e-a28b-bae0c98db0e6",
 			"key": "pd_admin_user",
 			"value": "cn={{admin_user}}",
 			"type": "string"
 		},
 		{
-			"id": "4375b94a-a3bf-41c0-861c-6c05d94274a5",
+			"id": "3ad227a7-a964-41e2-b349-6202b2fc601a",
 			"key": "pd_admin_pwd",
 			"value": "{{admin_pwd}}",
 			"type": "string"
 		},
 		{
-			"id": "4c57f96a-d14d-47f9-a1fc-af1f5166624b",
+			"id": "f5cd1f70-42b6-4903-b04e-4958c26cf665",
 			"key": "pd_hostname",
 			"value": "pingdirectory",
 			"type": "string"
 		},
 		{
-			"id": "e346f012-67e8-479f-bd74-0d8f49fe2db9",
+			"id": "60719c16-927f-4adb-ab10-3c8b8ac3401e",
 			"key": "pd_port_https",
 			"value": "443",
 			"type": "string"
 		},
 		{
-			"id": "f55a97f0-a418-49fc-8a3a-8597187987aa",
+			"id": "dce6655f-0c3b-436a-8717-2c7657d4b06b",
 			"key": "pd_port_ldaps",
 			"value": "636",
 			"type": "string"
 		},
 		{
-			"id": "580fc75b-290c-47a6-b244-34aa40a9e3af",
+			"id": "260d7dde-fde4-4952-9bd7-a077b68f1b38",
 			"key": "pd_port_ldap",
 			"value": "389",
 			"type": "string"
 		},
 		{
-			"id": "d03fbf50-2797-4099-99fb-d78811994c91",
+			"id": "c5847244-21ea-41fe-9344-a141280a11e3",
 			"key": "pf_engine_hostname",
 			"value": "pingfederate",
 			"type": "string"
 		},
 		{
-			"id": "e7b4fbe8-55e4-4fc3-9e01-542679c9e853",
+			"id": "35469de6-9976-44cc-808f-46e996cbb643",
 			"key": "pf_engine_port",
 			"value": "9031",
 			"type": "string"
 		},
 		{
-			"id": "c4d9b98e-a671-4c65-8bd1-e2d2d92d2aa9",
+			"id": "4c15baea-7ed6-41fc-aa1c-a0702ab50df8",
 			"key": "pf_admin_hostname",
 			"value": "pingfederate",
 			"type": "string"
 		},
 		{
-			"id": "1171fad8-2488-414a-a165-34f99ebbe45d",
+			"id": "9fe72770-fdcc-4496-81ad-31e1937493a4",
 			"key": "pf_admin_port",
 			"value": "9999",
 			"type": "string"
 		},
 		{
-			"id": "f1f56043-2427-4b50-9128-691822271102",
+			"id": "ce03ea3e-6c03-40d0-80af-8c8efeea00d8",
 			"key": "regular_user",
 			"value": "postman.user.0",
 			"type": "string"
 		},
 		{
-			"id": "a0d67373-1bdc-4060-9128-ad348ac43f8f",
+			"id": "2c1a0c31-eaa1-423d-9b62-ab18c63027c1",
 			"key": "regular_pwd",
 			"value": "{{admin_pwd}}",
 			"type": "string"
 		},
 		{
-			"id": "a7239971-0d58-4c61-8591-5e0d917a2de1",
+			"id": "fa45dcc9-4286-4439-9385-5b917eb27fd6",
 			"key": "pa_engine_hostname",
 			"value": "pingaccess",
 			"type": "string"
 		},
 		{
-			"id": "af5b8118-1946-4d4c-956f-8c11d1dbcd90",
+			"id": "15c2a684-8b43-47eb-bda5-eb89d5208bf7",
 			"key": "pa_engine_port",
 			"value": "3000",
 			"type": "string"
 		},
 		{
-			"id": "16aa9247-412f-41dd-b67b-50d4c44ed714",
+			"id": "a547a721-38b8-4153-af32-88e254a12aeb",
 			"key": "pa_admin_hostname",
 			"value": "pingaccess",
 			"type": "string"
 		},
 		{
-			"id": "fb158cca-6e3b-4ee4-a773-f37f932c5bb8",
+			"id": "68843b6e-efe0-4009-ba7d-ed624a0f7cd3",
 			"key": "pa_admin_port",
 			"value": "9000",
 			"type": "string"
