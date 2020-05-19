@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 test -n "${VERBOSE}" && set -x
 
 if test -z "${CI_COMMIT_REF_NAME}"
