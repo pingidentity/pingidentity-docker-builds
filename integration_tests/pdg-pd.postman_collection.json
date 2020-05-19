@@ -1,0 +1,193 @@
+{
+	"info": {
+		"_postman_id": "2e942b22-fdef-41d3-b92c-073840d4d916",
+		"name": "pdg-pd",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "pd-rest-api via dg",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4b675a7d-d2cf-47af-a6a9-11a638c99058",
+						"exec": [
+							"// Pick a UserId at random",
+							"var userId = \"user.\" + _.random(0,4);",
+							"pm.environment.set(\"userId\", userId);",
+							"",
+							"// Throw in an occasional bad `client_id`",
+							"var random = _.random(0,1000000) % 10;",
+							"if (random == 7) {",
+							"    pm.environment.set(\"client_id\", \"Bogus\");",
+							"}",
+							"else {",
+							"    pm.environment.set(\"client_id\", \"Marketing\");",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "fb9912b1-5092-4c77-aff5-b732f79203c2",
+						"exec": [
+							"pm.test(\"User Mail retrieved\", function () {",
+							"    pm.response.to.be.ok;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{ \"active\":true,\"sub\" : \"user.1\", \"clientId\":\"client1\",\"scope\":\"ds\" }",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://pingdatagovernance/pd-rest-api/uid=user.1,ou=people,dc=example,dc=com",
+					"protocol": "https",
+					"host": [
+						"pingdatagovernance"
+					],
+					"path": [
+						"pd-rest-api",
+						"uid=user.1,ou=people,dc=example,dc=com"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pd rest api direct",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "af0aa299-8b98-4b30-89df-b71563ced85a",
+						"exec": [
+							"// Pick a UserId at random",
+							"var userId = \"user.\" + _.random(0, 4);",
+							"pm.environment.set(\"userId\", userId);",
+							"",
+							"// Throw in an occasional bad `client_id`",
+							"var random = _.random(0, 1000000) % 10;",
+							"if (random == 7) {",
+							"    pm.environment.set(\"client_id\", \"Bogus\");",
+							"}",
+							"else {",
+							"    pm.environment.set(\"client_id\", \"Marketing\");",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "2743fe41-df0d-4b58-b1fa-137bbe8bd681",
+						"exec": [
+							"pm.test(\"User Mail retrieved\", function () {",
+							"    pm.response.to.be.ok;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{ \"active\":true,\"sub\" : \"user.1\", \"clientId\":\"client1\",\"scope\":\"ds\" }",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://pingdirectory/directory/v1/uid=user.1,ou=people,dc=example,dc=com",
+					"protocol": "https",
+					"host": [
+						"pingdirectory"
+					],
+					"path": [
+						"directory",
+						"v1",
+						"uid=user.1,ou=people,dc=example,dc=com"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
