@@ -6,6 +6,8 @@ ARG PRODUCT
 ARG VERSION
 ARG DEVOPS_USER
 ARG DEVOPS_KEY
+ARG VERBOSE
+
 COPY ["keys.gpg","/tmp"]
 RUN /get-bits.sh --product ${PRODUCT} \
         --version ${VERSION} \

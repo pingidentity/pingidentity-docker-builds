@@ -38,7 +38,7 @@ END_USAGE
     exit 99
 }
 
-function tag_and_push ()
+tag_and_push ()
 {
     _source="${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
     _target="${registryToDeployTo}/${productToDeploy}:${1}"
@@ -55,7 +55,7 @@ function tag_and_push ()
 }
 
 _registryList=""
-while ! test -z "${1}"
+while test -n "${1}"
 do
     case "${1}" in
         -p|--product)
@@ -134,8 +134,7 @@ test -z "${productToDeploy}" \
 
 if test -z "${CI_COMMIT_REF_NAME}"
 then
-    # shellcheck disable=SC2046 
-    CI_PROJECT_DIR="$( cd $( dirname "${0}" )/.. || exit 97 ; pwd )"
+    CI_PROJECT_DIR="$( cd "$( dirname "${0}" )/.." || exit 97 ; pwd )"
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
@@ -154,12 +153,14 @@ latestVersion=$( _getLatestVersionForProduct "${productToDeploy}" )
 #
 for tag in $( git tag --points-at "$gitRevLong" )
 do
-    if test -z "$( echo ${tag} | sed 's/^[0-9]\{4\}$//' )"
+    # if test -z "$( echo ${tag} | sed 's/^[0-9]\{4\}$//' )"
+    if test -z "${tag##2[0-9][0-9][0-9]}"
     then
         sprint="${tag}"
         break
     fi
 done
+
 # _dateStamp=$( date '%y%m%d')
 banner "Deploying ${productToDeploy}"
 for _version in ${versionsToDeploy}

@@ -15,10 +15,12 @@ MD="\.md"
 
 check_if_mds()
 {
-    for CHANGED_FILE in ${CHANGED_FILES}; do
+    for CHANGED_FILE in ${CHANGED_FILES}
+    do
         echo "${CHANGED_FILE}"
         echo "TESTING - ${CHANGED_FILE#*$MD} != ${CHANGED_FILE}"
-        if test "${CHANGED_FILE#*$MD}" = "${CHANGED_FILE}" ; then
+        if test "${CHANGED_FILE#*$MD}" = "${CHANGED_FILE}"
+        then
             echo "found non-readme"
             ONLY_READMES="False"
             break
@@ -27,12 +29,12 @@ check_if_mds()
 }
 
 
-if test "${CI_COMMIT_BEFORE_SHA}" = "0000000000000000000000000000000000000000" ;
+if test "${CI_COMMIT_BEFORE_SHA}" = "0000000000000000000000000000000000000000"
 then
    echo "no previous commit."
 else 
   check_if_mds
-    if test "${ONLY_READMES}" = "True" ;
+    if test "${ONLY_READMES}" = "True"
     then
         echo "Only Markdown files found, shunting build."
         exit 1

@@ -3,146 +3,147 @@ test -n "${VERBOSE}" && set -x
 
 HISTFILE=~/.bash_history
 set -o history
-export HISTTIMEFORMAT='%T'
+HISTTIMEFORMAT='%T'
+export HISTTIMEFORMAT
 
 # get all version for a product to build
-function _getAllVersionsToBuildForProduct ()
+_getAllVersionsToBuildForProduct ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.build==true)|$v.version]|unique|.[]' "${_file}"
 }
 
 # get all version for a product to build
-function _getAllVersionsToDeployForProduct ()
+_getAllVersionsToDeployForProduct ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.deploy==true)|$v.version]|unique|.[]' "${_file}"
 }
 
 # get the latest version of a product to build
-function _getLatestVersionForProduct () 
+_getLatestVersionForProduct () 
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r 'if (.latest) then .latest else "" end' "${_file}"
 }
 
 # get the default shim for a product version
-function _getDefaultShimForProductVersion () 
+_getDefaultShimForProductVersion () 
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -r '.|.versions[]| select(.version == "'${2}'") | .preferredShim' "${_file}"
 }
 
 # get all the shims for a product version
-function _getShimsToBuildForProductVersion ()
+_getShimsToBuildForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -r '[.|.versions[]| select(.version == "'${2}'")|.shims[]|. as $v|.jvms[]|select(.build==true)|$v.shim]|unique|.[]' "${_file}"
 }
 
 # get all the shims for a product version
-function _getShimsToDeployForProductVersion ()
+_getShimsToDeployForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -r '[.|.versions[]| select(.version == "'${2}'")|.shims[]|. as $v|.jvms[]|select(.deploy==true)|$v.shim]|unique|.[]' "${_file}"
 }
 
 # get all the shims for a product
-function _getAllShimsForProduct ()
+_getAllShimsForProduct ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -r '[.|.versions[]|.shims[]|.shim]|unique|.[]' "${_file}"
 }
 
-function _getJVMsToBuildForProductVersionShim ()
+_getJVMsToBuildForProductVersionShim ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.jvms[]|select(.build==true)|.jvm' "${_file}"
 }
 
-function _getJVMsToDeployForProductVersionShim ()
+_getJVMsToDeployForProductVersionShim ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.jvms[]|select(.deploy==true)|.jvm' "${_file}"
 }
 
-function _getPreferredJVMForProductVersionShim ()
+_getPreferredJVMForProductVersionShim ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.preferredJVM' "${_file}"
 }
 
-function _getJVMVersionForID ()
+_getJVMVersionForID ()
 {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
     jq -r '.|.versions[]|select(.id=="'${1}'")|.version' "${_file}"
 }
 
-function _getAllJVMIDsForShim ()
+_getAllJVMIDsForShim ()
 {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
     jq -r '[.versions[]|select(.shims[]|contains("'${1}'"))|.id]|unique|.[]' ${_file}
 }
 
-function _getAllJVMsToBuildForShim ()
+_getAllJVMsToBuildForShim ()
 {
     # _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
     # jq -r '[.versions[]|select(.shims[]|contains("'${1}'"))|.id]|unique|.[]' ${_file}
     find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|select(.shim=="'${1}'")|.jvms[]|select(.build==true)|.jvm' {} + 2>/dev/null| sort | uniq
 }
 
-function _getAllJVMsToBuild ()
+_getAllJVMsToBuild ()
 {
     find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|.jvms[]|select(.build==true)|.jvm' {} + 2>/dev/null| sort | uniq
 }
 
-function _getJVMImageForShimID ()
+_getJVMImageForShimID ()
 {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
     jq -r '[.versions[]|select(.shims[]|contains("'${1}'"))| select(.id=="'${2}'")|.from]|unique|.[]' ${_file}
 }
 
-function _getDependenciesForProductVersion ()
+_getDependenciesForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -jr '.versions[]|select( .version == "'${2}'" )|if (.dependencies) then .dependencies[]|.product," ",.version,"\n" else "" end' "${_file}" | awk 'BEGIN{i=0} {print "--build-arg DEPENDENCY_"i"_PRODUCT="$1" --build-arg DEPENDENCY_"i"_VERSION="$2; i++}'
 }
 
-function _getLongTag () 
+_getLongTag () 
 {
     echo "${1}" | awk '{gsub(/:/,"_");print}'
 }
 
-function _getShortTag () 
+_getShortTag () 
 {
     echo "${1}"| awk '{gsub(/:.*/,"");print}'
 }
 
-function _getAllShims ()
+_getAllShims ()
 {    
     find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '[.|.versions[]|.shims[]|.shim]|unique|.[]' {} + 2>/dev/null | sort | uniq
 }
 
 # returns the license version for a product full version
-function _getLicenseVersion ()
+_getLicenseVersion ()
 {
     echo ${1}| cut -d. -f1,2
 }
 
 banner_pad=$( printf '%0.1s' " "{1..80})
-function banner_bar ()
+banner_bar ()
 {
     printf '%0.1s' "#"{1..80}
     printf "\n"
 }
 
-function banner_head ()
+banner_head ()
 {
     # line is divided like so # <- a -> b <- c ->#
     # b is the string to display centered
     # a and c are whitespace padding to center the string
     _b="${*}"
-    if test ${#_b} -gt 78 ;
+    if test ${#_b} -gt 78
     then
         _a=0
         _c=0
@@ -152,12 +153,13 @@ function banner_head ()
     fi
     printf "#"
     printf '%*.*s' 0 ${_a} "${banner_pad}"
+    # shellcheck disable=SC2059
     printf "${_b}"
     printf '%*.*s' 0 ${_c} "${banner_pad}"
     printf "#\n"
 }
 
-function banner ()
+banner ()
 {
     banner_bar
     banner_head "${*}"
@@ -193,7 +195,7 @@ append_status ()
 {
     _output="${1}"
     shift
-    if test "${1}" = "PASS" ;
+    if test "${1}" = "PASS"
     then
         _prefix="${FONT_GREEN}${CHAR_CHECKMARK} "
     else
@@ -266,35 +268,40 @@ _getLatestSnapshotVersionForProduct ()
     return ${?}
 }
 
-if test -n "${PING_IDENTITY_SNAPSHOT}";
+if test -n "${PING_IDENTITY_SNAPSHOT}"
 then
     #we are in building snapshot
-    export FOUNDATION_REGISTRY="art01.corp.pingidentity.com:5200"
+    FOUNDATION_REGISTRY="art01.corp.pingidentity.com:5200"
     # shellcheck disable=SC2155
-    export gitRevShort=$( date '+%H%M')
+    gitRevShort=$( date '+%H%M')
     # shellcheck disable=SC2155
-    export gitRevLong=$( date '+%s' )
+    gitRevLong=$( date '+%s' )
     # shellcheck disable=SC2155
-    export ciTag="$( date '+%Y%m%d' )"
-elif test -n "${CI_COMMIT_REF_NAME}" ; 
+    ciTag="$( date '+%Y%m%d' )"
+elif test -n "${CI_COMMIT_REF_NAME}" 
 then
     #we are in CI pipeline
-    export FOUNDATION_REGISTRY="gcr.io/ping-gte"
+    FOUNDATION_REGISTRY="gcr.io/ping-gte"
     # shellcheck disable=SC2155
-    export gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
+    gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
     # shellcheck disable=SC2155
-    export gitRevLong=$( git rev-parse "$CI_COMMIT_SHA" )
-    export ciTag="${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
+    gitRevLong=$( git rev-parse "$CI_COMMIT_SHA" )
+    ciTag="${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
 else
     #we are on local
     # shellcheck disable=SC2034
     isLocalBuild=true
-    export FOUNDATION_REGISTRY="pingidentity"
+    FOUNDATION_REGISTRY="pingidentity"
     # shellcheck disable=SC2155
-    export gitBranch=$(git rev-parse --abbrev-ref HEAD)
+    gitBranch=$(git rev-parse --abbrev-ref HEAD)
     # shellcheck disable=SC2155
-    export gitRevShort=$( git rev-parse --short=4 HEAD)
+    gitRevShort=$( git rev-parse --short=4 HEAD)
     # shellcheck disable=SC2155
-    export gitRevLong=$( git rev-parse HEAD) 
-    export ciTag="${gitBranch}-${gitRevShort}"
+    gitRevLong=$( git rev-parse HEAD) 
+    ciTag="${gitBranch}-${gitRevShort}"
 fi
+export FOUNDATION_REGISTRY
+export gitRevShort
+export gitRevLong
+export gitBranch
+export ciTag

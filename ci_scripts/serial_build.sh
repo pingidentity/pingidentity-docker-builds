@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 test -n "${VERBOSE}" && set -x
 #
 # Usage printing function
@@ -30,8 +30,9 @@ END_USAGE
     exit 99
 }
 
-export PING_IDENTITY_SNAPSHOT=""
-while ! test -z "${1}" ; 
+PING_IDENTITY_SNAPSHOT=""
+export PING_IDENTITY_SNAPSHOT
+while ! test -z "${1}"
 do
     case "${1}" in
         --dry-run)
@@ -86,12 +87,12 @@ do
     shift
 done
 
-if test -z "${CI_COMMIT_REF_NAME}" ;then
-    # shellcheck disable=SC2046
-    CI_PROJECT_DIR="$( cd $(dirname "${0}")/.. || exit 97 ; pwd )"
+if test -z "${CI_COMMIT_REF_NAME}"
+then
+    CI_PROJECT_DIR="$( cd "$(dirname "${0}")/.." || exit 97 ; pwd )"
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
-CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts";
+CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
@@ -101,14 +102,16 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts";
 
 test -z "${_products}" && _products="apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingdirectoryproxy pingfederate pingtoolkit"
 
-for p in ${_products} ;
+for p in ${_products}
 do
-    "${CI_SCRIPTS_DIR}/build_product.sh" -p ${p} ${buildOptions}
+    # shellcheck disable=SC2086
+    "${CI_SCRIPTS_DIR}/build_product.sh" -p "${p}" ${buildOptions}
     test ${?} -ne 0 && failed=true && break
 
-    if test -n "${_smokeTests}" ;
+    if test -n "${_smokeTests}"
     then
-        "${CI_SCRIPTS_DIR}/run_smoke.sh" -p ${p} ${smokeOptions}
+        # shellcheck disable=SC2086
+        "${CI_SCRIPTS_DIR}/run_smoke.sh" -p "${p}" ${smokeOptions}
         test ${?} -ne 0 && failed=true && break
     fi
 done
