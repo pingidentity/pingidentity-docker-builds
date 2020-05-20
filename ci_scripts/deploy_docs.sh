@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 test -n "${VERBOSE}" && set -x
 
-if test -z "${CI_COMMIT_REF_NAME}" ;
+if test -z "${CI_COMMIT_REF_NAME}"
 then
-    # shellcheck disable=SC2046
-    CI_PROJECT_DIR="$( cd $(dirname "${0}")/.. || exit 97 ; pwd )"
+    CI_PROJECT_DIR="$( cd "$(dirname "${0}")/.." || exit 97 ; pwd )"
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
-CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts";
+CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
@@ -19,7 +18,7 @@ DOCKER_BUILD_DIR="$( cd "$( dirname "${0}" )"/.. || exit 97 ; pwd )"
 #
 # Usage printing function
 #
-function usage ()
+usage ()
 {
     cat <<END_USAGE
 Usage: ${TOOL_NAME} {options}
@@ -38,7 +37,7 @@ END_USAGE
 #
 # Append all arguments to the end of the current markdown document file
 #
-function append_doc ()
+append_doc ()
 {
     echo "$*" >> "${_docFile}"
 }
@@ -46,7 +45,7 @@ function append_doc ()
 #
 # Append a header
 #
-function append_header ()
+append_header ()
 {
    append_doc ""
 }
@@ -54,7 +53,7 @@ function append_header ()
 #
 # Append a footer including a link to the source file
 #
-function append_footer ()
+append_footer ()
 {
     _srcFile="${1}"
 
@@ -68,46 +67,49 @@ function append_footer ()
 #
 # Start the section on environment variables
 #
-function append_env_table_header ()
+append_env_table_header ()
 {
-    case ${dockerImage} in pingaccess|pingdirectory|pingdatasync|pingfederate|pingdatagovernance|pingdatagovernancepap|pingtoolkit)
-    if test "${ENV_TABLE_ACTIVE}" != "true" ; then
-        ENV_TABLE_ACTIVE="true"
+    case "${dockerImage}" in 
+        pingaccess|pingdirectory|pingdatasync|pingfederate|pingdatagovernance|pingdatagovernancepap|pingtoolkit)
+            if test "${ENV_TABLE_ACTIVE}" != "true"
+            then
+                ENV_TABLE_ACTIVE="true"
 
-        append_doc "## Environment Variables"
-        append_doc "In addition to environment variables inherited from **[pingidentity/pingbase](https://pingidentity-devops.gitbook.io/devops/dockerimagesref/pingbase)**," 
-        append_doc "the following environment \`ENV\` variables can be used with "
-        append_doc "this image. "
-        append_doc ""
+                append_doc "## Environment Variables"
+                append_doc "In addition to environment variables inherited from **[pingidentity/pingbase](https://pingidentity-devops.gitbook.io/devops/docker-images/pingbase)**," 
+                append_doc "the following environment \`ENV\` variables can be used with "
+                append_doc "this image. "
+                append_doc ""
 
-        append_doc "| ENV Variable  | Default     | Description"
-        append_doc "| ------------: | ----------- | ---------------------------------"
-    fi
-    ;;
-    * )
-    if test "${ENV_TABLE_ACTIVE}" != "true" ; then
-        ENV_TABLE_ACTIVE="true"
+                append_doc "| ENV Variable  | Default     | Description"
+                append_doc "| ------------: | ----------- | ---------------------------------"
+            fi
+            ;;
+        * )
+            if test "${ENV_TABLE_ACTIVE}" != "true"
+            then
+                ENV_TABLE_ACTIVE="true"
 
-        append_doc "## Environment Variables"
-        append_doc "The following environment \`ENV\` variables can be used with "
-        append_doc "this image. "
-        append_doc ""
+                append_doc "## Environment Variables"
+                append_doc "The following environment \`ENV\` variables can be used with "
+                append_doc "this image. "
+                append_doc ""
 
-        append_doc "| ENV Variable  | Default     | Description"
-        append_doc "| ------------: | ----------- | ---------------------------------"
-    fi
-    ;;
+                append_doc "| ENV Variable  | Default     | Description"
+                append_doc "| ------------: | ----------- | ---------------------------------"
+            fi
+            ;;
     esac
 }
 
 #
 #
 #
-function append_env_variable ()
+append_env_variable ()
 {
-    envVar=${1} && shift
-    envDesc=${1} && shift
-    envDef=${1} && shift
+    envVar="${1}" && shift
+    envDesc="${1}" && shift
+    envDef="${1}" && shift
 
     append_doc "| ${envVar}  | ${envDef}  | ${envDesc}"
 }
@@ -115,15 +117,15 @@ function append_env_variable ()
 #
 #
 #
-function append_expose_ports ()
+append_expose_ports ()
 {
-    exposePorts=${1}
+    exposePorts="${1}"
 
     append_doc "## Ports Exposed"
     append_doc "The following ports are exposed from the container.  If a variable is"
     append_doc "used, then it may come from a parent container"
 
-    for port in ${exposePorts} ; 
+    for port in ${exposePorts}
     do
         append_doc "- $port"
     done
@@ -134,7 +136,7 @@ function append_expose_ports ()
 #
 #
 #
-function parse_hooks ()
+parse_hooks ()
 {
     _dockerImage="${1}"
     _hooksDir="${DOCKER_BUILD_DIR}/${_dockerImage}/opt/staging/hooks"
@@ -149,7 +151,7 @@ function parse_hooks ()
     # The following creates a set of .../product/hooks/{hook-name}.md file for each hook
     # pulling in docs in that hook file.
     #
-    for _hookFilePath in "${_hooksDir}"/* ; 
+    for _hookFilePath in "${_hooksDir}"/*
     do
         test -f "${_hookFilePath}" || continue
         _hookFile=$( basename "${_hookFilePath}" )
@@ -185,7 +187,7 @@ function parse_hooks ()
         append_footer ""
     else
         append_doc "List of available hooks:"
-        for _hookFile in ${_hookFiles} ;
+        for _hookFile in ${_hookFiles}
         do
             append_doc "* [${_hookFile}](${_hookFile}.md)"
         done
@@ -198,7 +200,7 @@ function parse_hooks ()
 #
 #
 #
-function parse_dockerfile ()
+parse_dockerfile ()
 {
     _dockerImage="${1}"
     _dockerFile="${DOCKER_BUILD_DIR}/${_dockerImage}/Dockerfile"
@@ -212,14 +214,14 @@ function parse_dockerfile ()
         
     append_header
 
-    while read -r line ;
+    while read -r line
     do
         
         #
         # Parse the ENV Description
         #   Example: $-- This is the description
         #
-        if [ "$(echo "${line}" | cut -c-3)" = "#--" ] ; 
+        if [ "$(echo "${line}" | cut -c-3)" = "#--" ]
         then
             ENV_DESCRIPTION="${ENV_DESCRIPTION}$(echo "${line}" | cut -c5-) "
             continue
@@ -230,7 +232,7 @@ function parse_dockerfile ()
         #   Example: ENV VARIABLE=value
         #
         if [ "$(echo "${line}" | cut -c-4)" = "ENV " ] ||
-           [ "$(echo "${line}" | cut -c-12)" = "ONBUILD ENV " ]; 
+           [ "$(echo "${line}" | cut -c-12)" = "ONBUILD ENV " ]
         then
             ENV_VARIABLE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*ENV \(.*\)x=x.*/\1/')
             ENV_VALUE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*x=x\(.*\)/\1/' -e 's/^"\(.*\)"$/\1/')
@@ -248,7 +250,7 @@ function parse_dockerfile ()
         #   Example: EXPOSE PORT1 PORT2
         #
         if [ "$(echo "${line}" | cut -c-7)" = "EXPOSE " ] ||
-           [ "$(echo "${line}" | cut -c-15)" = "ONBUILD EXPOSE " ]; 
+           [ "$(echo "${line}" | cut -c-15)" = "ONBUILD EXPOSE " ]
         then
             # shellcheck disable=SC2001
             EXPOSE_PORTS=$(echo "${line}" | sed 's/^.*EXPOSE \(.*\)$/\1/')
@@ -261,7 +263,7 @@ function parse_dockerfile ()
         #
         # Parse the remaining lines for "#-"
         #
-        if [ "$(echo "${line}" | cut -c-2)" = "#-" ] ; 
+        if [ "$(echo "${line}" | cut -c-2)" = "#-" ]
         then
             ENV_TABLE_ACTIVE="false"
 
@@ -288,12 +290,13 @@ pingdirectoryproxy pingdelegator apache-jmeter"
 #
 # Parse the provided arguments, if any
 #
-while ! test -z "${1}" ; 
+while test -n "${1}" 
 do
     case "${1}" in
         -d|--docker-image)
             shift
-            if test -z "${1}" ; then
+            if test -z "${1}"
+            then
                 echo "You must provide name of docker-image(s)"
                 usage
             fi

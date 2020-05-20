@@ -27,16 +27,18 @@ END_USAGE
     exit 99
 }
 
-if test -z "${CI_COMMIT_REF_NAME}" ;then
-    # shellcheck disable=SC2046
-    CI_PROJECT_DIR="$( cd $(dirname "${0}")/.. || exit 97 ; pwd )"
+if test -z "${CI_COMMIT_REF_NAME}"
+then
+    CI_PROJECT_DIR="$( cd "$(dirname "${0}")/.." || exit 97 ; pwd )"
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
-CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts";
+
+CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
-while ! test -z "${1}" ; do
+while test -n "${1}"
+do
     case "${1}" in
         -p|--product)
             test -z "${2}" && usage "You must provide a product to build if you specify the ${1} option"
@@ -78,13 +80,13 @@ test -z "${product}" && usage "Providing a product is required"
 ! test -d "${product}" && echo "invalid product ${product}" && exit 98
 ! test -d "${product}/tests/" && echo "${product} has non tests" && exit 98
 
-if test -z "${versions}" && test  -f "${product}"/versions.json ; 
+if test -z "${versions}" && test  -f "${product}"/versions.json
 then
 #   versions=$(grep -v "^#" "${product}"/versions)
-    versions=$( _getAllVersionsToBuildForProduct ${product} )
+    versions=$( _getAllVersionsToBuildForProduct "${product}" )
 fi
 
-if test -n "${isLocalBuild}" ;
+if test -n "${isLocalBuild}"
 then
     set -a
     # shellcheck disable=SC1090
@@ -96,37 +98,38 @@ fi
 _resultsFile="/tmp/$$.results"
 _headerPattern=' %-25s| %-12s| %-20s| %-10s| %-38s| %10s| %7s\n'
 _reportPattern='%-24s| %-12s| %-20s| %-10s| %-38s| %10s| %7s'
+
 # shellcheck disable=SC2059
 printf "${_headerPattern}" "PRODUCT" "VERSION" "SHIM" "JVM" "TEST" "DURATION" "RESULT" > ${_resultsFile}
 _totalStart=$( date '+%s' )
-for _version in ${versions} ; 
+for _version in ${versions}
 do  
     test "${_version}" = "none" && _version=""
-    if test -z "${shimList}" ;
+    if test -z "${shimList}"
     then
-        _shimListForVersion=$( _getShimsToBuildForProductVersion ${product} ${_version} )
+        _shimListForVersion=$( _getShimsToBuildForProductVersion "${product}" "${_version}" )
     fi
 
-    for _shim in ${_shimListForVersion:-${shimList}} ; 
+    for _shim in ${_shimListForVersion:-${shimList}}
     do
         test "${_shim}" = "none" && _shim=""
         # test this version of this product
-        _shimTag=$( _getLongTag ${_shim} )
+        _shimTag=$( _getLongTag "${_shim}" )
 
-        if test -z "${jvmList}" ; 
+        if test -z "${jvmList}"
         then
-            _jvms=$( _getJVMsToBuildForProductVersionShim ${product} ${_version} ${_shim})
+            _jvms=$( _getJVMsToBuildForProductVersionShim "${product}" "${_version}" "${_shim}" )
         else
             _jvms=${jvmList}
         fi
 
-        for _jvm in ${_jvms} ;
+        for _jvm in ${_jvms}
         do
-            if test "${_jvm}" = "none" ;
+            if test "${_jvm}" = "none"
             then
                 _jvm=""
             else
-                _jvmVersion=$( _getJVMVersionForID ${_jvm} )
+                _jvmVersion=$( _getJVMVersionForID "${_jvm}" )
             fi
 
             _tag="${_version}"
@@ -134,15 +137,15 @@ do
             test -n "${_jvm}" && _tag="${_tag:+${_tag}-}${_jvm}"
             test -n "${ciTag}" && _tag="${_tag:+${_tag}-}${ciTag}"
 
-            if test -z "${isLocalBuild}" ;
+            if test -z "${isLocalBuild}"
             then
                 docker pull "${FOUNDATION_REGISTRY}/${product}:${_tag}"
             fi
             
             # this is the loop where the actual test is run
-            for _test in ${product}/tests/*.test.y*ml ; 
+            for _test in "${product}"/tests/*.test.y*ml
             do
-                banner "Running test $( basename ${_test} ) on ${product}${_version:+ ${version}}${_shim:+ on ${shim}}${_jvm:+ with Java ${_jvmVersion}(${_jvm})}"
+                banner "Running test $( basename "${_test}" ) on ${product}${_version:+ ${version}}${_shim:+ on ${shim}}${_jvm:+ with Java ${_jvmVersion}(${_jvm})}"
                 # sut = system under test
                 _start=$( date '+%s' )
                 env TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f ./"${_test}" up --exit-code-from sut --abort-on-container-exit
@@ -150,7 +153,7 @@ do
                 _stop=$( date '+%s' )
                 _duration=$(( _stop - _start ))
                 env TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f ./"${_test}" down
-                if test ${_returnCode} -ne 0 ;
+                if test ${_returnCode} -ne 0
                 then
                     _result="FAIL"
                     test -n "${fastFail}" && exit ${returnCode}
@@ -166,7 +169,7 @@ do
 done
 
 # leave the runner without clutter
-if test -z "${isLocalBuild}" ;
+if test -z "${isLocalBuild}"
 then
     imagesToClean=$( docker image ls -qf "reference=*/*/*${ciTag}" | sort | uniq )
     # shellcheck disable=SC2086
