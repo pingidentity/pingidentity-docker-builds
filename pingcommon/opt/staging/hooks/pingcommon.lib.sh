@@ -10,13 +10,15 @@ ${VERBOSE} && set -x
 CALLING_HOOK=${0}
 
 # check for devops file in docker secrets location
+# shellcheck disable=SC1090
 test -f "/run/secrets/${PING_IDENTITY_DEVOPS_FILE}" && . "/run/secrets/${PING_IDENTITY_DEVOPS_FILE}"
 
 # File holding State Properties
 STATE_PROPERTIES="${STAGING_DIR}/state.properties"
 
 # echo colorization options
-if test "${COLORIZE_LOGS}" = "true" ; then
+if test "${COLORIZE_LOGS}" = "true"
+then
     RED_COLOR='\033[0;31m'
     GREEN_COLOR='\033[0;32m'
     YELLOW_COLOR='\033[0;33m'
@@ -77,7 +79,7 @@ _curl ()
             --retry-delay 3 \
             "${@}"
     )
-    test ${_httpResultCode} -eq 200
+    test "${_httpResultCode}" = "200"
     return ${?}
 }
 
@@ -86,8 +88,7 @@ _curl ()
 #
 parseOSRelease () 
 {
-
-    test -n "${1}" && awk '$0~/^'${1}'=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null
+    test -n "${1}" && awk '$0~/^'"${1}"'=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null
 }
 
 # The OS ID is all lowercase
@@ -123,10 +124,11 @@ isOS ()
 echo_red ()
 {
     echoEscape="-e"
-    if isOS ubuntu || test "${COLORIZE_LOGS}" != "true" ; then
+    if isOS ubuntu || test "${COLORIZE_LOGS}" != "true"
+    then
         echoEscape=""
     fi
-    # shellcheck disable=SC2039
+    # shellcheck disable=SC2086
     echo ${echoEscape} "${RED_COLOR}$*${NORMAL_COLOR}"
 }
 
@@ -138,10 +140,11 @@ echo_red ()
 echo_green ()
 {
     echoEscape="-e"
-    if isOS ubuntu || test "${COLORIZE_LOGS}" != "true" ; then
+    if isOS ubuntu || test "${COLORIZE_LOGS}" != "true"
+    then
         echoEscape=""
     fi
-    # shellcheck disable=SC2039
+    # shellcheck disable=SC2086
     echo ${echoEscape} "${GREEN_COLOR}$*${NORMAL_COLOR}"
 }
 
@@ -153,10 +156,11 @@ echo_green ()
 echo_yellow ()
 {
     echoEscape="-e"
-    if isOS ubuntu || test "${COLORIZE_LOGS}" != "true" ; then
+    if isOS ubuntu || test "${COLORIZE_LOGS}" != "true"
+    then
         echoEscape=""
     fi
-    # shellcheck disable=SC2039
+    # shellcheck disable=SC2086
     echo ${echoEscape} "${YELLOW_COLOR}$*${NORMAL_COLOR}"
 }
 
@@ -181,7 +185,8 @@ run_if_present ()
 
     _commandSet="sh"
     ${VERBOSE} && _commandSet="${_commandSet} -x"
-    if test -f "${_runFile}" ; then 
+    if test -f "${_runFile}"
+    then 
         ${_commandSet} "${_runFile}"
         return ${?}
     else
@@ -218,7 +223,8 @@ die_on_error ()
     _errorCode=${?}
     _exitCode=${1} && shift
 
-    if test ${_errorCode} -ne 0 ; then
+    if test ${_errorCode} -ne 0
+    then
         container_failure "${_exitCode}" "$*"
     fi
 }
@@ -258,7 +264,8 @@ run_hook ()
 ###############################################################################
 apply_local_server_profile()
 {
-    if test -n "${IN_DIR}" && test -n "$( ls -A ${IN_DIR} 2>/dev/null )" ; then
+    if test -n "${IN_DIR}" && test -n "$( ls -A "${IN_DIR}" 2>/dev/null )"
+    then
         echo "copying local IN_DIR files (${IN_DIR}) to STAGING_DIR (${STAGING_DIR})"
         # shellcheck disable=SC2086
         copy_files "${IN_DIR}" "${STAGING_DIR}"
@@ -280,10 +287,12 @@ copy_files()
     SRC="$1"
     DST="$2"
 
-    if ! test -e "${DST}"; then
+    if ! test -e "${DST}"
+    then
         echo "copy_files - dst dir (${DST}) does not exist - will create it"
         mkdir -p "${DST}"
-    elif ! test -d "${DST}"; then
+    elif ! test -d "${DST}"
+    then
         echo "Error: copy_files - dst (${DST}) must be a directory"
         exit 1
     fi
@@ -304,22 +313,23 @@ security_filename_check()
     _scPath="${1}"
     _patternToCheck="${2}"
 
-    test -z ${_totalSecurityViolations} && _totalSecurityViolations=0
+    test -z "${_totalSecurityViolations}" && _totalSecurityViolations=0
 
     _tmpSC="/tmp/.securityCheck"
     # Check for *.jwk files
-    test -d ${_scPath} && _tmpPWD=`pwd` && cd ${_scPath}
-    find . -type f -name "${_patternToCheck}" > ${_tmpSC}
-    test -d ${_scPath} && cd ${_tmpPWD}
+    test -d "${_scPath}" && _tmpPWD=$( pwd ) && cd "${_scPath}"
+    find . -type f -name "${_patternToCheck}" > "${_tmpSC}"
+    test -d "${_scPath}" && cd ${_tmpPWD}
     
-    _numViolations=$(cat ${_tmpSC} | wc -l)
+    _numViolations=$( awk 'END{print NR}' "${_tmpSC}" )
 
-    if test ${_numViolations} -gt 0; then
-        if test "${SECURITY_CHECKS_STRICT}" = "true"; then
+    if test ${_numViolations} -gt 0
+    then
+        if test "${SECURITY_CHECKS_STRICT}" = "true"
+        then
             echo_red "SECURITY_CHECKS_FILENAME: ${_numViolations} files found matching file pattern ${_patternToCheck}"
         else
             echo_green "SECURITY_CHECKS_FILENAME: ${_numViolations} files found matching file pattern ${_patternToCheck}"
-        
         fi
 
         cat_indent ${_tmpSC}
@@ -368,14 +378,13 @@ get_value ()
 #
 # Echo a header, with each line passed on separate lines
 ###############################################################################
-echo_header()
+echo_header ()
 {
   echo "##################################################################################"
 
-  while (test ! -z "${1}")
+  while test -n "${1}"
   do
     _msg=${1} && shift
-
     echo "#    ${_msg}"
   done
 
@@ -390,7 +399,7 @@ echo_header()
 # Echo a formatted list of variables and their value.  If the variable is 
 # empty, then, a sring of '---- empty ----' will be echoed
 ###############################################################################
-echo_req_vars()
+echo_req_vars ()
 {
     echo_red "# Variable (${_var}) is required."
 }
@@ -404,9 +413,9 @@ echo_req_vars()
 # If the variable is found in env_vars file, then '(env_vars overridden)'
 # If the varaible has a _REDACT=true, then '*** REDACTED ***'
 ###############################################################################
-echo_vars()
+echo_vars ()
 {
-  while (test ! -z ${1})
+  while test -n "${1}"
   do
     _var=${1} && shift
     _val=$( get_value "${_var}" )
@@ -415,7 +424,8 @@ echo_vars()
     # overridden message
     #
     grep -e "^${_var}=" "${STAGING_DIR}/env_vars" >/dev/null 2>/dev/null
-    if test $? -eq 0; then
+    if test $? -eq 0
+    then
         _overridden=" (env_vars overridden)"
     else
         _overridden=""
@@ -427,7 +437,8 @@ echo_vars()
     _varRedact="${_var}_REDACT"
     _varRedact=$( get_value "${_varRedact}" )
 
-    if test "${_varRedact}" = "true"; then
+    if test "${_varRedact}" = "true"
+    then
       _val="*** REDACTED ***"
     fi
 
@@ -441,16 +452,18 @@ echo_vars()
     _valValidation=$( get_value "${_varValidation}" )
 
     # Parse the validation value if it exists
-    if test ! -z "${_valValidation}" ; then
+    if test -n "${_valValidation}"
+    then
       _validReq=$( echo "${_valValidation}" | sed  's/^\(.*\)|\(.*\)|\(.*\)$/\1/g' )
       _validVal=$( echo "${_valValidation}" | sed  's/^\(.*\)|\(.*\)|\(.*\)$/\2/g' )
       _validMsg=$( echo "${_valValidation}" | sed  's/^\(.*\)|\(.*\)|\(.*\)$/\3/g' )
 
-      if test "${_validReq}" = "true" -a -z "${_val}" ; then
-        _validationFailed="true"
+      if test "${_validReq}" = "true" && test -z "${_val}"
+      then
+        # _validationFailed="true"
         test "${_validReq}" = "true" && echo_red "         Required: ${_var}"
-        test ! -z "${_validVal}" && echo_red "     Valid Values: ${_validVal}"
-        test ! -z "${_validMsg}" && echo_red "        More Info: ${_validMsg}"
+        test -n "${_validVal}" && echo_red "     Valid Values: ${_validVal}"
+        test -n "${_validMsg}" && echo_red "        More Info: ${_validMsg}"
       fi
     fi
   done
@@ -462,7 +475,8 @@ echo_vars()
 echo_green "----- Starting hook: ${CALLING_HOOK}"
 
 # shellcheck source=/dev/null
-if test -f "${CONTAINER_ENV}" ; then
+if test -f "${CONTAINER_ENV}"
+then
     set -o allexport
     . "${CONTAINER_ENV}"
     set +o allexport

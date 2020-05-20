@@ -17,14 +17,17 @@ ${VERBOSE} && set -x
 
 LICENSE_FILE="${LICENSE_DIR}/${LICENSE_FILE_NAME}"
 
-if test -f "${LICENSE_FILE}" ; then
+if test -f "${LICENSE_FILE}"
+then
    licenseFound="true"
 else
-   if test ! -z "${PING_IDENTITY_DEVOPS_USER}" && test ! -z "${PING_IDENTITY_DEVOPS_KEY}" ; then
+   if test ! -z "${PING_IDENTITY_DEVOPS_USER}" && test ! -z "${PING_IDENTITY_DEVOPS_KEY}"
+   then
         ##################################################################
         # Let's get the license from the license server
         ##################################################################
-        if ! test -z "${LICENSE_SHORT_NAME}" && ! test -z "${LICENSE_VERSION}" ; then
+        if ! test -z "${LICENSE_SHORT_NAME}" && ! test -z "${LICENSE_VERSION}"
+        then
             echo "Pulling evaluation license from Ping Identity for:
               Prod License: ${LICENSE_SHORT_NAME} - v${LICENSE_VERSION} 
                DevOps User: ${PING_IDENTITY_DEVOPS_USER}..."
@@ -44,7 +47,8 @@ else
             # also need to capture & test the curl return code.
             #
             rc=${?}
-            if test ${rc} -eq 0 ; then
+            if test ${rc} -eq 0
+            then
                 echo "Successfully pulled evaluation license from Ping Identity"
                 test "${PING_DEBUG}" = "true" && cat_indent "${LICENSE_FILE}"
                 echo ""
@@ -68,7 +72,8 @@ else
     fi
 fi
 
-if test ! "${licenseFound}" = "true" ; then
+if test "${licenseFound}" != "true"
+then
     echo_red "
 ##################################################################################
 ############################        ALERT        #################################

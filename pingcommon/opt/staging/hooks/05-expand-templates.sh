@@ -39,7 +39,8 @@ expandFiles()
 {
     echo "  Processing templates"
     # shellcheck disable=SC2044
-    for template in $( find "." -type f -iname \*.subst ) ; do
+    for template in $( find "." -type f -iname \*.subst )
+    do
         echo "    t - ${template}"
         envsubst < "${template}" > "${template%.subst}"
         rm -f "${template}"
@@ -47,29 +48,30 @@ expandFiles()
     
     echo "  Processing defaults"
     # shellcheck disable=SC2044
-    for template in $( find "." -type f -iname \*.subst.default ) ; do
-        echo -n "    d - ${template} .. "
+    for template in $( find "." -type f -iname \*.subst.default )
+    do
+        printf "    d - %s .. " "${template}"
         _effectiveFile="${template%.subst.default}"
         _processDefault="true"
-        if test "${RUN_PLAN}" = "RESTART" ;
+        if test "${RUN_PLAN}" = "RESTART"
         then
             _targetInstanceFile="${OUT_DIR}${_effectiveFile#.}"
-            if test -f "${_targetInstanceFile}" || test -f "${_effectiveFile}" ;
+            if test -f "${_targetInstanceFile}" || test -f "${_effectiveFile}"
             then
                 _processDefault="false"
             fi
         else
-            if test -f "${_effectiveFile}" ;
+            if test -f "${_effectiveFile}"
             then
                 _processDefault="false"
             fi
         fi
-        if test "${_processDefault}" = "true" ;
+        if test "${_processDefault}" = "true"
         then
             envsubst < "${template}" > "${_effectiveFile}"
             echo_green "expanded"
         else
-            echo_red "skipped"
+            echo_yellow "skipped"
         fi
         rm -f "${template}"
     done
@@ -78,7 +80,8 @@ expandFiles()
 # main
 cd "${STAGING_DIR}" || exit 15
 # shellcheck disable=SC2044
-for _zipBundle in $( find "." -type f -iname \*.zip.subst ) ; do
+for _zipBundle in $( find "." -type f -iname \*.zip.subst )
+do
     echo "expanding .zip file - ${_zipBundle}"
 
     # create a temporary zip directory and unzip the .zip.subst artifacts there
@@ -110,18 +113,19 @@ expandFiles
 #
 cd "${STAGING_DIR}" || exit 15
 
-for _zipBundle in $( find "." -type d -iname _data.zip_ ) ; do
+# shellcheck disable=SC2044
+for _zipBundle in $( find "." -type d -iname _data.zip_ )
+do
     echo "Ziping up ${_zipBundle} in to a data.zip..."
 
     cd "${_zipBundle}" || exit 15
 
-    if test ! -d ../data.zip ; then
+    if test ! -d ../data.zip
+    then
         zip -qr "../data.zip" * || exit 18
     else 
-        echo "  Possible error.  Also found a data.zip file."
-        echo "  Will use data.zip file."
+        echo_yellow "  Possible error.  Also found a data.zip file. Will use data.zip file."
     fi
 
     cd "${STAGING_DIR}" || exit 15
 done
-

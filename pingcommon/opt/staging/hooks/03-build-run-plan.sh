@@ -13,7 +13,8 @@ rm -rf "${STATE_PROPERTIES}"
 
 RUN_PLAN="UNKNOWN"
 
-if test -d "${SERVER_ROOT_DIR}" ; then
+if test -d "${SERVER_ROOT_DIR}"
+then
     echo "Found SERVER_ROOT: ${SERVER_ROOT_DIR}"
     RUN_PLAN="RESTART"
 else
