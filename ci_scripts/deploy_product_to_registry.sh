@@ -154,7 +154,7 @@ latestVersion=$( _getLatestVersionForProduct "${productToDeploy}" )
 for tag in $( git tag --points-at "$gitRevLong" )
 do
     # if test -z "$( echo ${tag} | sed 's/^[0-9]\{4\}$//' )"
-    if test -z "${tag##2[0-9][0-9][0-9]}"
+    if test -z "${tag##2[0-9][0-9][0-9]*}"
     then
         sprint="${tag}"
         break
