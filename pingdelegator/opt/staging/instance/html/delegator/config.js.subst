@@ -32,7 +32,7 @@ window.DS_PORT = '$PD_ENGINE_PRIVATE_PORT';
 
 // The length of time (in minutes) until the session will require a new login attempt
 // DEFAULT: window.TIMEOUT_LENGTH_MINS = 30;
-// window.TIMEOUT_LENGTH_MINS = 30;
+window.TIMEOUT_LENGTH_MINS = '$DELEGATOR_TIMEOUT_LENGTH_MINS';
 
 // The filename used as the logo in the header bar, relative to this application's build directory.
 // Note about logos: The size of the image will be scaled down to fit 22px of height and a max-width
@@ -40,13 +40,13 @@ window.DS_PORT = '$PD_ENGINE_PRIVATE_PORT';
 // as well as to crop out any blank spacing around the logo to maximize its presentation.
 // e.g. 'my_company_logo.png'
 // DEFAULT: window.HEADER_BAR_LOGO = undefined;
-// window.HEADER_BAR_LOGO = undefined;
+window.HEADER_BAR_LOGO = '$DELEGATOR_HEADER_BAR_LOGO';
 
 // The namespace for the Delegated Admin API on the DS instance. In most cases, this does not need
 // to be set here.
 // e.g. 'dadmin/v2'
 // DEFAULT: window.DADMIN_API_NAMESPACE = undefined;
-// window.DADMIN_API_NAMESPACE = undefined;
+window.DADMIN_API_NAMESPACE = '$DELEGATOR_DADMIN_API_NAMESPACE';
 
 /**
  * Configuration wrapper object for Delegated Admin
@@ -57,5 +57,5 @@ window.PD_DADMIN_CONFIG = {
    * PingFederate and you wish to use it to show the current user's name in the navigation.
    * DEFAULT: false
    */
-  PROFILE_SCOPE_ENABLED: false,
+  PROFILE_SCOPE_ENABLED: $DELEGATOR_PROFILE_SCOPE_ENABLED
 };

@@ -1,0 +1,18 @@
+version: "2"
+
+services:
+  sut:
+    image: ${REGISTRY}/pingdelegator:${TAG}
+    environment:
+      - PING_IDENTITY_ACCEPT_EULA=YES
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: 256m
+    memswap_limit: 256m
+    mem_swappiness: 0
+    command: start-server /opt/wait-for localhost:8443 -t 300 -- /opt/liveness.sh
