@@ -25,7 +25,7 @@ _curl ()
 _curlSafe ()
 {
     _httpResultCode=$( _curl --write-out '%{http_code}' "${@}" )
-    test ${_httpResultCode} -eq 200
+    test "${_httpResultCode}" = "200"
     return ${?}
 }
 
@@ -53,7 +53,8 @@ _getURLForProduct ()
             _url="https://bld-fed01.corp.pingidentity.com/job/PingFederate_Mainline/lastSuccessfulBuild"
             ;;
         pingcentral)
-            _url="https://gitlab.corp.pingidentity.com/api/v4/projects/2990/jobs/artifacts/master/raw/distribution/target"
+            # _url="https://gitlab.corp.pingidentity.com/api/v4/projects/2990/jobs/artifacts/master/raw/distribution/target" 
+            _url="https://art01.corp.pingidentity.com/artifactory/repo/com/pingidentity/pass/pass-common"
             ;;
         pingaccess)
             _url="https://art01.corp.pingidentity.com/artifactory/repo/com/pingidentity/products/pingaccess"
@@ -68,17 +69,18 @@ _getURLForProduct ()
 _getLatestSnapshotVersionForProduct ()
 {
     case "${1}" in
-        pingcentral)
-            echo "1.4.0-SNAPSHOT"
-            ;;
+        # pingcentral)
+        #     _curl "https://art01.corp.pingidentity.com/artifactory/repo/com/pingidentity/pass/pass-common/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/latest)' -
+        #     # echo "1.4.0-SNAPSHOT"
+        #     ;;
         pingfederate)
-            _curl "$( _getURLForProduct ${1} )/artifact/pf-server/HuronPeak/assembly/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
+            _curl "$( _getURLForProduct "${1}" )/artifact/pf-server/HuronPeak/assembly/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
             ;;
-        pingaccess)
-            _curl "$( _getURLForProduct ${1} )/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/metadata/versioning/latest)' -
+        pingaccess|pingcentral)
+            _curl "$( _getURLForProduct "${1}" )/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/metadata/versioning/latest)' -
             ;;
         *)
-            _curl "$( _getURLForProduct ${1} )/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/latest)' -
+            _curl "$( _getURLForProduct "${1}" )/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/latest)' -
         ;;
     esac
     return ${?}
@@ -87,17 +89,17 @@ _getLatestSnapshotVersionForProduct ()
 _getLatestSnapshotIDForProductVersion ()
 {
     case "${1}" in
-        pingcentral)
-            date '+%Y%m%d'
-            ;;
+        # pingcentral)
+        #     date '+%Y%m%d'
+        #     ;;
         pingfederate)
-            _curl "$( _getURLForProduct ${1} )/buildNumber" 
+            _curl "$( _getURLForProduct "${1}" )/buildNumber" 
             ;;
-        pingaccess)
-            _curl "$( _getURLForProduct ${1} )/${2}/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' |xmllint --xpath 'concat(string(/metadata/versioning/snapshot/timestamp),"-",string(/metadata/versioning/snapshot/buildNumber))' -
+        pingaccess|pingcentral)
+            _curl "$( _getURLForProduct "${1}" )/${2}/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' |xmllint --xpath 'concat(string(/metadata/versioning/snapshot/timestamp),"-",string(/metadata/versioning/snapshot/buildNumber))' -
             ;;
         *)
-            _curl "$( _getURLForProduct ${1} )/${2}/maven-metadata.xml" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -
+            _curl "$( _getURLForProduct "${1}" )/${2}/maven-metadata.xml" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -
             ;;
     esac
     return ${?}
@@ -107,16 +109,16 @@ _getLatestSnapshotImageForProductVersionID ()
 {
     case "${1}" in
         pingcentral)
-            _curlSafeFile ${TARGET_FILE} -H "PRIVATE-TOKEN: ${PING_IDENTITY_GITLAB_TOKEN}" "$( _getURLForProduct ${1} )/ping-central-${2}.zip?job=deploy-job"
+            _curlSafeFile ${TARGET_FILE} -H "PRIVATE-TOKEN: ${PING_IDENTITY_GITLAB_TOKEN}" "https://gitlab.corp.pingidentity.com/api/v4/projects/2990/jobs/artifacts/master/raw/distribution/target/ping-central-${2}.zip?job=deploy-job"
             ;;
         pingfederate)
-            _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct ${1} )/artifact/pf-server/HuronPeak/assembly/target/${1}-${2}-${3}.zip"
+            _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct "${1}" )/artifact/pf-server/HuronPeak/assembly/target/${1}-${2}-${3}.zip"
             ;;
         pingaccess)
-            _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct ${1} )/${2}/${1}-${2%-SNAPSHOT}-${3}.zip"
+            _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct "${1}" )/${2}/${1}-${2%-SNAPSHOT}-${3}.zip"
             ;;
         *)
-            _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct ${1} )/${2}/${1}-${3}-image.zip"
+            _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct "${1}" )/${2}/${1}-${3}-image.zip"
             ;;
     esac
     return ${?}
@@ -130,7 +132,7 @@ _getLatestSnapshotImageSignatureForProductVersionID ()
             sha1sum /tmp/product.zip | awk '{print $1}' > "${TARGET_SIGNATURE}"
             ;;
         *)
-            _curlSafeFile "${TARGET_SIGNATURE}" "$( _getURLForProduct ${1} )/${2}/${1}-${3}-image.zip.sha1"
+            _curlSafeFile "${TARGET_SIGNATURE}" "$( _getURLForProduct "${1}" )/${2}/${1}-${3}-image.zip.sha1"
             ;;
     esac
     return ${?}
@@ -140,7 +142,7 @@ _sha1SignaturesDoMatch ()
 {
     _computedSignature=$( sha1sum "${TARGET_FILE}"|awk '{print $1}' )
     _downloadedSignature=$( cat "${TARGET_SIGNATURE}" )
-    if test -n "${_computedSignature}" && test -n "${_downloadedSignature}" && test "${_computedSignature}" = "${_downloadedSignature}" ;
+    if test -n "${_computedSignature}" && test -n "${_downloadedSignature}" && test "${_computedSignature}" = "${_downloadedSignature}"
     then
         return 0
     else
@@ -174,13 +176,13 @@ case "${1}" in
         ;;
 esac
 
-if test -n "${_product}" ;
+if test -n "${_product}"
 then
-    _version=$( _getLatestSnapshotVersionForProduct ${_product} )
-    _id=$( _getLatestSnapshotIDForProductVersion ${_product} ${_version} )
-    if _getLatestSnapshotImageForProductVersionID ${_product} ${_version} ${_id} ;
+    _version=$( _getLatestSnapshotVersionForProduct "${_product}" )
+    _id=$( _getLatestSnapshotIDForProductVersion "${_product}" "${_version}" )
+    if _getLatestSnapshotImageForProductVersionID "${_product}" "${_version}" "${_id}"
     then
-        if _getLatestSnapshotImageSignatureForProductVersionID ${_product} ${_version} ${_id} ;
+        if _getLatestSnapshotImageSignatureForProductVersionID "${_product}" "${_version}" "${_id}"
         then
             _sha1SignaturesDoMatch
             exit ${?}

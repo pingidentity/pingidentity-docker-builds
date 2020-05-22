@@ -165,12 +165,6 @@ do
 
     if test -f "${productToBuild}/Product-staging"
     then
-        if test -n "${PING_IDENTITY_SNAPSHOT}" 
-        then
-            _versioningArgs="--build-arg PING_IDENTITY_SNAPSHOT=\"${PING_IDENTITY_SNAPSHOT}\" ${PING_IDENTITY_GITLAB_TOKEN:+--build-arg PING_IDENTITY_GITLAB_TOKEN=\"${PING_IDENTITY_GITLAB_TOKEN}\"}"
-        else
-            _versioningArgs="--build-arg VERSION=${_version}"
-        fi
         _start=$( date '+%s' )
         _dependencies=$( _getDependenciesForProductVersion "${productToBuild}" "${_version}" )
         _image="${FOUNDATION_REGISTRY}/${productToBuild}:staging-${_version}-${ciTag}"
@@ -185,7 +179,9 @@ do
             --build-arg DEVOPS_USER="${PING_IDENTITY_DEVOPS_USER}" \
             --build-arg DEVOPS_KEY="${PING_IDENTITY_DEVOPS_KEY}" \
             --build-arg PRODUCT="${productToBuild}" \
-            ${_versioningArgs} \
+            --build-arg VERSION=${_version} \
+            ${PING_IDENTITY_SNAPSHOT:+--build-arg PING_IDENTITY_SNAPSHOT="${PING_IDENTITY_SNAPSHOT}"} \
+            ${PING_IDENTITY_GITLAB_TOKEN:+--build-arg PING_IDENTITY_GITLAB_TOKEN="${PING_IDENTITY_GITLAB_TOKEN}"} \
             ${VERBOSE:+--build-arg VERBOSE="true"} \
             ${_dependencies} \
             "${productToBuild}"
