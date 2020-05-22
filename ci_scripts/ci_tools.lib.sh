@@ -256,7 +256,8 @@ _getLatestSnapshotVersionForProduct ()
             _curl "${_baseURL}/${_basePath}/${_product}/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/latest)' -
             ;;
         pingcentral)
-            echo "1.4.0-SNAPSHOT"
+            _curl "https://art01.corp.pingidentity.com/artifactory/repo/com/pingidentity/pass/pass-common/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/metadata/versioning/latest)' -
+            # echo "1.4.0-SNAPSHOT"
             ;;
         pingfederate)
             _curl "https://bld-fed01.corp.pingidentity.com/job/PingFederate_Mainline/lastSuccessfulBuild/artifact/pf-server/HuronPeak/assembly/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
@@ -282,6 +283,7 @@ elif test -n "${CI_COMMIT_REF_NAME}"
 then
     #we are in CI pipeline
     FOUNDATION_REGISTRY="gcr.io/ping-gte"
+    # FOUNDATION_REGISTRY="574076504146.dkr.ecr.us-west-2.amazonaws.com"
     # shellcheck disable=SC2155
     gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
     # shellcheck disable=SC2155

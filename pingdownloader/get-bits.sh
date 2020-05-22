@@ -9,7 +9,8 @@ cd "$( dirname "${0}" )" || exit 97
 ##########################################################################################
 usage ()
 {
-	if ! test -z "${1}" ; then
+	if test -n "${1}"
+    then
 	   echo "Error: ${1}"
 	fi
 
@@ -78,31 +79,25 @@ END_USAGE2
 FONT_RED='\033[0;31m'
 FONT_GREEN='\033[0;32m'
 FONT_NORMAL='\033[0m'
-CHAR_CHECKMARK='\xE2\x9C\x94'
-CHAR_CROSSMARK='\xE2\x9D\x8C'
+# CHAR_CHECKMARK='\xE2\x9C\x94'
+# CHAR_CROSSMARK='\xE2\x9D\x8C'
 
 ################################################################################
 # Echo message in red color
 ################################################################################
-echo_red()
+echo_red ()
 {
-    if test $(uname) = "Darwin"; then
-        echo "${FONT_RED}$*${FONT_NORMAL}"
-    else
-        echo -e "${FONT_RED}$*${FONT_NORMAL}"
-    fi
+    test "$( uname )" = "Darwin" && _echoOpts="-e"
+    echo ${_echoOpts} "${FONT_RED}$*${FONT_NORMAL}"
 }
 
 ################################################################################
 # Echo message in green color
 ################################################################################
-echo_green()
+echo_green ()
 {
-    if test $(uname) = "Darwin"; then
-        echo "${FONT_GREEN}$*${FONT_NORMAL}"
-    else
-        echo -e "${FONT_GREEN}$*${FONT_NORMAL}"
-    fi
+    test "$( uname )" = "Darwin" && _echoOpts="-e"
+    echo ${_echoOpts} "${FONT_GREEN}$*${FONT_NORMAL}"
 }
 
 ##########################################################################################
@@ -125,11 +120,12 @@ getProps ()
     _tmpApp=${devopsApp}
     devopsApp="pingdownloader"
     
-	if ! _curl -H "devops-purpose: get-metadata" ${repositoryURL}${metadataFile} -o ${outputProps}; then
+	if ! _curl -H "devops-purpose: get-metadata" "${repositoryURL}${metadataFile}" -o "${outputProps}"
+    then
         usage "Unable to get bits metadata. Network Issue?"
     fi
 
-	availableProducts=$( jq -r '.products[].name' ${outputProps} )
+	availableProducts=$( jq -r '.products[].name' "${outputProps}" )
     devopsApp=${_tmpApp}
 }
 
@@ -140,18 +136,20 @@ getProps ()
 ##########################################################################################
 getProductVersion ()
 {
-	latestVersion=$( jq -r ".products[] | select(.name==\"${product}\").latestVersion" ${outputProps} )
+	latestVersion=$( jq -r ".products[] | select(.name==\"${product}\").latestVersion" "${outputProps}" )
 
-    if test -z "${version}" || test "${version}" = "latest" ; then
+    if test -z "${version}" || test "${version}" = "latest"
+    then
 		version=${latestVersion}
-        if test "${version}" = "null" ; then
+        if test "${version}" = "null"
+        then
             usage "Unable to determine latest version for ${product}"
         else
-            licenseVersion=$( echo ${version} | cut -d. -f1,2 )
+            licenseVersion=$( echo "${version}" | cut -d. -f1,2 )
         fi
     fi
 
-	test ${version} = ${latestVersion} && latestStr="(latest)"
+	test "${version}" = "${latestVersion}" && latestStr="(latest)"
 }
 
 ##########################################################################################
@@ -162,7 +160,7 @@ getProductVersion ()
 ##########################################################################################
 getProductFile ()
 {
-	prodFile=$( jq -r ".products[] | select(.name==\"${product}\").mapping" ${outputProps} )
+	prodFile=$( jq -r ".products[] | select(.name==\"${product}\").mapping" "${outputProps}" )
 	prodFile=$(eval echo "$prodFile")
     test "${prodFile}" = "null" && usage "Unable to determine download file for ${product}"
 }
@@ -175,9 +173,9 @@ getProductFile ()
 ##########################################################################################
 getProductURL ()
 {
-	defaultURL=$( jq -r '.defaultURL' ${outputProps} ) 
+	defaultURL=$( jq -r '.defaultURL' "${outputProps}" ) 
 	
-	prodURL=$( jq -r ".products[] | select(.name==\"${product}\").url" ${outputProps} )
+	prodURL=$( jq -r ".products[] | select(.name==\"${product}\").url" "${outputProps}" )
 	
 	prodURL=$( eval echo "$prodURL" )
 
@@ -189,8 +187,9 @@ getProductURL ()
 
 getProductLicenseFile ()
 {
-	licenseFile=$( jq -r ".products[] | select(.name==\"${product}\").licenseFile" ${outputProps} )
-    if test "${licenseFile}" = "null" ; then
+	licenseFile=$( jq -r ".products[] | select(.name==\"${product}\").licenseFile" "${outputProps}" )
+    if test "${licenseFile}" = "null"
+    then
         licenseFile=""
     fi
 	licenseFile=$(eval echo "${licenseFile}")
@@ -199,28 +198,28 @@ getProductLicenseFile ()
 
 getGPGKeyServer ()
 {
-    jq -r ".gpg.server" ${outputProps}
+    jq -r ".gpg.server" "${outputProps}"
 }
 
 getGPGKeyID ()
 {
-    jq -r ".gpg.key" ${outputProps}
+    jq -r ".gpg.key" "${outputProps}"
 }
 
 getGPGKeyFile ()
 {
-    jq -r ".gpg.file" ${outputProps}
+    jq -r ".gpg.file" "${outputProps}"
 }
 
 saveOutcome ()
 {
-    mv ${output} download-outcome.html
+    mv "${output}" download-outcome.html
 }
 
 cleanup ()
 {
-    test -z "${dryRun}" && rm -f ${outputProps}
-    test -d "${TMP_VS}" && rm -rf ${TMP_VS}
+    test -z "${dryRun}" && rm -f "${outputProps}"
+    test -d "${TMP_VS}" && rm -rf "${TMP_VS}"
 }
 
 _curl ()
@@ -242,13 +241,14 @@ _curl ()
             --header "devops-app: ${devopsApp}" \
             "${@}"
     )
-    test ${_httpResultCode} -eq 200
+    test "${_httpResultCode}" = "200"
     return ${?}
 }
 
 download_and_verify ()
 {
-	export GNUPGHOME="$(mktemp -d)" 
+	GNUPGHOME="$(mktemp -d)" 
+    export GNUPGHOME
     TMP_VS="$( mktemp -d )"
     PAYLOAD="${TMP_VS}/payload" 
     SIGNATURE="${TMP_VS}/signature"
@@ -260,13 +260,13 @@ download_and_verify ()
     echo "disable-ipv6" >> "${GNUPGHOME}/dirmngr.conf"
 
     
-    if ! _curl --header "devops-purpose: signature" --output "${SIGNATURE}" "${OBJECT}.asc" ;
+    if ! _curl --header "devops-purpose: signature" --output "${SIGNATURE}" "${OBJECT}.asc"
     then
         echo_red "Downloading the payload signature failed"
         return 1
     fi
     
-    if ! _curl --header "devops-purpose: payload-signed" --output "${PAYLOAD}" "${OBJECT}" ;
+    if ! _curl --header "devops-purpose: payload-signed" --output "${PAYLOAD}" "${OBJECT}"
     then
         echo_red "Downloading the payload failed"
         return 2
@@ -276,14 +276,14 @@ download_and_verify ()
     # manually implement retries to fetch the signature from the 
     # GPG public key server
     #
-    if test "${KEY_ID}" = "file" ;
+    if test "${KEY_ID}" = "file"
     then
         # pass "file" as the key argument to have this function download the file instead
-        if _curl --header "devops-purpose: signature-key" --output "${KEY}" ${KEY_SERVER} ;
+        if _curl --header "devops-purpose: signature-key" --output "${KEY}" "${KEY_SERVER}" 
         then
             gpg --import "${KEY}" >/dev/null 2>/dev/null
             _returnCode=${?}
-            if test ${_returnCode} -ne 0 ;
+            if test ${_returnCode} -ne 0
             then
                 echo_red "The PGP key file could not be imported"
             fi
@@ -293,11 +293,11 @@ download_and_verify ()
         fi
     else
         _retries=4
-        while test ${_retries} -gt 0 ;
+        while test ${_retries} -gt 0
         do
-            gpg --batch --keyserver ${KEY_SERVER} --recv-keys ${KEY_ID} >/dev/null 2>/dev/null
+            gpg --batch --keyserver "${KEY_SERVER}" --recv-keys "${KEY_ID}" >/dev/null 2>/dev/null
             _returnCode=${?}
-            if test ${_returnCode} -eq 0 ;
+            if test ${_returnCode} -eq 0
             then
                 _retries=${_returnCode}
             else
@@ -306,7 +306,7 @@ download_and_verify ()
         done
     fi
 
-    if test ${_returnCode} -ne 0 ;
+    if test ${_returnCode} -ne 0
     then
         echo_red "Obtaining the public key to verify the payload signature failed"
         return ${_returnCode}
@@ -314,7 +314,7 @@ download_and_verify ()
     
     gpg --batch --verify "${SIGNATURE}" "${PAYLOAD}" >/dev/null 2>/dev/null
     _returnCode=${?}
-    if test ${_returnCode} -eq 0 ;
+    if test ${_returnCode} -eq 0
     then
         echo_green "The payload signature was successfully verified."
         mv "${PAYLOAD}" "${DESTINATION}"
@@ -341,7 +341,8 @@ licenseURL="https://license.pingidentity.com/devops/v2/license"
 metadataFile="gte-bits-repo.json"
 # default app name
 devopsApp=""
-while ! test -z "${1}" ; do
+while test -n "${1}"
+do
     case "${1}" in
 		-a|--devops-app)
 			shift
@@ -355,7 +356,7 @@ while ! test -z "${1}" ; do
 			shift
 			test -z "${1}" && usage "Product argument missing"			
 			# lowercase the argument value (the product name )
-			product=$( echo ${1} | tr [A-Z] [a-z] )
+			product=$( echo "${1}" | tr '[:upper:]' '[:lower:]' )
 			;;
 		-k|--devops-key)
 			shift
@@ -371,7 +372,7 @@ while ! test -z "${1}" ; do
             metadataFile="${1}"
             ;;
 		-n|--dry-run)
-			dryRun=echo
+			dryRun="echo"
 			;;
         --snapshot)
             getSnapshot=true
@@ -390,7 +391,7 @@ while ! test -z "${1}" ; do
 			shift
 			test -z "${1}" && usage "Product version missing"
 			version="${1}"
-            licenseVersion=$( echo ${version} | cut -d. -f1,2 )
+            licenseVersion=$( echo "${version}" | cut -d. -f1,2 )
 			;;
         --verify-gpg-signature)
             verifyGPGSignature=true
@@ -405,7 +406,7 @@ outputProps="/tmp/${metadataFile}"
 
 # If we weren't passed a product option, then error
 test -z "${product}" && usage "Option --product {product} required"
-test -n "${getSnapshot}" && exec /get-snapshots.sh ${product}
+test -n "${getSnapshot}" && exec /get-snapshots.sh "${product}"
 
 test -z "${devopsUser}" && usage "Option --devops-user {devops-user} required for eval license"
 test -z "${devopsKey}" && usage "Option --devops-key {devops-key} required for eval license"
@@ -413,8 +414,10 @@ test -z "${devopsKey}" && usage "Option --devops-key {devops-key} required for e
 
 # calling getProps populates the list of available products from the metadata file
 getProps
-for prodName in ${availableProducts}; do
-    if test "${product}" = "${prodName}" ; then
+for prodName in ${availableProducts}
+do
+    if test "${product}" = "${prodName}"
+    then
         foundProduct=true
     fi
 done
@@ -427,8 +430,8 @@ getProductURL
 
 exitCode=1
 
-if test ${pullLicense} ; then
-
+if test ${pullLicense}
+then
     case "${product}" in
         pingdirectory|pingdatasync|pingdirectoryproxy|pingdatametrics)
            productShortName="PD"
@@ -477,11 +480,13 @@ echo "
 #          PRODUCT: ${product}
 #          VERSION: ${version} ${latestStr}"
 
-if test ${pullLicense} ; then
+if test ${pullLicense}
+then
     echo "#      DOWNLOADING: product.lic"  
     echo "#               TO: ${output}" 
     cd /tmp || exit 2
-    if test -n "${dryRun}" ; then
+    if test -n "${dryRun}"
+    then
         cat<<END_CURL
         curl -GsSL \
             -w '%{http_code}' \
@@ -494,7 +499,7 @@ if test ${pullLicense} ; then
             "${licenseURL}"
 END_CURL
     else
-        if _curl -H "devops-purpose: license" -H "product: ${productShortName}" -H "version: ${licenseVersion}" -o "${output}" "${licenseURL}" ;
+        if _curl -H "devops-purpose: license" -H "product: ${productShortName}" -H "version: ${licenseVersion}" -o "${output}" "${licenseURL}"
         then
             echo_green "Successful download of ${productShortName} ${licenseVersion} license"
             exitCode=0
@@ -507,13 +512,14 @@ else
     echo "#               TO: ${output}" 
     cd /tmp || exit 2
     
-    if test -n "${dryRun}" ; then
+    if test -n "${dryRun}"
+    then
         echo curl -sSL -w '%{http_code}' -o "${output}" -H "devops-user: ${devopsUser}" -H "devops-key: ${devopsKey}" -H "devops-app: ${devopsApp}" "${url}"
     else
-        if test -n "${verifyGPGSignature}" ; 
+        if test -n "${verifyGPGSignature}"
         then
             keyFile=$( getGPGKeyFile )
-            if test -n "${keyFile}" && test "${keyFile}" != "null" ;
+            if test -n "${keyFile}" && test "${keyFile}" != "null"
             then
                 server="${defaultURL}${keyFile}"
                 key="file"
@@ -521,7 +527,7 @@ else
                 server=$( getGPGKeyServer )
                 key=$( getGPGKeyID )
             fi
-            if download_and_verify "${url}" "${server}" "${key}" "${output}" ;
+            if download_and_verify "${url}" "${server}" "${key}" "${output}"
             then
                 echo_green "Successful download and verification of ${url}"
                 exitCode=0
@@ -529,7 +535,7 @@ else
                 echo_red "Failed to obtain a verified copy of ${url}"
             fi
         else
-            if _curl --header "devops-purpose: payload-unsigned" --output "${output}" "${url}" ; 
+            if _curl --header "devops-purpose: payload-unsigned" --output "${output}" "${url}"
             then
                 echo_green "Successful download of ${prodFile}"
                 exitCode=0
