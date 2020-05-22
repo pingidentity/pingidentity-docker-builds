@@ -5,6 +5,7 @@ stages:
   - test.smoke
   - test.integration
   - deploy
+  - publish
   - cleanup
 
 ################################################
@@ -16,11 +17,22 @@ i.checks:
     - pwd
     - env
     - echo $USER
+    - type jq
+    - type aws
+    - aws --version
+    - type az
+    - az --version
+    - type docker
     - docker info
+    - type docker-compose
     - docker-compose version
+    - type envsubst
+    - envsubst --version
+    - type gcloud
+    - gcloud --version
+    - type git
     - git --version
     - ci_scripts/if_readme_only.sh 
-    - gcloud --version
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -62,8 +74,7 @@ d.pingdownloader:
   stage: deploy
   script:
     - docker pull gcr.io/ping-gte/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}
-    - docker tag gcr.io/ping-gte/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA} pingidentity/pingdownloader
-    - docker push pingidentity/pingdownloader
+    - while read -r _registry ; do docker tag gcr.io/ping-gte/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA} ${_registry}/pingdownloader ; docker push ${_registry}/pingdownloader ; done < registry.list
   only:
     refs:
       - master
@@ -129,7 +140,7 @@ t.apache-jmeter:
 d.apache-jmeter:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry docker.io/pingidentity --product apache-jmeter
+    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product apache-jmeter
   only:
     refs:
       - master
@@ -191,7 +202,7 @@ t.ldap-sdk-tools:
 d.ldap-sdk-tools:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry docker.io/pingidentity --product ldap-sdk-tools
+    - VERBOSE=true ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product ldap-sdk-tools
   only:
     refs:
       - master
@@ -241,10 +252,14 @@ t.pingaccess:
     - ci_scripts/run_smoke.sh --product pingaccess
   only:
     changes:
-      - pingaccess/**/*
       - pingcommon/**/*
+      - pingdatacommon/**/*
       - pingbase/**/*
       - pingdownloader/**/*
+      - pingaccess/**/*
+      - pingdirectory/**/*
+      - pingfederate/**/*
+      - integration_tests/**/*
       - pingjvm/*
       - ci_scripts/*
       - .gitlab-ci.yml
@@ -260,7 +275,7 @@ t.pingaccess:
 d.pingaccess:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry docker.io/pingidentity --product pingaccess
+    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingaccess
   only:
     refs:
       - master
@@ -327,7 +342,7 @@ t.pingcentral:
 d.pingcentral:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry docker.io/pingidentity --product pingcentral
+    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingcentral
   only:
     refs:
       - master
@@ -400,7 +415,7 @@ t.pingdirectory:
 d.pingdirectory:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry docker.io/pingidentity --product pingdirectory
+    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdirectory
   only:
     refs:
       - master
@@ -472,7 +487,7 @@ t.pingdirectoryproxy:
 d.pingdirectoryproxy:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry docker.io/pingidentity --product pingdirectoryproxy
+    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdirectoryproxy
   only:
     refs:
       - master
@@ -502,8 +517,11 @@ b.pingdataconsole:
     - ci_scripts/build_product.sh --product pingdataconsole
   only:
     changes:
-      - pingdataconsole/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
       - pingdownloader/**/*
+      - pingdataconsole/**/*
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml
@@ -540,7 +558,7 @@ t.pingdataconsole:
 d.pingdataconsole:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry docker.io/pingidentity --product pingdataconsole
+    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdataconsole
   only:
     refs:
       - master
@@ -609,7 +627,7 @@ t.pingdatasync:
 d.pingdatasync:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry docker.io/pingidentity --product pingdatasync
+    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdatasync
   only:
     refs:
       - master
@@ -679,7 +697,7 @@ t.pingdatagovernance:
 d.pingdatagovernance:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry docker.io/pingidentity --product pingdatagovernance
+    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdatagovernance
   only:
     refs:
       - master
@@ -749,7 +767,7 @@ t.pingdatagovernancepap:
 d.pingdatagovernancepap:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry docker.io/pingidentity --product pingdatagovernancepap
+    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdatagovernancepap
   only:
     refs:
       - master
@@ -821,7 +839,7 @@ t.pingfederate:
 d.pingfederate:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry docker.io/pingidentity --product pingfederate
+    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingfederate
   only:
     refs:
       - master
@@ -889,7 +907,7 @@ t.pingtoolkit:
 d.pingtoolkit:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry docker.io/pingidentity --product pingtoolkit
+    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingtoolkit
   only:
     refs:
       - master
@@ -985,8 +1003,31 @@ pdp-pd.latest:
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
-d.github:
-  stage: deploy
+pd-repl.latest:
+  stage: test.integration
+  script:
+    - ci_scripts/run_integration.sh pd-replicated.latest
+  only:
+    changes:
+      - integration_tests/**/pd-replicated*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingdirectory/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+
+p.github:
+  stage: publish
   script:
     - git --version
     - ci_scripts/push_to_github.sh

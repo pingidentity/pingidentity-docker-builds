@@ -30,16 +30,19 @@ echo "
 #
 # Get a MOTD from the server profile if it is set
 #
-if test -f "${STAGING_DIR}/motd" ; then
+if test -f "${STAGING_DIR}/motd"
+then
     cat "${STAGING_DIR}/motd" >> "${_motdFile}"
 fi
 
-if test -z "${MOTD_URL}" ; then
+if test -z "${MOTD_URL}"
+then
     echo "Not pulling MOTD since MOTD_URL is not set"
 else
     _motdCurlResult=$(curl -G -o "${_motdJsonFile}" -w '%{http_code}' "${MOTD_URL}" 2> /dev/null)
 
-    if test ${_motdCurlResult} -eq 200 ; then
+    if test "${_motdCurlResult}" = "200"
+    then
         echo "Successfully downloaded MOTD from ${MOTD_URL}"
         _jqExpr=".[] | select(.validFrom <= ${_currentDate} and .validTo >= ${_currentDate}) |
                \"\n---- SUBJECT: \" + .subject + \"\n\" +
@@ -48,8 +51,8 @@ else
         _imageName=$(echo ${IMAGE_VERSION} | sed 's/-.*//')
 
 
-        cat ${_motdJsonFile} | jq -r "select (.devops != null) | .devops | ${_jqExpr}" >> "${_motdFile}"
-        cat ${_motdJsonFile} | jq -r "select (.${_imageName} != null) | .${_imageName} | ${_jqExpr}" >> "${_motdFile}"
+        jq -r "select (.devops != null) | .devops | ${_jqExpr}" "${_motdJsonFile}" >> "${_motdFile}" 
+        jq -r "select (.${_imageName} != null) | .${_imageName} | ${_jqExpr}" "${_motdJsonFile}" >> "${_motdFile}"
     else
         echo_red "Unable to download MOTD from ${MOTD_URL}"
     fi

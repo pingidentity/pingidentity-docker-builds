@@ -6,7 +6,7 @@
 #- and if so, it will return a 1, else 0
 #
 
-# shellcheck source=../../pingcommon/hooks/pingcommon.lib.sh
+# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 # shellcheck source=pingdirectory.lib.sh

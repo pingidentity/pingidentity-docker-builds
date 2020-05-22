@@ -1,8 +1,8 @@
-# Ping Identity PingAccess Docker Image
+# Ping Identity PingDirectoryProxy Docker Image
 
 ## Documentation
 
-* [PingAccess Docker Image](https://pingidentity-devops.gitbook.io/devops/dockerimagesref/pingaccess) - Information on this image
+* [PingDirectory Docker Image](https://pingidentity-devops.gitbook.io/devops/dockerimagesref/pingdirectoryproxy) - Information on this image
 
 * [DevOps Program Documentation](https://pingidentity-devops.gitbook.io/devops) - Getting started with Ping Identity DevOps Program
 

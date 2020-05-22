@@ -2,22 +2,24 @@
 
 <a name="contents"></a>
 ## Contents ##
-- [Documentation](#documentation)
-- [Devops License](#devops-license)
-- [Getting Started](#getting-started)
-- [Running PingCentral with Docker](#running-with-docker)
-  - [Docker with External Database](#docker-external-db)
-  - [Docker with H2](#docker-h2)
-- [Running PingCentral with Docker-Compose](#running-with-docker-compose)
-  - [Docker-Compose with MySQL](#docker-compose-mysql)
-  - [Docker-Compose with H2](#docker-compose-h2)
-- [Commercial Support](#commercial-support)
-- [Copyright](#copyright)
+- [Ping Identity PingCentral Docker Image](#ping-identity-pingcentral-docker-image)
+  - [Contents](#contents)
+  - [Documentation](#documentation)
+  - [Devops License](#devops-license)
+  - [Getting Started](#getting-started)
+  - [Running PingCentral with Docker](#running-pingcentral-with-docker)
+    - [Running PingCentral Docker With an External Database (MySQL / PostgreSQL / RDS / etc)](#running-pingcentral-docker-with-an-external-database-mysql--postgresql--rds--etc)
+    - [Running PingCentral Docker with H2](#running-pingcentral-docker-with-h2)
+  - [Running PingCentral with Docker-Compose](#running-pingcentral-with-docker-compose)
+    - [Running PingCentral Docker-Compose with MySQL](#running-pingcentral-docker-compose-with-mysql)
+    - [Running PingCentral Docker-Compose with H2](#running-pingcentral-docker-compose-with-h2)
+  - [Commercial Support](#commercial-support)
+  - [Copyright](#copyright)
 
 <a name="documentation"></a>
 ## Documentation
 
-* [PingCentral Docker Image](https://pingidentity-devops.gitbook.io/devops/docker-images/pingcentral) - Information on this image
+* [PingCentral Docker Image](https://pingidentity-devops.gitbook.io/devops/dockerimagesref/pingcentral) - Information on this image
     * Note: this pag not yet available
 
 * [DevOps Program Documentation](https://pingidentity-devops.gitbook.io/devops) - Getting started with Ping Identity DevOps Program

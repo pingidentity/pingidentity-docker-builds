@@ -6,6 +6,7 @@ ARG PRODUCT=pingdirectory
 ARG VERSION
 ARG DEVOPS_USER
 ARG DEVOPS_KEY
+ARG VERBOSE
 ARG PING_IDENTITY_SNAPSHOT
 
 # copy your product zip file into the staging image
@@ -27,6 +28,7 @@ RUN /get-bits.sh --product ${PRODUCT} \
         -x */webapps/* \
         -x */resource/*.zip \
         -x */_script-util.sh \
+        -x */lib/wrapper.jar \
     && mv /tmp/PingDirectory /opt/server 
 
 FROM scratch

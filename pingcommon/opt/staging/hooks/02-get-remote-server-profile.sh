@@ -43,12 +43,38 @@ getProfile ()
     serverProfileUrl=$( get_value "${1}_URL" )
     serverProfileBranch=$( get_value "${1}_BRANCH" )
     serverProfilePath=$( get_value "${1}_PATH" )
+    serverProfileGitUserVariable="${1}_GIT_USER"
+    serverProfileGitUser=$( get_value "${serverProfileGitUserVariable}" )
+    serverProfileGitPasswordVariable="${1}_GIT_PASSWORD"
+    serverProfileGitPassword=$( get_value "${serverProfileGitPasswordVariable}" )
+
+    # Get defaults for git user/password if there are no layer-specific values
+    if test -z "${serverProfileGitUser}"
+    then
+        serverProfileGitUserVariable="SERVER_PROFILE_GIT_USER"
+        serverProfileGitUser=$( get_value "${serverProfileGitUserVariable}" )
+    fi
+    if test -z "${serverProfileGitPassword}"
+    then
+        serverProfileGitPasswordVariable="SERVER_PROFILE_GIT_PASSWORD"
+        serverProfileGitPassword=$( get_value "${serverProfileGitPasswordVariable}" )
+    fi
+
+    if test -n "${serverProfileGitUser}" || test -n "${serverProfileGitPassword}"
+    then
+        # Expand user and password in the url
+        serverProfileUrl=$( echo "${serverProfileUrl}" | envsubst "\${${serverProfileGitUserVariable}} \${${serverProfileGitPasswordVariable}}" )
+        # Redact URL if it includes user/password
+        SERVER_PROFILE_URL_REDACT=true
+    fi
 
     # this is a precaution because git clone needs an empty target
     rm -rf "${SERVER_PROFILE_DIR}"
-    if test -n "${serverProfileUrl}" ; then
+    if test -n "${serverProfileUrl}"
+    then
         # deploy configuration if provided
-        if test "${SERVER_PROFILE_URL_REDACT}" = "true"; then
+        if test "${SERVER_PROFILE_URL_REDACT}" = "true"
+        then
             serverProfileUrlDisplay="*** REDACTED ***"
         else
             serverProfileUrlDisplay="${serverProfileUrl}"
@@ -59,7 +85,7 @@ getProfile ()
         test -n "${serverProfileBranch}" && echo "   branch: ${serverProfileBranch}"
         test -n "${serverProfilePath}" && echo "     path: ${serverProfilePath}"
 
-        git clone --depth 1 ${serverProfileBranch:+--branch} ${serverProfileBranch} "${serverProfileUrl}" "${SERVER_PROFILE_DIR}"
+        git clone --depth 1 ${serverProfileBranch:+--branch ${serverProfileBranch}} "${serverProfileUrl}" "${SERVER_PROFILE_DIR}"
         die_on_error 141 "Git clone failure"  || exit ${?}
        
         #
@@ -71,12 +97,15 @@ getProfile ()
         #
         echo "Checking for security filename issues...${SECURITY_CHECKS_FILENAME}"
 
-        for _scPatternCheck in ${SECURITY_CHECKS_FILENAME}; do
+        for _scPatternCheck in ${SECURITY_CHECKS_FILENAME}
+        do
             security_filename_check "${SERVER_PROFILE_DIR}" "${_scPatternCheck}"
         done
 
-        if test ${_totalSecurityViolations} -gt 0; then
-            if test "${SECURITY_CHECKS_STRICT}" = "true"; then
+        if test ${_totalSecurityViolations} -gt 0
+        then
+            if test "${SECURITY_CHECKS_STRICT}" = "true"
+            then
                 container_failure 2 "Security Violations Found! (total=${_totalSecurityViolations})"
             else
                 echo_green "Security Violations Allowed! (total=${_totalSecurityViolations}) SECURITY_CHECKS_STRICT=${SECURITY_CHECKS_STRICT}"
@@ -98,7 +127,7 @@ getProfile ()
 ########################################################################################
 getParent ()
 {
-    echo ${serverProfilePrefix}${serverProfileName:+_}${serverProfileName}"_PARENT"
+    echo "${serverProfilePrefix}${serverProfileName:+_${serverProfileName}}_PARENT"
 }
 
 ########################################################################################
@@ -110,7 +139,8 @@ serverProfileList=""
 
 # creates a spaced separated list of server profiles starting with the parent most
 # profile and moving down.
-while test -n "$( get_value ${serverProfileParent} )" ; do
+while test -n "$( get_value ${serverProfileParent} )"
+do
     # echo "Profile parent variable: ${serverProfileParent}"
     serverProfileName=$( get_value ${serverProfileParent} )
     serverProfileList="${serverProfileName}${serverProfileList:+ }${serverProfileList}"
@@ -120,7 +150,8 @@ done
 
 # now, take that spaced separated list of servers and get the profiles for each
 # one until exhausted.  
-for serverProfileName in ${serverProfileList} ; do
+for serverProfileName in ${serverProfileList}
+do
     getProfile "${serverProfilePrefix}_${serverProfileName}"
 done
 
@@ -129,10 +160,12 @@ getProfile ${serverProfilePrefix}
 
 # GDO-200 - Try to encourage orchestration variables over env_vars
 _env_vars_file="${STAGING_DIR}/env_vars"
-if test -f "${_env_vars_file}"; then
+if test -f "${_env_vars_file}"
+then
     grep '.suppress-container-warning' "${_env_vars_file}" 2>/dev/null >/dev/null
 
-    if test $? -ne 0; then
+    if test $? -ne 0
+    then
         echo ""
         echo_red "WARNING: Found an 'env_vars' file in server profile.  Variables set"
         echo_red "         in 'env_vars' may override image and orchestration variables."

@@ -93,8 +93,11 @@ ONBUILD ENV STARTUP_BACKGROUND_OPTS=""
 ONBUILD ENV PING_IDENTITY_DEVOPS_KEY_REDACT=true
 
 #-- A whitespace separated list of log files to tail to the container 
-#-- standard output
+#-- standard output - DO NOT USE WILDCARDS like /path/to/logs/*.log
 ONBUILD ENV TAIL_LOG_FILES=""
+
+#-- Set to true to use parallel for the invocation of the tail utility
+ONBUILD ENV TAIL_LOG_PARALLEL=""
 
 #-- If 'true', the output logs will be colorized with GREENs and REDs,
 #-- otherwise, no colorization will be done.  This is good for tools
