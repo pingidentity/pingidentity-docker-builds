@@ -1,0 +1,59 @@
+{
+    "registries":[
+        {
+            "name": "dockerhub global",
+            "registry":"docker.io/pingidentity",
+            "provider": "dockerhub",
+            "region": "",
+            "staging": false,
+            "prod": true
+        },
+        {
+            "name": "AWS Prod US",
+            "registry":"574076504146.dkr.ecr.us-east-1.amazonaws.com",
+            "provider": "aws",
+            "region": "us-east-1",
+            "role": "GTE",
+            "staging": false,
+            "prod": true
+        },
+        {
+            "name": "AWS Prod EU",
+            "registry":"574076504146.dkr.ecr.eu-central-1.amazonaws.com",
+            "provider": "aws",
+            "region": "eu-central-1",
+            "role": "GTE",
+            "staging": false,
+            "prod": true
+        },
+        {
+            "name": "AWS Prod APAC",
+            "registry":"574076504146.dkr.ecr.ap-southeast-2.amazonaws.com",
+            "provider": "aws",
+            "region": "ap-southeast-2",
+            "role": "GTE",
+            "staging": false,
+            "prod": true
+        },
+        {
+            "name": "Azure Prod US",
+            "registry_fqdn": "pingidentitydevopsuseast.azurecr.io",
+            "registry":"pingidentitydevopsuseast",
+            "provider": "azure",
+            "region": "us east",
+            "role": "",
+            "staging": false,
+            "prod": true
+        },
+        {
+            "name": "Azure Prod EU",
+            "registry_fqdn":"pingidentitydevopseunorth.azurecr.io",
+            "registry":"pingidentitydevopseunorth",
+            "provider": "azure",
+            "region": "eu north",
+            "role": "",
+            "staging": false,
+            "prod": true
+        }
+    ]
+}
