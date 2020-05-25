@@ -1,7 +1,7 @@
 #- # Ping Identity Docker Image - `pingdelegator`
 #- 
-#- This docker image provides a tomcat image with the PingDataConsole
-#- deployed to be used in configuration of the PingData products.
+#- This docker image provides an NGINX instance with PingDelegator
+#- that can be used in administering PingDirectory Users/Groups.
 #-
 #- ## Related Docker Images
 #- - pingidentity/pingbase - Parent Image
@@ -99,17 +99,8 @@ ENV STARTUP_BACKGROUND_OPTS="${STARTUP_FOREGROUND_OPTS}"
 #-            pingidentity/pingdelegator
 #- ```
 #- 
-#- 
-#- Follow Docker logs with:
-#- 
-#- ```
-#- docker logs -f pingdelegator
-#- ```
-#- 
-#- If using the command above with the embedded [server profile](../server-profiles/README.md), log in with: 
-#- * http://localhost:8443/
-#- ```
-#- Username: administrator
-#- Password: 2FederateM0re
-#- ```
-#- >make sure you have a PingFederate and PingDirectory server running.
+#- ## Configuration
+#- Be default, this does assume the default settings listed in the environment varialbes
+#- above, and a running PingDirectory/PingFederate service.  To learn moure about how to
+#- configure these instances, plese goto  
+#- [Deploy PingDelegator Document](deployPingDelegator.md).
