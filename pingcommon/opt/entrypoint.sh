@@ -64,7 +64,7 @@ then
         if test -n "${TAIL_LOG_PARALLEL}";
         then
             # shellcheck disable=SC2086
-            parallel --tagstring "{}:" --line-buffer tail -F {} ::: ${TAIL_LOG_FILES} &
+            parallel -j 0 --tagstring "{}:" --line-buffer tail -F {} ::: ${TAIL_LOG_FILES} &
         else
             # shellcheck disable=SC2086
             tail -F ${TAIL_LOG_FILES} 2>/dev/null &
