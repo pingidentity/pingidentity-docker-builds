@@ -61,7 +61,7 @@ append_footer ()
     append_doc "---"
     test -n "${_srcFile}" && append_doc "This document auto-generated from _[${_srcFile}](https://github.com/pingidentity/pingidentity-docker-builds/blob/master/${_srcFile})_"
     append_doc ""
-    append_doc "Copyright (c)  2020 Ping Identity Corporation. All rights reserved."
+    append_doc "Copyright (c) 2020 Ping Identity Corporation. All rights reserved."
 }
 
 #
