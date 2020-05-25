@@ -509,6 +509,75 @@ d.pingdirectoryproxy:
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 ################################################
+#                  PING DELEGATOR
+################################################
+b.pingdelegator:
+  stage: products
+  script:
+    - ci_scripts/build_product.sh --product pingdelegator
+  only:
+    changes:
+      - pingdownloader/**/*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingdirectory/**/*
+      - pingdelegator/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
+
+t.pingdelegator:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_smoke.sh --product pingdelegator
+  only:
+    changes:
+      - pingdownloader/**/*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingdirectory/**/*
+      - pingdelegator/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/      
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+
+d.pingdelegator:
+  stage: deploy
+  script:
+    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdelegator
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - pingdelegator/**/*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
+      - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+
+################################################
 #                  PING DATA CONSOLE
 ################################################
 b.pingdataconsole:
