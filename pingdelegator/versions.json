@@ -7,7 +7,7 @@
             "shims": [
                 {
                     "shim": "alpine",
-                    "preferredJVM": "",
+                    "preferredJVM": "az11",
                     "jvms": [
                         {
                             "jvm": "az11",
