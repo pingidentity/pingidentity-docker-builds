@@ -34,3 +34,15 @@ then
     # shellcheck disable=SC2086
     apply_local_server_profile
 fi
+
+# Apply MAX_HEAP_SIZE if it is set.
+if test -n "${MAX_HEAP_SIZE}" ; then
+    # Use sed to update only "start-server" in java.properties.
+    cp -f ${SERVER_ROOT_DIR}/config/java.properties ${SERVER_ROOT_DIR}/config/java.properties.bak
+    SED_PREFIX="s/^\(\s*start-server.java-args\s*=\)\(.*-Xm"
+    SED_SUFFIX="\)\([0-9][0-9]*m\)\(.*\)/\1\2${MAX_HEAP_SIZE}\4/g"
+    sed -i "${SED_PREFIX}x${SED_SUFFIX};${SED_PREFIX}s${SED_SUFFIX}" ${SERVER_ROOT_DIR}/config/java.properties
+
+    # Update lib/set-java-home based on config/java.properties.
+    dsjavaproperties
+fi
