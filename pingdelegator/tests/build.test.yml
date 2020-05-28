@@ -15,4 +15,4 @@ services:
     mem_limit: 256m
     memswap_limit: 256m
     mem_swappiness: 0
-    command: start-server /opt/wait-for localhost:8443 -t 300 -- /opt/liveness.sh
+    command: start-server /opt/wait-for localhost:6443 -t 300 -- /opt/liveness.sh
