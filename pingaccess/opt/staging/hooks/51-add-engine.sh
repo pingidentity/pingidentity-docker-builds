@@ -19,6 +19,7 @@ _out=/tmp/pa.api.request.out
 _pa_curl ()
 {
      _curl \
+        --insecure \
         --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
         --header "X-Xsrf-Header: PingAccess" \
         --output ${_out} \
@@ -27,12 +28,12 @@ _pa_curl ()
 }
 
 pahost=${PA_CONSOLE_HOST}
-if test -n "${OPERATIONAL_MODE}" && "${OPERATIONAL_MODE}" = "CLUSTERED_ENGINE"
+if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGINE"
 then
     echo "This node is an engine..."
     while true
     do
-        _curl https://${pahost}:9000/pa/heartbeat.ping 
+        _pa_curl https://${pahost}:9000/pa/heartbeat.ping 
         if test $? -ne 0 ; 
         then
             echo "Adding Engine: Server not started, waiting.."

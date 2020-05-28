@@ -16,7 +16,7 @@ then
     ip link set eth0 down
 fi
 
-if test -n "${OPERATIONAL_MODE}" && "${OPERATIONAL_MODE}" = "CLUSTERED_ENGINE" 
+if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGINE" 
 then
     echo "INFO: Adding engine..."
     run_hook "51-add-engine.sh"

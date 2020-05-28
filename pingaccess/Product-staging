@@ -30,3 +30,4 @@ RUN /get-bits.sh --product ${PRODUCT} \
 
 FROM scratch
 COPY --from=staging ["/opt/","/opt/"]
+
