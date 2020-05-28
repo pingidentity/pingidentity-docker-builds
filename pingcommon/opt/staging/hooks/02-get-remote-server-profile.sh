@@ -173,7 +173,7 @@ then
         echo_red "         To suppress this warning in the future, include the following"
         echo_red "         string in a comment"
         echo ""
-        echo_red "         # .surpress-container-warning"
+        echo_red "         # .suppress-container-warning"
     fi
 
     cat "${_env_vars_file}" >> "${CONTAINER_ENV}"
