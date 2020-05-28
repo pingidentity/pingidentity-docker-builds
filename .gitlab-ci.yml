@@ -116,6 +116,7 @@ b.apache-jmeter:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)apache-jmeter(?:$|,)/i
 
 t.apache-jmeter:
   stage: test.smoke
@@ -136,6 +137,7 @@ t.apache-jmeter:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)apache-jmeter(?:$|,)/i
 
 d.apache-jmeter:
   stage: deploy
@@ -157,6 +159,7 @@ d.apache-jmeter:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)apache-jmeter(?:$|,)/i
 
 ################################################
 #                  LDAP SDK
@@ -178,6 +181,7 @@ b.ldap-sdk-tools:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)ldap-sdk-tools(?:$|,)/i
       
 t.ldap-sdk-tools:
   stage: test.smoke
@@ -198,6 +202,7 @@ t.ldap-sdk-tools:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)ldap-sdk-tools(?:$|,)/i
       
 d.ldap-sdk-tools:
   stage: deploy
@@ -219,6 +224,7 @@ d.ldap-sdk-tools:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)ldap-sdk-tools(?:$|,)/i
       
 ################################################
 #                  PING ACCESS
@@ -244,7 +250,8 @@ b.pingaccess:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i
 
 t.pingaccess:
   stage: test.smoke
@@ -271,6 +278,7 @@ t.pingaccess:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/      
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i
       
 d.pingaccess:
   stage: deploy
@@ -294,6 +302,7 @@ d.pingaccess:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i
       
 ################################################
 #                  PING CENTRAL
@@ -316,6 +325,7 @@ b.pingcentral:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingcentral(?:$|,)/i
 
 t.pingcentral:
   stage: test.smoke
@@ -338,6 +348,7 @@ t.pingcentral:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/      
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingcentral(?:$|,)/i
       
 d.pingcentral:
   stage: deploy
@@ -361,6 +372,7 @@ d.pingcentral:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingcentral(?:$|,)/i
 
 ################################################
 #                  PING DIRECTORY
@@ -387,7 +399,8 @@ b.pingdirectory:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
 
 t.pingdirectory:
   stage: test.smoke
@@ -411,6 +424,7 @@ t.pingdirectory:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/      
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
 
 d.pingdirectory:
   stage: deploy
@@ -435,6 +449,7 @@ d.pingdirectory:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
 
 ################################################
 #                  PING DIRECTORY PROXY
@@ -459,7 +474,8 @@ b.pingdirectoryproxy:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectoryproxy(?:$|,)/i
 
 t.pingdirectoryproxy:
   stage: test.smoke
@@ -483,6 +499,7 @@ t.pingdirectoryproxy:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/      
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectoryproxy(?:$|,)/i
 
 d.pingdirectoryproxy:
   stage: deploy
@@ -507,6 +524,7 @@ d.pingdirectoryproxy:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectoryproxy(?:$|,)/i
 
 ################################################
 #                  PING DELEGATOR
@@ -529,7 +547,8 @@ b.pingdelegator:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdelegator(?:$|,)/i
 
 t.pingdelegator:
   stage: test.smoke
@@ -554,6 +573,7 @@ t.pingdelegator:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/      
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdelegator(?:$|,)/i
 
 d.pingdelegator:
   stage: deploy
@@ -576,6 +596,7 @@ d.pingdelegator:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdelegator(?:$|,)/i
 
 ################################################
 #                  PING DATA CONSOLE
@@ -600,6 +621,7 @@ b.pingdataconsole:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdataconsole(?:$|,)/i
 
 t.pingdataconsole:
   stage: test.smoke
@@ -623,6 +645,7 @@ t.pingdataconsole:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdataconsole(?:$|,)/i
 
 d.pingdataconsole:
   stage: deploy
@@ -644,6 +667,7 @@ d.pingdataconsole:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdataconsole(?:$|,)/i
 
 ################################################
 #                  PING DATA SYNC
@@ -669,6 +693,7 @@ b.pingdatasync:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatasync(?:$|,)/i
       
 t.pingdatasync:
   stage: test.smoke
@@ -692,6 +717,7 @@ t.pingdatasync:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatasync(?:$|,)/i
       
 d.pingdatasync:
   stage: deploy
@@ -716,6 +742,7 @@ d.pingdatasync:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatasync(?:$|,)/i
 
 ################################################
 #                  PING DATA GOVERNANCE
@@ -739,6 +766,7 @@ b.pingdatagovernance:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
       
 t.pingdatagovernance:
   stage: test.smoke
@@ -762,6 +790,7 @@ t.pingdatagovernance:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
 
 d.pingdatagovernance:
   stage: deploy
@@ -786,6 +815,7 @@ d.pingdatagovernance:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
 
 ################################################
 # PING DATA GOVERNANCE POLICY ADMINISTRATION POINT 
@@ -809,6 +839,7 @@ b.pingdatagovernancepap:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernancepap(?:$|,)/i
 
 t.pingdatagovernancepap:
   stage: test.smoke
@@ -831,7 +862,8 @@ t.pingdatagovernancepap:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/    
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernancepap(?:$|,)/i
 
 d.pingdatagovernancepap:
   stage: deploy
@@ -856,6 +888,7 @@ d.pingdatagovernancepap:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/      
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernancepap(?:$|,)/i
 
 ################################################
 #                  PING FEDERATE
@@ -882,6 +915,7 @@ b.pingfederate:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i
       
 t.pingfederate:
   stage: test.smoke
@@ -904,6 +938,7 @@ t.pingfederate:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i
 
 d.pingfederate:
   stage: deploy
@@ -927,6 +962,7 @@ d.pingfederate:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i
       
 ################################################
 #                  PING TOOL KIT
@@ -950,6 +986,7 @@ b.pingtoolkit:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingtoolkit(?:$|,)/i
 
 t.pingtoolkit:
   stage: test.smoke
@@ -972,6 +1009,7 @@ t.pingtoolkit:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingtoolkit(?:$|,)/i
 
 d.pingtoolkit:
   stage: deploy
@@ -995,6 +1033,7 @@ d.pingtoolkit:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingtoolkit(?:$|,)/i
       
 ################################################
 #                  INTEGRATION TESTS
@@ -1023,6 +1062,7 @@ pa-pf-pd.latest:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i
 
 pds-pd.latest:
   stage: test.integration
@@ -1047,6 +1087,7 @@ pds-pd.latest:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatasync(?:$|,)/i
 
 pdp-pd.latest:
   stage: test.integration
@@ -1071,6 +1112,7 @@ pdp-pd.latest:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatasync(?:$|,)/i
 
 pd-repl.latest:
   stage: test.integration
@@ -1094,6 +1136,7 @@ pd-repl.latest:
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
 
 p.github:
   stage: publish
