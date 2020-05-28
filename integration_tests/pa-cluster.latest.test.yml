@@ -1,0 +1,56 @@
+version: "2"
+services:
+  pingaccess-admin:
+    image: ${REGISTRY}/pingaccess:6.0.2-alpine-az11-${GIT_TAG}
+    # for local testing
+    # image: pingidentity/pingaccess:6.0.2-alpine-az11-re-pa-cluster-d4eb
+    environment: 
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+      - PING_IDENTITY_ACCEPT_EULA=YES
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=pa-clustering/pingaccess
+      - OPERATIONAL_MODE=CLUSTERED_CONSOLE
+      - PA_CONSOLE_HOST=pingaccess-admin
+      - PING_IDENTITY_PASSWORD=2FederateM0re
+    ports:
+      - 9000
+      # for local testing
+      - "9000:9000"
+      - 9090
+    cap_add:
+      - NET_ADMIN
+  pingaccess:
+    image: ${REGISTRY}/pingaccess:6.0.2-alpine-az11-${GIT_TAG}
+    # for local testing
+    # image: pingidentity/pingaccess:6.0.2-alpine-az11-re-pa-cluster-d4eb
+    environment:
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+      - PING_IDENTITY_ACCEPT_EULA=YES
+      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      - SERVER_PROFILE_PATH=pa-clustering/pingaccess
+      - OPERATIONAL_MODE=CLUSTERED_ENGINE
+      - PA_CONSOLE_HOST=pingaccess-admin
+      - PING_IDENTITY_PASSWORD=2FederateM0re
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: 1g
+    memswap_limit: 1g
+    mem_swappiness: 0
+    command: wait-for pingaccess-admin:9000 -t 150 -- entrypoint.sh start-server
+  
+  sut:
+    image: postman/newman
+    entrypoint: ["/usr/bin/env"]
+    command: sh -c "/tmp/wait-for pingaccess:3000 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
+    volumes:
+      - ./pa-cluster.postman_collection.json:/tmp/collection.json
+      - ./wait-for:/tmp/wait-for
+    depends_on:
+      - pingaccess

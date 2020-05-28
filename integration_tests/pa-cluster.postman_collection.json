@@ -1,0 +1,170 @@
+{
+	"info": {
+		"_postman_id": "b279cc7b-f517-49f3-b676-759375a4c575",
+		"name": "pa-cluster-integ-test",
+		"description": "This is to be a postman collection that correlates to the server-profile: https://github.com/pingidentity/pingidentity-server-profiles/tree/master/pa-clustering",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PA hearbeat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "dc5a01c5-9451-475f-af3b-42d8983842a9",
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://pingaccess-admin:9000/pa/heartbeat.ping",
+					"protocol": "https",
+					"host": [
+						"pingaccess-admin"
+					],
+					"port": "9000",
+					"path": [
+						"pa",
+						"heartbeat.ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pa-engine-heartbeat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "badf7720-2c01-4f0b-bae9-45713c570cc4",
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://pingaccess:3000/pa/heartbeat.ping",
+					"protocol": "https",
+					"host": [
+						"pingaccess"
+					],
+					"port": "3000",
+					"path": [
+						"pa",
+						"heartbeat.ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ValidateClustering",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8995e6bf-b21d-4225-bc50-f0a8a55cbb4c",
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// make sure body has httpbin",
+							"pm.test(\"engines is greater than 1\", function () {",
+							"    var jsonData = JSON.parse(responseBody);",
+							"    var rItems=\"\"",
+							"    if (jsonData.items.length > 0) {",
+							"        rItems = true;",
+							"    } else {",
+							"        rItems = false;",
+							"    }",
+							"        ",
+							"    pm.expect(rItems).to.eql(true);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "2FederateM0re",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "administrator",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-XSRF-Header",
+						"type": "text",
+						"value": "PingAccess"
+					}
+				],
+				"url": {
+					"raw": "https://pingaccess-admin:9000/pa-admin-api/v3/engines",
+					"protocol": "https",
+					"host": [
+						"pingaccess-admin"
+					],
+					"port": "9000",
+					"path": [
+						"pa-admin-api",
+						"v3",
+						"engines"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "f04eaac6-ff8b-4eff-9ccd-1ad9916067d6",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "05ddb5fd-4e6d-4ea3-b6cb-0ca8859deefd",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
