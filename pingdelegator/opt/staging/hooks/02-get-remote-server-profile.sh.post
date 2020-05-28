@@ -19,14 +19,13 @@ then
     then
         head -c 1024 /dev/urandom | tr -dc 'a-zA-Z0-9-' | cut -c 1-64 > "${_nginxKey}"
     fi
-    _pin="$( cat "${_nginxKey}" )"
 
     openssl req \
         -x509 \
         -nodes \
         -days 365 \
-        -subj "/C=US/ST=CO/O=PingIdentity Corp./OU=Docker/CN=ephemeral" \
-        -addext "subjectAltName=DNS:ping-devops.com" \
+        -subj "/C=us/ST=co/O=pingidentity/OU=docker/CN=dev" \
+        -addext "subjectAltName=DNS:${PD_DELEGATOR_PUBLIC_HOSTNAME}, DNS:localhost, IP:127.0.0.1" \
         -newkey rsa:2048 \
         -keyout "${_nginxKey}" \
         -out ${_nginxCrt};
