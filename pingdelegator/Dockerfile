@@ -89,8 +89,9 @@ ENV STARTUP_FOREGROUND_OPTS="-c ${SERVER_ROOT_DIR}/etc/nginx.conf"
 ENV STARTUP_BACKGROUND_OPTS="${STARTUP_FOREGROUND_OPTS}"
 
 #- ## Run
-#- To run a PingDelegator container with HTTPS_PORT=6443: 
-#- 
+#- To run a PingDelegator container with HTTPS_PORT=6443 (6443 is simply a convetion for
+#- PingDelegator so conflicts are reduced with other container HTTPS ports):
+#-
 #- ```shell
 #-   docker run \
 #-            --name pingdelegator \
@@ -98,9 +99,11 @@ ENV STARTUP_BACKGROUND_OPTS="${STARTUP_FOREGROUND_OPTS}"
 #-            --detach \
 #-            pingidentity/pingdelegator
 #- ```
-#- 
-#- ## Configuration
-#- Be default, this does assume the default settings listed in the environment varialbes
-#- above, and a running PingDirectory/PingFederate service.  To learn moure about how to
-#- configure these instances, plese goto  
-#- [Deploy PingDelegator Document](deployPingDelegator.md).
+#-
+#- PingDelegator does require running instances of PingFederate/PingDirectory.  To
+#- run the an example deployment of PingDelegator in docker-compose, the ping-devops
+#- tool can be used:
+#-
+#- ```shell
+#-   ping-devops docker start simplestack
+#- ```
