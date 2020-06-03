@@ -34,7 +34,7 @@ COPY --from=common ["/opt/","/opt/"]
 # apply product-specific hooks and patches
 COPY ["/opt","/opt"]
 
-# Run build
+# Run build 
 RUN ["/opt/build.sh"]
 
 #
