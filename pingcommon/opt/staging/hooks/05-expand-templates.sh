@@ -32,6 +32,15 @@ export _DOLLAR_="$"
 #-
 
 #
+# getEnvKeys
+# Create a list of environment keys
+#
+getEnvKeys()
+{
+    env | cut -d'=' -f1 | sed -e 's/^/$/'
+}
+
+#
 # expand files in current directory
 # we check if there are templates that we have to run through env subst
 #
@@ -42,7 +51,7 @@ expandFiles()
     for template in $( find "." -type f -iname \*.subst )
     do
         echo "    t - ${template}"
-        envsubst < "${template}" > "${template%.subst}"
+        envsubst "'$(getEnvKeys)'" < "${template}" > "${template%.subst}"
         rm -f "${template}"
     done
     
@@ -68,7 +77,7 @@ expandFiles()
         fi
         if test "${_processDefault}" = "true"
         then
-            envsubst < "${template}" > "${_effectiveFile}"
+            envsubst "'$(getEnvKeys)'" < "${template}" > "${_effectiveFile}"
             echo_green "expanded"
         else
             echo_yellow "skipped"
@@ -104,6 +113,7 @@ done
 
 echo "expanding files..."
 cd "${STAGING_DIR}" || exit 15
+
 expandFiles
 
 #
