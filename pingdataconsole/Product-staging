@@ -10,6 +10,8 @@ ARG VERBOSE
 ARG DEPENDENCY_0_PRODUCT
 ARG DEPENDENCY_0_VERSION
 
+COPY tmp /tmp
+
 # copy your product zip file into the staging image
 RUN /get-bits.sh \
         --product ${DEPENDENCY_0_PRODUCT} \
