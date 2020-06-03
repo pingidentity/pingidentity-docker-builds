@@ -7,7 +7,7 @@
 #- - `alpine` - Parent Image
 #-
 
-FROM alpine
+FROM alpine:3.11
 LABEL	maintainer=devops_program@pingidentity.com \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp." \
