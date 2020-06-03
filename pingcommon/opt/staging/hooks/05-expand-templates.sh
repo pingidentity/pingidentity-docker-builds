@@ -114,8 +114,6 @@ done
 echo "expanding files..."
 cd "${STAGING_DIR}" || exit 15
 
-# GET LIST OF VARIABLES
-
 expandFiles
 
 #
