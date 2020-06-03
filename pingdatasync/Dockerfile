@@ -21,7 +21,7 @@ FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
 FROM ${REGISTRY}/pingdatacommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
-FROM ${SHIM} as final-staging
+FROM ${SHIM}:3.11 as final-staging
 ENV SHIM=${SHIM}
 
 # get the product bits FIRST
