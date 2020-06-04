@@ -28,5 +28,4 @@ RUN /get-bits.sh --product ${PRODUCT} \
         -x */webapps/* \
         -x */resource/*.zip \
         -x */_script-util.sh \
-    && mkdir /opt/out \
 	&& mv /tmp/PingDataGovernance-PAP /opt/server 
