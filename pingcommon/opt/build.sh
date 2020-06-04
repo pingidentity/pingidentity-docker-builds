@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
+
+set -e
+
 test -f "/opt/build.sh.pre" && sh /opt/build.sh.pre
 
 echo "Build stage (shim-specific installations)"
