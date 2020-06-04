@@ -9,6 +9,8 @@ ARG DEVOPS_KEY
 ARG VERBOSE
 ARG PING_IDENTITY_SNAPSHOT
 
+COPY tmp /tmp
+
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} \
         --version ${VERSION} \

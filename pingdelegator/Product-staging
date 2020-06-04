@@ -7,6 +7,8 @@ ARG VERSION
 ARG DEVOPS_USER
 ARG DEVOPS_KEY
 
+COPY tmp /tmp
+
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product delegator \
         --version ${VERSION} \

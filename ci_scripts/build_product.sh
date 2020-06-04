@@ -163,11 +163,23 @@ do
         _shimsToBuild=${shimsToBuild}
     fi
 
+    _buildVersion="${_version}"
+
     if test -f "${productToBuild}/Product-staging"
     then
+        # Check if a file named product.zip is present within the product directory.
+        # If so, use a different buildVersion to differentiate the build from regular
+        # builds that use the pingdownloader. It is up to the product specific
+        # Product-staging file to copy the product.zip into the build container.
+        _overrideProductFile="${productToBuild}/tmp/product.zip"
+        if test -f "${_overrideProductFile}";
+        then
+            banner "Using file system location ${_overrideProductFile}"
+            _buildVersion="${_version}-fsoverride"
+        fi
         _start=$( date '+%s' )
         _dependencies=$( _getDependenciesForProductVersion "${productToBuild}" "${_version}" )
-        _image="${FOUNDATION_REGISTRY}/${productToBuild}:staging-${_version}-${ciTag}"
+        _image="${FOUNDATION_REGISTRY}/${productToBuild}:staging-${_buildVersion}-${ciTag}"
         # build the staging for each product so we don't need to download and stage the product each time
         # shellcheck disable=SC2086
         DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build \
@@ -179,7 +191,7 @@ do
             --build-arg DEVOPS_USER="${PING_IDENTITY_DEVOPS_USER}" \
             --build-arg DEVOPS_KEY="${PING_IDENTITY_DEVOPS_KEY}" \
             --build-arg PRODUCT="${productToBuild}" \
-            --build-arg VERSION=${_version} \
+            --build-arg VERSION=${_buildVersion} \
             ${PING_IDENTITY_SNAPSHOT:+--build-arg PING_IDENTITY_SNAPSHOT="${PING_IDENTITY_SNAPSHOT}"} \
             ${PING_IDENTITY_GITLAB_TOKEN:+--build-arg PING_IDENTITY_GITLAB_TOKEN="${PING_IDENTITY_GITLAB_TOKEN}"} \
             ${VERBOSE:+--build-arg VERBOSE="true"} \
@@ -194,13 +206,13 @@ do
             _result=FAIL
             if test -n "${failFast}"
             then
-                banner "Build break for ${productToBuild} staging for version ${_version}"
+                banner "Build break for ${productToBuild} staging for version ${_buildVersion}"
                 exit ${_returnCode}
             fi
         else
             _result=PASS
         fi
-        append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${productToBuild}" "${_version}" "Staging" "N/A" "${_duration}" "${_result}"
+        append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${productToBuild}" "${_buildVersion}" "Staging" "N/A" "${_duration}" "${_result}"
         imagesToClean="${imagesToClean} ${_image}"
     fi
     
@@ -223,8 +235,8 @@ do
                 docker pull "${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimLongTag}-${ciTag}"
             fi
 
-            fullTag="${_version}-${_shimLongTag}-${_jvm}-${ciTag}"
-            imageVersion="${productToBuild}-${_shimLongTag}-${_jvm}-${_version}-${_date}-${gitRevShort}"
+            fullTag="${_buildVersion}-${_shimLongTag}-${_jvm}-${ciTag}"
+            imageVersion="${productToBuild}-${_shimLongTag}-${_jvm}-${_buildVersion}-${_date}-${gitRevShort}"
             licenseVersion="$( _getLicenseVersion "${_version}" )"
 
             _image="${FOUNDATION_REGISTRY}/${productToBuild}:${fullTag}"
@@ -238,7 +250,7 @@ do
                 --build-arg JVM="${_jvm}" \
                 --build-arg SHIM="${_shim}" \
                 --build-arg SHIM_TAG="${_shimLongTag}" \
-                --build-arg VERSION="${_version}" \
+                --build-arg VERSION="${_buildVersion}" \
                 --build-arg IMAGE_VERSION="${imageVersion}" \
                 --build-arg IMAGE_GIT_REV="${gitRevLong}" \
                 --build-arg LICENSE_VERSION="${licenseVersion}" \
@@ -254,7 +266,7 @@ do
                 _result=FAIL
                 if test -n "${failFast}"
                 then
-                    banner "Build break for ${productToBuild} on ${_shim} for version ${_version}"
+                    banner "Build break for ${productToBuild} on ${_shim} for version ${_buildVersion}"
                     exit ${_returnCode}
                 fi
             else
@@ -271,7 +283,7 @@ do
                     ${dryRun} docker image rm -f "${_image}"
                 fi
             fi
-            append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${productToBuild}" "${_version}" "${_shim}" "${_jvm}" "${_duration}" "${_result}"
+            append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${productToBuild}" "${_buildVersion}" "${_shim}" "${_jvm}" "${_duration}" "${_result}"
         done
     done
 done

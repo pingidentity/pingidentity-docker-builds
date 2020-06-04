@@ -510,7 +510,11 @@ else
     echo "#               TO: ${output}" 
     cd /tmp || exit 2
     
-    if test -n "${dryRun}"
+    if test -f "${output}"
+    then
+        echo_green "Using existing file at ${output} without verification."
+        exitCode=0
+    elif test -n "${dryRun}"
     then
         echo curl -sSL -w '%{http_code}' -o "${output}" -H "devops-user: ${devopsUser}" -H "devops-key: ${devopsKey}" -H "devops-app: ${devopsApp}" "${url}"
     else
