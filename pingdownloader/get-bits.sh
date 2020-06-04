@@ -3,7 +3,6 @@
 # Ping Identity DevOps - Docker Build Hooks
 #
 test -n "${VERBOSE}" && set -x
-TOOL_NAME=$( basename "${0}" )
 cd "$( dirname "${0}" )" || exit 97
 
 ##########################################################################################
@@ -15,12 +14,11 @@ usage ()
 	fi
 
 	cat <<END_USAGE1
-Usage: ${TOOL_NAME} {options}
-    where {options} include:
+Usage: docker run pingidentity/pingdownloader {options}
 
 This tool can be used to download either product binaries (.zip) files or 
 product evaluation licenses (.lic).  By default, the product binaries will
-be downlaoded.  If the -l option is provided then only a license will be 
+be downloaded.  If the -l option is provided then only a license will be 
 downloaded.  If a license is pulled, a Ping DevOps Key/User is required.
 
 Options include:
@@ -65,11 +63,11 @@ Example:
 
     Pull the latest version of PingDirectory down to a product.zip file
 
-        ${TOOL_NAME} -p pingdirectory
+        docker run pingidentity/pingdownloader -p pingdirectory
 
     Pull the 9.3 version of PingFederate eval license file down to a product.lic
 
-        ${TOOL_NAME} -p pingfederate -v 9.3 -l -u john@example.com \\
+        docker run pingidentity/pingdownloader -p pingfederate -v 9.3 -l -u john@example.com \\
                     -k 94019ea5-ecca-49a4-8962-990130df3815 -a pingdownloader
 
 END_USAGE2
