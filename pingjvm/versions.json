@@ -1,19 +1,19 @@
 {
     "versions":[
         {
-            "shims": ["alpine","alpine:latest","alpine:3.11"],
+            "shims": ["alpine","alpine:latest","alpine:3.12","alpine:3.11"],
             "id":"ao15",
             "version": "15",
             "from": "openjdk:15-jdk-alpine"
         },
         {
-            "shims": ["alpine","alpine:latest","alpine:3.11"],
+            "shims": ["alpine","alpine:latest","alpine:3.12","alpine:3.11"],
             "id": "az13",
             "version": "13",
             "from": "azul/zulu-openjdk-alpine:13"
         },
         {
-            "shims": ["alpine","alpine:latest","alpine:3.11","alpine:3.10"],
+            "shims": ["alpine","alpine:latest","alpine:3.12","alpine:3.11","alpine:3.10"],
             "id": "az11",
             "version": "11",
             "from": "azul/zulu-openjdk-alpine:11"

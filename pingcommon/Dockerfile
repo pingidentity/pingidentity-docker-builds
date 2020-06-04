@@ -7,7 +7,7 @@
 
 # This substrate layer will gather common bits for all images
 #  like gosu and tini
-FROM alpine:3.11 as substrate
+FROM alpine as substrate
 COPY ["common-build.sh","/"]
 RUN ["/common-build.sh"]
 

@@ -21,7 +21,7 @@ ARG GIT_TAG
 FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
 # FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
-FROM ${SHIM}:3.11 as final-staging
+FROM ${SHIM} as final-staging
 ENV SHIM=${SHIM}
 
 # get Ping-wide common scripts

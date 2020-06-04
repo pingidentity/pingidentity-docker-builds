@@ -32,8 +32,7 @@ case "${_osID}" in
     alpine)
         # cause a failure if anything below raises an error 
         set -e
-        apk --update add python3
-        pip3 install --no-cache-dir --upgrade pip
+        apk --update add py3-pip
         pip3 install --no-cache-dir --upgrade awscli
 
         apk --update add curl
