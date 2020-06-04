@@ -13,7 +13,7 @@
             "from": "azul/zulu-openjdk-alpine:13"
         },
         {
-            "shims": ["alpine","alpine:latest",""alpine:3.12",alpine:3.11","alpine:3.10"],
+            "shims": ["alpine","alpine:latest","alpine:3.12","alpine:3.11","alpine:3.10"],
             "id": "az11",
             "version": "11",
             "from": "azul/zulu-openjdk-alpine:11"
