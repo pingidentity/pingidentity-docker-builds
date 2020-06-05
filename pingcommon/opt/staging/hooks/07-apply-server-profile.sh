@@ -13,6 +13,11 @@ ${VERBOSE} && set -x
 
 if test -d "${STAGING_DIR}/instance" && find "${STAGING_DIR}/instance" -type f | read -r
 then
-    echo "merging ${STAGING_DIR}/instance to ${SERVER_ROOT_DIR}"
-    copy_files "${STAGING_DIR}/instance" "${SERVER_ROOT_DIR}"
+    if test "${RUN_PLAN}" = "START" || test "${SERVER_PROFILE_UPDATE}" = "true"
+    then
+        echo "merging ${STAGING_DIR}/instance to ${SERVER_ROOT_DIR}"
+        copy_files "${STAGING_DIR}/instance" "${SERVER_ROOT_DIR}"
+    else
+        echo "no merge requested from ${STAGING_DIR}/instance to ${SERVER_ROOT_DIR} (SERVER_PROFILE_UPDATE=${SERVER_PROFILE_UPDATE})"
+    fi
 fi
