@@ -39,7 +39,7 @@ services:
       - pingdirectory
 
   pingfederate:
-    image: ${REGISTRY}/pingfederate:10.0.2-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingfederate:10.0.3-alpine-az11-${GIT_TAG}
     command: wait-for pingdirectory:389 -t 900 -- entrypoint.sh start-server
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
