@@ -14,8 +14,6 @@
 
 ${VERBOSE} && set -x
 
-rm -rf "${STATE_PROPERTIES}"
-
 #
 #- Goal of building a run plan is to provide a plan for the server as it starts up
 #- Options for the RUN_PLAN and the PD_STATE are as follows:
@@ -25,7 +23,7 @@ rm -rf "${STATE_PROPERTIES}"
 #-                    because a server.uuid file is not present.
 #-          RESTART - Instructs the container to restart an existing directory.  This is
 #-                    primarily because an existing server.uuid file is prsent.
-#- 
+#-
 #- PD_STATE (Initially set to UNKNOWN)
 #-          SETUP   - Specifies that the server should be setup
 #-          UPDATE  - Specifies that the server should be updated
@@ -36,9 +34,9 @@ PD_STATE="UNKNOWN"
 SERVER_UUID_FILE="${SERVER_ROOT_DIR}/config/server.uuid"
 ORCHESTRATION_TYPE=$(echo "${ORCHESTRATION_TYPE}" | tr '[:lower:]' '[:upper:]')
 
-# Create a temporary file that will be used to store output as items are determined
-_planFile="/tmp/plan-${ORCHESTRATION_TYPE}.txt"
-rm -rf "${_planFile}"
+# Create a temporary files that will be used to store output as items are determined
+_fullPlan=$(mktemp)
+_planSteps=$(mktemp)
 
 # If we have a server.uuid file, then the container should RESTART with an UPDATE plan
 # If we don't have a server.uuid file, then we should START with a SETUP plan.  Additionally
@@ -77,7 +75,7 @@ echo "
 #            ORCHESTRATION_TYPE: ${ORCHESTRATION_TYPE}
 #                      HOSTNAME: ${HOSTNAME}
 #                    serverUUID: ${serverUUID}
-#" >> "${_planFile}"
+#" >> "${_planSteps}"
 
 #########################################################################
 # KUBERNETES ORCHESTRATION_TYPE
@@ -95,7 +93,7 @@ if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
     #
     # Check to see if we have the variables for single or multi cluster replication
     #
-    # If we have both K8S_CLUSTER and K8S_SEED_CLUSTER defined then we are in a 
+    # If we have both K8S_CLUSTER and K8S_SEED_CLUSTER defined then we are in a
     # multi cluster mode.
     #
     if test -z "${K8S_CLUSTERS}" ||
@@ -182,7 +180,7 @@ if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
             # First, we will check to see if there are any servers available in
             # existing cluster
             _numHosts=$( getIPsForDomain ${K8S_STATEFUL_SET_SERVICE_NAME} | wc -w 2>/dev/null )
-            
+
             echo "Number of servers available in this domain: ${_numHosts}"
 
             if test ${_numHosts} -eq 0 ; then
@@ -202,7 +200,7 @@ if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
 # K8S_STATEFUL_SET_SERVICE_NAME: ${K8S_STATEFUL_SET_SERVICE_NAME}
 #
 #                  K8S_CLUSTERS: ${K8S_CLUSTERS}  (${_clusterMode} cluster)
-#                   K8S_CLUSTER: ${K8S_CLUSTER}  
+#                   K8S_CLUSTER: ${K8S_CLUSTER}
 #              K8S_SEED_CLUSTER: ${K8S_SEED_CLUSTER}
 #              K8S_NUM_REPLICAS: ${K8S_NUM_REPLICAS}
 #       K8S_POD_HOSTNAME_PREFIX: ${K8S_POD_HOSTNAME_PREFIX}
@@ -210,7 +208,7 @@ if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
 #      K8S_SEED_HOSTNAME_SUFFIX: ${K8S_SEED_HOSTNAME_SUFFIX}
 #           K8S_INCREMENT_PORTS: ${K8S_INCREMENT_PORTS} (${_incrementPortsMsg})
 #
-#" >> "${_planFile}"
+#" >> "${_planSteps}"
 
 fi
 
@@ -223,7 +221,7 @@ if test "${ORCHESTRATION_TYPE}" = "COMPOSE" ; then
         PD_STATE="GENESIS"
 
         #
-        # Check to see 
+        # Check to see
         if test $(getIP ${COMPOSE_SERVICE_NAME}_1) != \
                 $(getIP ${HOSTNAME}); then
            echo "We are the SEED Server"
@@ -246,11 +244,11 @@ fi
 #########################################################################
 # DIRECTED ORCHESTRATION_TYPE
 #########################################################################
-if test "${ORCHESTRATION_TYPE}" = "DIRECTED" ; 
+if test "${ORCHESTRATION_TYPE}" = "DIRECTED" ;
 then
-    if test "${RUN_PLAN}" = "START" ; 
+    if test "${RUN_PLAN}" = "START" ;
     then
-        # When the RUN_PLAN is for a fresh start (vs a restart of a container) 
+        # When the RUN_PLAN is for a fresh start (vs a restart of a container)
         if test -z "${REPLICATION_SEED_HOST}" ;
         then
             # either it is a genesis event for a standalone container
@@ -286,7 +284,7 @@ case "${PD_STATE}" in
     GENESIS)
         echo "#     Startup Plan
 #        - manage-profile setup
-#        - import data" >> "${_planFile}"
+#        - import data" >> "${_planSteps}"
 
         echo "
 ##################################################################################
@@ -319,13 +317,13 @@ echo "#
         echo "#     Startup Plan
 #        - manage-profile setup
 #        - repl enable (from SEED Server-${_seedInstanceName})
-#        - repl init   (from topology.json, from SEED Server-${_seedInstanceName})" >> "${_planFile}"
+#        - repl init   (from topology.json, from SEED Server-${_seedInstanceName})" >> "${_planSteps}"
         ;;
     UPDATE)
         echo "#     Startup Plan
 #        - manage-profile update
 #        - repl enable (from SEED Server-${_seedInstanceName})
-#        - repl init   (from topology.json, from SEED Server-${_seedInstanceName})" >> "${_planFile}"
+#        - repl init   (from topology.json, from SEED Server-${_seedInstanceName})" >> "${_planSteps}"
         ;;
     *)
         container_failure 08 "Unknown PD_STATE of ($PD_STATE)"
@@ -333,12 +331,12 @@ esac
 
 echo "
 ###################################################################################
-#  
+#
 #                      PD_STATE: ${PD_STATE}
 #                      RUN_PLAN: ${RUN_PLAN}
-#" >> "${STATE_PROPERTIES}"
+#" >> "${_fullPlan}"
 
-cat "${_planFile}" >> "${STATE_PROPERTIES}"
+cat "${_planSteps}" >> "${_fullPlan}"
 
 echo "###################################################################################
 #
@@ -356,7 +354,7 @@ echo "##########################################################################
 #                    ldaps port: ${_seedLdapsPort}
 #              replication port: ${_seedReplicationPort}
 ###################################################################################
-" >> "${STATE_PROPERTIES}"
+" >> "${_fullPlan}"
 
 
 
@@ -410,8 +408,8 @@ if test ! -z "${K8S_CLUSTERS}" &&
     _podFormat="# | %-4s | %-4s | %-${_podWidth}s | %-${_portWidth}s | %-${_portWidth}s |\n"
 
     # print out the top header for the table
-    echo "${_seperatorRow}" >> "${STATE_PROPERTIES}"
-    printf "${_podFormat}" "SEED" "POD" "Instance" "LDAPS" "REPL" >> "${STATE_PROPERTIES}"
+    echo "${_seperatorRow}" >> "${_fullPlan}"
+    printf "${_podFormat}" "SEED" "POD" "Instance" "LDAPS" "REPL" >> "${_fullPlan}"
 
     # Print each row
     for _cluster in ${K8S_CLUSTERS}; do
@@ -419,14 +417,14 @@ if test ! -z "${K8S_CLUSTERS}" &&
 
         while (test $_ordinal -lt ${_numReplicas}) ; do
             _pod="${K8S_STATEFUL_SET_NAME}-${_ordinal}.${_cluster}"
-            
+
             # If we are printing a row representing the seed pod
             _seedIndicator=""
             test "${_cluster}" = "${K8S_SEED_CLUSTER}" && \
             test "${_ordinal}" = "0" && \
             _seedIndicator="***"
 
-            
+
             # If we are printing a row representing the current pod, then we will
             # provide an indicator of that
             _podIndicator=""
@@ -442,52 +440,42 @@ if test ! -z "${K8S_CLUSTERS}" &&
             # As we print the rows, if we are a new cluster, then we'll print a new cluster
             # header row
             if test "${_prevCluster}" != "${_cluster}"; then
-                echo "${_seperatorRow}" >> "${STATE_PROPERTIES}"
-                printf "${_clusterFormat}" "${_seedIndicator}" "" "${_cluster}" >> "${STATE_PROPERTIES}"
-                echo "${_seperatorRow}" >> "${STATE_PROPERTIES}"
+                echo "${_seperatorRow}" >> "${_fullPlan}"
+                printf "${_clusterFormat}" "${_seedIndicator}" "" "${_cluster}" >> "${_fullPlan}"
+                echo "${_seperatorRow}" >> "${_fullPlan}"
             fi
             _prevCluster=${_cluster}
-            
-            printf "${_podFormat}" "${_seedIndicator}" "${_podIndicator}" "${_pod}" "${_ldapsPort}" "${_replicationPort}" >> "${STATE_PROPERTIES}"
+
+            printf "${_podFormat}" "${_seedIndicator}" "${_podIndicator}" "${_pod}" "${_ldapsPort}" "${_replicationPort}" >> "${_fullPlan}"
 
             _ordinal=$((_ordinal+1))
         done
     done
 
-    echo "${_seperatorRow}" >> "${STATE_PROPERTIES}"
+    echo "${_seperatorRow}" >> "${_fullPlan}"
 fi
 
-# Print out all the STATE_POPERTIES
-cat "${STATE_PROPERTIES}"
+# Print out the full plan
+cat "${_fullPlan}"
 
-echo "
-###
-# PingDirectory orchestration, run plan and current state
-###
-ORCHESTRATION_TYPE=${ORCHESTRATION_TYPE}
-RUN_PLAN=${RUN_PLAN}
-PD_STATE=${PD_STATE}
 INSTANCE_NAME=${_podInstanceName}
-
-###
-# POD Server Info
-###
-_podInstanceName=${_podInstanceName}
-_podHostname=${_podHostname}
-_podLocation=${_podLocation}
-_podLdapsPort=${_podLdapsPort}
-_podReplicationPort=${_podReplicationPort}
-
-###
-# SEED Server Info
-###
-_seedInstanceName=${_seedInstanceName}
-_seedHostname=${_seedHostname}
-_seedLocation=${_seedLocation}
-_seedLdapsPort=${_seedLdapsPort}
-_seedReplicationPort=${_seedReplicationPort}
-
-LDAPS_PORT=${LDAPS_PORT}
 LOCATION=${_podLocation}
-REPLICATION_PORT=${REPLICATION_PORT}
-" >> "${CONTAINER_ENV}"
+
+
+# next line is for shellcheck disable to ensure $RUN_PLAN is used
+echo "${INSTANCE_NAME}" >> /dev/null
+
+# PingDirectory orchestration info
+export_container_env ORCHESTRATION_TYPE RUN_PLAN PD_STATE INSTANCE_NAME
+
+# POD Server Info
+export_container_env _podInstanceName _podHostname _podLocation _podLdapsPort _podReplicationPort
+
+# SEED Server Info
+export_container_env _seedInstanceName _seedHostname _seedLocation _seedLdapsPort _seedReplicationPort
+
+# PingDirectory Info
+export_container_env LDAPS_PORT LOCATION REPLICATION_PORT
+
+# Cleanup Temp Files
+rm -f "${_fullPlan} ${_planSteps}"

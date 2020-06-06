@@ -2,8 +2,8 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-#- Copies the server bits from the image into the SERVER_ROOT_DIR if we a
-#- new fresh container is started
+#- Copies the server bits from the image into the SERVER_ROOT_DIR if
+#- it is a new fresh container.
 #
 
 # shellcheck source=pingcommon.lib.sh

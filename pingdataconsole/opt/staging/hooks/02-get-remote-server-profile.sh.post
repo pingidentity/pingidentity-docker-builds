@@ -3,8 +3,8 @@
 # Ping Identity DevOps - Docker Build Hooks
 #
 #- This hook may be used to set the server if there is a setup procedure
-# 
-#- >Note: The PingData (i.e. Directory, DataSync, DataGovernance, DirectoryProxy) 
+#
+#- >Note: The PingData (i.e. Directory, DataSync, DataGovernance, DirectoryProxy)
 #- products will all provide this
 
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
@@ -12,12 +12,12 @@
 
 _keystoreFile="${STAGING_DIR}/keystore"
 _keystorePinFile="${SECRETS_DIR}/.keystore.pin"
-if ! test -f "${_keystoreFile}" ; 
+if ! test -f "${_keystoreFile}"
 then
-    if ! test -f "${_keystorePinFile}" ;
+    if ! test -f "${_keystorePinFile}"
     then
         mkdir -p "${SECRETS_DIR}"
-        if test -n "${KEYSTORE_PIN}" ;
+        if test -n "${KEYSTORE_PIN}"
         then
             echo "${KEYSTORE_PIN}" > "${_keystorePinFile}"
         else
@@ -37,7 +37,7 @@ then
         -dname "CN=ephemeral, OU=Docker, O=PingIdentity Corp., L=Denver, ST=CO, C=US"
 fi
 
-if test -z "${KEYSTORE_PIN}" ;
+if test -z "${KEYSTORE_PIN}"
 then
     # shellcheck disable=SC2016
     echo 'KEYSTORE_PIN=$( cat "'"${_keystorePinFile}"'")' >> "${CONTAINER_ENV}"

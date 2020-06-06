@@ -12,6 +12,12 @@
 
 #######################################################################################################
 
+#
+# Flag used to track any validation errors (set by the echo_vars below).  If errors are found, then this
+# flag will be set to true and later a message and exit will occur.
+#
+_validationFailed=false
+
 echo_header "Docker Image Information"
 echo_vars IMAGE_VERSION IMAGE_GIT_REV HOSTNAME DOMAINNAME
 
@@ -37,7 +43,7 @@ echo_header "Product Startup"
 echo_vars   STARTUP_COMMAND STARTUP_FOREGROUND_OPTS STARTUP_BACKGROUND_OPTS VERBOSE PING_DEBUG
 
 echo_header "Orchestration Info"
-echo_vars   ORCHESTRATION_TYPE 
+echo_vars   ORCHESTRATION_TYPE
 
 if test "${ORCHESTRATION_TYPE}" = "KUBERNETES"
 then
@@ -50,9 +56,9 @@ then
 fi
 
 echo_header "Ping Product Info"
-echo_vars   PING_PRODUCT LOCATION LDAP_PORT LDAPS_PORT HTTPS_PORT JMX_PORT 
+echo_vars   PING_PRODUCT LOCATION LDAP_PORT LDAPS_PORT HTTPS_PORT JMX_PORT
 echo_vars   USER_BASE_DN
-echo_vars   PD_ENGINE_PUBLIC_HOSTNAME 
+echo_vars   PD_ENGINE_PUBLIC_HOSTNAME
 echo_vars   PF_ADMIN_PUBLIC_HOSTNAME PF_ENGINE_PUBLIC_HOSTNAME
 echo_vars   PA_ADMIN_PUBLIC_HOSTNAME PA_ENGINE_PUBLIC_HOSTNAME
 echo_vars   ROOT_USER_DN
@@ -60,6 +66,8 @@ echo_vars   ADDITIONAL_SETUP_ARGS
 
 echo_header "JVM Details"
 echo_vars   MAX_HEAP_SIZE JVM_TUNING
+
+echo_bar
 
 # If there are validations that have failed, then exit
 if test "${_validationFailed}" = true

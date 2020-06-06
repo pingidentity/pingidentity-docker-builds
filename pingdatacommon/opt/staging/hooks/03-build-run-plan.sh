@@ -9,30 +9,25 @@
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-rm -rf "${STATE_PROPERTIES}"
-
 RUN_PLAN="UNKNOWN"
 
 SERVER_UUID_FILE="${SERVER_ROOT_DIR}/config/server.uuid"
 
 if  test -f "${SERVER_UUID_FILE}" ; then
     . "${SERVER_UUID_FILE}"
-    
+
     RUN_PLAN="RESTART"
 else
     RUN_PLAN="START"
 fi
 
-echo "
-###################################################################################
-#                      RUN_PLAN: ${RUN_PLAN}
-###################################################################################
-" >> "${STATE_PROPERTIES}"
+INSTANCE_NAME="$(hostname)"
 
-# Display the new state properties
-cat "${STATE_PROPERTIES}"
+# next line is for shellcheck disable to ensure $RUN_PLAN is used
+echo "${RUN_PLAN} ${INSTANCE_NAME}" >> /dev/null
 
-echo "
-RUN_PLAN=${RUN_PLAN}
-INSTANCE_NAME=$(hostname)
-" >> "${CONTAINER_ENV}"
+echo_header "Run Plan Information"
+echo_vars RUN_PLAN INSTANCE_NAME serverUUID
+echo_bar
+
+export_container_env RUN_PLAN INSTANCE_NAME
