@@ -2,17 +2,36 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-#- Once both the remote (i.e. git) and local server-profiles have been merged
-#- then we can push that out to the instance.  This will override any files found
-#- in the ${SERVER_ROOT_DIR} directory.
+#- The server-profiles from:
+#-
+#- * remote (i.e. git) and
+#- * local (i.e. /opt/in)
+#-
+#- have been merged into the ${STAGING_DIR}/instance (ie. /opt/staging/instance).
+#-
+#- This is a candidate to be installed or overwritten into the ${SERVER_ROOT_DIR}
+#- if one of the following items are true:
+#-
+#- * Start of a new server (i.e. RUN_PLAN=START)
+#- * Restart of a server with SERVER_PROFILE_UPDATE==true
+#-
+#- To force the overwrite of files on a restart, ensure that the variable:
+#-
+#-     SERVER_PROFILE_UPDATE=true
+#-
+#- is passed.
+
 #
 ${VERBOSE} && set -x
 
 # shellcheck source=pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
+# Check to see if there there is an instance directory and files in it
 if test -d "${STAGING_DIR}/instance" && find "${STAGING_DIR}/instance" -type f | read -r
 then
+    # If this is a new server or the a SERVER_PROFILE_UPDATE is asked for
+    # Then copy/overwrite files to SERVER_ROOT_DIR
     if test "${RUN_PLAN}" = "START" || test "${SERVER_PROFILE_UPDATE}" = "true"
     then
         echo "merging ${STAGING_DIR}/instance to ${SERVER_ROOT_DIR}"

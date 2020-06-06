@@ -18,14 +18,14 @@ _motdJsonFile="/tmp/motd.json"
 _currentDate=$(date +%Y%m%d)
 
 echo "
-##################################################################################
+$(echo_bar)
                 Ping Identity DevOps Docker Image
 
        Version: ${IMAGE_VERSION}
    DevOps User: ${PING_IDENTITY_DEVOPS_USER}
       Hostname: ${HOSTNAME}
        Started: $(date)
-##################################################################################" > "${_motdFile}"
+$(echo_bar)" > "${_motdFile}"
 
 #
 # Get a MOTD from the server profile if it is set
@@ -51,14 +51,14 @@ else
         _imageName=$(echo ${IMAGE_VERSION} | sed 's/-.*//')
 
 
-        jq -r "select (.devops != null) | .devops | ${_jqExpr}" "${_motdJsonFile}" >> "${_motdFile}" 
+        jq -r "select (.devops != null) | .devops | ${_jqExpr}" "${_motdJsonFile}" >> "${_motdFile}"
         jq -r "select (.${_imageName} != null) | .${_imageName} | ${_jqExpr}" "${_motdJsonFile}" >> "${_motdFile}"
     else
         echo_red "Unable to download MOTD from ${MOTD_URL}"
     fi
 fi
 
-echo "##################################################################################" >> "${_motdFile}"
+echo_bar >> "${_motdFile}"
 
 echo "Current ${_motdFile}"
 cat_indent "${_motdFile}"

@@ -13,9 +13,6 @@ CALLING_HOOK=${0}
 # shellcheck disable=SC1090
 test -f "/run/secrets/${PING_IDENTITY_DEVOPS_FILE}" && . "/run/secrets/${PING_IDENTITY_DEVOPS_FILE}"
 
-# File holding State Properties
-STATE_PROPERTIES="${STAGING_DIR}/state.properties"
-
 # echo colorization options
 if test "${COLORIZE_LOGS}" = "true"
 then
@@ -47,7 +44,7 @@ lowerVar()
 
 toUpper ()
 {
-    echo -n ${*}|tr '[:lower:]' '[:upper:]' 
+    echo -n ${*}|tr '[:lower:]' '[:upper:]'
 }
 
 toUpperVar ()
@@ -65,7 +62,7 @@ upperVar()
 #
 _curl ()
 {
-    _httpResultCode=$( 
+    _httpResultCode=$(
         curl \
             --get \
             --silent \
@@ -86,7 +83,7 @@ _curl ()
 #
 # Stable function to retrieve OS information
 #
-parseOSRelease () 
+parseOSRelease ()
 {
     test -n "${1}" && awk '$0~/^'"${1}"'=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null
 }
@@ -165,6 +162,16 @@ echo_yellow ()
 }
 
 ###############################################################################
+# echo_bar ()
+#
+# Echos a bar of 80 hash marks
+###############################################################################
+echo_bar ()
+{
+    printf "################################################################################\n"
+}
+
+###############################################################################
 # cat_indent (file)
 #
 # cat a file to stdout and indent 4 spaces
@@ -186,7 +193,7 @@ run_if_present ()
     _commandSet="sh"
     ${VERBOSE} && _commandSet="${_commandSet} -x"
     if test -f "${_runFile}"
-    then 
+    then
         ${_commandSet} "${_runFile}"
         return ${?}
     else
@@ -317,13 +324,15 @@ security_filename_check()
 
     _tmpSC="/tmp/.securityCheck"
     # Check for *.jwk files
+    # shellcheck disable=SC2164
     test -d "${_scPath}" && _tmpPWD=$( pwd ) && cd "${_scPath}"
     find . -type f -name "${_patternToCheck}" > "${_tmpSC}"
-    test -d "${_scPath}" && cd ${_tmpPWD}
-    
+    # shellcheck disable=SC2164
+    test -d "${_scPath}" && cd "${_tmpPWD}"
+
     _numViolations=$( awk 'END{print NR}' "${_tmpSC}" )
 
-    if test ${_numViolations} -gt 0
+    if test "${_numViolations}" -gt 0
     then
         if test "${SECURITY_CHECKS_STRICT}" = "true"
         then
@@ -334,7 +343,7 @@ security_filename_check()
 
         cat_indent ${_tmpSC}
 
-        _totalSecurityViolations=$(( _totalSecurityViolations + _numViolations ))        
+        _totalSecurityViolations=$(( _totalSecurityViolations + _numViolations ))
     fi
 
     export _totalSecurityViolations
@@ -343,7 +352,7 @@ security_filename_check()
 ###############################################################################
 # sleep_at_most (num_seconds)
 #
-# Sleep at least one second and at most the indicated duration and 
+# Sleep at least one second and at most the indicated duration and
 # echos a message
 ###############################################################################
 sleep_at_most ()
@@ -356,7 +365,7 @@ sleep_at_most ()
     _duration=$(( _result + 1))
 
     echo "Sleeping ${_duration} seconds (max: ${_max})..."
-  
+
     sleep ${_duration}
 }
 
@@ -380,7 +389,7 @@ get_value ()
 ###############################################################################
 echo_header ()
 {
-  echo "##################################################################################"
+  echo_bar
 
   while test -n "${1}"
   do
@@ -388,15 +397,15 @@ echo_header ()
     echo "#    ${_msg}"
   done
 
-  echo "##################################################################################"
+  echo_bar
 }
 
 
 ###############################################################################
 # error_req_var (var)
 #
-# Check for the requirement, values of a variable and 
-# Echo a formatted list of variables and their value.  If the variable is 
+# Check for the requirement, values of a variable and
+# Echo a formatted list of variables and their value.  If the variable is
 # empty, then, a sring of '---- empty ----' will be echoed
 ###############################################################################
 echo_req_vars ()
@@ -408,7 +417,7 @@ echo_req_vars ()
 # echo_vars (var1, var2, ...)
 #
 # Check for the requirement, values of a variable and
-# Echo a formatted list of variables and their value.  
+# Echo a formatted list of variables and their value.
 # If the variable is empty, then, '---- empty ----' will be echoed
 # If the variable is found in env_vars file, then '(env_vars overridden)'
 # If the varaible has a _REDACT=true, then '*** REDACTED ***'
@@ -470,7 +479,26 @@ echo_vars ()
 }
 
 ###############################################################################
-# main  
+# export_container_env (var1, var2, ...)
+#
+# Write the var passed to the CONTAINER_VAR for communication to further
+# hooks
+###############################################################################
+export_container_env ()
+{
+  printf "\n# Following variables set by hook ${CALLING_HOOK}\n" >> "${CONTAINER_ENV}"
+
+  while test -n "${1}"
+  do
+    _var=${1} && shift
+    _val=$( get_value "${_var}" )
+
+    echo "${_var}=${_val}" >> "${CONTAINER_ENV}"
+  done
+}
+
+###############################################################################
+# main
 ###############################################################################
 echo_green "----- Starting hook: ${CALLING_HOOK}"
 
