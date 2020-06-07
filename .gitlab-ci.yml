@@ -563,7 +563,6 @@ t.pingdelegator:
       - pingdirectory/**/*
       - pingdelegator/**/*
       - ci_scripts/*
-      - pingjvm/*
       - .gitlab-ci.yml
   except:
     variables:
