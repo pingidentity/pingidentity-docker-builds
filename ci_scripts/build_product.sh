@@ -279,6 +279,9 @@ do
                         ${dryRun} docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
                         ${dryRun} docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
                         ${dryRun} docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
+                        ${dryRun} docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}"
+                        ${dryRun} docker push "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}"
+                        ${dryRun} docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}"
                     fi
                     ${dryRun} docker image rm -f "${_image}"
                 fi
