@@ -1,7 +1,7 @@
 #- # Ping Identity Docker Image - `pingbase`
-#- 
-#- This docker image provides a base image for all Ping Identity DevOps 
-#- product images. 
+#-
+#- This docker image provides a base image for all Ping Identity DevOps
+#- product images.
 #-
 FROM scratch
 LABEL	name="Ping Identity Docker Image" \
@@ -21,12 +21,12 @@ ONBUILD LABEL	image-version="${IMAGE_VERSION}" \
 
 # Legal requirement to explicitly accept the terms of the PingIdentity License
 #-- Must be set to 'YES' for the container to start
-ONBUILD ENV ACCEPT_EULA=NO
+ONBUILD ENV PING_IDENTITY_ACCEPT_EULA=NO
 
 # the image base /might/ be changed at build-time but
 # be aware that the entrypoint will have to be
 # overridden to reflect the change
-#-- Location of the top level directory where everything is located in 
+#-- Location of the top level directory where everything is located in
 #-- image/container
 ONBUILD ARG BASE
 ONBUILD ENV BASE=${BASE:-/opt}
@@ -78,21 +78,21 @@ ONBUILD ENV SECURITY_CHECKS_FILENAME="*.jwk *.pin"
 
 #-- License directory and filename
 ONBUILD ENV LICENSE_DIR="${SERVER_ROOT_DIR}"
-#-- The command that the entrypoint will execute in the foreground to 
+#-- The command that the entrypoint will execute in the foreground to
 #-- instantiate the container
 ONBUILD ENV STARTUP_COMMAND=""
-#-- The command-line options to provide to the the startup command when 
-#-- the container starts with the server in the foreground. This is the 
+#-- The command-line options to provide to the the startup command when
+#-- the container starts with the server in the foreground. This is the
 #-- normal start flow for the container
 ONBUILD ENV STARTUP_FOREGROUND_OPTS=""
-#-- The command-line options to provide to the the startup command when 
-#-- the container starts with the server in the background. This is the 
+#-- The command-line options to provide to the the startup command when
+#-- the container starts with the server in the background. This is the
 #-- debug start flow for the container
 ONBUILD ENV STARTUP_BACKGROUND_OPTS=""
 
 ONBUILD ENV PING_IDENTITY_DEVOPS_KEY_REDACT=true
 
-#-- A whitespace separated list of log files to tail to the container 
+#-- A whitespace separated list of log files to tail to the container
 #-- standard output - DO NOT USE WILDCARDS like /path/to/logs/*.log
 ONBUILD ENV TAIL_LOG_FILES=""
 
