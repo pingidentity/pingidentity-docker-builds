@@ -44,7 +44,7 @@ RUN /get-bits.sh --product ${PRODUCT} \
         -x *.dll \
         -x *.exe \
     && rm /tmp/product.zip \
-    && mv /tmp/${PRODUCT}-${VERSION}/${PRODUCT} /opt/server \
+    && mv /tmp/${PRODUCT}-*/${PRODUCT} /opt/server \
     && rm -rf /tmp/pingfederate-* \
     && ( \
         test -n "${DEPENDENCY_0_PRODUCT}" \

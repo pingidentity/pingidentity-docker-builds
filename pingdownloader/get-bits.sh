@@ -402,6 +402,13 @@ do
 done
 outputProps="/tmp/${metadataFile}"
 
+output="/tmp/product.zip"
+if test -f "${output}" && test ! ${pullLicense}
+then
+    echo_green "Using existing file at ${output} without verification."
+    exit 0
+fi
+
 # If we weren't passed a product option, then error
 test -z "${product}" && usage "Option --product {product} required"
 test -n "${getSnapshot}" && exec /get-snapshots.sh "${product}"
@@ -510,11 +517,7 @@ else
     echo "#               TO: ${output}" 
     cd /tmp || exit 2
     
-    if test -f "${output}"
-    then
-        echo_green "Using existing file at ${output} without verification."
-        exitCode=0
-    elif test -n "${dryRun}"
+    if test -n "${dryRun}"
     then
         echo curl -sSL -w '%{http_code}' -o "${output}" -H "devops-user: ${devopsUser}" -H "devops-key: ${devopsKey}" -H "devops-app: ${devopsApp}" "${url}"
     else
