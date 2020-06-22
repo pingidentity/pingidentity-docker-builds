@@ -104,6 +104,7 @@ printf "${_headerPattern}" "PRODUCT" "VERSION" "SHIM" "JVM" "TEST" "DURATION" "R
 _totalStart=$( date '+%s' )
 for _version in ${versions}
 do  
+
     test "${_version}" = "none" && _version=""
     if test -z "${shimList}"
     then
@@ -148,11 +149,11 @@ do
                 banner "Running test $( basename "${_test}" ) on ${product}${_version:+ ${version}}${_shim:+ on ${shim}}${_jvm:+ with Java ${_jvmVersion}(${_jvm})}"
                 # sut = system under test
                 _start=$( date '+%s' )
-                env TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f ./"${_test}" up --exit-code-from sut --abort-on-container-exit
+                env GIT_TAG="${ciTag}" TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f ./"${_test}" up --exit-code-from sut --abort-on-container-exit
                 _returnCode=${?}
                 _stop=$( date '+%s' )
                 _duration=$(( _stop - _start ))
-                env TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f ./"${_test}" down
+                env GIT_TAG="${ciTag}" TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f ./"${_test}" down
                 if test ${_returnCode} -ne 0
                 then
                     _result="FAIL"

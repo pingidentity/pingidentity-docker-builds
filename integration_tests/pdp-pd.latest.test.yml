@@ -2,13 +2,14 @@ version: "2"
 
 services:
   pingdirectory:
-    image: ${REGISTRY}/pingdirectory:8.0.0.1-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingdirectory:8.1.0.0-alpine-az11-${GIT_TAG}
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
       - PING_IDENTITY_ACCEPT_EULA=YES
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_PATH=baseline/pingdirectory
+      - MAX_HEAP_SIZE=768m
     ulimits:
       nproc:
         soft: 16384
@@ -21,7 +22,7 @@ services:
     mem_swappiness: 0
 
   pingdirectoryproxy:
-    image: ${REGISTRY}/pingdirectoryproxy:8.0.0.1-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingdirectoryproxy:8.1.0.0-alpine-az11-${GIT_TAG}
     command: wait-for pingdirectory:389 -t 900 -- entrypoint.sh start-server
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
