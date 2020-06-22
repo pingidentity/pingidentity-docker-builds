@@ -2,9 +2,9 @@ version: "2"
 
 services:
   pingaccess:
-    image: ${REGISTRY}/pingaccess:6.0.2-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingaccess:6.1.0-alpine-az11-${GIT_TAG}
     command: wait-for pingfederate:9031 -t 900 -- entrypoint.sh start-server
-    environment: 
+    environment:
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_PATH=baseline/pingaccess
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
@@ -39,7 +39,7 @@ services:
       - pingdirectory
 
   pingfederate:
-    image: ${REGISTRY}/pingfederate:10.0.3-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingfederate:10.1.0-alpine-az11-${GIT_TAG}
     command: wait-for pingdirectory:389 -t 900 -- entrypoint.sh start-server
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
@@ -64,13 +64,14 @@ services:
       - pingdirectory
 
   pingdirectory:
-    image: ${REGISTRY}/pingdirectory:8.0.0.1-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingdirectory:8.1.0.0-alpine-az11-${GIT_TAG}
     environment:
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_PATH=baseline/pingdirectory
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
       - PING_IDENTITY_ACCEPT_EULA=YES
+      - MAX_HEAP_SIZE=768m
     ulimits:
       nproc:
         soft: 16384
@@ -83,7 +84,7 @@ services:
     mem_swappiness: 0
     networks:
       - pingnet-internal
-  
+
   httpbin:
     image: kennethreitz/httpbin
     ports:
@@ -115,7 +116,7 @@ services:
     networks:
       - pingnet-dmz
       - pingnet-internal
-  
+
 networks:
     pingnet-internal:
     pingnet-dmz:

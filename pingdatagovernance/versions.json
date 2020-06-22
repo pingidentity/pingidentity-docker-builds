@@ -1,8 +1,8 @@
 {
-    "latest":"8.0.0.1",
+    "latest":"8.1.0.0",
     "versions":[
-        {   
-            "version": "8.1.0.0-EA",
+        {
+            "version": "8.1.0.0",
             "preferredShim": "alpine",
             "shims":[
                 {
@@ -18,7 +18,24 @@
                 }
             ]
         },
-        {   
+        {
+            "version": "8.1.0.0-EA",
+            "preferredShim": "alpine",
+            "shims":[
+                {
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": false,
+                            "deploy": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "version": "8.0.0.1",
             "preferredShim": "alpine",
             "shims":[
@@ -35,7 +52,7 @@
                 }
             ]
         },
-        {   
+        {
             "version": "7.3.0.7",
             "preferredShim": "alpine",
             "shims":[

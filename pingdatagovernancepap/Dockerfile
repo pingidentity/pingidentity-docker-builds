@@ -1,5 +1,5 @@
 #- # Ping Identity DevOps Docker Image - `pingdatagovernancepap`
-#- 
+#-
 #- This docker image includes the Ping Identity PingDataGovernance PAP product binaries
 #- and associated hook scripts to create and run a PingDataGovernance PAP instance.
 #-
@@ -51,7 +51,7 @@ ENV LICENSE_SHORT_NAME=PG
 #-- Version used when retrieving license from License Server
 ENV LICENSE_VERSION=${LICENSE_VERSION}
 
-#-- Minimal Heap size required for Ping DataGovernance
+#-- Minimal Heap size required for Ping DataGovernance PAP
 ENV MAX_HEAP_SIZE=384m
 
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
@@ -78,8 +78,8 @@ EXPOSE ${HTTPS_PORT}
 COPY --from=final-staging ["/","/"]
 
 #- ## Running a PingDataGovernance PAP container
-#- To run a PingDataGovernance PAP container: 
-#- 
+#- To run a PingDataGovernance PAP container:
+#-
 #- ```she   ll
 #-   docker run \
 #-            --name pingdatagovernancepap \
@@ -87,14 +87,14 @@ COPY --from=final-staging ["/","/"]
 #-            --detach \
 #-            pingidentity/pingdatagovernancepap:edge
 #- ```
-#- 
+#-
 #- Follow Docker logs with:
-#- 
+#-
 #- ```
 #- docker logs -f pingdatagovernancepap
 #- ```
-#- 
-#- Log in with: 
+#-
+#- Log in with:
 #- * https://localhost:8443/
 #-   * Username: admin
 #-   * Password: password123
