@@ -15,6 +15,10 @@
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 set -e
+echo_yellow "NOTE: PingAccess 6.1 natively supports data.json ingestion,"
+echo_yellow "and is the recommended method for configuration. For more information, see:"
+echo_yellow "https://pingidentity-devops.gitbook.io/devops/config/containeranatomy/profilestructures#for-pa-6-1-0"
+
 echo "INFO: begin importing data.."
 
 # # to Test an import call from the container you can use: 
