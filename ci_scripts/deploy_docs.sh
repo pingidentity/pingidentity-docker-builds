@@ -69,14 +69,14 @@ append_footer ()
 #
 append_env_table_header ()
 {
-    case "${dockerImage}" in 
-        pingaccess|pingdirectory|pingdatasync|pingfederate|pingdatagovernance|pingdatagovernancepap|pingtoolkit)
+    case "${dockerImage}" in
+        pingaccess|pingdirectory|pingdatasync|pingfederate|pingdatagovernance|pingdatagovernancepap|pingtoolkit|pingcentral)
             if test "${ENV_TABLE_ACTIVE}" != "true"
             then
                 ENV_TABLE_ACTIVE="true"
 
                 append_doc "## Environment Variables"
-                append_doc "In addition to environment variables inherited from **[pingidentity/pingbase](https://pingidentity-devops.gitbook.io/devops/docker-images/pingbase)**," 
+                append_doc "In addition to environment variables inherited from **[pingidentity/pingbase](https://pingidentity-devops.gitbook.io/devops/docker-images/pingbase)**,"
                 append_doc "the following environment \`ENV\` variables can be used with "
                 append_doc "this image. "
                 append_doc ""
@@ -144,7 +144,7 @@ parse_hooks ()
     mkdir -p "${OUTPUT_DIR}/docker-images/${_dockerImage}/hooks"
 
     banner "Parsing hooks for ${_dockerImage}..."
-    
+
     _hookFiles=""
 
     #
@@ -162,12 +162,12 @@ parse_hooks ()
         append_header
         append_doc "# Ping Identity DevOps \`${_dockerImage}\` Hook - \`${_hookFile}\`"
         awk '$0~/^#-/ && $0!~/^#-$/ {gsub(/^#-/,"");print;}' "${_hookFilePath}" >> "${_docFile}"
-        
+
         append_footer "${_dockerImage}/opt/staging/hooks/${_hookFile}"
     done
 
     #
-    # The following creates a set of .../product/hooks/README.md file as a table of 
+    # The following creates a set of .../product/hooks/README.md file as a table of
     # contents for all the hooks for that product.
     #
     # If there are no hooks for that product, then a message will be provided
@@ -204,19 +204,19 @@ parse_dockerfile ()
 {
     _dockerImage="${1}"
     _dockerFile="${DOCKER_BUILD_DIR}/${_dockerImage}/Dockerfile"
- 
+
     mkdir -p "${OUTPUT_DIR}/docker-images/${_dockerImage}"
 
     _docFile="${OUTPUT_DIR}/docker-images/${_dockerImage}/README.md"
     rm -f "${_docFile}"
 
     echo "Parsing Dockerfile ${_dockerImage}..."
-        
+
     append_header
 
     while read -r line
     do
-        
+
         #
         # Parse the ENV Description
         #   Example: $-- This is the description
@@ -236,12 +236,12 @@ parse_dockerfile ()
         then
             ENV_VARIABLE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*ENV \(.*\)x=x.*/\1/')
             ENV_VALUE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*x=x\(.*\)/\1/' -e 's/^"\(.*\)"$/\1/')
-            
+
             append_env_table_header
 
             append_env_variable "${ENV_VARIABLE}" "${ENV_DESCRIPTION}" "${ENV_VALUE}"
             ENV_DESCRIPTION=""
-        
+
             continue
         fi
 
@@ -254,7 +254,7 @@ parse_dockerfile ()
         then
             # shellcheck disable=SC2001
             EXPOSE_PORTS=$(echo "${line}" | sed 's/^.*EXPOSE \(.*\)$/\1/')
-    
+
             append_expose_ports "${EXPOSE_PORTS}"
 
             continue
@@ -286,11 +286,11 @@ parse_dockerfile ()
 dockerImages="pingaccess pingfederate pingdirectory pingdatagovernance pingdatagovernancepap pingdatasync
 pingbase pingcommon pingdatacommon
 pingdataconsole pingdownloader ldap-sdk-tools pingtoolkit
-pingdirectoryproxy pingdelegator apache-jmeter"
+pingdirectoryproxy pingdelegator apache-jmeter pingcentral"
 #
 # Parse the provided arguments, if any
 #
-while test -n "${1}" 
+while test -n "${1}"
 do
     case "${1}" in
         -d|--docker-image)
