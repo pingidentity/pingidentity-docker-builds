@@ -1100,7 +1100,7 @@ pdp-pd.latest:
       - pingcommon/**/*
       - pingdatacommon/**/*
       - pingdirectory/**/*
-      - pingdatasync/**/*
+      - pingdirectoryproxy/**/*
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml
