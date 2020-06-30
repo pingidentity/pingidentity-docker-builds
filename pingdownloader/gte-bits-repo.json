@@ -74,7 +74,7 @@
         {
             "name": "pingfederate-patch",
             "mapping": "pingfederate-patch-${version}.zip",
-            "latestVersion": "9.3.3-P3"
+            "latestVersion": "9.3.3-P4"
         },
         {
             "name": "apache-tomcat",
