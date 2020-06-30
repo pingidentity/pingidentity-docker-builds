@@ -1044,7 +1044,7 @@ pa-pf-pd.latest:
     - ci_scripts/run_integration.sh pa-pf-pd.latest
   only:
     changes:
-      - integration_tests/**/*
+      - integration_tests/**/pa-pf-pd*
       - pingbase/**/*
       - pingcommon/**/*
       - pingdatacommon/**/*
@@ -1070,7 +1070,7 @@ pds-pd.latest:
     - ci_scripts/run_integration.sh pds-pd.latest
   only:
     changes:
-      - integration_tests/**/*
+      - integration_tests/**/pds-pd*
       - pingbase/**/*
       - pingcommon/**/*
       - pingdatacommon/**/*
@@ -1095,7 +1095,7 @@ pdp-pd.latest:
     - ci_scripts/run_integration.sh pdp-pd.latest
   only:
     changes:
-      - integration_tests/**/*
+      - integration_tests/**/pdp-pd*
       - pingbase/**/*
       - pingcommon/**/*
       - pingdatacommon/**/*
@@ -1120,7 +1120,7 @@ pdg-pd.latest:
     - ci_scripts/run_integration.sh pdg-pd.latest
   only:
     changes:
-      - integration_tests/**/*
+      - integration_tests/**/pdg-pd*
       - pingbase/**/*
       - pingcommon/**/*
       - pingdatacommon/**/*
@@ -1139,28 +1139,28 @@ pdg-pd.latest:
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
 
-# pa-cluster.latest:
-#   stage: test.integration
-#   script:
-#     - ci_scripts/run_integration.sh pa-cluster.latest
-#   only:
-#     changes:
-#       - integration_tests/**/*
-#       - pingbase/**/*
-#       - pingcommon/**/*
-#       - pingaccess/**/*
-#       - ci_scripts/*
-#       - pingjvm/*
-#       - .gitlab-ci.yml
-#   except:
-#     variables:
-#       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-#       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-#       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-#       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-#       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-#       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-#       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i
+pa-cluster.latest:
+  stage: test.integration
+  script:
+    - ci_scripts/run_integration.sh pa-cluster.latest
+  only:
+    changes:
+      - integration_tests/**/pa-cluster*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingaccess/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i
 
 pd-repl.latest:
   stage: test.integration
