@@ -36,7 +36,7 @@
             ]
         },
         {
-            "version": "6.0.3",
+            "version": "6.0.4",
             "preferredShim": "alpine",
             "shims": [
                 {
@@ -47,6 +47,23 @@
                             "jvm": "az11",
                             "build": true,
                             "deploy": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "version": "6.0.3",
+            "preferredShim": "alpine",
+            "shims": [
+                {
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": false,
+                            "deploy": false
                         }
                     ]
                 }
