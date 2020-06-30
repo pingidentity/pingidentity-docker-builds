@@ -1,0 +1,103 @@
+#*
+The server renders this page in response to a heartbeat request. The
+Content-Type of the page is set with a Velocity variable as follows and can
+be any valid MediaType:
+
+#set( $Content-Type = "text/html" )
+
+Velocity variables (identified by the $ character) are generated
+at runtime by the server. If pf.heartbeat.system.monitoring is set
+to true in run.properties then the following variables are available
+for use in this template:
+
+$monitor.getTotalJvmMemory() - bytes by default
+$monitor.getTotalJvmMemory('KB' | 'MB' | 'GB')
+$monitor.getUsedJvmMemory() - bytes by default
+$monitor.getUsedJvmMemory('KB' | 'MB' | 'GB')
+$monitor.getFreeJvmMemory() - bytes by default
+$monitor.getFreeJvmMemory('KB' | 'MB' | 'GB')
+$monitor.getTotalPhysicalSystemMemory() - bytes by default
+$monitor.getTotalPhysicalSystemMemory('bytes' | 'KB' | 'MB' | 'GB')
+$monitor.getTotalFreePhysicalSystemMemory()     - bytes by default
+$monitor.getTotalFreePhysicalSystemMemory('bytes' | 'KB' | 'MB' | 'GB')
+$monitor.getTotalUsedPhysicalSystemMemory()     - bytes by default
+$monitor.getTotalUsedPhysicalSystemMemory('bytes' | 'KB' | 'MB' | 'GB')
+$monitor.getHostname()
+$monitor.getNumberOfCpus()
+$monitor.getCpuLoad('###.##') - insert custom format
+
+New metrics are available in the Velocity variable $monitor.getResults($resultKeys) where
+$resultKeys is a list of all or a subset of these result keys:
+
+atm.*.token.map.size - use the wild card for all ATMs or specify specific ATMs by replacing the * with the ATM ID
+response.time.statistics.*.percentile - get all configured percentiles using the * or specify the exact percentile to display
+response.concurrency.statistics.*.percentile - get all configured percentiles using the * or specify the exact percentile to display
+idp.session.registry.session.map.size
+response.concurrency.statistics.max
+response.concurrency.statistics.mean
+response.concurrency.statistics.min
+response.statistics.count
+response.statistics.window.seconds
+response.time.statistics.max
+response.time.statistics.mean
+response.time.statistics.min
+session.state.attribute.map.size
+sp.session.registry.session.map.size
+total.failed.transactions
+total.transactions
+
+Enable the pf.heartbeat.system.monitoring option in run.properties to render a basic json page containing
+monitoring information.
+*#
+
+#if($heartbeatSystemMonitoring)
+#set( $Content-Type = "application/json" )
+#set($resultKeysNumbers = [
+    "atm.*.token.map.size",
+    "idp.session.registry.session.map.size",
+    "response.concurrency.statistics.*.percentile",
+    "response.concurrency.statistics.max",
+    "response.concurrency.statistics.min",
+    "response.statistics.count",
+    "response.statistics.window.seconds",
+    "response.time.statistics.*.percentile",
+    "response.time.statistics.max",
+    "response.time.statistics.min",
+    "session.state.attribute.map.size",
+    "sp.session.registry.session.map.size",
+    "total.failed.transactions",
+    "total.transactions"])
+
+#set($resultKeysStrings = [
+    "response.concurrency.statistics.mean",
+    "response.time.statistics.mean"])
+
+{"items":[{
+      "cpu.load": $monitor.getCpuLoad('####.#'),
+      "total.jvm.memory": $monitor.getTotalJvmMemory(),
+      "free.jvm.memory": $monitor.getFreeJvmMemory(),
+      "used.jvm.memory": $monitor.getUsedJvmMemory(),
+      "total.physical.system.memory": $monitor.getTotalPhysicalSystemMemory(),
+      "total.free.physical.system.memory": $monitor.getTotalFreePhysicalSystemMemory(),
+      "total.used.physical.system.memory": $monitor.getTotalUsedPhysicalSystemMemory(),
+      "number.of.cpus": $monitor.getNumberOfCpus(),
+#set ( $map = $monitor.getResults($resultKeysNumbers) )
+#set ( $size = $map.size() )
+#set ( $count = 0)
+#foreach( $key in $map.keySet() )
+      #set ( $count =  $count + 1)
+      "${key}": $map.get($key)#if( $count < $size ),#end
+#end,
+#set ( $map = $monitor.getResults($resultKeysStrings) )
+#set ( $size = $map.size() )
+#set ( $count = 0)
+#foreach( $key in $map.keySet() )
+      #set ( $count =  $count + 1)
+      "${key}": "$map.get($key)"#if( $count < $size ),#end
+#end
+}]}
+
+#else
+#set( $Content-Type = "text/html" )
+OK
+#end
