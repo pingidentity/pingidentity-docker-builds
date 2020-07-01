@@ -26,10 +26,16 @@ then
     for template in $( find "${TEMPLATE_DIR}" -type f -iname \*.template 2>/dev/null ) ;
     do
             echo "Processing (${template}) template with ${MAKELDIF_USERS} users..."
+            GENERATED_LDIF_FILENAME="${template%.*}.ldif"
             "${SERVER_ROOT_DIR}/bin/make-ldif" \
                 --templateFile "${template}"  \
-                --ldifFile "${template%.*}.ldif" \
+                --ldifFile "${GENERATED_LDIF_FILENAME}" \
                 --numThreads 3
+            
+            # Add the generated ldif file to the profile's variables-ignore.txt file, to avoid
+            # the potential memory overhead of variable substitution on a large file.
+            GENERATED_LDIF_BASENAME=$( basename "${GENERATED_LDIF_FILENAME}" )
+            echo "ldif/userRoot/${GENERATED_LDIF_BASENAME}" >> "${PD_PROFILE}/variables-ignore.txt"
     done
 else
     echo "PD_STATE is not GENESIS ==> Skipping Templates"
