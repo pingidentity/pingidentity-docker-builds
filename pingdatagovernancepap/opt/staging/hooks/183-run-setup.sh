@@ -13,21 +13,36 @@ test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 # Move license to current location
 # cp "${LICENSE_DIR}/${LICENSE_FILE_NAME}" .
 
-# shellcheck disable=SC2039,SC2086
-if ! test -f "${SERVER_ROOT_DIR}/config/configuration.yml" ;
-then
+_build_info="${SERVER_ROOT_DIR}/build-info.txt"
 
-  # TODO: osha - Remove the admin username/passwords
-  #   once DS-42383 is merged (presumably in 8.2-EA)
-  _build_info="${SERVER_ROOT_DIR}/build-info.txt"
-  if test -f "${_build_info}" \
+is_81ga() {
+  test -f "${_build_info}" \
     && awk \
 'BEGIN {maj=0;min=0;ga=0}
 $1=="Major" && $3=="8" {maj=1}
 $1=="Minor" && $3=="1" {min=1}
 $2=="Qualifier:" && $3=="-GA" {ga=1}
 END {if (maj && min && ga) {exit 0} else {exit 1}}' \
-    "${_build_info}";
+    "${_build_info}"
+}
+
+is_gte_82() {
+  test -f "${_build_info}" \
+    && awk \
+'BEGIN {major_gt=0;major_eq=0;minor_ge=0}
+$1=="Major" && $3>8 {major_gt=1}
+$1=="Major" && $3==8 {major_eq=1}
+$1=="Minor" && $3>=2 {minor_ge=1}
+END {if (major_eq && minor_ge || major_gt) {exit 0} else {exit 1}}' \
+  "${_build_info}"
+}
+
+# shellcheck disable=SC2039,SC2086
+if ! test -f "${SERVER_ROOT_DIR}/config/configuration.yml" ;
+then
+
+  # shellcheck disable=SC2046
+  if test $( is_81ga ) ;
   then
     "${SERVER_ROOT_DIR}"/bin/setup demo \
         --licenseKeyFile "${LICENSE_DIR}/${LICENSE_FILE_NAME}" \
@@ -46,5 +61,14 @@ END {if (maj && min && ga) {exit 0} else {exit 1}}' \
         --generateSelfSignedCertificate \
         --decisionPointSharedSecret "${DECISION_POINT_SHARED_SECRET}" \
         2>&1
+  fi
+
+  # shellcheck disable=SC2046
+  if test $( is_gte_82 ) ;
+  then
+    mv "${SERVER_ROOT_DIR}"/bin/start-server-pre-82 \
+      "${SERVER_ROOT_DIR}"/bin/start-server
+  else
+    rm "${SERVER_ROOT_DIR}"/bin/start-server-pre-82
   fi
 fi
