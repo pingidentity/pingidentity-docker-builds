@@ -24,16 +24,16 @@ echo "INFO: begin importing data.."
 # # to Test an import call from the container you can use: 
 # curl -k -v -X POST -u "Administrator:${PA_ADMIN_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
 #   -d @${STAGING_DIR}/instance/data/data.json \
-#   https://localhost:9000/pa-admin-api/v3/config/import
+#   https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import
 
 # to check on the status of an import use: 
 # curl -k -v -X GET -u "Administrator:${PA_ADMIN_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
-#   https://localhost:9000/pa-admin-api/v3/config/import/workflows/1
+#   https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows/1
 if test -f "${STAGING_DIR}/instance/data/data.json"
 then
     # curl -ks -X POST -u "Administrator:${PA_ADMIN_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
     # -d @${STAGING_DIR}/instance/data/data.json \
-    # https://localhost:9000/pa-admin-api/v3/config/import/workflows > /dev/null
+    # https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows > /dev/null
     _out="/tmp/import.request.out"
     _import_http_code=$(
         curl \
@@ -46,7 +46,7 @@ then
             --header "X-Xsrf-Header: PingAccess" \
             --data @${STAGING_DIR}/instance/data/data.json \
             --output ${_out} \
-            https://localhost:9000/pa-admin-api/v3/config/import/workflows \
+            https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows \
             2>/dev/null
     )
 
@@ -72,7 +72,7 @@ then
                 --header "Content-Type: application/json" \
                 --header "X-Xsrf-Header: PingAccess" \
                 --output ${_out} \
-                https://localhost:9000/pa-admin-api/v3/config/import/workflows \
+                https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows \
                 2>/dev/null
         )
 

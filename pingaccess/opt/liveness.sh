@@ -10,11 +10,11 @@ then
             --user "${ROOT_USER}:${PA_ADMIN_PASSWORD}" \
             --header "Content-Type: application/json" \
             --header "X-Xsrf-Header: PingAccess" \
-            https://localhost:9000/pa-admin-api/v3/config/import/workflows | jq '.items[-1].status' | grep "Complete"
+            https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows | jq '.items[-1].status' | grep "Complete"
         exit $?
     fi
 else    
-    curl -ss -o /dev/null -k https://localhost:3000/pa/heartbeat.ping
+    curl -ss -o /dev/null -k https://localhost:${PA_ENGINE_PORT}/pa/heartbeat.ping
     # ^ this will succeed if PA has not been configured to a port other than the default
     if test ${?} -ne 0
     then

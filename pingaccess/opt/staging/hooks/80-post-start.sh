@@ -11,7 +11,7 @@
 if test -z "${OPERATIONAL_MODE}" || test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" || test "${OPERATIONAL_MODE}" = "STANDALONE" 
 then
     echo "INFO: waiting for PingAccess to start before importing configuration"
-    wait-for localhost:9000 -t 200 -- echo PingAccess is up 
+    wait-for localhost:${PA_ADMIN_PORT} -t 200 -- echo PingAccess is up
     "${HOOKS_DIR}/81-after-start-process.sh"
     test ${?} -ne 0 && kill 1
 fi
