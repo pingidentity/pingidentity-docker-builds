@@ -33,7 +33,7 @@ then
     echo "This node is an engine..."
     while true
     do
-        _pa_curl https://${pahost}:9000/pa/heartbeat.ping 
+        _pa_curl https://${pahost}:${PA_ADMIN_PORT}/pa/heartbeat.ping
         if test $? -ne 0 ; 
         then
             echo "Adding Engine: Server not started, waiting.."
@@ -45,25 +45,25 @@ then
     done
 
     _pa_curl \
-        https://${pahost}:9000/pa-admin-api/v3/users/1 \
+        https://${pahost}:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1 \
         2>/dev/null \
     || die_on_error 51 "Connection to admin unsuccessful, check vars PING_IDENTITY_PASSWORD and PA_CONSOLE_HOST"
 
     # Get Engine Certificate ID
     echo "Retrieving Key Pair ID from administration API..."
-    _pa_curl https://${pahost}:9000/pa-admin-api/v3/httpsListeners
+    _pa_curl https://${pahost}:${PA_ADMIN_PORT}/pa-admin-api/v3/httpsListeners
     test ${?} -ne 200 && die_on_error 51 "Could not retrieve key-pair ID"
     keypairid=$( jq '.items[] | select(.name=="CONFIG QUERY") | .keyPairId' "${_out}" )
     echo "KeyPairId:"${keypairid}
 
     echo "Retrieving the Key Pair alias..."
-    _pa_curl https://${pahost}:9000/pa-admin-api/v3/keyPairs
+    _pa_curl https://${pahost}:${PA_ADMIN_PORT}/pa-admin-api/v3/keyPairs
     test ${?} -ne 200 && die_on_error 51 "Could not retrieve key-pair alias"
     kpalias=$( jq '.items[] | select(.id=='${keypairid}') | .alias' "${_out}" )
     echo "Key Pair Alias:"${kpalias}
 
     echo "Retrieving Engine Certificate ID..."
-    _pa_curl  https://${pahost}:9000/pa-admin-api/v3/engines/certificates
+    _pa_curl  https://${pahost}:${PA_ADMIN_PORT}/pa-admin-api/v3/engines/certificates
     test ${?} -ne 200 && die_on_error 51 "Could not retrieve certificate ID"
     certid=$( jq '.items[] | select(.alias=='${kpalias}' and .keyPair==true) | .id' "${_out}" )
     echo "Engine Cert ID:"${certid}
@@ -77,7 +77,7 @@ then
             --user "${ROOT_USER}:${PA_ADMIN_PASSWORD}" \
             --header "X-Xsrf-Header: PingAccess" \
             --data '{"name":"'"${host}"'", "selectedCertificateId": "'"${certid}"'"}' \
-            https://${pahost}:9000/pa-admin-api/v3/engines | jq '.id' )
+            https://${pahost}:${PA_ADMIN_PORT}/pa-admin-api/v3/engines | jq '.id' )
 
     echo "EngineId: ${engineid}"
     echo "Retrieving the engine config..."
@@ -87,7 +87,7 @@ then
         --user "${ROOT_USER}:${PA_ADMIN_PASSWORD}" \
         --header "X-Xsrf-Header: PingAccess" \
         --output /tmp/engine-config.zip \
-        https://${pahost}:9000/pa-admin-api/v3/engines/${engineid}/config 
+        https://${pahost}:${PA_ADMIN_PORT}/pa-admin-api/v3/engines/${engineid}/config
 
     echo "Extracting bootstrap and pa.jwk files to conf folder..."
     unzip -o /tmp/engine-config.zip -d "${OUT_DIR}/instance"
