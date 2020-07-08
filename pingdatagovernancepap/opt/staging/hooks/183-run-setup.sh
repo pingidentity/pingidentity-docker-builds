@@ -42,7 +42,7 @@ if ! test -f "${SERVER_ROOT_DIR}/config/configuration.yml" ;
 then
 
   # shellcheck disable=SC2046
-  if test $( is_81ga ) ;
+  if is_81ga ;
   then
     "${SERVER_ROOT_DIR}"/bin/setup demo \
         --licenseKeyFile "${LICENSE_DIR}/${LICENSE_FILE_NAME}" \
@@ -64,11 +64,11 @@ then
   fi
 
   # shellcheck disable=SC2046
-  if test $( is_gte_82 ) ;
+  if is_gte_82 ;
   then
+    rm "${SERVER_ROOT_DIR}"/bin/start-server-pre-82
+  else
     mv "${SERVER_ROOT_DIR}"/bin/start-server-pre-82 \
       "${SERVER_ROOT_DIR}"/bin/start-server
-  else
-    rm "${SERVER_ROOT_DIR}"/bin/start-server-pre-82
   fi
 fi
