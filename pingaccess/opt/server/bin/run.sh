@@ -181,7 +181,7 @@ fi
 #DEBUG="-Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n"
 
 CLASSPATH="${PA_HOME}/conf"
-CLASSPATH="${CLASSPATH}:${PA_HOME}/lib/*"
+CLASSPATH="${CLASSPATH}:${PA_HOME}/lib/*:${PA_HOME}/deploy/*"
 export CLASSPATH
 
 LOG4J2_PROPS="${PA_HOME}/conf/log4j2.xml"
