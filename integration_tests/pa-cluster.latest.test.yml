@@ -1,7 +1,7 @@
 version: "2.4"
 services:
   pingaccess-admin:
-    image: ${REGISTRY}/pingaccess:6.1.0-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingaccess:${PINGACCESS_LATEST}-alpine-az11-${GIT_TAG}
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
@@ -20,7 +20,7 @@ services:
       - pingnet-internal
 
   pingaccess:
-    image: ${REGISTRY}/pingaccess:6.1.0-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingaccess:${PINGACCESS_LATEST}-alpine-az11-${GIT_TAG}
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}

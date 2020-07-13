@@ -2,7 +2,7 @@ version: "2.4"
 
 services:
   pingdirectory:
-    image: ${REGISTRY}/pingdirectory:8.1.0.0-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-alpine-az11-${GIT_TAG}
     scale: 2
     environment:
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
