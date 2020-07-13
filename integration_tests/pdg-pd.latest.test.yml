@@ -2,7 +2,7 @@ version: "2"
 
 services:
   pingdirectory:
-    image: ${REGISTRY}/pingdirectory:8.1.0.0-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-alpine-az11-${GIT_TAG}
     #  for local testing
     # image: pingidentity/pingdirectory:8.0.0.1-alpine-az11-re-pa-cluster-d4eb
     environment:
@@ -26,7 +26,7 @@ services:
     mem_swappiness: 0
 
   pingdatagovernance:
-    image: ${REGISTRY}/pingdatagovernance:8.1.0.0-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingdatagovernance:${PINGDATAGOVERNANCE_LATEST}-alpine-az11-${GIT_TAG}
     # for local testing
     # image: pingidentity/pingdatagovernance:8.0.0.1-alpine-az11-re-pa-cluster-d4eb
     command: wait-for pingdirectory:389 -t 900 -- entrypoint.sh start-server

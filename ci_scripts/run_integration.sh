@@ -22,16 +22,32 @@ _resultsFile="/tmp/$$.results"
 _headerPattern=' %-58s| %10s| %10s\n'
 _reportPattern='%-57s| %10s| %10s'
 # shellcheck disable=SC2059
+# Export latest versions for each product for docker-compose
+export PINGACCESS_LATEST=$( _getLatestVersionForProduct pingaccess )
+export PINGCENTRAL_LATEST=$( _getLatestVersionForProduct pingcentral )
+export PINGDATACONSOLE_LATEST=$( _getLatestVersionForProduct pingdataconsole )
+export PINGDATAGOVERNANCE_LATEST=$( _getLatestVersionForProduct pingdatagovernance )
+export PINGDATAGOVERNANCEPAP_LATEST=$( _getLatestVersionForProduct pingdatagovernancepap )
+export PINGDATASYNC_LATEST=$( _getLatestVersionForProduct pingdatasync )
+export PINGDELEGATOR_LATEST=$( _getLatestVersionForProduct pingdelegator )
+export PINGDIRECTORY_LATEST=$( _getLatestVersionForProduct pingdirectory )
+export PINGDIRECTORYPROXY_LATEST=$( _getLatestVersionForProduct pingdirectoryproxy )
+export PINGFEDERATE_LATEST=$( _getLatestVersionForProduct pingfederate )
+export PINGTOOLKIT_LATEST=$( _getLatestVersionForProduct pingtoolkit )
 printf "${_headerPattern}" "TEST" "DURATION" "RESULT" > ${_resultsFile}
 for _test in "${CI_PROJECT_DIR}/integration_tests/"${1:-*}.test.yml
 do
     banner "Running ${_test} integration test"
     _start=$( date '+%s' )
-    GIT_TAG=${ciTag} REGISTRY=${FOUNDATION_REGISTRY} docker-compose -f "${_test}" up --exit-code-from sut --abort-on-container-exit
+    GIT_TAG=${ciTag} \
+        REGISTRY=${FOUNDATION_REGISTRY} \
+        docker-compose -f "${_test}" up --exit-code-from sut --abort-on-container-exit
     _returnCode=${?}
     _stop=$( date '+%s' )
     _duration=$(( _stop - _start ))
-    GIT_TAG=${ciTag} REGISTRY=${FOUNDATION_REGISTRY} docker-compose -f "${_test}" down
+    GIT_TAG=${ciTag} \
+        REGISTRY=${FOUNDATION_REGISTRY} \
+        docker-compose -f "${_test}" down
     if test ${_returnCode} -ne 0
     then
         _result="FAIL"

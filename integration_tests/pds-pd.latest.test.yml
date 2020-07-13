@@ -2,7 +2,7 @@ version: "2"
 
 services:
   pingdirectory:
-    image: ${REGISTRY}/pingdirectory:8.1.0.0-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-alpine-az11-${GIT_TAG}
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
@@ -23,7 +23,7 @@ services:
     mem_swappiness: 0
 
   pingdatasync:
-    image: ${REGISTRY}/pingdatasync:8.1.0.0-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingdatasync:${PINGDATASYNC_LATEST}-alpine-az11-${GIT_TAG}
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
