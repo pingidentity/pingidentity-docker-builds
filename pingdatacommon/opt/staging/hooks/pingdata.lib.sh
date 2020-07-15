@@ -40,9 +40,30 @@ getEncryptionOption ()
     echo "${encryptionOption}"
 }
 
+is_gte_81() {
+  version=$(echo -e ${IMAGE_VERSION} | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+")
+  major=$(echo -e ${version} | awk -F"." '{ print $1 }')
+  minor=$(echo -e ${version} | awk -F"." '{ print $2 }')
+  if test ${major} -eq 8 && test ${minor} -ge 1 || test ${major} -gt 8; then
+    echo 1
+  else
+    echo 0
+  fi
+}
+
 getJvmOptions ()
 {
     jvmOptions=""
+    origMaxHeapSize=""
+    if test $( is_gte_81 ) -eq 1 && test "${PING_PRODUCT}" = "PingDirectory"; then
+        # If PingDirectory 8.1.0.0 or greater is run and the MAX_HEAP_SIZE is 384m, then it's
+        # assumed to have never been set so it'll update it to the minimum needed
+        # for version 8.1.0.0 or greater.
+        if test "${MAX_HEAP_SIZE}" = "384m"; then
+            origMaxHeapSize="${MAX_HEAP_SIZE}"
+            MAX_HEAP_SIZE="768m"
+        fi
+    fi
     if ! test "${MAX_HEAP_SIZE}" = "AUTO" ; then
         jvmOptions="--maxHeapSize ${MAX_HEAP_SIZE}"
     fi
@@ -57,6 +78,9 @@ getJvmOptions ()
             exit 75
             ;;
     esac
+    if test origMaxHeapSize != ""; then
+        MAX_HEAP_SIZE=${origMaxHeapSize}
+    fi
     echo "${jvmOptions}"
 }
 
