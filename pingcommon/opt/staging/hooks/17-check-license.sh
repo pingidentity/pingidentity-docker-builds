@@ -28,10 +28,10 @@ else
         ##################################################################
         if ! test -z "${LICENSE_SHORT_NAME}" && ! test -z "${LICENSE_VERSION}"
         then
-            echo "Pulling evaluation license from Ping Identity for:
-              Prod License: ${LICENSE_SHORT_NAME} - v${LICENSE_VERSION} 
-               DevOps User: ${PING_IDENTITY_DEVOPS_USER}..."
-        
+            echo "Pulling evaluation license from Ping Identity for:"
+            echo "   Prod License: ${LICENSE_SHORT_NAME} - v${LICENSE_VERSION}"
+            echo "    DevOps User: ${PING_IDENTITY_DEVOPS_USER}..."
+
             _curl \
                 --header "product: ${LICENSE_SHORT_NAME}" \
                 --header "version: ${LICENSE_VERSION}" \
@@ -63,7 +63,14 @@ else
 
                 licenseFound="true"
             else
-                echo "Unable to download evaluation product.lic, most likely due to invalid PING_IDENTITY_DEVOPS_USER/PING_IDENTITY_DEVOPS_KEY"
+                _licenseError=$( jq -r ".error" "${LICENSE_FILE}")
+
+                test "${_licenseError}" = "null" && _licenseError="Unknown error (${rc}).  Please contact devops_program@pingidentity.com with this log."
+
+                echo ""
+                echo "Unable to download evaluation license:"
+                echo "         Reason: ${_licenseError}"
+
                 rm -f "${LICENSE_FILE}"
             fi
         else
@@ -78,14 +85,14 @@ then
 ##################################################################################
 ############################        ALERT        #################################
 ##################################################################################
-# 
+#
 # No Ping Identity License File (${LICENSE_FILE_NAME}) was found in the server profile.
-# No Ping Identity DevOps User or Key was passed.  
-# 
-# 
+# No Ping Identity DevOps evaluateion license downloaded.
+#
+#
 # More info on obtaining your DevOps User and Key can be found at:
 #      https://pingidentity-devops.gitbook.io/devops/prod-license
-# 
+#
 ##################################################################################"
     container_failure 17 "License File absent"
 fi
