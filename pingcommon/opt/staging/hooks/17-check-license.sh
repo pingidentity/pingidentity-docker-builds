@@ -65,7 +65,7 @@ else
             else
                 _licenseError=$( jq -r ".error" "${LICENSE_FILE}")
 
-                test "${_licenseError}" = null && _licenseError="Unknown error (${rc}).  Please contact devops_program@pingidentity.com with this log."
+                test "${_licenseError}" = "null" && _licenseError="Unknown error (${rc}).  Please contact devops_program@pingidentity.com with this log."
 
                 echo ""
                 echo "Unable to download evaluation license:"
