@@ -42,13 +42,19 @@ tag_and_push ()
 {
     _source="${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
     _target="${registryToDeployTo}/${productToDeploy}:${1}"
+    _file="${CI_PROJECT_DIR}/registries.json"
     test -z "${dryRun}" \
-        && docker tag ${_source} ${_target}
+        && docker tag "${_source}" "${_target}"
     if test -z "${isLocalBuild}"
     then
         echo "Pushing ${_target}"
-        ${dryRun} docker push ${_target}
-        ${dryRun} docker image rm -f ${_target}
+        if test "${registryToDeployTo}" = "$(jq -r '. | .registries | .[] | select(.name == "dockerhub global") | .registry' "${_file}")"
+        then
+            ${dryRun} docker trust sign "${_target}"
+        else
+            ${dryRun} docker push "${_target}"
+        fi
+        ${dryRun} docker image rm -f "${_target}"
     else
         echo "${_target}"
     fi
@@ -73,7 +79,7 @@ do
             shift
             test -z "${1}" && usage "You must provide a registry file"
             test -f "${1}" || usage "The registry file provided does not exist or is not a file"
-            while read -r _registry 
+            while read -r _registry
             do
                 if test -n "${_registry}"
                 then
@@ -148,7 +154,7 @@ fi
 latestVersion=$( _getLatestVersionForProduct "${productToDeploy}" )
 
 #
-# Determine whether the commit is associated with a sprint tag 
+# Determine whether the commit is associated with a sprint tag
 #   a print tag ends with 4 digits, YYMM
 #
 for tag in $( git tag --points-at "$gitRevLong" )
@@ -166,16 +172,16 @@ banner "Deploying ${productToDeploy}"
 for _version in ${versionsToDeploy}
 do
     if test -z "${shimsToDeploy}"
-    then 
-        _shimsToDeploy=$( _getShimsToDeployForProductVersion "${productToDeploy}" "${_version}" ) 
+    then
+        _shimsToDeploy=$( _getShimsToDeployForProductVersion "${productToDeploy}" "${_version}" )
     else
         _shimsToDeploy=${shimsToDeploy}
     fi
-    if test -z "${defaultShim}" 
-    then 
+    if test -z "${defaultShim}"
+    then
         defaultShim=$( _getDefaultShimForProductVersion "${productToDeploy}" "${_version}" )
     fi
-    for _shim in ${_shimsToDeploy} 
+    for _shim in ${_shimsToDeploy}
     do
         _shimLongTag=$( _getLongTag "${_shim}" )
         fullTag="${_version}-${_shimLongTag}-${ciTag}"
@@ -202,7 +208,7 @@ do
             for registryToDeployTo in ${_registryList}
             do
                 tag_and_push "${_version}-${_shimLongTag}-java${_jvmVersion}-edge"
-                if test -n "${sprint}" 
+                if test -n "${sprint}"
                 then
                     tag_and_push "${sprint}-${_shimLongTag}-${_version}"
                     if test "${_version}" = "${latestVersion}"
@@ -217,7 +223,7 @@ do
                         tag_and_push "${_version}-latest"
                         tag_and_push "${_version}"
 
-                        #if it's latest product version and a sprint, then it's "latest" overall and also just "edge". 
+                        #if it's latest product version and a sprint, then it's "latest" overall and also just "edge".
                         if test "${_version}" = "${latestVersion}"
                         then
                             tag_and_push "latest"
@@ -229,10 +235,10 @@ do
                 if test "${_jvm}" = "${defaultJvm}"
                 then
                     tag_and_push "${_version}-${_shimLongTag}-edge"
-                    if test "${_shim}" = "${defaultShim}" 
+                    if test "${_shim}" = "${defaultShim}"
                     then
                         tag_and_push "${_version}-edge"
-                        if test "${_version}" = "${latestVersion}" 
+                        if test "${_version}" = "${latestVersion}"
                         then
                             tag_and_push "edge"
                         fi
