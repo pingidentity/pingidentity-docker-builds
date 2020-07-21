@@ -113,8 +113,8 @@
                     "jvms": [
                         {
                             "jvm": "az11",
-                            "build": false,
-                            "deploy": false
+                            "build": true,
+                            "deploy": true
                         }
                     ]
                 }
