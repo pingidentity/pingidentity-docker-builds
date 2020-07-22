@@ -11,8 +11,36 @@
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 mkdir -p "${SECRETS_DIR}"
-_nginxCrt="${SECRETS_DIR}/nginx.crt"
-_nginxKey="${SECRETS_DIR}/nginx.key"
+
+# Get the certificate and key if they are provided
+if test -n "${CERTIFICATE_FILE}"
+then
+    if ! test -f "${CERTIFICATE_FILE}"
+    then
+        echo_red "**********"
+        echo_red "CERTIFICATE_FILE value [${CERTIFICATE_FILE}] is invalid: the specified file does not exist"
+        exit 75
+    else
+        _nginxCrt="${CERTIFICATE_FILE}"
+    fi
+else
+    _nginxCrt="${SECRETS_DIR}/nginx.crt"
+fi
+
+if test -n "${CERTIFICATE_KEY_FILE}"
+then
+    if ! test -f "${CERTIFICATE_KEY_FILE}"
+    then
+        echo_red "**********"
+        echo_red "CERTIFICATE_KEY_FILE value [${CERTIFICATE_KEY_FILE}] is invalid: the specified file does not exist"
+        exit 75
+    else
+        _nginxKey="${CERTIFICATE_KEY_FILE}"
+    fi
+else
+    _nginxKey="${SECRETS_DIR}/nginx.key"
+fi
+
 if ! test -f "${_nginxCrt}" ;
 then
     if ! test -f "${_nginxKey}" ;
@@ -30,3 +58,6 @@ then
         -keyout "${_nginxKey}" \
         -out ${_nginxCrt};
 fi
+
+echo "CERTIFICATE_FILE=\"${_nginxCrt}\"" >> "${CONTAINER_ENV}"
+echo "CERTIFICATE_KEY_FILE=\"${_nginxKey}\"" >> "${CONTAINER_ENV}"
