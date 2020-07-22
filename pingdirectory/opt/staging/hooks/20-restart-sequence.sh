@@ -11,7 +11,7 @@ ${VERBOSE} && set -x
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 # shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
-test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
+. "${HOOKS_DIR}/pingdata.lib.sh"
 
 echo "Restarting container"
 
@@ -24,12 +24,24 @@ certificateOptions=$( getCertificateOptions )
 
 
 #
-# If we are RESTARTing the server, we will need to copy any 
+# If we are RESTARTing the server, we will need to copy any
 # keystore/truststore certificate and pin files to the
-# pd.profile if they aren't already set.  This implies that 
+# pd.profile if they aren't already set.  This implies that
 # the server used those keystore/trustore files initially to
 # setup the server
 
+# on-setup ---- generate-certificate ==> /opt/out/instance/config/keystore
+
+# on-restart
+# 1. Do they have a CERT_FILE defined?
+#    - yes conintue
+#    - no --> CERT_FILE=/opt/out/instance/config/keystore
+# 2. Is there a CERT in that location?
+#    - yes
+#       - does ${SECRETS_DIR}/file exists? (came in through vault or secrets management)
+#       - yes - do nothing
+#       - no  - cp CERT_FILE --> ${SECRETS_DIR}/file
+#    - no
 echo "Copying existing certificate files from existing install..."
 for _certFile in keystore truststore ; do
     if test -f "${SERVER_ROOT_DIR}/config/${_certFile}" -a ! -f "${PD_PROFILE}/server-root/pre-setup/config/${_certFile}" ; then
@@ -73,11 +85,11 @@ encryptionOption=$( getEncryptionOption )
 
 jvmOptions=$( getJvmOptions )
 
-export certificateOptions encryptionOption jvmOptions 
+export certificateOptions encryptionOption jvmOptions
 
 echo "Checking license file..."
 _currentLicense="${LICENSE_DIR}/${LICENSE_FILE_NAME}"
-_pdProfileLicense="${STAGING_DIR}/pd.profile/server-root/pre-setup/${LICENSE_FILE_NAME}"
+_pdProfileLicense="${PD_PROFILE}/server-root/pre-setup/${LICENSE_FILE_NAME}"
 if test ! -f "${_pdProfileLicense}" ; then
     echo "Copying in license from existing install."
     echo "  ${_currentLicense} ==> "
@@ -85,11 +97,30 @@ if test ! -f "${_pdProfileLicense}" ; then
     cp -af "${_currentLicense}" "${_pdProfileLicense}"
 fi
 
+# If the a setup-arguments.txt file isn't found, then generate
+if test ! -f "${_setupArgumentsFile}"; then
+    generateSetupArguments
+fi
+
+# Copy the manage-profile.log to a previous version to keep size down due to repeated fail attempts
+mv "${SERVER_ROOT}/logs/tools/manage-profile.log" "${SERVER_ROOT}/logs/tools/manage-profile.log.prev"
+
 echo "Merging changes from new server profile..."
 
 "${SERVER_BITS_DIR}"/bin/manage-profile replace-profile \
         --serverRoot "${SERVER_ROOT_DIR}" \
-        --profile "${STAGING_DIR}/pd.profile" \
+        --profile "${PD_PROFILE}" \
         --useEnvironmentVariables
 
-echo "  manage-profile replace-profile returned $?"
+_manageProfileRC=$?
+if test ${_manageProfileRC} -ne 0 ; then
+    echo_red "*****"
+    echo_red "An error occurred during mange-profile replace-profile."
+    echo_red "${SERVER_ROOT}/logs/tools/manage-profile.log listed below."
+    echo_red "*****"
+
+    cat "${SERVER_ROOT}/logs/tools/manage-profile.log"
+
+    container_failure 20 "Resolve the issues with your server-profile"
+fi
+

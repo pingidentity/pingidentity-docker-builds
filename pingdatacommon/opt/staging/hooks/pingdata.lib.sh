@@ -4,7 +4,11 @@
 #
 ${VERBOSE} && set -x
 
-# TODO - With the new manage-profile in directory, many of the options below, should be 
+# location of setup-arguments file used for PingData products
+_setupArgumentsFile="${PD_PROFILE}/setup-arguments.txt"
+_configLDIF="${SERVER_ROOT_DIR}/config/config.ldif"
+
+# TODO - With the new manage-profile in directory, many of the options below, should be
 # put into the setup-arguments.txt of the pd.profile.  Since they change from an initial
 # setup to a replacement (i.e. truststore info).
 
@@ -32,7 +36,7 @@ getCertificateOptions ()
 getEncryptionOption ()
 {
     encryptionOption="--encryptDataWithRandomPassphrase"
-    
+
     if test -f "${ENCRYPTION_PASSWORD_FILE}" ; then
         encryptionOption="--encryptDataWithPassphraseFromFile ${ENCRYPTION_PASSWORD_FILE}"
     fi
@@ -84,3 +88,81 @@ getJvmOptions ()
     echo "${jvmOptions}"
 }
 
+# Generates a setup-arguments.txt file passed as first parameter
+generateSetupArguments ()
+{
+    # Create product specfic setup arguments and manage-profile setup arguments
+    case "${PING_PRODUCT}" in
+        PingDataSync|PingDataGovernance|PingDirectoryProxy)
+            _pingDataSetupArguments=""
+            _pingDataManageProfileSetupArgs=""
+            ;;
+        PingDirectory)
+            _pingDataSetupArguments="${encryptionOption} \
+                                    --baseDN \"${USER_BASE_DN}\" \
+                                    --addBaseEntry "
+            _doesStartWith8=$( echo "${LICENSE_VERSION}" | sed 's/^8.*//' )
+            if test -z "${_doesStartWith8}"
+            then
+                _pingDataManageProfileSetupArgs="--addMissingRdnAttributes"
+            fi
+            _pingDataManageProfileSetupArgs="${_pingDataManageProfileSetupArgs:+${_pingDataManageProfileSetupArgs} }--rejectFile /tmp/rejects.ldif ${_skipImports}"
+            ;;
+        *)
+            echo_red "Unknown PING_PRODUCT value [${PING_PRODUCT}]"
+            exit 182
+            ;;
+    esac
+
+    if test "${RUN_PLAN}" = "RESTART" ; then
+        _prevSetupArgs="${SERVER_ROOT_DIR}/config/.manage-profile-setup-arguments.txt"
+        _prevLdapsPort=$(sed -n 's/.*--ldapsPort \([0-9]*\).*/\1/p' < "${_prevSetupArgs}")
+        _prevLdapPort=$(sed -n 's/.*--ldapPort \([0-9]*\).*/\1/p' < "${_prevSetupArgs}")
+        _prevHttpsPort=$(sed -n 's/.*--httpsPort \([0-9]*\).*/\1/p' < "${_prevSetupArgs}")
+
+        # Check to see if there is an attempt to change the ports.  If so, emit an error and fail
+        if test "${_prevLdapPort}" != "${LDAP_PORT}" ||
+            test "${_prevLdapsPort}" != "${LDAPS_PORT}" ||
+            test "${_prevHttpsPort}" != "${HTTPS_PORT}" ; then
+            echo_red "*****"
+            echo_red "LDAP/LDAPS/HTTPS ports from original settings may not be changed on restart."
+            echo_red "   Service         Original Setting     Attempt"
+            echo_red "   LDAP_PORT       ${_prevLdapPort}                  ${LDAP_PORT}"
+            echo_red "   LDAPS_PORT      ${_prevLdapsPort}                  ${LDAPS_PORT}"
+            echo_red "   HTTPS_PORT      ${_prevHttpsPort}                  ${HTTPS_PORT}"
+            echo_red "Please make any adjustments in dsconfig commands."
+            echo_red "*****"
+            container_failure 20 "Resolve the issues with your orchestration environment variables"
+        fi
+    fi
+
+    echo "Generating ${_setupArgumentsFile}"
+    cat <<EOSETUP > "${_setupArgumentsFile}"
+    --verbose \
+    --acceptLicense \
+    --skipPortCheck \
+    --instanceName ${INSTANCE_NAME} \
+    --location ${LOCATION} \
+    $(test ! -z "${LDAP_PORT}" && echo "--ldapPort ${LDAP_PORT}") \
+    $(test ! -z "${LDAPS_PORT}" && echo "--ldapsPort ${LDAPS_PORT}") \
+    $(test ! -z "${HTTPS_PORT}" && echo "--httpsPort ${HTTPS_PORT}") \
+    --enableStartTLS \
+    ${jvmOptions} \
+    ${certificateOptions} \
+    --rootUserDN "${ROOT_USER_DN}" \
+    --rootUserPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
+    ${_pingDataSetupArguments} \
+    ${ADDITIONAL_SETUP_ARGS}
+EOSETUP
+
+}
+
+#
+getPingDataInstanceName ()
+{
+    if test "${RUN_PLAN}" = "RESTART" ; then
+        grep "ds-cfg-instance-name: " "${_configLDIF}" | awk -F": " '{ print $2 }'
+    else
+        hostname
+    fi
+}

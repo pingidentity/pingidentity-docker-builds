@@ -9,6 +9,9 @@
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
+# shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
+. "${HOOKS_DIR}/pingdata.lib.sh"
+
 # shellcheck source=pingdirectory.lib.sh
 . "${HOOKS_DIR}/pingdirectory.lib.sh"
 
@@ -63,8 +66,7 @@ fi
 _podName=$(hostname)
 _ordinal=$(echo ${_podName##*-})
 
-
-_podHostname="$(hostname)"
+_podHostname=$( getPingDataInstanceName )
 _podInstanceName="${_podHostname}"
 _podLocation="${LOCATION}"
 _podLdapsPort="${LDAPS_PORT}"
