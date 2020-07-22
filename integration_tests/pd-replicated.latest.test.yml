@@ -13,6 +13,7 @@ services:
       - MAX_HEAP_SIZE=900m
       - ORCHESTRATION_TYPE=COMPOSE
       - COMPOSE_SERVICE_NAME=integration_tests_pingdirectory
+      - TAIL_LOG_FILES=
     ulimits:
       nproc:
         soft: 16384
