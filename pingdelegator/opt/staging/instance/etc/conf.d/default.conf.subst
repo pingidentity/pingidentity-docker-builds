@@ -2,8 +2,8 @@ server {
     listen       ${PD_DELEGATOR_HTTP_PORT};
     server_name  ${PD_DELEGATOR_PUBLIC_HOSTNAME};
     listen ${PD_DELEGATOR_HTTPS_PORT} ssl http2 default_server;
-    ssl_certificate ${SECRETS_DIR}/nginx.crt;
-    ssl_certificate_key ${SECRETS_DIR}/nginx.key;
+    ssl_certificate ${CERTIFICATE_FILE};
+    ssl_certificate_key ${CERTIFICATE_KEY_FILE};
 
     # charset koi8-r;
     # access_log  /var/log/nginx/host.access.log  main;
