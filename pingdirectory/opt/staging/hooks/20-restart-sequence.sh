@@ -18,9 +18,12 @@ echo "Restarting container"
 # if this hook is provided it can be executed early on
 run_hook "21-update-server-profile.sh"
 
-# TODO - See the TODO in pingdata.lib.sh
-
 certificateOptions=$( getCertificateOptions )
+_returnCode=${?}
+if test ${_returnCode} -ne 0 ; then
+    echo_red "${certificateOptions}"
+    container_failure 183 "Invalid certificate options"
+fi
 
 
 #
@@ -43,7 +46,7 @@ certificateOptions=$( getCertificateOptions )
 #       - no  - cp CERT_FILE --> ${SECRETS_DIR}/file
 #    - no
 echo "Copying existing certificate files from existing install..."
-for _certFile in keystore truststore ; do
+for _certFile in keystore keystore.p12 truststore truststore.p12 ; do
     if test -f "${SERVER_ROOT_DIR}/config/${_certFile}" -a ! -f "${PD_PROFILE}/server-root/pre-setup/config/${_certFile}" ; then
         echo "  ${SERVER_ROOT_DIR}/config/${_certFile} ==>"
         echo "    ${PD_PROFILE}/server-root/pre-setup/config/${_certFile}"
@@ -82,8 +85,18 @@ done
 #   "${PD_PROFILE}/server-root/pre-setup/config/encryption-settings"
 
 encryptionOption=$( getEncryptionOption )
+_returnCode=${?}
+if test ${_returnCode} -ne 0 ; then
+    echo_red "${encryptionOption}"
+    container_failure 183 "Invalid encryption option"
+fi
 
 jvmOptions=$( getJvmOptions )
+_returnCode=${?}
+if test ${_returnCode} -ne 0 ; then
+    echo_red "${jvmOptions}"
+    container_failure 183 "Invalid JVM options"
+fi
 
 export certificateOptions encryptionOption jvmOptions
 

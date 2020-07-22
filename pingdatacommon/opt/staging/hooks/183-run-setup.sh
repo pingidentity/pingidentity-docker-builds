@@ -40,16 +40,31 @@ fi
 # Build certification options
 #
 certificateOptions=$( getCertificateOptions )
+_returnCode=${?}
+if test ${_returnCode} -ne 0 ; then
+    echo_red "${certificateOptions}"
+    container_failure 183 "Invalid certificate options"
+fi
 
 #
 # Build encryption option.
 #
 encryptionOption=$( getEncryptionOption )
+_returnCode=${?}
+if test ${_returnCode} -ne 0 ; then
+    echo_red "${encryptionOption}"
+    container_failure 183 "Invalid encryption option"
+fi
 
 #
 # Build jvm options.
 #
 jvmOptions=$( getJvmOptions )
+_returnCode=${?}
+if test ${_returnCode} -ne 0 ; then
+    echo_red "${jvmOptions}"
+    container_failure 183 "Invalid JVM options"
+fi
 
 # Test to see if a Ping Data profile (i.e. pd.profile) is found.  If not, create it
 

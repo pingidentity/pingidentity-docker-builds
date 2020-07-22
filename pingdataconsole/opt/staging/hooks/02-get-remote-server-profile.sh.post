@@ -10,8 +10,35 @@
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-_keystoreFile="${STAGING_DIR}/keystore"
-_keystorePinFile="${SECRETS_DIR}/.keystore.pin"
+# Get the keystore and pin if they are provided
+if test -n "${KEYSTORE_FILE}"
+then
+    if ! test -f "${KEYSTORE_FILE}"
+    then
+        echo_red "**********"
+        echo_red "KEYSTORE_FILE value [${KEYSTORE_FILE}] is invalid: the specified file does not exist"
+        exit 75
+    else
+        _keystoreFile="${KEYSTORE_FILE}"
+    fi
+else
+    _keystoreFile="${STAGING_DIR}/keystore"
+fi
+
+if test -n "${KEYSTORE_PIN_FILE}"
+then
+    if ! test -f "${KEYSTORE_PIN_FILE}"
+    then
+        echo_red "**********"
+        echo_red "KEYSTORE_PIN_FILE value [${KEYSTORE_PIN_FILE}] is invalid: the specified file does not exist"
+        exit 75
+    else
+        _keystorePinFile="${KEYSTORE_PIN_FILE}"
+    fi
+else
+    _keystorePinFile="${SECRETS_DIR}/.keystore.pin"
+fi
+
 if ! test -f "${_keystoreFile}"
 then
     if ! test -f "${_keystorePinFile}"
@@ -42,3 +69,5 @@ then
     # shellcheck disable=SC2016
     echo 'KEYSTORE_PIN=$( cat "'"${_keystorePinFile}"'")' >> "${CONTAINER_ENV}"
 fi
+
+echo "KEYSTORE_FILE=\"${_keystoreFile}\"" >> "${CONTAINER_ENV}"
