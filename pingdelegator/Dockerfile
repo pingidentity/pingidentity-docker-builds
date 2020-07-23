@@ -1,5 +1,5 @@
 #- # Ping Identity Docker Image - `pingdelegator`
-#- 
+#-
 #- This docker image provides an NGINX instance with PingDelegator
 #- that can be used in administering PingDirectory Users/Groups.
 #-
@@ -34,11 +34,11 @@ COPY --from=common ["/opt/","/opt/"]
 # apply product-specific hooks and patches
 COPY ["/opt","/opt"]
 
-# Run build 
+# Run build
 RUN ["/opt/build.sh"]
 
 #
-# the final image 
+# the final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
 COPY --from=final-staging ["/","/"]
@@ -47,6 +47,12 @@ ENV PD_DELEGATOR_PUBLIC_HOSTNAME=localhost
 ENV PD_DELEGATOR_HTTP_PORT=6080
 ENV PD_DELEGATOR_HTTPS_PORT=6443
 
+#-- Container uid/gid and uname/gname that are required for nginx
+ENV PING_CONTAINER_PRIVILEGED=false
+ENV PING_CONTAINER_UID=100
+ENV PING_CONTAINER_GID=101
+ENV PING_CONTAINER_UNAME=nginx
+ENV PING_CONTAINER_GNAME=nginx
 
 #-- The hostname for the public Ping Federate instance used for SSO.
 ENV PF_ENGINE_PUBLIC_HOSTNAME=localhost
@@ -59,10 +65,10 @@ ENV PF_ENGINE_PUBLIC_PORT=9031
 #- The client id that was set up with Ping Federate for Ping Delegator.
 ENV PF_DELEGATOR_CLIENTID=dadmin
 
-#-- The hostname for the DS instance the app will be interfacing with. 
+#-- The hostname for the DS instance the app will be interfacing with.
 ENV PD_ENGINE_PRIVATE_HOSTNAME=localhost
 
-#-- The HTTPS port for the DS instance the app will be interfacing with. 
+#-- The HTTPS port for the DS instance the app will be interfacing with.
 ENV PD_ENGINE_PRIVATE_PORT=1443
 
 #-- The length of time (in minutes) until the session will require a new login attempt

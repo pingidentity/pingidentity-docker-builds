@@ -1,10 +1,8 @@
 
-#user  ${PING_CONTAINER_UID};
 worker_processes  auto;
 
 error_log  ${SERVER_ROOT_DIR}/log/error.log warn;
-pid        /var/run/nginx.pid;
-
+pid        ${SERVER_ROOT_DIR}/log/nginx.pid;
 
 events {
     worker_connections  1024;
