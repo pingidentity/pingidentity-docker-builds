@@ -23,7 +23,6 @@ RUN /get-bits.sh --product ${PRODUCT} \
         --verify-gpg-signature \
 	&& unzip  /tmp/product.zip \
         -d /tmp \
-        -x pingaccess-*/upgrade/* \
         -x pingaccess-*/sdk/* \
         -x *.bat \
         -x *.dll \
@@ -32,4 +31,3 @@ RUN /get-bits.sh --product ${PRODUCT} \
 
 FROM scratch
 COPY --from=staging ["/opt/","/opt/"]
-
