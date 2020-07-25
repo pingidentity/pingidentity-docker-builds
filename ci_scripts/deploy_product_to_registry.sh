@@ -50,6 +50,7 @@ tag_and_push ()
         echo "Pushing ${_target}"
         if test "${registryToDeployTo}" = "$(jq -r '. | .registries | .[] | select(.name == "dockerhub global") | .registry' "${_file}")"
         then
+            ${dryRun} docker trust revoke "${_target}"
             ${dryRun} docker trust sign "${_target}"
         else
             ${dryRun} docker push "${_target}"
