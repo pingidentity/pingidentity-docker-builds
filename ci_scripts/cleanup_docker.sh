@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+# Ping Identity DevOps - CI scripts
+#
+# This script will cleanup a docker environment
+#
 test -n "${VERBOSE}" && set -x
 
 if test -z "${CI_COMMIT_REF_NAME}"
@@ -9,6 +14,8 @@ fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
+
+banner "Cleaning containers and images ( ciTag = ${ciTag} )"
 
 # stop containers
 _containers=$( docker container ls -q | sort | uniq )

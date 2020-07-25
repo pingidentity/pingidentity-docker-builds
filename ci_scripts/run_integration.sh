@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
+#
+# Ping Identity DevOps - CI scripts
+#
+# Runs integration tests located in integration_tests directory
+#
 test -n "${VERBOSE}" && set -x
-env
 
 if test -z "${CI_COMMIT_REF_NAME}"
 then
@@ -21,19 +25,20 @@ _totalStart=$( date '+%s' )
 _resultsFile="/tmp/$$.results"
 _headerPattern=' %-58s| %10s| %10s\n'
 _reportPattern='%-57s| %10s| %10s'
+
+#
+# Createa variables of format PINGDIRECTORY_LATEST=n.n.n.n that will be exported and used by
+# integration test docker-compose variables
+#
+for _productName in pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdelegator pingdirectory pingdirectoryproxy pingfederate pingtoolkit
+do
+    _latestVar=$( echo -n "${_productName}_LATEST"|tr '[:lower:]' '[:upper:]' )
+
+    eval export "${_latestVar}"="$( _getLatestVersionForProduct "${_productName}" )"
+done
+env | sort
+
 # shellcheck disable=SC2059
-# Export latest versions for each product for docker-compose
-export PINGACCESS_LATEST=$( _getLatestVersionForProduct pingaccess )
-export PINGCENTRAL_LATEST=$( _getLatestVersionForProduct pingcentral )
-export PINGDATACONSOLE_LATEST=$( _getLatestVersionForProduct pingdataconsole )
-export PINGDATAGOVERNANCE_LATEST=$( _getLatestVersionForProduct pingdatagovernance )
-export PINGDATAGOVERNANCEPAP_LATEST=$( _getLatestVersionForProduct pingdatagovernancepap )
-export PINGDATASYNC_LATEST=$( _getLatestVersionForProduct pingdatasync )
-export PINGDELEGATOR_LATEST=$( _getLatestVersionForProduct pingdelegator )
-export PINGDIRECTORY_LATEST=$( _getLatestVersionForProduct pingdirectory )
-export PINGDIRECTORYPROXY_LATEST=$( _getLatestVersionForProduct pingdirectoryproxy )
-export PINGFEDERATE_LATEST=$( _getLatestVersionForProduct pingfederate )
-export PINGTOOLKIT_LATEST=$( _getLatestVersionForProduct pingtoolkit )
 printf "${_headerPattern}" "TEST" "DURATION" "RESULT" > ${_resultsFile}
 for _test in "${CI_PROJECT_DIR}/integration_tests/"${1:-*}.test.yml
 do
@@ -51,7 +56,7 @@ do
     if test ${_returnCode} -ne 0
     then
         _result="FAIL"
-    else    
+    else
         _result="PASS"
     fi
     append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${_test}" "${_duration}" "${_result}"

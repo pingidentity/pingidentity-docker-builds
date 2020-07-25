@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+# Ping Identity DevOps - CI scripts
+#
+# Run smoke tests against product images
+#
 test -n "${VERBOSE}" && set -x
 
 #
@@ -94,7 +99,7 @@ then
     set +a
 fi
 
-# result table header    
+# result table header
 _resultsFile="/tmp/$$.results"
 _headerPattern=' %-25s| %-12s| %-20s| %-10s| %-38s| %10s| %7s\n'
 _reportPattern='%-24s| %-12s| %-20s| %-10s| %-38s| %10s| %7s'
@@ -103,7 +108,7 @@ _reportPattern='%-24s| %-12s| %-20s| %-10s| %-38s| %10s| %7s'
 printf "${_headerPattern}" "PRODUCT" "VERSION" "SHIM" "JVM" "TEST" "DURATION" "RESULT" > ${_resultsFile}
 _totalStart=$( date '+%s' )
 for _version in ${versions}
-do  
+do
 
     test "${_version}" = "none" && _version=""
     if test -z "${shimList}"
@@ -142,7 +147,7 @@ do
             then
                 docker pull "${FOUNDATION_REGISTRY}/${product}:${_tag}"
             fi
-            
+
             # this is the loop where the actual test is run
             for _test in "${product}"/tests/*.test.y*ml
             do
@@ -161,7 +166,7 @@ do
                 else
                     _result="PASS"
                 fi
-                # if all tests succeed, will add up to zero in the end  
+                # if all tests succeed, will add up to zero in the end
                 returnCode=$(( returnCode + _returnCode ))
                 append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${product}" "${_version:-none}" "${_shim:-none}" "${_jvm:-none}" "$( basename ${_test} )" "${_duration}" "${_result}"
             done

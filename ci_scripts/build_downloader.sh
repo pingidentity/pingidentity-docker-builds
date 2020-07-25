@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+# Ping Identity DevOps - CI scripts
+#
+# This script builds the pingdownloader image
+#
 test -n "${VERBOSE}" && set -x
 
 usage ()

@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+# Ping Identity DevOps - CI scripts
+#
+# Check for any unmerged changes
+#
 test -n "${VERBOSE}" && set -x
 
 if test -z "${CI_COMMIT_REF_NAME}"
