@@ -116,7 +116,7 @@ if test ! -f "${_setupArgumentsFile}"; then
 fi
 
 # Copy the manage-profile.log to a previous version to keep size down due to repeated fail attempts
-mv "${SERVER_ROOT}/logs/tools/manage-profile.log" "${SERVER_ROOT}/logs/tools/manage-profile.log.prev"
+mv "${SERVER_ROOT_DIR}/logs/tools/manage-profile.log" "${SERVER_ROOT_DIR}/logs/tools/manage-profile.log.prev"
 
 echo "Merging changes from new server profile..."
 
@@ -129,10 +129,10 @@ _manageProfileRC=$?
 if test ${_manageProfileRC} -ne 0 ; then
     echo_red "*****"
     echo_red "An error occurred during mange-profile replace-profile."
-    echo_red "${SERVER_ROOT}/logs/tools/manage-profile.log listed below."
+    echo_red "${SERVER_ROOT_DIR}/logs/tools/manage-profile.log listed below."
     echo_red "*****"
 
-    cat "${SERVER_ROOT}/logs/tools/manage-profile.log"
+    cat "${SERVER_ROOT_DIR}/logs/tools/manage-profile.log"
 
     container_failure 20 "Resolve the issues with your server-profile"
 fi
