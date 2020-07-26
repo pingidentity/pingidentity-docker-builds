@@ -8,61 +8,93 @@ ${VERBOSE} && set -x
 _setupArgumentsFile="${PD_PROFILE}/setup-arguments.txt"
 _configLDIF="${SERVER_ROOT_DIR}/config/config.ldif"
 
-getCertificateOptions ()
+#
+# This is a helper function which will validate the certificate files and pins
+#
+# Example: Resulting validating the variables and files/pins for arg:
+#
+#   arg=keystore            arg=truststore
+#       KEYSTORE_FILE           TRUSTSTORE_FILE
+#       KEYSTORE_PIN_FILE       TRUSTSTORE_PIN_FILE
+#       KEYSTORE_TYPE           TRUSTSTORE_TYPE
+#
+_validateCertificateOptions ()
 {
-    # Validate keystore options
-    if test -n "${KEYSTORE_FILE}" ; then
-        if ! test -f "${KEYSTORE_FILE}"; then
+    # certVar must be either keystore or truststore
+    _certVar=$( toUpper "${1}" )
+    _certVarLower=$( toLower "${1}" )
+
+    _certFile="${_certVar}_FILE"
+    _certPinFile="${_certVar}_PIN_FILE"
+    _certType="${_certVar}_TYPE"
+
+    _certFileVal=$( get_value "${_certFile}" )
+    _certPinFileVal=$( get_value "${_certPinFile}" )
+    _certTypeVal=$( get_value "${_certType}" )
+
+    if test -n "${_certFileVal}" ; then
+        if ! test -f "${_certFileVal}"; then
             echo_red "**********"
-            echo_red "KEYSTORE_FILE value [${KEYSTORE_FILE}] is invalid: the specified file does not exist"
+            echo_red "${_certFile} value [${_certFileVal}] is invalid: the specified file does not exist"
             exit 75
         fi
-        if test -z "${KEYSTORE_PIN_FILE}" ; then
+        if test -z "${_certPinFileVal}" ; then
             echo_red "**********"
-            echo_red "A value for KEYSTORE_PIN_FILE must be specified when KEYSTORE_FILE is provided"
+            echo_red "A value for ${_certPinFile} must be specified when ${_certFile} is provided"
             exit 75
         fi
-        if ! test -f "${KEYSTORE_PIN_FILE}"; then
+        if ! test -f "${_certPinFileVal}"; then
             echo_red "**********"
-            echo_red "KEYSTORE_PIN_FILE value [${KEYSTORE_PIN_FILE}] is invalid: the specified file does not exist"
+            echo_red "${_certPinFile} value [${_certPinFileVal}] is invalid: the specified file does not exist"
             exit 75
         fi
-        if test -z "${KEYSTORE_TYPE}" ; then
-            # Attempt to get the keystore type from the keystore file name
-            _keystoreFileLower=$( toLower "${KEYSTORE_FILE}" )
-            case "${_keystoreFileLower}" in
+        if test -z "${_certTypeVal}" ; then
+            # Attempt to get the store type from the store file name
+            _storeFileLower=$( toLower "${_certFileVal}" )
+            case "${_storeFileLower}" in
                 *.p12)
-                    KEYSTORE_TYPE="pkcs12"
+                    eval "${_certType}=pkcs12"
                     ;;
                 *)
                     # No KEYSTORE_TYPE is set. Defaulting to JKS
-                    KEYSTORE_TYPE="jks"
+                    eval "${_certType}=jks"
                     ;;
             esac
         else
-            # default to JKS
-            KEYSTORE_TYPE=$( toLower "${KEYSTORE_TYPE:jks}" )
-            case "${KEYSTORE_TYPE}" in
+            # lowercase the truststore type
+            _storeTypeLower=$( toLower "${_certTypeVal}" )
+            case "${_storeTypeLower}" in
                 pkcs12|jks)
+                    eval "${_certType}=${_storeTypeLower}"
                     ;;
                 *)
                     echo_red "**********"
-                    echo_red "Unsupported KEYSTORE_TYPE value [${KEYSTORE_TYPE}]"
+                    echo_red "Unsupported ${_certType} value [${_certTypeVal}]"
                     echo_red "Value must be PKCS12 or JKS"
                     exit 75
                     ;;
             esac
         fi
     else
-        KEYSTORE_PIN_FILE="${SERVER_ROOT_DIR}/config/keystore.pin"
-        if test -f "${SERVER_ROOT_DIR}/config/keystore" && test -f "${SERVER_ROOT_DIR}/config/keystore.pin" ; then
-            KEYSTORE_FILE="${SERVER_ROOT_DIR}/config/keystore"
-            KEYSTORE_TYPE="jks"
-        elif test -f "${SERVER_ROOT_DIR}/config/keystore.p12" && test -f "${SERVER_ROOT_DIR}/config/keystore.pin" ; then
-            KEYSTORE_FILE="${SERVER_ROOT_DIR}/config/keystore.p12"
-            KEYSTORE_TYPE="pkcs12"
+        if test -f "${SERVER_ROOT_DIR}/config/${_certVarLower}" && test -f "${SERVER_ROOT_DIR}/config/${_certVarLower}.pin" ; then
+            eval "${_certFile}=${SERVER_ROOT_DIR}/config/${_certVarLower}"
+            eval "${_certType}=jks"
+        elif test -f "${SERVER_ROOT_DIR}/config/${_certVarLower}.p12" && test -f "${SERVER_ROOT_DIR}/config/${_certVarLower}.pin" ; then
+            eval "${_certFile}=${SERVER_ROOT_DIR}/config/${_certVarLower}.p12"
+            eval "${_certType}=pkcs12"
+        fi
+
+        if test -f "${SERVER_ROOT_DIR}/config/${_certVarLower}.pin" ; then
+            eval "${_certPinFile}=${SERVER_ROOT_DIR}/config/${_certVarLower}.pin"
         fi
     fi
+}
+
+getCertificateOptions ()
+{
+    # Validate keystore options
+    _validateCertificateOptions keystore
+    _validateCertificateOptions truststore
 
     # Create the certificate options
     if test -z "${KEYSTORE_FILE}" ; then
@@ -78,57 +110,8 @@ getCertificateOptions ()
             *)
                 ;;
         esac
-        certificateOptions="${certificateOptions} --keyStorePasswordFile ${KEYSTORE_PIN_FILE}"
-    fi
-
-    # Validate truststore options
-    if test -n "${TRUSTSTORE_FILE}" ; then
-        if ! test -f "${TRUSTSTORE_FILE}"; then
-            echo_red "**********"
-            echo_red "TRUSTSTORE_FILE value [${TRUSTSTORE_FILE}] is invalid: the specified file does not exist"
-            exit 75
-        fi
-        if test -n "${TRUSTSTORE_PIN_FILE}" && ! test -f "${TRUSTSTORE_PIN_FILE}"; then
-            echo_red "**********"
-            echo_red "TRUSTSTORE_PIN_FILE value [${TRUSTSTORE_PIN_FILE}] is invalid: the specified file does not exist"
-            exit 75
-        fi
-        if test -z "${TRUSTSTORE_TYPE}" ; then
-            # Attempt to get the truststore type from the truststore file name
-            _truststoreFileLower=$( toLower "${TRUSTSTORE_FILE}" )
-            case "${_truststoreFileLower}" in
-                *.p12)
-                    TRUSTSTORE_TYPE="pkcs12"
-                    ;;
-                *)
-                    # No TRUSTSTORE_TYPE is set. Defaulting to JKS
-                    TRUSTSTORE_TYPE="jks"
-                    ;;
-            esac
-        else
-            # default to JKS
-            TRUSTSTORE_TYPE=$( toLower "${TRUSTSTORE_TYPE:jks}" )
-            case "${TRUSTSTORE_TYPE}" in
-                pkcs12|jks)
-                    ;;
-                *)
-                    echo_red "**********"
-                    echo_red "Unsupported TRUSTSTORE_TYPE value [${TRUSTSTORE_TYPE}]"
-                    echo_red "Value must be PKCS12 or JKS"
-                    exit 75
-                    ;;
-            esac
-        fi
-    else
-        if test -f "${SERVER_ROOT_DIR}/config/truststore" ; then
-            TRUSTSTORE_FILE="${SERVER_ROOT_DIR}/config/truststore"
-            TRUSTSTORE_TYPE="jks"
-        elif test -f "${SERVER_ROOT_DIR}/config/truststore.p12" ; then
-            TRUSTSTORE_FILE="${SERVER_ROOT_DIR}/config/truststore.p12"
-            TRUSTSTORE_TYPE="pkcs12"
-        fi
-        if test -f "${SERVER_ROOT_DIR}/config/truststore.pin" ; then
-            TRUSTSTORE_PIN_FILE="${SERVER_ROOT_DIR}/config/truststore.pin"
+        if test -n "${KEYSTORE_PIN_FILE}"; then
+            certificateOptions="${certificateOptions} --keyStorePasswordFile ${KEYSTORE_PIN_FILE}"
         fi
     fi
 
@@ -149,6 +132,7 @@ getCertificateOptions ()
         certificateOptions="${certificateOptions} --trustStorePasswordFile ${TRUSTSTORE_PIN_FILE}"
     fi
 
+    # get the CERTIFICATE_NICKNAME. If not set, default to: server-cert
     certificateOptions="${certificateOptions} --certNickname ${CERTIFICATE_NICKNAME:-server-cert}"
     echo "${certificateOptions}"
 }
@@ -165,10 +149,10 @@ getEncryptionOption ()
 }
 
 is_gte_81() {
-  version=$(echo -e ${IMAGE_VERSION} | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+")
-  major=$(echo -e ${version} | awk -F"." '{ print $1 }')
-  minor=$(echo -e ${version} | awk -F"." '{ print $2 }')
-  if test ${major} -eq 8 && test ${minor} -ge 1 || test ${major} -gt 8; then
+  version=$(echo "${IMAGE_VERSION}" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+")
+  major=$(echo "${version}" | awk -F"." '{ print $1 }')
+  minor=$(echo "${version}" | awk -F"." '{ print $2 }')
+  if test "${major}" -eq 8 && test "${minor}" -ge 1 || test "${major}" -gt 8; then
     echo 1
   else
     echo 0
@@ -179,7 +163,7 @@ getJvmOptions ()
 {
     jvmOptions=""
     origMaxHeapSize=""
-    if test $( is_gte_81 ) -eq 1 && test "${PING_PRODUCT}" = "PingDirectory"; then
+    if test "$( is_gte_81 )" -eq 1 && test "${PING_PRODUCT}" = "PingDirectory"; then
         # If PingDirectory 8.1.0.0 or greater is run and the MAX_HEAP_SIZE is 384m, then it's
         # assumed to have never been set so it'll update it to the minimum needed
         # for version 8.1.0.0 or greater.
@@ -226,7 +210,7 @@ generateSetupArguments ()
             then
                 _pingDataManageProfileSetupArgs="--addMissingRdnAttributes"
             fi
-            _pingDataManageProfileSetupArgs="${_pingDataManageProfileSetupArgs:+${_pingDataManageProfileSetupArgs} }--rejectFile /tmp/rejects.ldif ${_skipImports}"
+            _pingDataManageProfileSetupArgs="${_pingDataManageProfileSetupArgs:+${_pingDataManageProfileSetupArgs} }--rejectFile /tmp/rejects.ldif ${_skipImports:=}"
             ;;
         *)
             echo_red "Unknown PING_PRODUCT value [${PING_PRODUCT}]"
