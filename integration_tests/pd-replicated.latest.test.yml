@@ -5,15 +5,13 @@ services:
     image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-alpine-az11-${GIT_TAG}
     scale: 2
     environment:
-      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_PATH=baseline/pingdirectory
-      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
-      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
-      - PING_IDENTITY_ACCEPT_EULA=YES
       - MAX_HEAP_SIZE=900m
       - ORCHESTRATION_TYPE=COMPOSE
       - COMPOSE_SERVICE_NAME=integration_tests_pingdirectory
       - TAIL_LOG_FILES=
+    env_file:
+      - /tmp/integration_tests.properties
     ulimits:
       nproc:
         soft: 16384

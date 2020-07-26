@@ -21,6 +21,11 @@ _exitCode=""
 cd "$( dirname "${0}" )" || exit 97
 export PING_IDENTITY_DEVOPS_USER
 export PING_IDENTITY_DEVOPS_KEY
+
+# create the integraton_tests.properties to be used by tests
+_integrationTestProps=/tmp/integration_tests.properties
+envsubst < "${CI_PROJECT_DIR}/integration_tests/integration_tests.properties.subst" > ${_integrationTestProps}
+
 _totalStart=$( date '+%s' )
 _resultsFile="/tmp/$$.results"
 _headerPattern=' %-58s| %10s| %10s\n'
@@ -64,6 +69,7 @@ do
 done
 
 cat ${_resultsFile}
+rm ${_integrationTestProps}
 rm ${_resultsFile}
 _totalStop=$( date '+%s' )
 _totalDuration=$(( _totalStop - _totalStart ))
