@@ -47,29 +47,33 @@ fi
 #    - no
 echo "Copying existing certificate files from existing install..."
 for _certFile in keystore keystore.p12 truststore truststore.p12 ; do
+    echo "  Checking for certificate ${_certFile}..."
     if test -f "${SERVER_ROOT_DIR}/config/${_certFile}" -a ! -f "${PD_PROFILE}/server-root/pre-setup/config/${_certFile}" ; then
-        echo "  ${SERVER_ROOT_DIR}/config/${_certFile} ==>"
-        echo "    ${PD_PROFILE}/server-root/pre-setup/config/${_certFile}"
+        echo "    ${SERVER_ROOT_DIR}/config/${_certFile} ==>"
+        echo "      ${PD_PROFILE}/server-root/pre-setup/config/${_certFile}"
 
         cp -af "${SERVER_ROOT_DIR}/config/${_certFile}" \
            "${PD_PROFILE}/server-root/pre-setup/config/${_certFile}"
     else
-        echo "  ${_certFile} not found in existing install or was found in pd.profile"
+        echo "    ... not found in existing install or was found in pd.profile"
     fi
+    echo ""
 done
 
 echo "Copying existing certificate pin files from existing install..."
 for _pinFile in keystore.pin truststore.pin ; do
+    echo "  Checking for certificate pin ${_pinFile}..."
     if test -f "${SERVER_ROOT_DIR}/config/${_pinFile}" -a ! -f "${PD_PROFILE}/server-root/pre-setup/config/${_pinFile}" ; then
-        echo "  ${SERVER_ROOT_DIR}/config/${_pinFile} ==>"
-        echo "    ${PD_PROFILE}/server-root/pre-setup/config/${_pinFile}"
+        echo "    ${SERVER_ROOT_DIR}/config/${_pinFile} ==>"
+        echo "      ${PD_PROFILE}/server-root/pre-setup/config/${_pinFile}"
 
         "${SERVER_ROOT_DIR}"/bin/encrypt-file --decrypt \
             --input-file "${SERVER_ROOT_DIR}/config/${_pinFile}" \
             --output-file "${PD_PROFILE}/server-root/pre-setup/config/${_pinFile}"
     else
-        echo "  ${_pinFile} not found in existing install or was found in pd.profile"
+        echo "  ... not found in existing install or was found in pd.profile"
     fi
+    echo ""
 done
 
 
@@ -104,10 +108,12 @@ echo "Checking license file..."
 _currentLicense="${LICENSE_DIR}/${LICENSE_FILE_NAME}"
 _pdProfileLicense="${PD_PROFILE}/server-root/pre-setup/${LICENSE_FILE_NAME}"
 if test ! -f "${_pdProfileLicense}" ; then
-    echo "Copying in license from existing install."
-    echo "  ${_currentLicense} ==> "
-    echo "    ${_pdProfileLicense}"
+    echo "  Copying in license from existing install."
+    echo "    ${_currentLicense} ==> "
+    echo "      ${_pdProfileLicense}"
     cp -af "${_currentLicense}" "${_pdProfileLicense}"
+else
+    echo "Using new license from ${_pdProfileLicense}"
 fi
 
 # If the a setup-arguments.txt file isn't found, then generate
@@ -120,10 +126,14 @@ mv "${SERVER_ROOT_DIR}/logs/tools/manage-profile.log" "${SERVER_ROOT_DIR}/logs/t
 
 echo "Merging changes from new server profile..."
 
-"${SERVER_BITS_DIR}"/bin/manage-profile replace-profile \
-        --serverRoot "${SERVER_ROOT_DIR}" \
-        --profile "${PD_PROFILE}" \
-        --useEnvironmentVariables
+_manage_profile_cmd="${SERVER_BITS_DIR}/bin/manage-profile replace-profile \
+        --serverRoot ${SERVER_ROOT_DIR} \
+        --profile ${PD_PROFILE} \
+        --useEnvironmentVariables"
+
+echo "  ${_manage_profile_cmd}"
+
+${_manage_profile_cmd}
 
 _manageProfileRC=$?
 if test ${_manageProfileRC} -ne 0 ; then
