@@ -90,6 +90,28 @@ _validateCertificateOptions ()
     fi
 }
 
+#
+# Creates a set of certificate options useding during the setup and restart of a
+# PingData product
+#
+# Options set will include some of the following depending on whether files and
+# certificate names are included.:
+#
+#   generate certification if no keystore file provided
+#     --generateSelfSignedCertificate
+#
+#   keystore info
+#     --usePkcs12KeyStore {file}
+#     --useJavaKeyStore {file}
+#     --keyStorePasswordFile {file}
+#
+#   truststore info
+#     --usePkcs12TrustStore {file}
+#     --useJavaTrustStore {file}
+#     --trustStorePasswordFile {file}
+#
+#   cerficate nickname used in keystore
+#     --certNickname {nickname}
 getCertificateOptions ()
 {
     # Validate keystore options
@@ -137,6 +159,8 @@ getCertificateOptions ()
     echo "${certificateOptions}"
 }
 
+# if an encryption password file is provided, then this will provide the option to use
+# that file during setup.  Otherwise, a random passphrase will be used.
 getEncryptionOption ()
 {
     encryptionOption="--encryptDataWithRandomPassphrase"
@@ -148,6 +172,7 @@ getEncryptionOption ()
     echo "${encryptionOption}"
 }
 
+# returns a 1 if the product version of the image is 8.1 or higher
 is_gte_81() {
   version=$(echo "${IMAGE_VERSION}" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+")
   major=$(echo "${version}" | awk -F"." '{ print $1 }')
@@ -159,6 +184,7 @@ is_gte_81() {
   fi
 }
 
+# returns the jvm option used during the setup of a PingData product
 getJvmOptions ()
 {
     jvmOptions=""
