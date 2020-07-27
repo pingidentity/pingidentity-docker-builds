@@ -66,8 +66,9 @@ fi
 _podName=$(hostname)
 _ordinal="${_podName##*-}"
 
-_podHostname=$( getPingDataInstanceName )
-_podInstanceName="${_podHostname}"
+_podInstanceName=$( getPingDataInstanceName )
+_podHostname="${_podInstanceName}"
+
 _podLocation="${LOCATION}"
 _podLdapsPort="${LDAPS_PORT}"
 _podReplicationPort="${REPLICATION_PORT}"
