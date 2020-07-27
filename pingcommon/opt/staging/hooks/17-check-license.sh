@@ -5,7 +5,7 @@
 #- Check for license file
 #- - If LICENSE_FILE found make call to check-license api unless MUTE_LICENSE_VERIFICATION set to true
 #- - If LICENSE_FILE not found and PING_IDENTITY_DEVOPS_USER and PING_IDENTITY_DEVOPS_KEY defined
-#-   make call to obtain a license from licence server
+#-   make call to obtain a license from license server
 #
 #  TODO - Should probably add more mechanisms to pull from other
 #         locations (i.e. vaults/secrets)
@@ -16,7 +16,7 @@ ${VERBOSE} && set -x
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 LICENSE_FILE="${LICENSE_DIR}/${LICENSE_FILE_NAME}"
-_licenceAPI="https://license.pingidentity.com/devops/license"
+_licenseAPI="https://license.pingidentity.com/devops/license"
 _checkLicenceAPI="https://license.pingidentity.com/devops/check-license"
 
 if test -f "${LICENSE_FILE}"
@@ -25,10 +25,11 @@ then
 
     case "${MUTE_LICENSE_VERIFICATION}" in
         TRUE|true|YES|yes|Y|y)
-            echo "Opting out of checking license due to MUTE_LICENSE_VERIFICATION=${MUTE_LICENSE_VERIFICATION}"
+            echo "Opting out of license verfication due to MUTE_LICENSE_VERIFICATION=${MUTE_LICENSE_VERIFICATION}"
             ;;
         *)
-            echo "Checking license (set 'MUTE_LICENSE_VERIFICATION=yes' to opt out) for:"
+            echo "Verifying license with a network query to https://license.pingidentity.com."
+            echo "You may opt out of this setting environment variable 'MUTE_LICENSE_VERFICATION=yes'."
             echo "   License File: ${LICENSE_FILE}"
             echo "        License: ${_licenseID}"
 
@@ -61,7 +62,7 @@ else
                 --header "devops-key: ${PING_IDENTITY_DEVOPS_KEY}" \
                 --header "devops-app: ${IMAGE_VERSION}" \
                 --header "devops-purpose: get-license" \
-                "${_licenceAPI}" \
+                "${_licenseAPI}" \
                 --output "${LICENSE_FILE}"
             #
             # Just testing the http code isn't sufficient, curl will return http 200 if it
