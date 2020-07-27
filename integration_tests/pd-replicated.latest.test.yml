@@ -11,6 +11,8 @@ services:
       - COMPOSE_SERVICE_NAME=integration_tests_pingdirectory
       - TAIL_LOG_FILES=
     env_file:
+      # Property file below provides common envrionment variables for all integration_tests.
+      # run_integration.sh creates /tmp/integration_tests.properties at runtime.
       - /tmp/integration_tests.properties
     ulimits:
       nproc:

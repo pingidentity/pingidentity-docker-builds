@@ -25,6 +25,8 @@ services:
     environment:
       - SERVER_PROFILE_PATH=baseline/pingdirectoryproxy
     env_file:
+      # Property file below provides common envrionment variables for all integration_tests.
+      # run_integration.sh creates /tmp/integration_tests.properties at runtime.
       - /tmp/integration_tests.properties
     ulimits:
       nproc:

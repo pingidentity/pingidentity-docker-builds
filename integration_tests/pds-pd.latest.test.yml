@@ -8,6 +8,8 @@ services:
       - USER_BASE_DN=o=sync
       - MAX_HEAP_SIZE=768m
     env_file:
+      # Property file below provides common envrionment variables for all integration_tests.
+      # run_integration.sh creates /tmp/integration_tests.properties at runtime.
       - /tmp/integration_tests.properties
     ulimits:
       nproc:
