@@ -64,12 +64,21 @@ echo "Copying existing certificate pin files from existing install..."
 for _pinFile in keystore.pin truststore.pin ; do
     echo "  Checking for certificate pin ${_pinFile}..."
     if test -f "${SERVER_ROOT_DIR}/config/${_pinFile}" -a ! -f "${PD_PROFILE}/server-root/pre-setup/config/${_pinFile}" ; then
-        echo "    ${SERVER_ROOT_DIR}/config/${_pinFile} ==>"
-        echo "      ${PD_PROFILE}/server-root/pre-setup/config/${_pinFile}"
-
+        # An attempt will be made to decrypt the file using the current server encryption-settings, however if one was
+        # provided in clear to start with, it probably won't be encrypted.
         "${SERVER_ROOT_DIR}"/bin/encrypt-file --decrypt \
             --input-file "${SERVER_ROOT_DIR}/config/${_pinFile}" \
             --output-file "${PD_PROFILE}/server-root/pre-setup/config/${_pinFile}"
+
+        _returnCode=${?}
+        if test ${_returnCode} -ne 0 ; then
+            # TODO - Look at possibley encrypting it here, to increase security posture.
+            echo "    WARNING: ${_pinFile} does not appear to be encrypted"
+            cp "${SERVER_ROOT_DIR}/config/${_pinFile}" "${PD_PROFILE}/server-root/pre-setup/config/${_pinFile}"
+        fi
+
+        echo "    ${SERVER_ROOT_DIR}/config/${_pinFile} ==>"
+        echo "      ${PD_PROFILE}/server-root/pre-setup/config/${_pinFile}"
     else
         echo "  ... not found in existing install or was found in pd.profile"
     fi
@@ -116,7 +125,7 @@ else
     echo "Using new license from ${_pdProfileLicense}"
 fi
 
-# If the a setup-arguments.txt file isn't found, then generate
+# If a setup-arguments.txt file isn't found, then generate
 if test ! -f "${_setupArgumentsFile}"; then
     generateSetupArguments
 fi
