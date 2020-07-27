@@ -18,7 +18,7 @@ _getAllVersionsToBuildForProduct ()
     test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.build==true)|$v.version]|unique|.[]' "${_file}"
 }
 
-# get all version (from versions.json) for a product to deploy
+# get all versions (from versions.json) for a product to deploy
 _getAllVersionsToDeployForProduct ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
