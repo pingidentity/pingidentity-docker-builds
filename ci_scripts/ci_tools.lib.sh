@@ -180,8 +180,8 @@ banner_head ()
     printf "#\n"
 }
 
-banner ()
 # echos full banner with contents
+banner ()
 {
     banner_bar
     banner_head "${*}"
