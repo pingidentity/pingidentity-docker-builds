@@ -134,6 +134,9 @@ getCertificateOptions ()
         esac
         if test -n "${KEYSTORE_PIN_FILE}"; then
             certificateOptions="${certificateOptions} --keyStorePasswordFile ${KEYSTORE_PIN_FILE}"
+        else
+            echo_red "KEYSTORE_PIN_FILE is required if a KEYSTORE_FILE is provided."
+            exit 75
         fi
     fi
 
