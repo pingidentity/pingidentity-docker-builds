@@ -2,7 +2,7 @@
 #
 # Ping Identity DevOps - CI scripts
 #
-# Check if the changes only includes only markdown (.md) files
+# Check if the changes only includes markdown (.md) files
 #
 test -n "${VERBOSE}" && set -x
 

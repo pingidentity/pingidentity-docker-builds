@@ -2,7 +2,7 @@
 #
 # Ping Identity DevOps - CI scripts
 #
-# This script deploys products to registeries based on the registries.json
+# This script deploys products to registries based on the registries.json
 #
 test -n "${VERBOSE}" && set -x
 
