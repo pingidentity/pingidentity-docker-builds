@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+# Ping Identity DevOps - CI scripts
+#
+# This script parses Dockerfiles and hooks to create docs
+#
 test -n "${VERBOSE}" && set -x
 
 if test -z "${CI_COMMIT_REF_NAME}"
@@ -103,7 +108,7 @@ append_env_table_header ()
 }
 
 #
-#
+# Append an environment variable, default value and description
 #
 append_env_variable ()
 {
@@ -115,7 +120,7 @@ append_env_variable ()
 }
 
 #
-#
+# append docs for exposed ports
 #
 append_expose_ports ()
 {
@@ -134,7 +139,7 @@ append_expose_ports ()
 }
 
 #
-#
+# parse all the hooks in a product's /opt/staging/hooks
 #
 parse_hooks ()
 {
@@ -198,7 +203,7 @@ parse_hooks ()
 }
 
 #
-#
+# parse the dockerfile for product
 #
 parse_dockerfile ()
 {

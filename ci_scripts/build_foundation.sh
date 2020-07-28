@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
+#
+# Ping Identity DevOps - CI scripts
+#
+# This script builds the foundation images:
+#   - pingbase
+#   - pingcommon
+#   - pingdatacommon
+#   - pingjvm
+#
 test -n "${VERBOSE}" && set -x
 
 usage ()
@@ -114,14 +123,14 @@ else
     banner "LOCAL FOUNDATION BUILD"
 fi
 
-# result table header    
+# result table header
 _resultsFile="/tmp/$$.results"
 _headerPattern=' %-53s| %10s| %7s\n'
 _reportPattern='%-52s| %10s| %7s'
 # shellcheck disable=SC2059
 printf "${_headerPattern}" "IMAGE" "DURATION" "RESULT" > ${_resultsFile}
 
-#build foundation and push to gcr for use in subsequent jobs. 
+#build foundation and push to gcr for use in subsequent jobs.
 banner Building PING COMMON
 _start=$( date '+%s' )
 _image="${FOUNDATION_REGISTRY}/pingcommon:${ciTag}"
@@ -141,9 +150,9 @@ else
     _result="PASS"
     if test -z "${isLocalBuild}"
     then
-        banner "Pushing ${_image}" 
+        banner "Pushing ${_image}"
         docker push "${_image}"
-    fi    
+    fi
     append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingcommon" "${_duration}" "${_result}"
 fi
 imagesToCleanup="${imagesToCleanup} ${_image}"
@@ -170,7 +179,7 @@ else
     then
         banner "Pushing ${_image}"
         docker push "${_image}"
-    fi    
+    fi
     append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingdatacommon" "${_duration}" "${_result}"
 fi
 imagesToCleanup="${imagesToCleanup} ${_image}"
@@ -196,7 +205,7 @@ fi
 for _shim in ${shims}
 do
     _shimTag=$( _getLongTag "${_shim}" )
-    
+
     if test -z "${jvmsToBuild}"
     then
         # find which JVMs to build for each supported SHIM
@@ -229,7 +238,7 @@ do
             then
                 banner "Pushing ${_image}"
                 docker push "${_image}"
-            fi    
+            fi
         fi
         append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingjvm:${_jvm}_${_shimTag}" "${_duration}" "${_result}"
         imagesToCleanup="${imagesToCleanup} ${_image}"
@@ -256,7 +265,7 @@ else
     then
         banner "Pushing ${_image}"
         docker push "${_image}"
-    fi    
+    fi
 fi
 append_status "${_resultsFile}" "${_result}"  "${_reportPattern}" "pingbase" "${_duration}" "${_result}"
 imagesToCleanup="${imagesToCleanup} ${_image}"

@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
+#
+# Ping Identity DevOps - CI scripts
+#
+# Check if the changes only includes markdown (.md) files
+#
 test -n "${VERBOSE}" && set -x
 
 #for local, uncomment:
 # CHANGED_FILES=$(git diff --name-only master HEAD)
 # echo "edited files: " $CHANGED_FILES
 
-# for gitlab: 
+# for gitlab:
 echo "${CI_COMMIT_BEFORE_SHA}"
 CHANGED_FILES=$(git diff --name-only "${CI_COMMIT_SHA}"  "${CI_COMMIT_BEFORE_SHA}")
 echo "CHANGED_FILES: " "${CHANGED_FILES}"
@@ -32,7 +37,7 @@ check_if_mds()
 if test "${CI_COMMIT_BEFORE_SHA}" = "0000000000000000000000000000000000000000"
 then
    echo "no previous commit."
-else 
+else
   check_if_mds
     if test "${ONLY_READMES}" = "True"
     then

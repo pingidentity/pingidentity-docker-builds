@@ -9,6 +9,9 @@
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
+# shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
+. "${HOOKS_DIR}/pingdata.lib.sh"
+
 # shellcheck source=pingdirectory.lib.sh
 . "${HOOKS_DIR}/pingdirectory.lib.sh"
 
@@ -61,11 +64,11 @@ fi
 # Create all the POD Server details
 #
 _podName=$(hostname)
-_ordinal=$(echo ${_podName##*-})
+_ordinal="${_podName##*-}"
 
+_podInstanceName=$( getPingDataInstanceName )
+_podHostname="${_podInstanceName}"
 
-_podHostname="$(hostname)"
-_podInstanceName="${_podHostname}"
 _podLocation="${LOCATION}"
 _podLdapsPort="${LDAPS_PORT}"
 _podReplicationPort="${REPLICATION_PORT}"
@@ -126,7 +129,7 @@ if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
             K8S_SEED_HOSTNAME_SUFFIX=".\${K8S_SEED_CLUSTER}"
         fi
 
-        if test ${K8S_INCREMENT_PORTS} = true; then
+        if test "${K8S_INCREMENT_PORTS}" = true; then
             _incrementPortsMsg="Using different ports for each instance, incremented from LDAPS_PORT (${LDAPS_PORT}) and REPLICATION_PORT (${REPLICATION_PORT})"
         else
             _incrementPortsMsg="K8S_INCREMENT_PORTS not used ==> Using same ports for all instancesLDAPS_PORT (${LDAPS_PORT}) and REPLICATION_PORT (${REPLICATION_PORT})"
@@ -179,11 +182,11 @@ if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" ; then
             #
             # First, we will check to see if there are any servers available in
             # existing cluster
-            _numHosts=$( getIPsForDomain ${K8S_STATEFUL_SET_SERVICE_NAME} | wc -w 2>/dev/null )
+            _numHosts=$( getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}" | wc -w 2>/dev/null )
 
             echo "Number of servers available in this domain: ${_numHosts}"
 
-            if test ${_numHosts} -eq 0 ; then
+            if test "${_numHosts}" -eq 0 ; then
                 #
                 # Second, we need to check other clusters
                 if test "${_clusterMode}" = "multi"; then
@@ -222,8 +225,8 @@ if test "${ORCHESTRATION_TYPE}" = "COMPOSE" ; then
 
         #
         # Check to see
-        if test $(getIP ${COMPOSE_SERVICE_NAME}_1) != \
-                $(getIP ${HOSTNAME}); then
+        if test "$(getIP "${COMPOSE_SERVICE_NAME}_1")" != \
+                "$(getIP "${HOSTNAME}")"; then
            echo "We are the SEED Server"
            PD_STATE="SETUP"
         fi
@@ -329,14 +332,16 @@ echo "#
         container_failure 08 "Unknown PD_STATE of ($PD_STATE)"
 esac
 
+{
 echo "
 ###################################################################################
 #
 #                      PD_STATE: ${PD_STATE}
 #                      RUN_PLAN: ${RUN_PLAN}
-#" >> "${_fullPlan}"
+#"
 
-cat "${_planSteps}" >> "${_fullPlan}"
+cat "${_planSteps}"
+} >> "${_fullPlan}"
 
 echo "###################################################################################
 #
@@ -378,7 +383,7 @@ if test ! -z "${K8S_CLUSTERS}" &&
         test ${#_cluster} -gt ${_clusterWidth} && _clusterWidth=${#_cluster}
 
         i=0
-        while (test $i -lt ${_numReplicas}) ; do
+        while test $i -lt "${_numReplicas}" ; do
             _pod="${K8S_STATEFUL_SET_NAME}-${_ordinal}.${_cluster}"
 
             # get the max size of the pod name
@@ -386,7 +391,7 @@ if test ! -z "${K8S_CLUSTERS}" &&
 
             _ldapsPort=${_seedLdapsPort}
             _replicationPort=${_seedReplicationPort}
-            if test ${K8S_INCREMENT_PORTS} = true; then
+            if test "${K8S_INCREMENT_PORTS}" = true; then
                 _ldapsPort=$((_ldapsPort+i))
                 _replicationPort=$((_replicationPort+i))
             fi
@@ -409,13 +414,14 @@ if test ! -z "${K8S_CLUSTERS}" &&
 
     # print out the top header for the table
     echo "${_seperatorRow}" >> "${_fullPlan}"
+    # shellcheck disable=SC2059
     printf "${_podFormat}" "SEED" "POD" "Instance" "LDAPS" "REPL" >> "${_fullPlan}"
 
     # Print each row
     for _cluster in ${K8S_CLUSTERS}; do
         _ordinal=0
 
-        while (test $_ordinal -lt ${_numReplicas}) ; do
+        while test $_ordinal -lt "${_numReplicas}" ; do
             _pod="${K8S_STATEFUL_SET_NAME}-${_ordinal}.${_cluster}"
 
             # If we are printing a row representing the seed pod
@@ -432,7 +438,7 @@ if test ! -z "${K8S_CLUSTERS}" &&
 
             _ldapsPort=${LDAPS_PORT}
             _replicationPort=${REPLICATION_PORT}
-            if test ${K8S_INCREMENT_PORTS} = true; then
+            if test "${K8S_INCREMENT_PORTS}" = true; then
                 _ldapsPort=$((_ldapsPort+_ordinal))
                 _replicationPort=$((_replicationPort+_ordinal))
             fi
@@ -440,12 +446,16 @@ if test ! -z "${K8S_CLUSTERS}" &&
             # As we print the rows, if we are a new cluster, then we'll print a new cluster
             # header row
             if test "${_prevCluster}" != "${_cluster}"; then
-                echo "${_seperatorRow}" >> "${_fullPlan}"
-                printf "${_clusterFormat}" "${_seedIndicator}" "" "${_cluster}" >> "${_fullPlan}"
-                echo "${_seperatorRow}" >> "${_fullPlan}"
+                {
+                    echo "${_seperatorRow}"
+                    # shellcheck disable=SC2059
+                    printf "${_clusterFormat}" "${_seedIndicator}" "" "${_cluster}"
+                    echo "${_seperatorRow}"
+                } >> "${_fullPlan}"
             fi
             _prevCluster=${_cluster}
 
+            # shellcheck disable=SC2059
             printf "${_podFormat}" "${_seedIndicator}" "${_podIndicator}" "${_pod}" "${_ldapsPort}" "${_replicationPort}" >> "${_fullPlan}"
 
             _ordinal=$((_ordinal+1))

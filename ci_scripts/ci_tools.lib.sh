@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+# Ping Identity DevOps - CI scripts
+#
+# Utilities used across all CI scripts
+#
 test -n "${VERBOSE}" && set -x
 
 HISTFILE=~/.bash_history
@@ -6,85 +11,91 @@ set -o history
 HISTTIMEFORMAT='%T'
 export HISTTIMEFORMAT
 
-# get all version for a product to build
+# get all versions (from versions.json) for a product to build
 _getAllVersionsToBuildForProduct ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.build==true)|$v.version]|unique|.[]' "${_file}"
 }
 
-# get all version for a product to build
+# get all versions (from versions.json) for a product to deploy
 _getAllVersionsToDeployForProduct ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.deploy==true)|$v.version]|unique|.[]' "${_file}"
 }
 
-# get the latest version of a product to build
-_getLatestVersionForProduct () 
+# get the latest (from versions.json) version of a product to build
+_getLatestVersionForProduct ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r 'if (.latest) then .latest else "" end' "${_file}"
 }
 
-# get the default shim for a product version
-_getDefaultShimForProductVersion () 
+# get the default shim (from versions.json) for a product version
+_getDefaultShimForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -r '.|.versions[]| select(.version == "'${2}'") | .preferredShim' "${_file}"
 }
 
-# get all the shims for a product version
+# get all the shims (from versions.json) for a product version
 _getShimsToBuildForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -r '[.|.versions[]| select(.version == "'${2}'")|.shims[]|. as $v|.jvms[]|select(.build==true)|$v.shim]|unique|.[]' "${_file}"
 }
 
-# get all the shims for a product version
+# get all the shims (from versions.json) for a product version
 _getShimsToDeployForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -r '[.|.versions[]| select(.version == "'${2}'")|.shims[]|. as $v|.jvms[]|select(.deploy==true)|$v.shim]|unique|.[]' "${_file}"
 }
 
-# get all the shims for a product
+# get all the shims (from versions.json) for a product
 _getAllShimsForProduct ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -r '[.|.versions[]|.shims[]|.shim]|unique|.[]' "${_file}"
 }
 
+# get all the jvms (from versions.json) for a product to build
 _getJVMsToBuildForProductVersionShim ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.jvms[]|select(.build==true)|.jvm' "${_file}"
 }
 
+# get all the jvms (from versions.json) for a product to deploy
 _getJVMsToDeployForProductVersionShim ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.jvms[]|select(.deploy==true)|.jvm' "${_file}"
 }
 
+# get the preferred (from versions.json) for a product, version and shim
 _getPreferredJVMForProductVersionShim ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.preferredJVM' "${_file}"
 }
 
+# get the jvm versions (from versions.json) for an ID
 _getJVMVersionForID ()
 {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
     jq -r '.|.versions[]|select(.id=="'${1}'")|.version' "${_file}"
 }
 
+# get the jvm IDs (from versions.json) for a shim
 _getAllJVMIDsForShim ()
 {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
     jq -r '[.versions[]|select(.shims[]|contains("'${1}'"))|.id]|unique|.[]' ${_file}
 }
 
+# get the jvms (from versions.json) to build for a shim
 _getAllJVMsToBuildForShim ()
 {
     # _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
@@ -92,51 +103,61 @@ _getAllJVMsToBuildForShim ()
     find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|select(.shim=="'${1}'")|.jvms[]|select(.build==true)|.jvm' {} + 2>/dev/null| sort | uniq
 }
 
+# get the jvms (from versions.json) to build
 _getAllJVMsToBuild ()
 {
     find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|.jvms[]|select(.build==true)|.jvm' {} + 2>/dev/null| sort | uniq
 }
 
+# get the jvm imags (from versions.json) for a shim ID
 _getJVMImageForShimID ()
 {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
     jq -r '[.versions[]|select(.shims[]|contains("'${1}'"))| select(.id=="'${2}'")|.from]|unique|.[]' ${_file}
 }
 
+# get the dependencies (from versions.json) for product version
 _getDependenciesForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     jq -jr '.versions[]|select( .version == "'${2}'" )|if (.dependencies) then .dependencies[]|.product," ",.version,"\n" else "" end' "${_file}" | awk 'BEGIN{i=0} {print "--build-arg DEPENDENCY_"i"_PRODUCT="$1" --build-arg DEPENDENCY_"i"_VERSION="$2; i++}'
 }
 
-_getLongTag () 
+# get the long tag
+_getLongTag ()
 {
     echo "${1}" | awk '{gsub(/:/,"_");print}'
 }
 
-_getShortTag () 
+# get the short tag
+_getShortTag ()
 {
     echo "${1}"| awk '{gsub(/:.*/,"");print}'
 }
 
+# get the the shims (from versions.json)
 _getAllShims ()
-{    
+{
     find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '[.|.versions[]|.shims[]|.shim]|unique|.[]' {} + 2>/dev/null | sort | uniq
 }
 
-# returns the license version for a product full version
+# returns the license version from the full product version
+#
+# Example: 8.1.0.1 --> 8.1
 _getLicenseVersion ()
 {
     echo ${1}| cut -d. -f1,2
 }
 
-banner_pad=$( printf '%0.1s' " "{1..80})
+# echos banner bar of 80 hashes '#'
 banner_bar ()
 {
     printf '%0.1s' "#"{1..80}
     printf "\n"
 }
 
+banner_pad=$( printf '%0.1s' " "{1..80})
+# echos banner contents centering argument passed
 banner_head ()
 {
     # line is divided like so # <- a -> b <- c ->#
@@ -159,6 +180,7 @@ banner_head ()
     printf "#\n"
 }
 
+# echos full banner with contents
 banner ()
 {
     banner_bar
@@ -227,6 +249,11 @@ _curl ()
     return ${?}
 }
 
+################################################################################
+# get the latest snapshot version for a product
+#
+# currently only available for the Ping Data products
+################################################################################
 _getLatestSnapshotVersionForProduct ()
 {
     _baseURL="http://nexus-qa.austin-eng.ping-eng.com:8081/nexus/service/local/repositories/snapshots/content"
@@ -247,7 +274,7 @@ _getLatestSnapshotVersionForProduct ()
         pingdatagovernancepap)
             _product="symphonic-pap-packaged"
             _basePath="com/pingidentity/pd/governance"
-            ;;        
+            ;;
         *)
             ;;
     esac
@@ -279,7 +306,7 @@ then
     gitRevLong=$( date '+%s' )
     # shellcheck disable=SC2155
     ciTag="$( date '+%Y%m%d' )"
-elif test -n "${CI_COMMIT_REF_NAME}" 
+elif test -n "${CI_COMMIT_REF_NAME}"
 then
     #we are in CI pipeline
     FOUNDATION_REGISTRY="gcr.io/ping-gte"
@@ -299,7 +326,7 @@ else
     # shellcheck disable=SC2155
     gitRevShort=$( git rev-parse --short=4 HEAD)
     # shellcheck disable=SC2155
-    gitRevLong=$( git rev-parse HEAD) 
+    gitRevLong=$( git rev-parse HEAD)
     ciTag="${gitBranch}-${gitRevShort}"
 fi
 export FOUNDATION_REGISTRY

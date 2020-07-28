@@ -3,9 +3,6 @@ services:
   pingaccess-admin:
     image: ${REGISTRY}/pingaccess:${PINGACCESS_LATEST}-alpine-az11-${GIT_TAG}
     environment:
-      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
-      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
-      - PING_IDENTITY_ACCEPT_EULA=YES
       - SERVER_PROFILE_ADMIN_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_ADMIN_PATH=pa-clustering/pingaccess-admin
       - SERVER_PROFILE_PARENT=ADMIN
@@ -14,6 +11,10 @@ services:
       - OPERATIONAL_MODE=CLUSTERED_CONSOLE
       - PA_CONSOLE_HOST=pingaccess-admin
       - PING_IDENTITY_PASSWORD=2FederateM0re
+    env_file:
+      # Property file below provides common envrionment variables for all integration_tests.
+      # run_integration.sh creates /tmp/integration_tests.properties at runtime.
+      - /tmp/integration_tests.properties
     ports:
       - "9000:9000"
     networks:

@@ -486,7 +486,12 @@ echo_vars ()
 ###############################################################################
 export_container_env ()
 {
-  printf "\n# Following variables set by hook ${CALLING_HOOK}\n" >> "${CONTAINER_ENV}"
+  {
+      echo ""
+      echo_bar
+      echo "# Following variables set by hook ${CALLING_HOOK}"
+      echo_bar
+  } >> "${CONTAINER_ENV}"
 
   while test -n "${1}"
   do

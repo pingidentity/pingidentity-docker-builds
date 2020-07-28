@@ -1,7 +1,7 @@
 #- # Ping Identity DevOps Docker Image - `pingdirectory`
-#- 
+#-
 #- This docker image includes the Ping Identity PingDirectory product binaries
-#- and associated hook scripts to create and run a PingDirectory instance or 
+#- and associated hook scripts to create and run a PingDirectory instance or
 #- instances.
 #-
 #- ## Related Docker Images
@@ -92,6 +92,10 @@ ENV DISABLE_SCHEMA_REPLICATION=false
 
 ENV PD_PROFILE="${STAGING_DIR}/pd.profile"
 
+#-- Force a rebuild (replace-profile) of a PingDirectoy on restart.
+#-- Used when changes are made outside of the PD_PROFILE
+ENV PD_REBUILD_ON_RESTART=false
+
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT} 5005
 
 COPY --from=final-staging ["/","/"]
@@ -99,7 +103,7 @@ COPY --from=final-staging ["/","/"]
 #- ## Running a PingDirectory container
 #-
 #- The easiest way to test test a simple standalone image of PingDirectory is to cut/paste the following command into a terminal on a machine with docker.
-#- 
+#-
 #- ```
 #-   docker run \
 #-            --name pingdirectory \
@@ -110,18 +114,18 @@ COPY --from=final-staging ["/","/"]
 #-            --env SERVER_PROFILE_PATH=getting-started/pingdirectory \
 #-           pingidentity/pingdirectory:edge
 #- ```
-#- 
+#-
 #- You can view the Docker logs with the command:
-#- 
+#-
 #- ```
 #-   docker logs -f pingdirectory
 #- ```
-#- 
+#-
 #- You should see the ouptut from a PingDirectory install and configuration, ending with a message the the PingDirectory has started.  After it starts, you will see some typical access logs.  Simply ``Ctrl-C`` afer to stop tailing the logs.
-#- 
+#-
 #- ## Running a sample 100/sec search rate test
 #- With the PingDirectory running from the pevious section, you can run a ``searchrate`` job that will send load to the directory at a rate if 100/sec using the following command.
-#- 
+#-
 #- ```
 #- docker exec -it pingdirectory \
 #-         /opt/out/instance/bin/searchrate \
@@ -132,35 +136,35 @@ COPY --from=final-staging ["/","/"]
 #-                 --numThreads 2 \
 #-                 --ratePerSecond 100
 #- ```
-#- 
+#-
 #- ## Connecting with an LDAP Client
 #- Connect an LDAP Client (such as Apache Directory Studio) to this container using the default ports and credentials
-#- 
+#-
 #- |                 |                                   |
 #- | --------------: | --------------------------------- |
 #- | LDAP Port       | 1389 (mapped to 389)              |
 #- | LDAP Base DN    | dc=example,dc=com                 |
 #- | Root Username   | cn=administrator                  |
 #- | Root Password   | 2FederateM0re                     |
-#- 
+#-
 #- ## Connection with a REST Client
 #- Connection a REST client from Postman or a browser using the default ports and credentials
-#- 
+#-
 #- |                 |                                   |
 #- | --------------: | --------------------------------- |
 #- | URL             | https://localhost:8443/scim/Users |
 #- | Username        | cn=administrator                  |
 #- | Password        | 2FederateM0re                     |
-#- 
+#-
 #- ## Stopping/Removing the container
 #- To stop the container:
-#- 
+#-
 #- ```
 #-   docker container stop pingdirectory
 #- ```
-#- 
+#-
 #- To remove the container:
-#- 
+#-
 #- ```
 #-   docker container rm -f pingdirectory
 #- ```

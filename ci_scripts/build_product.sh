@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+# Ping Identity DevOps - CI scripts
+#
+# This script builds the product images
+#
 test -n "${VERBOSE}" && set -x
 
 #
@@ -130,11 +135,11 @@ fi
 
 if test -z "${isLocalBuild}" && test ${DOCKER_BUILDKIT} -eq 1
 then
-    docker pull "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}" 
+    docker pull "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}"
     docker pull "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}"
 fi
 
-# result table header    
+# result table header
 _resultsFile="/tmp/$$.results"
 _headerPattern=' %-24s| %-20s| %-20s| %-10s| %10s| %7s\n'
 _reportPattern='%-23s| %-20s| %-20s| %-10s| %10s| %7s'
@@ -149,16 +154,16 @@ for _version in ${versionsToBuild}
 do
     # # if the default shim has been provided as an argument, get it from the versions file
     # if test -z "${defaultShim}"
-    # then 
+    # then
     #     _defaultShim=$( _getDefaultShimForProductVersion ${productToBuild} ${_version} )
     # else
     #     _defaultShim="${defaultShim}"
     # fi
 
     # if the list of shims was not provided as agruments, get the list from the versions file
-    if test -z "${shimsToBuild}" 
-    then 
-        _shimsToBuild=$( _getShimsToBuildForProductVersion "${productToBuild}" "${_version}" ) 
+    if test -z "${shimsToBuild}"
+    then
+        _shimsToBuild=$( _getShimsToBuildForProductVersion "${productToBuild}" "${_version}" )
     else
         _shimsToBuild=${shimsToBuild}
     fi
@@ -215,7 +220,7 @@ do
         append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${productToBuild}" "${_buildVersion}" "Staging" "N/A" "${_duration}" "${_result}"
         imagesToClean="${imagesToClean} ${_image}"
     fi
-    
+
     # iterate over the shims (default to alpine)
     for _shim in ${_shimsToBuild:-alpine}
     do

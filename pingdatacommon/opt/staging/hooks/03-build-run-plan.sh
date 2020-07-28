@@ -9,6 +9,9 @@
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
+# shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
+. "${HOOKS_DIR}/pingdata.lib.sh"
+
 RUN_PLAN="UNKNOWN"
 
 SERVER_UUID_FILE="${SERVER_ROOT_DIR}/config/server.uuid"
@@ -21,7 +24,7 @@ else
     RUN_PLAN="START"
 fi
 
-INSTANCE_NAME="$(hostname)"
+INSTANCE_NAME=$( getPingDataInstanceName )
 
 # next line is for shellcheck disable to ensure $RUN_PLAN is used
 echo "${RUN_PLAN} ${INSTANCE_NAME}" >> /dev/null

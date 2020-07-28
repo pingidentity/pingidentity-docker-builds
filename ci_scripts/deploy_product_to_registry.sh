@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+# Ping Identity DevOps - CI scripts
+#
+# This script deploys products to registries based on the registries.json
+#
 test -n "${VERBOSE}" && set -x
 
 #
@@ -38,6 +43,9 @@ END_USAGE
     exit 99
 }
 
+#
+# Tags the product being deployed and push into registry
+#
 tag_and_push ()
 {
     _source="${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
@@ -126,8 +134,8 @@ do
     shift
 done
 
-_commitHasTags=$( git tag --points-at "${CI_COMMIT_SHA}" )
-_commitBranch=$( git branch --contains "${CI_COMMIT_SHA}" )
+# _commitHasTags=$( git tag --points-at "${CI_COMMIT_SHA}" )
+# _commitBranch=$( git branch --contains "${CI_COMMIT_SHA}" )
 # test -z "${dryRun}" \
 #     && test -z "${_commitHasTags}" \
 #     && test "${_commitBranch}" != "* master" \

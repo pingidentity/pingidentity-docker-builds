@@ -87,11 +87,11 @@ getProfile ()
 
         git clone --depth 1 ${serverProfileBranch:+--branch ${serverProfileBranch}} "${serverProfileUrl}" "${SERVER_PROFILE_DIR}"
         die_on_error 141 "Git clone failure"  || exit ${?}
-       
+
         #
         # Perform Security Checks on the Server Profile cloned
         #
-        # note: this will also search paths ouside of the SERVER_PROFILE_PATH.  
+        # note: this will also search paths ouside of the SERVER_PROFILE_PATH.
         #       future enhancement may want to limit the directory checked.
         #       i.e. ${SERVER_PROFILE_DIR}/${serverProfilePath}
         #
@@ -112,12 +112,12 @@ getProfile ()
             fi
         else
             echo "   PASSED"
-        fi 
+        fi
 
         # shellcheck disable=SC2086
         cp -af ${SERVER_PROFILE_DIR}/${serverProfilePath}/. "${STAGING_DIR}"
         die_on_error 142 "Copy to staging failure"  || exit ${?}
-    fi    
+    fi
 }
 
 ########################################################################################
@@ -149,7 +149,7 @@ do
 done
 
 # now, take that spaced separated list of servers and get the profiles for each
-# one until exhausted.  
+# one until exhausted.
 for serverProfileName in ${serverProfileList}
 do
     getProfile "${serverProfilePrefix}_${serverProfileName}"
@@ -176,7 +176,13 @@ then
         echo_red "         # .suppress-container-warning"
     fi
 
-    cat "${_env_vars_file}" >> "${CONTAINER_ENV}"
+    {
+        echo_bar
+        echo "# Following variables imported from server-profile/env_vars"
+        echo_bar
+        cat "${_env_vars_file}"
+        echo ""
+    } >> "${CONTAINER_ENV}"
 else
     touch "${CONTAINER_ENV}"
 fi

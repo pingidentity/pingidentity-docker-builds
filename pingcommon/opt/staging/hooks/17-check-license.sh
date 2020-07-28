@@ -3,9 +3,9 @@
 # Ping Identity DevOps - Docker Build Hooks
 #
 #- Check for license file
-#- - If in SERVER_ROOT_DIR, good
-#- - If PING_IDENTITY_DEVOPS_USER and PING_IDENTITY_DEVOPS_KEY
-#- provided then pull eval license from license server
+#- - If LICENSE_FILE found make call to check-license api unless MUTE_LICENSE_VERIFICATION set to true
+#- - If LICENSE_FILE not found and PING_IDENTITY_DEVOPS_USER and PING_IDENTITY_DEVOPS_KEY defined
+#-   make call to obtain a license from license server
 #
 #  TODO - Should probably add more mechanisms to pull from other
 #         locations (i.e. vaults/secrets)
@@ -16,10 +16,33 @@ ${VERBOSE} && set -x
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 LICENSE_FILE="${LICENSE_DIR}/${LICENSE_FILE_NAME}"
+_licenseAPI="https://license.pingidentity.com/devops/license"
+_checkLicenceAPI="https://license.pingidentity.com/devops/check-license"
 
 if test -f "${LICENSE_FILE}"
 then
-   licenseFound="true"
+    _licenseID=$(awk 'BEGIN{FS="="}$1~/^ID/{print $2}' "${LICENSE_FILE}")
+
+    case "${MUTE_LICENSE_VERIFICATION}" in
+        TRUE|true|YES|yes|Y|y)
+            echo "Opting out of license verfication due to MUTE_LICENSE_VERIFICATION=${MUTE_LICENSE_VERIFICATION}"
+            ;;
+        *)
+            echo "Verifying license with a network query to https://license.pingidentity.com."
+            echo "You may opt out of this setting environment variable 'MUTE_LICENSE_VERFICATION=yes'."
+            echo "   License File: ${LICENSE_FILE}"
+            echo "        License: ${_licenseID}"
+
+            _curl \
+                --header "license-id: ${_licenseID}" \
+                --header "devops-app: ${IMAGE_VERSION}" \
+                --header "devops-purpose: check-license" \
+                "${_checkLicenceAPI}" \
+                --output "/tmp/check-license.json"
+            ;;
+    esac
+
+    licenseFound="true"
 else
    if test ! -z "${PING_IDENTITY_DEVOPS_USER}" && test ! -z "${PING_IDENTITY_DEVOPS_KEY}"
    then
@@ -39,7 +62,7 @@ else
                 --header "devops-key: ${PING_IDENTITY_DEVOPS_KEY}" \
                 --header "devops-app: ${IMAGE_VERSION}" \
                 --header "devops-purpose: get-license" \
-                "https://license.pingidentity.com/devops/v2/license" \
+                "${_licenseAPI}" \
                 --output "${LICENSE_FILE}"
             #
             # Just testing the http code isn't sufficient, curl will return http 200 if it
@@ -49,6 +72,7 @@ else
             rc=${?}
             if test ${rc} -eq 0
             then
+                echo ""
                 echo "Successfully pulled evaluation license from Ping Identity"
                 test "${PING_DEBUG}" = "true" && cat_indent "${LICENSE_FILE}"
                 echo ""
@@ -63,9 +87,12 @@ else
 
                 licenseFound="true"
             else
-                _licenseError=$( jq -r ".error" "${LICENSE_FILE}")
+                _licenseError=$( jq -r ".error" "${LICENSE_FILE}" 2> /dev/null)
 
-                test "${_licenseError}" = "null" && _licenseError="Unknown error (${rc}).  Please contact devops_program@pingidentity.com with this log."
+                if test -z "${_licenseError}" || "${_licenseError}" = "null"
+                then
+                    _licenseError="Error (${_httpResultCode}).  Please contact devops_program@pingidentity.com with this log."
+                fi
 
                 echo ""
                 echo "Unable to download evaluation license:"
@@ -87,7 +114,7 @@ then
 ##################################################################################
 #
 # No Ping Identity License File (${LICENSE_FILE_NAME}) was found in the server profile.
-# No Ping Identity DevOps evaluateion license downloaded.
+# No Ping Identity DevOps evaluation license downloaded.
 #
 #
 # More info on obtaining your DevOps User and Key can be found at:

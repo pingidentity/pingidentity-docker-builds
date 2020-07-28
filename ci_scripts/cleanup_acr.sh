@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+# Ping Identity DevOps - CI scripts
+#
+# This script cleans up the Azure Container Registry (acr)
+#
 test -n "${VERBOSE}" && set -x
 
 if test -z "${CI_COMMIT_REF_NAME}"
@@ -11,7 +16,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
 while read -r _registry
-do 
+do
     for _product in apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingdirectoryproxy pingdownloader pingfederate pingtoolkit
     do
         while read -r _sha

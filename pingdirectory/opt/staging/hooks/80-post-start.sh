@@ -14,9 +14,9 @@ test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib
 
 #
 #- * Ensures the PingDirectory service has been started an accepts queries.
-# 
-echo "Waiting until PingDirectory service is running on this Server (${_podInstanceName})"
-echo "        ${_podHostname}:${_podLdapsPort}"
+#
+echo "Waiting until PingDirectory service is running on this Server (${_podInstanceName:?})"
+echo "        ${_podHostname:?}:${_podLdapsPort:?}"
 waitUntilLdapUp "${_podHostname}" "${_podLdapsPort}" ""
 
 #
@@ -47,8 +47,8 @@ fi
 #
 #- * Ensure the Seed Server is accepting queries
 #
-echo "Running ldapsearch test on SEED Server (${_seedInstanceName})"
-echo "        ${_seedHostname}:${_seedLdapsPort}"
+echo "Running ldapsearch test on SEED Server (${_seedInstanceName:?})"
+echo "        ${_seedHostname:?}:${_seedLdapsPort:?}"
 waitUntilLdapUp "${_seedHostname}" "${_seedLdapsPort}" ""
 
 #
@@ -60,12 +60,12 @@ manage-topology export \
     --hostname "${_seedHostname}" \
     --port "${_seedLdapsPort}" \
     --exportFilePath "${_priorTopoFile}"
-_priorNumInstances=$(cat ${_priorTopoFile} | jq ".serverInstances | length")
+_priorNumInstances=$(jq ".serverInstances | length" "${_priorTopoFile}" )
 
 #
 #- * If this server is already in prior topology, then replication is already enable
 #
-if test ! -z $(cat ${_priorTopoFile} | jq -r ".serverInstances[] | select(.instanceName==\"${_podInstanceName}\") | .instanceName"); then
+if test ! -z "$(jq -r ".serverInstances[] | select(.instanceName==\"${_podInstanceName}\") | .instanceName" "${_priorTopoFile}")"; then
     echo "This instance (${_podInstanceName}) is already found in topology --> No need to enable replication"
     dsreplication status --displayServerTable --showAll
     exit 0
@@ -87,7 +87,7 @@ fi
 _masterTopologyInstance=$(ldapsearch --hostname "${_seedHostname}" --port "${_seedLdapsPort}" --terse --outputFormat json -b "cn=Mirrored subtree manager for base DN cn_Topology_cn_config,cn=monitor" -s base objectclass=* master-instance-name | jq -r .attributes[].values[])
 _masterTopologyHostname="${_seedHostname}"
 _masterTopologyLdapsPort="${_seedLdapsPort}"
-_masterTopologyReplicationPort="${_seedReplicationPort}"
+_masterTopologyReplicationPort="${_seedReplicationPort:?}"
 
 
 #
@@ -103,10 +103,10 @@ else
         _masterTopologyReplicationPort="${_seedReplicationPort}"
     else
         echo "Topology master instance (${_masterTopologyInstance}) isn't seed instance (${_seedInstanceName})"
-        
-        _masterTopologyHostname=$(cat ${_priorTopoFile} | jq -r ".serverInstances[] | select(.instanceName==\"${_masterTopologyInstance}\") | .hostname")
-        _masterTopologyLdapsPort=$(cat ${_priorTopoFile} | jq ".serverInstances[] | select(.instanceName==\"${_masterTopologyInstance}\") | .ldapsPort")
-        _masterTopologyReplicationPort=$(cat ${_priorTopoFile} | jq ".serverInstances[] | select(.instanceName==\"${_masterTopologyInstance}\") | .replicationPort")
+
+        _masterTopologyHostname=$(jq -r ".serverInstances[] | select(.instanceName==\"${_masterTopologyInstance}\") | .hostname" "${_priorTopoFile}")
+        _masterTopologyLdapsPort=$(jq ".serverInstances[] | select(.instanceName==\"${_masterTopologyInstance}\") | .ldapsPort" "${_priorTopoFile}")
+        _masterTopologyReplicationPort=$(jq ".serverInstances[] | select(.instanceName==\"${_masterTopologyInstance}\") | .replicationPort" "${_priorTopoFile}")
     fi
 fi
 
@@ -123,22 +123,27 @@ printf "
 #   %60s        %-60s
 #   %60s  <-->  %-60s
 #############################################
-" "Topology Master Server" "POD Server" "${_masterTopologyHostname}:${_masterTopologyReplicationPort}" "${_podHostname}:${_podReplicationPort}"
+" "Topology Master Server" "POD Server" "${_masterTopologyHostname}:${_masterTopologyReplicationPort}" "${_podHostname}:${_podReplicationPort:?}"
 
 dsreplication enable \
       --retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS} \
       --trustAll \
       --host1 "${_masterTopologyHostname}" \
-      --port1 ${_masterTopologyLdapsPort} --useSSL1 \
+      --port1 "${_masterTopologyLdapsPort}" \
+      --useSSL1 \
       --replicationPort1 "${_masterTopologyReplicationPort}" \
-      --bindDN1 "${ROOT_USER_DN}" --bindPasswordFile1 "${ROOT_USER_PASSWORD_FILE}" \
+      --bindDN1 "${ROOT_USER_DN}" \
+      --bindPasswordFile1 "${ROOT_USER_PASSWORD_FILE}" \
       \
       --host2 "${_podHostname}" \
-      --port2 ${_podLdapsPort} --useSSL2 \
+      --port2 ${_podLdapsPort} \
+      --useSSL2 \
       --replicationPort2 "${_podReplicationPort}" \
-      --bindDN2 "${ROOT_USER_DN}" --bindPasswordFile2 "${ROOT_USER_PASSWORD_FILE}" \
+      --bindDN2 "${ROOT_USER_DN}" \
+      --bindPasswordFile2 "${ROOT_USER_PASSWORD_FILE}" \
       \
-      --adminUID "${ADMIN_USER_NAME}" --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
+      --adminUID "${ADMIN_USER_NAME}" \
+      --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
       --no-prompt --ignoreWarnings \
       --baseDN "${USER_BASE_DN}" \
       --noSchemaReplication \
@@ -169,12 +174,12 @@ cat "${TOPOLOGY_FILE}"
 #
 echo "Initializing replication on POD Server"
 dsreplication initialize \
-      --retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS} \
+      --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
       --trustAll \
       \
       --topologyFilePath "${TOPOLOGY_FILE}" \
       \
-      --hostDestination "${_podHostname}" --portDestination ${_podLdapsPort} --useSSLDestination \
+      --hostDestination "${_podHostname}" --portDestination "${_podLdapsPort}" --useSSLDestination \
       \
       --baseDN "${USER_BASE_DN}" \
       --adminUID "${ADMIN_USER_NAME}" \
@@ -187,6 +192,6 @@ _replInitResult=$?
 echo "Replication initialize result=${_replInitResult}"
 
 test ${_replInitResult} -eq 0 && dsreplication status --displayServerTable --showAll
-    
+
 exit ${_replInitResult}
 

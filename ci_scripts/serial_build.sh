@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+#
+# Ping Identity DevOps - CI scripts
+#
+# This build a set of images running through the steps of:
+#
+#     cleanup_docker.sh   - Cleaning up a docker environment
+#     build_downloader.sh - Build the Ping Downloader Image
+#     build_foundation.sh - Build the foundation images (pingbase, pingcommon, ...)
+#     build_product.sh    - Build the product image itself
+#
 test -n "${VERBOSE}" && set -x
 #
 # Usage printing function
@@ -97,8 +107,8 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
 "${CI_SCRIPTS_DIR}/cleanup_docker.sh" full
-"${CI_SCRIPTS_DIR}/build_downloader.sh" 
-"${CI_SCRIPTS_DIR}/build_foundation.sh" 
+"${CI_SCRIPTS_DIR}/build_downloader.sh"
+"${CI_SCRIPTS_DIR}/build_foundation.sh"
 
 test -z "${_products}" && _products="apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingdirectoryproxy pingdelegator pingfederate pingtoolkit"
 
