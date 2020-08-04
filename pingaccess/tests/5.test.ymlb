@@ -7,7 +7,7 @@ services:
     environment:
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_PATH=ci-tests/pa-h2-2FedM0re
-      - PA_ADMIN_PASSWORD=2FederateM0re
+      - PING_IDENTITY_PASSWORD=2FederateM0re
     
     # default stuff
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}

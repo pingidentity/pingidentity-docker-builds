@@ -18,7 +18,7 @@ _pwCheckInitial=$(
 # echo "${_pwCheckInitial}"
 if test "${_pwCheckInitial}" != "200"
 then
-    die_on_error 83 "Bad password - check vars PA_ADMIN_PASSWORD PA_ADMIN_PASSWORD_INITIAL" || exit ${?}
+    die_on_error 83 "Bad password - check vars PING_IDENTITY_PASSWORD PA_ADMIN_PASSWORD_INITIAL" || exit ${?}
 fi
 
 # Quiesce the license acceptance screen

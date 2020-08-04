@@ -22,16 +22,16 @@ echo_yellow "https://pingidentity-devops.gitbook.io/devops/config/containeranato
 echo "INFO: begin importing data.."
 
 # # to Test an import call from the container you can use: 
-# curl -k -v -X POST -u "Administrator:${PA_ADMIN_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
+# curl -k -v -X POST -u "Administrator:${PING_IDENTITY_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
 #   -d @${STAGING_DIR}/instance/data/data.json \
 #   https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import
 
 # to check on the status of an import use: 
-# curl -k -v -X GET -u "Administrator:${PA_ADMIN_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
+# curl -k -v -X GET -u "Administrator:${PING_IDENTITY_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
 #   https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows/1
 if test -f "${STAGING_DIR}/instance/data/data.json"
 then
-    # curl -ks -X POST -u "Administrator:${PA_ADMIN_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
+    # curl -ks -X POST -u "Administrator:${PING_IDENTITY_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
     # -d @${STAGING_DIR}/instance/data/data.json \
     # https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows > /dev/null
     _out="/tmp/import.request.out"
@@ -41,7 +41,7 @@ then
             --silent \
             --write-out '%{http_code}' \
             --request POST \
-            --user "${ROOT_USER}:${PA_ADMIN_PASSWORD}" \
+            --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
             --header "Content-Type: application/json" \
             --header "X-Xsrf-Header: PingAccess" \
             --data @${STAGING_DIR}/instance/data/data.json \
@@ -68,7 +68,7 @@ then
                 --silent \
                 --write-out '%{http_code}' \
                 --request GET \
-                --user "${ROOT_USER}:${PA_ADMIN_PASSWORD}" \
+                --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
                 --header "Content-Type: application/json" \
                 --header "X-Xsrf-Header: PingAccess" \
                 --output ${_out} \
