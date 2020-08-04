@@ -66,10 +66,10 @@ ENV PF_ENGINE_PUBLIC_PORT=9031
 ENV PF_DELEGATOR_CLIENTID=dadmin
 
 #-- The hostname for the DS instance the app will be interfacing with.
-ENV PD_ENGINE_PRIVATE_HOSTNAME=localhost
+ENV PD_ENGINE_PUBLIC_HOSTNAME=localhost
 
 #-- The HTTPS port for the DS instance the app will be interfacing with.
-ENV PD_ENGINE_PRIVATE_PORT=1443
+ENV PD_ENGINE_PUBLIC_PORT=1443
 
 #-- The length of time (in minutes) until the session will require a new login attempt
 ENV PD_DELEGATOR_TIMEOUT_LENGTH_MINS=30
