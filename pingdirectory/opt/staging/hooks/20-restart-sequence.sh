@@ -15,8 +15,26 @@ ${VERBOSE} && set -x
 
 echo "Restarting container"
 
+#
+# Generate the jvm options
+#
+jvmOptions=$( getJvmOptions )
+_returnCode=${?}
+if test ${_returnCode} -ne 0 ; then
+    echo_red "${jvmOptions}"
+    container_failure 183 "Invalid JVM options"
+fi
+
+# Before running any ds tools, remove java.properties and re-create it
+# for the current JVM.
+echo "Re-generating java.properties for current JVM"
+# re-initialize the current java.properties.  a backup in same location will be created.
+${SERVER_ROOT_DIR}/bin/dsjavaproperties --initialize ${jvmOptions}
+
 # if this hook is provided it can be executed early on
 run_hook "21-update-server-profile.sh"
+
+echo_green "----- Resuming hook: ${0}"
 
 certificateOptions=$( getCertificateOptions )
 _returnCode=${?}
@@ -32,19 +50,6 @@ fi
 # pd.profile if they aren't already set.  This implies that
 # the server used those keystore/trustore files initially to
 # setup the server
-
-# on-setup ---- generate-certificate ==> /opt/out/instance/config/keystore
-
-# on-restart
-# 1. Do they have a CERT_FILE defined?
-#    - yes conintue
-#    - no --> CERT_FILE=/opt/out/instance/config/keystore
-# 2. Is there a CERT in that location?
-#    - yes
-#       - does ${SECRETS_DIR}/file exists? (came in through vault or secrets management)
-#       - yes - do nothing
-#       - no  - cp CERT_FILE --> ${SECRETS_DIR}/file
-#    - no
 echo "Copying existing certificate files from existing install..."
 for _certFile in keystore keystore.p12 truststore truststore.p12 ; do
     echo "  Checking for certificate ${_certFile}..."
@@ -96,21 +101,12 @@ if test ${_returnCode} -ne 0 ; then
     container_failure 183 "Invalid encryption option"
 fi
 
-#
-# Generate the jvm options
-#
-jvmOptions=$( getJvmOptions )
-_returnCode=${?}
-if test ${_returnCode} -ne 0 ; then
-    echo_red "${jvmOptions}"
-    container_failure 183 "Invalid JVM options"
-fi
-
 export certificateOptions encryptionOption jvmOptions
 
 echo "Checking license file..."
 _currentLicense="${LICENSE_DIR}/${LICENSE_FILE_NAME}"
 _pdProfileLicense="${PD_PROFILE}/server-root/pre-setup/${LICENSE_FILE_NAME}"
+
 if test ! -f "${_pdProfileLicense}" ; then
     echo "  Copying in license from existing install."
     echo "    ${_currentLicense} ==> "
