@@ -201,9 +201,7 @@ getJvmOptions ()
             MAX_HEAP_SIZE="768m"
         fi
     fi
-    if ! test "${MAX_HEAP_SIZE}" = "AUTO" ; then
-        jvmOptions="--maxHeapSize ${MAX_HEAP_SIZE}"
-    fi
+
     case "${JVM_TUNING}" in
         NONE|AGGRESSIVE|SEMI_AGGRESSIVE)
             jvmOptions="${jvmOptions} --jvmTuningParameter ${JVM_TUNING}"
@@ -215,9 +213,17 @@ getJvmOptions ()
             exit 75
             ;;
     esac
-    if test origMaxHeapSize != ""; then
+
+    # If the original MAX_HEAP_SIZE was set, then it must have been manually set
+    # ensure that it is maintained
+    if test -n "${origMaxHeapSize}"; then
         MAX_HEAP_SIZE=${origMaxHeapSize}
     fi
+
+    if test -n "${MAX_HEAP_SIZE}" && ! test "${MAX_HEAP_SIZE}" = "AUTO" ; then
+        jvmOptions="${jvmOptions} --maxHeapSize ${MAX_HEAP_SIZE}"
+    fi
+
     echo "${jvmOptions}"
 }
 
