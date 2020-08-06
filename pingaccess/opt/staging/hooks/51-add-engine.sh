@@ -74,7 +74,7 @@ then
         curl \
             --insecure \
             --request POST \
-            --user "${ROOT_USER}:${PA_ADMIN_PASSWORD}" \
+            --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
             --header "X-Xsrf-Header: PingAccess" \
             --data '{"name":"'"${host}"'", "selectedCertificateId": "'"${certid}"'"}' \
             https://${pahost}:${PA_ADMIN_PORT}/pa-admin-api/v3/engines | jq '.id' )
@@ -84,7 +84,7 @@ then
     curl \
         --insecure \
         --request POST \
-        --user "${ROOT_USER}:${PA_ADMIN_PASSWORD}" \
+        --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
         --header "X-Xsrf-Header: PingAccess" \
         --output /tmp/engine-config.zip \
         https://${pahost}:${PA_ADMIN_PORT}/pa-admin-api/v3/engines/${engineid}/config

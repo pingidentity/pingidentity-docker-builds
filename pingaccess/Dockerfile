@@ -54,11 +54,11 @@ ENV LICENSE_DIR="${SERVER_ROOT_DIR}/conf"
 ENV LICENSE_FILE_NAME=pingaccess.lic
 ENV LICENSE_SHORT_NAME=PA
 ENV LICENSE_VERSION=${LICENSE_VERSION}
+ENV PA_ADMIN_PASSWORD="${INITIAL_ADMIN_PASSWORD}"
 #-- Specify a password for administrator user for interaction with admin API
-ENV PA_ADMIN_PASSWORD="${INITIAL_ADMIN_PASSWORD:-2FederateM0re}"
-ENV PING_IDENTITY_PASSWORD=${PA_ADMIN_PASSWORD}
+ENV PING_IDENTITY_PASSWORD=${PA_ADMIN_PASSWORD:-2FederateM0re}
 ENV OPERATIONAL_MODE="STANDALONE"
-#-- Change **non-default** password at startup by including this and PA_ADMIN_PASSWORD
+#-- Change **non-default** password at startup by including this and PING_IDENTITY_PASSWORD
 ENV PA_ADMIN_PASSWORD_INITIAL="2Access"
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/pingaccess.log

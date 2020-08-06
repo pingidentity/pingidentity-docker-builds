@@ -19,7 +19,7 @@ services:
       - OPERATIONAL_MODE=CLUSTERED_CONSOLE
       - PA_CONSOLE_HOST=pingaccess  
       - PA_ENGINE_PUBLIC_HOSTNAME=pingaccess-engine
-      - PA_ADMIN_PASSWORD=S0me_P@ssw0rd
+      - PING_IDENTITY_PASSWORD=S0me_P@ssw0rd
       - PA_ADMIN_PASSWORD_INITIAL=2FederateM0re
       ## default stuff
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
@@ -45,7 +45,7 @@ services:
       - SERVER_PROFILE_PATH=pa-clustering/pingaccess
       - OPERATIONAL_MODE=CLUSTERED_ENGINE
       - PA_CONSOLE_HOST=pingaccess
-      - PA_ADMIN_PASSWORD=S0me_P@ssw0rd
+      - PING_IDENTITY_PASSWORD=S0me_P@ssw0rd
       ## default stuff
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
