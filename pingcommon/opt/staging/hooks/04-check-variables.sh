@@ -12,6 +12,9 @@
 
 #######################################################################################################
 
+# warn about any UNSAFE_ variables
+warn_unsafe_variables
+
 #
 # Flag used to track any validation errors (set by the echo_vars below).  If errors are found, then this
 # flag will be set to true and later a message and exit will occur.

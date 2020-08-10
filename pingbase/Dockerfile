@@ -76,6 +76,9 @@ ONBUILD ENV SECURITY_CHECKS_STRICT=false
 #-- Perform a check for filenames that may violate security (i.e. secret material)
 ONBUILD ENV SECURITY_CHECKS_FILENAME="*.jwk *.pin"
 
+#-- If this is set to true, then the container will provide a hard warning and continue.
+ONBUILD ENV UNSAFE_CONTINUE_ON_ERROR=""
+
 #-- License directory and filename
 ONBUILD ENV LICENSE_DIR="${SERVER_ROOT_DIR}"
 #-- The command that the entrypoint will execute in the foreground to
