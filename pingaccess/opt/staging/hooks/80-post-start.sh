@@ -8,7 +8,7 @@
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-if test -z "${OPERATIONAL_MODE}" || test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" || test "${OPERATIONAL_MODE}" = "STANDALONE" 
+if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" || test "${OPERATIONAL_MODE}" = "STANDALONE"
 then
     echo "INFO: waiting for PingAccess to start before importing configuration"
     wait-for localhost:${PA_ADMIN_PORT} -t 200 -- echo PingAccess is up

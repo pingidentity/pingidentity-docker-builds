@@ -4,7 +4,6 @@
 
 test -n "${INITIAL_ADMIN_PASSWORD}" && echo_yellow "WARNING: INITIAL_ADMIN_PASSWORD is deprecated, use PING_IDENTITY_PASSWORD"
 test -n "${PA_ADMIN_PASSWORD}" && echo_yellow "WARNING: PA_ADMIN_PASSWORD is deprecated, use PING_IDENTITY_PASSWORD"
-PASSWORD=${PING_IDENTITY_PASSWORD:-${PA_ADMIN_PASSWORD:-INITIAL_ADMIN_PASSWORD}}
 
 # Make an attempt to authenticate with the provided expected administrator password
 _pwCheck=$( 
@@ -14,7 +13,7 @@ _pwCheck=$(
         --write-out '%{http_code}' \
         --output /dev/null \
         --request GET \
-        --user "${ROOT_USER}:${PASSWORD}" \
+        --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
         -H "X-Xsrf-Header: PingAccess" \
         https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1 \
         2>/dev/null

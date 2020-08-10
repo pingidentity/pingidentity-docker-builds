@@ -41,23 +41,26 @@ then
     die_on_error 83 "Could not accept license" || exit ${?}
 fi
 
-echo "INFO: changing admin password"
-PASSWORD=${PING_IDENTITY_PASSWORD:-${PA_ADMIN_PASSWORD:-${INITIAL_ADMIN_PASSWORD}}}
-_pwChange=$(
-    curl \
-        --insecure \
-        --silent \
-        --write-out '%{http_code}' \
-        --output /dev/null \
-        --request PUT \
-        --user "${ROOT_USER}:${PA_ADMIN_PASSWORD_INITIAL}" \
-        --header "X-Xsrf-Header: PingAccess" \
-        --data '{"currentPassword": "'"${PA_ADMIN_PASSWORD_INITIAL}"'","newPassword": "'"${PASSWORD}"'"}' \
-        https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1/password \
-        2>/dev/null
-    )
-
-if test "${_pwChange}" != "200"
+#Only change password if PING_IDENTITY_PASSWORD is supplied
+if test -n "${PING_IDENTITY_PASSWORD}"
 then
-    die_on_error 83 "Password not accepted" || exit ${?}
+    echo "INFO: changing admin password"
+    _pwChange=$(
+        curl \
+            --insecure \
+            --silent \
+            --write-out '%{http_code}' \
+            --output /dev/null \
+            --request PUT \
+            --user "${ROOT_USER}:${PA_ADMIN_PASSWORD_INITIAL}" \
+            --header "X-Xsrf-Header: PingAccess" \
+            --data '{"currentPassword": "'"${PA_ADMIN_PASSWORD_INITIAL}"'","newPassword": "'"${PING_IDENTITY_PASSWORD}"'"}' \
+            https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1/password \
+            2>/dev/null
+        )
+
+    if test "${_pwChange}" != "200"
+    then
+        die_on_error 83 "Password not accepted" || exit ${?}
+    fi
 fi

@@ -29,6 +29,9 @@ echo "INFO: begin importing data.."
 # to check on the status of an import use: 
 # curl -k -v -X GET -u "Administrator:${PING_IDENTITY_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
 #   https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows/1
+
+_password=${PING_IDENTITY_PASSWORD:-PA_ADMIN_PASSWORD_INITIAL}
+
 if test -f "${STAGING_DIR}/instance/data/data.json"
 then
     # curl -ks -X POST -u "Administrator:${PING_IDENTITY_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
@@ -41,7 +44,7 @@ then
             --silent \
             --write-out '%{http_code}' \
             --request POST \
-            --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
+            --user "${ROOT_USER}:${_password}" \
             --header "Content-Type: application/json" \
             --header "X-Xsrf-Header: PingAccess" \
             --data @${STAGING_DIR}/instance/data/data.json \
@@ -68,7 +71,7 @@ then
                 --silent \
                 --write-out '%{http_code}' \
                 --request GET \
-                --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
+                --user "${ROOT_USER}:${_password}" \
                 --header "Content-Type: application/json" \
                 --header "X-Xsrf-Header: PingAccess" \
                 --output ${_out} \
