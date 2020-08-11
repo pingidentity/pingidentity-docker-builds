@@ -1,13 +1,13 @@
 #!/usr/bin/env sh
 
-if test -z "${OPERATIONAL_MODE}" || test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" || test "${OPERATIONAL_MODE}" = "STANDALONE"
+if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" || test "${OPERATIONAL_MODE}" = "STANDALONE"
 then
     if test -f "${STAGING_DIR}/instance/data/data.json" && test -f "${STAGING_DIR}/instance/conf/pa.jwk"
-    then 
+    then
         curl \
             --insecure \
             --silent \
-            --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
+            --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD:-PA_ADMIN_PASSWORD_INITIAL}" \
             --header "Content-Type: application/json" \
             --header "X-Xsrf-Header: PingAccess" \
             https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows | jq '.items[-1].status' | grep "Complete"

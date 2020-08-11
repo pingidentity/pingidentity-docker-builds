@@ -15,19 +15,20 @@
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 _out=/tmp/pa.api.request.out
+pahost=${PA_CONSOLE_HOST}
+_password=${PING_IDENTITY_PASSWORD:-PA_ADMIN_PASSWORD_INITIAL}
 
 _pa_curl ()
 {
      _curl \
         --insecure \
-        --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
+        --user "${ROOT_USER}:${_password}" \
         --header "X-Xsrf-Header: PingAccess" \
         --output ${_out} \
         "${@}"
     return ${?}
 }
 
-pahost=${PA_CONSOLE_HOST}
 if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGINE"
 then
     echo "This node is an engine..."
@@ -74,7 +75,7 @@ then
         curl \
             --insecure \
             --request POST \
-            --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
+            --user "${ROOT_USER}:${_password}" \
             --header "X-Xsrf-Header: PingAccess" \
             --data '{"name":"'"${host}"'", "selectedCertificateId": "'"${certid}"'"}' \
             https://${pahost}:${PA_ADMIN_PORT}/pa-admin-api/v3/engines | jq '.id' )
@@ -84,7 +85,7 @@ then
     curl \
         --insecure \
         --request POST \
-        --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
+        --user "${ROOT_USER}:${_password}" \
         --header "X-Xsrf-Header: PingAccess" \
         --output /tmp/engine-config.zip \
         https://${pahost}:${PA_ADMIN_PORT}/pa-admin-api/v3/engines/${engineid}/config
