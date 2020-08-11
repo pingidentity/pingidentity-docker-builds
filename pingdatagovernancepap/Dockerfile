@@ -64,8 +64,12 @@ ENV STARTUP_FOREGROUND_OPTS="--nodetach"
 #-- has been started with replication enabled
 ENV STARTUP_BACKGROUND_OPTS=""
 
+ENV TAIL_LOG_PARALLEL="y"
 #-- Files tailed once container has started
-ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/datagovernance-pap.log"
+ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/datagovernance-pap.log \
+  ${SERVER_ROOT_DIR}/logs/setup.log \
+  ${SERVER_ROOT_DIR}/logs/start-server.log \
+  ${SERVER_ROOT_DIR}/logs/stop-server.log"
 
 #-- Hostname used for the REST API
 ENV REST_API_HOSTNAME="localhost"
