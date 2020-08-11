@@ -7,6 +7,9 @@
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 
+# warn about any UNSAFE_ variables
+warn_unsafe_variables
+
 echo_header "Container User/Group Info"
 echo_vars PING_CONTAINER_PRIVILEGED PING_CONTAINER_UID PING_CONTAINER_GID PING_CONTAINER_UNAME PING_CONTAINER_GNAME
 

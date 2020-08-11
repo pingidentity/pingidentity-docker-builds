@@ -211,10 +211,25 @@ container_failure ()
 {
     _exitCode=${1} && shift
 
-    echo_red "CONTAINER FAILURE: $*"
-
-    # shellcheck disable=SC2086
-    exit ${_exitCode}
+    if test "$(toLower "${UNSAFE_CONTINUE_ON_ERROR}")" = "true"; then
+        echo_red "################################################################################"
+        echo_red "################################### WARNING ####################################"
+        echo_red "################################################################################"
+        echo_red "#  ERROR (${_exitCode}): $*"
+        echo_red "################################################################################"
+        echo_red "#"
+        echo_red "#  Container would normally fail at this point, however the   "
+        echo_red "#  variable UNSAFE_CONTINUE_ON_ERROR is set to '${UNSAFE_CONTINUE_ON_ERROR}'"
+        echo_red "#"
+        echo_red "#  Container will continue with unknown potential side-effects"
+        echo_red "#  and consequences!!!"
+        echo_red "#"
+        echo_red "################################################################################"
+    else
+        echo_red "CONTAINER FAILURE: $*"
+        # shellcheck disable=SC2086
+        exit ${_exitCode}
+    fi
 }
 
 ###############################################################################
@@ -476,6 +491,36 @@ echo_vars ()
       fi
     fi
   done
+}
+
+###############################################################################
+# warn_unsafe_variables ()
+#
+# Provide hard warning about any varialbes starting with UNSAFE_
+###############################################################################
+warn_unsafe_variables ()
+{
+
+_unsafeValues="$(env | grep "^UNSAFE_" | awk -F'=' '{ print $2 }')"
+
+if test -n "${_unsafeValues}"; then
+    echo_red "################################################################################"
+    echo_red "######################### WARNING - UNSAFE_ VARIABLES ##########################"
+    echo_red "################################################################################"
+    echo_red "#  The following UNSAFE variables are used.  Be aware of unintended consequences"
+    echo_red "#  as it is considered unsafe to continue, especially in production deployments."
+    echo_red ""
+
+    for _unsafeVar in $(env | grep "^UNSAFE_" | sort | awk -F'=' '{ print $1 }') ; do
+        _unsafeValue=$( get_value "${_unsafeVar}" )
+
+        test -n "${_unsafeValue}" && echo_vars "${_unsafeVar}"
+    done
+
+    echo_red ""
+    echo_red "################################################################################"
+    echo_red ""
+fi
 }
 
 ###############################################################################
