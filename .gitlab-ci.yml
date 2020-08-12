@@ -74,8 +74,8 @@ f.pingdownloader:
 d.pingdownloader:
   stage: deploy
   script:
-    - docker pull gcr.io/ping-gte/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}
-    - while read -r _registry ; do docker tag gcr.io/ping-gte/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA} ${_registry}/pingdownloader ; docker push ${_registry}/pingdownloader ; done < registry.list
+    - docker pull gcr.io/ping-identity/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}
+    - while read -r _registry ; do docker tag gcr.io/ping-identity/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA} ${_registry}/pingdownloader ; docker push ${_registry}/pingdownloader ; done < registry.list
   only:
     refs:
       - master
