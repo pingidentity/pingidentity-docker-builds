@@ -1,6 +1,6 @@
 {
-    "defaultURL": "https://s3.amazonaws.com/gte-bits-repo/",
-    "gpg" :{
+    "defaultURL": "https://bits.pingidentity.com/",
+    "gpg": {
         "server": "pgpkeys.mit.edu",
         "key": "F98F0E3F",
         "file": "signing-key-public.gpg"
@@ -9,7 +9,7 @@
         {
             "name": "delegator",
             "mapping": "pingdirectory-delegator-${version}.zip",
-            "latestVersion": "4.2.0"
+            "latestVersion": "4.2.1"
         },
         {
             "name": "ldapsdk",
