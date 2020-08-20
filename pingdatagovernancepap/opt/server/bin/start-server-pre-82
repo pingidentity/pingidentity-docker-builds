@@ -18,6 +18,7 @@ test -n "${VERBOSE}" && set -x
 isProcessRunning ()
 {
     # the original ps -p does not work on Busybox
+    ps -la
     ps|awk 'BEGIN{x=1}$1~/^'${1}'$/{x=0}END{exit x}'
     return ${?}
 }
@@ -63,19 +64,6 @@ cd "$APP_HOME" >/dev/null || exit 1
 
 PAP_APP_NAME=admin-point-application
 PAP_PID_FILE="${PAP_APP_NAME}/run/${PAP_APP_NAME}.pid"
-
-# Check if an existing PID file indicates that the server has already started
-if test -f "${PAP_PID_FILE}" \
-    && test -s "${PAP_PID_FILE}" \
-    && test -r "${PAP_PID_FILE}" \
-    && isProcessRunning "$( cat "${PAP_PID_FILE}" )" ; 
-then
-    # Avoid long lines in code by breaking up the PID message
-    PID_MSG="The server appears to still be running. If this is not the case,"
-    PID_MSG="${PID_MSG} please remove the ${PAP_PID_FILE} file and try again."
-    echo "${PID_MSG}"
-    exit 4
-fi
 
 if test -n "${1}" && test "${1}" = "--nodetach" ;
 then
