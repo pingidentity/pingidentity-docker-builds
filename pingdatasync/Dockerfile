@@ -1,5 +1,5 @@
 #- # Ping Identity DevOps Docker Image - `pingdatasync`
-#- 
+#-
 #- This docker image includes the Ping Identity PingDataSync product binaries
 #- and associated hook scripts to create and run a PingDataSync instance.
 #-
@@ -55,7 +55,11 @@ ENV LICENSE_VERSION=${LICENSE_VERSION}
 ENV PING_PRODUCT=PingDataSync
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
 ENV STARTUP_FOREGROUND_OPTS="--nodetach"
-ENV ROOT_USER_PASSWORD_FILE="${SECRETS_DIR}/root-user-password"
+
+#-- Location of file with the root user password (i.e. cn=directory manager).
+#-- Defaults to the /SECRETS_DIR/root-user-password
+ENV ROOT_USER_PASSWORD_FILE=
+
 ENV PD_PROFILE="${STAGING_DIR}/pd.profile"
 
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT}

@@ -34,7 +34,7 @@ ${VERBOSE} && set -x
 # shellcheck source=pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-# shellcheck source=staging/hooks/pingstate.lib.sh
+# shellcheck source=pingstate.lib.sh
 . "${HOOKS_DIR}/pingstate.lib.sh"
 
 
@@ -142,10 +142,10 @@ serverProfileList=""
 
 # creates a spaced separated list of server profiles starting with the parent most
 # profile and moving down.
-while test -n "$( get_value ${serverProfileParent} )"
+while test -n "$( get_value "${serverProfileParent}" )"
 do
     # echo "Profile parent variable: ${serverProfileParent}"
-    serverProfileName=$( get_value ${serverProfileParent} )
+    serverProfileName=$( get_value "${serverProfileParent}" )
     serverProfileList="${serverProfileName}${serverProfileList:+ }${serverProfileList}"
     # echo "Profile parent value   : ${serverProfileName}"
     serverProfileParent=$( getParent )
@@ -161,15 +161,8 @@ done
 #Finally after all are processed, get the final top level SERVER_PROFILE
 getProfile ${serverProfilePrefix}
 
-# Add STAGING_DIR and SECRETS_DIR state information
+# Add STAGING_DIR state information
 add_state_info "${STAGING_DIR}"
-add_state_info "${SECRETS_DIR}"
-
-# Compare all the changes with previous/current state
-compare_state_info
-
-# Flash the current state with current date/time
-flash_state_info
 
 # GDO-200 - Try to encourage orchestration variables over env_vars
 _env_vars_file="${STAGING_DIR}/env_vars"

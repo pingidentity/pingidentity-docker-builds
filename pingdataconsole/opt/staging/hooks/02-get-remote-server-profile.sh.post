@@ -2,48 +2,64 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-#- This hook may be used to set the server if there is a setup procedure
-#
-#- >Note: The PingData (i.e. Directory, DataSync, DataGovernance, DirectoryProxy)
-#- products will all provide this
+#- This hook provides final steps to setup Ping Data Console.
 
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
+
+#
+# Following is provided to support existing implemetnations using legacy keystore locations
+_legacyKeystoreFile="${STAGING_DIR}/keystore"
+_legacyKeystorePinFile="${STAGING_DIR}/.sec/.keystore.pin"
+
+if test ! -d "${SECRETS_DIR}"; then
+    echo "WARNING: Important that the orchestration environment create a tmpfs for '${SECRETS_DIR}'"
+    echo "         Using 'tmp/secrets' for now."
+    SECRETS_DIR="/tmp/secrets"
+    mkdir -p "${SECRETS_DIR}"
+fi
 
 # Get the keystore and pin if they are provided
 if test -n "${KEYSTORE_FILE}"
 then
     if ! test -f "${KEYSTORE_FILE}"
     then
-        echo_red "**********"
-        echo_red "KEYSTORE_FILE value [${KEYSTORE_FILE}] is invalid: the specified file does not exist"
-        exit 75
+        container_failure 18 "KEYSTORE_FILE value [${KEYSTORE_FILE}] is invalid: the specified file does not exist"
     else
         _keystoreFile="${KEYSTORE_FILE}"
     fi
 else
-    _keystoreFile="${STAGING_DIR}/keystore"
+    if test -f "${_legacyKeystoreFile}" ; then
+        echo "WARNING: Using a legacy location for keystore '${_legacyKeystoreFile}'"
+        echo "         Consider moving to a vault secret location"
+        _keystoreFile="${_legacyKeystoreFile}"
+    else
+        _keystoreFile="${SECRETS_DIR}/keystore"
+    fi
 fi
 
 if test -n "${KEYSTORE_PIN_FILE}"
 then
     if ! test -f "${KEYSTORE_PIN_FILE}"
     then
-        echo_red "**********"
-        echo_red "KEYSTORE_PIN_FILE value [${KEYSTORE_PIN_FILE}] is invalid: the specified file does not exist"
-        exit 75
+        container_failure 18 "KEYSTORE_PIN_FILE value [${KEYSTORE_PIN_FILE}] is invalid: the specified file does not exist"
     else
         _keystorePinFile="${KEYSTORE_PIN_FILE}"
     fi
 else
-    _keystorePinFile="${SECRETS_DIR}/.keystore.pin"
+    if test -f "${_legacyKeystorePinFile}" ; then
+        echo "WARNING: Using a legacy location for keystore pin file '${_legacyKeystorePinFile}'"
+        echo "         Consider moving to a vault secret location"
+        _keystorePinFile="${_legacyKeystorePinFile}"
+    else
+        _keystorePinFile="${SECRETS_DIR}/keystore.pin"
+    fi
 fi
 
 if ! test -f "${_keystoreFile}"
 then
     if ! test -f "${_keystorePinFile}"
     then
-        mkdir -p "${SECRETS_DIR}"
         if test -n "${KEYSTORE_PIN}"
         then
             echo "${KEYSTORE_PIN}" > "${_keystorePinFile}"
@@ -66,8 +82,13 @@ fi
 
 if test -z "${KEYSTORE_PIN}"
 then
-    # shellcheck disable=SC2016
-    echo 'KEYSTORE_PIN=$( cat "'"${_keystorePinFile}"'")' >> "${CONTAINER_ENV}"
+    KEYSTORE_PIN=$( cat "${_keystorePinFile}" )
 fi
 
-echo "KEYSTORE_FILE=\"${_keystoreFile}\"" >> "${CONTAINER_ENV}"
+
+KEYSTORE_FILE="${_keystoreFile}"
+
+echo "Using KEYSTORE_FILE=${KEYSTORE_FILE}"
+echo "Using KEYSTORE_PIN_FILE=${_keystorePinFile}"
+
+export_container_env SECRETS_DIR KEYSTORE_PIN KEYSTORE_FILE

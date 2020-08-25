@@ -1,4 +1,4 @@
-version: "2"
+version: "2.4"
 
 services:
   sut:
@@ -29,4 +29,11 @@ services:
     mem_swappiness: 0
     volumes:
       - ./_s2-custom-non-root.test.sh:/tmp/test.sh
+    ################################################
+    # /run/secrets - tmpfs
+    ################################################
+      - type: tmpfs
+        target: /run/secrets
+        tmpfs:
+          size: 16m
     command: start-server /opt/wait-for localhost:1389 -t 300 -- /tmp/test.sh

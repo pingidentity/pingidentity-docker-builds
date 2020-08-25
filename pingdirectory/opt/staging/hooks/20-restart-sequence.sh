@@ -36,6 +36,11 @@ run_hook "21-update-server-profile.sh"
 
 echo_green "----- Resuming hook: ${0}"
 
+#
+# Build the password file options
+#
+buildPasswordFileOptions
+
 certificateOptions=$( getCertificateOptions )
 _returnCode=${?}
 if test ${_returnCode} -ne 0 ; then

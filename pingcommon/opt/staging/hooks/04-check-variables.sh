@@ -36,6 +36,11 @@ echo_vars   SERVER_PROFILE_URL SERVER_PROFILE_BRANCH SERVER_PROFILE_PATH SERVER_
 echo_header "Security Checks"
 echo_vars   SECRUITY_CHECKS_STRICT SECURITY_CHECKS_FILENAME
 
+if test -n "${VAULT_TYPE}"; then
+    echo_header "Vault/Secrets Management"
+    echo_vars VAULT_TYPE VAULT_ADDR VAULT_TOKEN
+fi
+
 echo_header "DevOps User/Key"
 echo_vars   PING_IDENTITY_DEVOPS_USER PING_IDENTITY_DEVOPS_KEY
 

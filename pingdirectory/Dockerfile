@@ -69,9 +69,10 @@ ENV STARTUP_FOREGROUND_OPTS="--nodetach"
 #-- has been started with replication enabled
 ENV STARTUP_BACKGROUND_OPTS=""
 
-ENV ROOT_USER_PASSWORD_FILE=${SECRETS_DIR}/root-user-password
-ENV ADMIN_USER_PASSWORD_FILE=${SECRETS_DIR}/admin-user-password
-ENV ENCRYPTION_PASSWORD_FILE=${SECRETS_DIR}/encryption-password
+ENV ROOT_USER_PASSWORD_FILE=
+ENV ADMIN_USER_PASSWORD_FILE=
+ENV ENCRYPTION_PASSWORD_FILE=
+
 #-- Files tailed once container has started
 ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access \
     ${SERVER_ROOT_DIR}/logs/errors \

@@ -1,7 +1,7 @@
 #- # Ping Identity DevOps Docker Image - `pingdirectoryproxy`
-#- 
+#-
 #- This docker image includes the Ping Identity PingDirectoryProxy product binaries
-#- and associated hook scripts to create and run a PingDirectoryProxy instance or 
+#- and associated hook scripts to create and run a PingDirectoryProxy instance or
 #- instances.
 #-
 #- ## Related Docker Images
@@ -67,9 +67,9 @@ ENV STARTUP_FOREGROUND_OPTS="--nodetach"
 #-- has been started with replication enabled
 ENV STARTUP_BACKGROUND_OPTS=""
 
-ENV ROOT_USER_PASSWORD_FILE=${SECRETS_DIR}/root-user-password
-ENV ADMIN_USER_PASSWORD_FILE=${SECRETS_DIR}/admin-user-password
-ENV ENCRYPTION_PASSWORD_FILE=${SECRETS_DIR}/encryption-password
+#-- Location of file with the root user password (i.e. cn=directory manager).
+#-- Defaults to the /SECRETS_DIR/root-user-password
+ENV ROOT_USER_PASSWORD_FILE=
 
 #-- Files tailed once container has started
 ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access \
@@ -88,7 +88,7 @@ COPY --from=final-staging ["/","/"]
 #- ## Running a PingDirectoryProxy container
 #-
 #- The easiest way to test test a simple standalone image of PingDirectoryProxy is to cut/paste the following command into a terminal on a machine with docker.
-#- 
+#-
 #- ```
 #-   docker run \
 #-            --name pingdirectoryproxy \
@@ -99,18 +99,18 @@ COPY --from=final-staging ["/","/"]
 #-            --env SERVER_PROFILE_PATH=getting-started/pingdirectoryproxy \
 #-           pingidentity/pingdirectoryproxy:edge
 #- ```
-#- 
+#-
 #- You can view the Docker logs with the command:
-#- 
+#-
 #- ```
 #-   docker logs -f pingdirectoryproxy
 #- ```
-#- 
+#-
 #- You should see the ouptut from a PingDirectoryProxy install and configuration, ending with a message the the PingDirectoryProxy has started.  After it starts, you will see some typical access logs.  Simply ``Ctrl-C`` afer to stop tailing the logs.
-#- 
+#-
 #- ## Running a sample 100/sec search rate test
 #- With the PingDirectoryProxy running from the pevious section, you can run a ``searchrate`` job that will send load to the directory at a rate if 100/sec using the following command.
-#- 
+#-
 #- ```
 #- docker exec -it pingdirectoryproxy \
 #-         /opt/out/instance/bin/searchrate \
@@ -121,35 +121,35 @@ COPY --from=final-staging ["/","/"]
 #-                 --numThreads 2 \
 #-                 --ratePerSecond 100
 #- ```
-#- 
+#-
 #- ## Connecting with an LDAP Client
 #- Connect an LDAP Client (such as Apache Directory Studio) to this container using the default ports and credentials
-#- 
+#-
 #- |                 |                                   |
 #- | --------------: | --------------------------------- |
 #- | LDAP Port       | 1389 (mapped to 389)              |
 #- | LDAP Base DN    | dc=example,dc=com                 |
 #- | Root Username   | cn=administrator                  |
 #- | Root Password   | 2FederateM0re                     |
-#- 
+#-
 #- ## Connection with a REST Client
 #- Connection a REST client from Postman or a browser using the default ports and credentials
-#- 
+#-
 #- |                 |                                   |
 #- | --------------: | --------------------------------- |
 #- | URL             | https://localhost:8443/scim/Users |
 #- | Username        | cn=administrator                  |
 #- | Password        | 2FederateM0re                     |
-#- 
+#-
 #- ## Stopping/Removing the container
 #- To stop the container:
-#- 
+#-
 #- ```
 #-   docker container stop pingdirectoryproxy
 #- ```
-#- 
+#-
 #- To remove the container:
-#- 
+#-
 #- ```
 #-   docker container rm -f pingdirectoryproxy
 #- ```

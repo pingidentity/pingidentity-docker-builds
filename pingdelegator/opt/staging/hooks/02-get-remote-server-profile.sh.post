@@ -3,42 +3,60 @@
 # Ping Identity DevOps - Docker Build Hooks
 #
 #- This hook may be used to set the server if there is a setup procedure
-# 
-#- >Note: The PingData (i.e. Directory, DataSync, DataGovernance, DirectoryProxy) 
+#
+#- >Note: The PingData (i.e. Directory, DataSync, DataGovernance, DirectoryProxy)
 #- products will all provide this
 
 # shellcheck source=pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-mkdir -p "${SECRETS_DIR}"
+#
+# Following is provided to support existing implemetnations using legacy certificate locations
+_legacyCertificateFile="${STAGING_DIR}/.sec/nginx.crt"
+_legacyCertificateKeyFile="${STAGING_DIR}/.sec/nginx.key"
+
+if test ! -d "${SECRETS_DIR}"; then
+    echo "WARNING: Important that the orchestration environment create a tmpfs for '${SECRETS_DIR}'"
+    echo "         Using 'tmp/secrets' for now."
+    SECRETS_DIR="/tmp/secrets"
+    mkdir -p "${SECRETS_DIR}"
+fi
 
 # Get the certificate and key if they are provided
 if test -n "${CERTIFICATE_FILE}"
 then
     if ! test -f "${CERTIFICATE_FILE}"
     then
-        echo_red "**********"
-        echo_red "CERTIFICATE_FILE value [${CERTIFICATE_FILE}] is invalid: the specified file does not exist"
-        exit 75
+        container_failure 2 "CERTIFICATE_FILE value [${CERTIFICATE_FILE}] is invalid: the specified file does not exist"
     else
         _nginxCrt="${CERTIFICATE_FILE}"
     fi
 else
-    _nginxCrt="${SECRETS_DIR}/nginx.crt"
+    if test -f "${_legacyCertificateFile}" ; then
+        echo "WARNING: Using a legacy location for certificate '${_legacyCertificateFile}'"
+        echo "         Consider moving to a vault secret location"
+        _nginxCrt="${_legacyCertificateFile}"
+    else
+        _nginxCrt="${SECRETS_DIR}/nginx.crt"
+    fi
 fi
 
 if test -n "${CERTIFICATE_KEY_FILE}"
 then
     if ! test -f "${CERTIFICATE_KEY_FILE}"
     then
-        echo_red "**********"
-        echo_red "CERTIFICATE_KEY_FILE value [${CERTIFICATE_KEY_FILE}] is invalid: the specified file does not exist"
-        exit 75
+        container_failure 2 "CERTIFICATE_KEY_FILE value [${CERTIFICATE_KEY_FILE}] is invalid: the specified file does not exist"
     else
         _nginxKey="${CERTIFICATE_KEY_FILE}"
     fi
 else
-    _nginxKey="${SECRETS_DIR}/nginx.key"
+    if test -f "${_legacyCertificateKeyFile}" ; then
+        echo "WARNING: Using a legacy location for certificate key file '${_legacyCertificatePinFile}'"
+        echo "         Consider moving to a vault secret location"
+        _nginxKey="${_legacyCertificatePinFile}"
+    else
+        _nginxKey="${SECRETS_DIR}/nginx.key"
+    fi
 fi
 
 if ! test -f "${_nginxCrt}" ;
@@ -59,5 +77,10 @@ then
         -out ${_nginxCrt};
 fi
 
-echo "CERTIFICATE_FILE=\"${_nginxCrt}\"" >> "${CONTAINER_ENV}"
-echo "CERTIFICATE_KEY_FILE=\"${_nginxKey}\"" >> "${CONTAINER_ENV}"
+CERTIFICATE_FILE="${_nginxCrt}"
+CERTIFICATE_KEY_FILE="${_nginxKey}"
+
+echo "Using CERTIFICATE_FILE=${CERTIFICATE_FILE}"
+echo "Using CERTIFICATE_KEY_FILE=${CERTIFICATE_KEY_FILE}"
+
+export_container_env SECRETS_DIR CERTIFICATE_FILE CERTIFICATE_KEY_FILE

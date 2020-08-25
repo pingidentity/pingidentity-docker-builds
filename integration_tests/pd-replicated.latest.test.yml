@@ -24,6 +24,14 @@ services:
     mem_limit: 1200m
     memswap_limit: 1200m
     mem_swappiness: 0
+    ################################################
+    # /run/secrets - tmpfs
+    ################################################
+    volumes:
+      - type: tmpfs
+        target: /run/secrets
+        tmpfs:
+          size: 16m
     networks:
       - pingnet-internal
 
