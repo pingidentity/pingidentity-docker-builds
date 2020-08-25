@@ -7,7 +7,7 @@
 #- >Note: The PingData (i.e. Directory, DataSync, DataGovernance, DirectoryProxy)
 #- products will all provide this
 
-# shellcheck source=pingcommon.lib.sh
+# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 #
@@ -51,9 +51,9 @@ then
     fi
 else
     if test -f "${_legacyCertificateKeyFile}" ; then
-        echo "WARNING: Using a legacy location for certificate key file '${_legacyCertificatePinFile}'"
+        echo "WARNING: Using a legacy location for certificate key file '${_legacyCertificateKeyFile}'"
         echo "         Consider moving to a vault secret location"
-        _nginxKey="${_legacyCertificatePinFile}"
+        _nginxKey="${_legacyCertificateKeyFile}"
     else
         _nginxKey="${SECRETS_DIR}/nginx.key"
     fi
