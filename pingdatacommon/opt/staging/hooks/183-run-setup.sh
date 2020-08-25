@@ -10,31 +10,10 @@ ${VERBOSE} && set -x
 # shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
 test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 
-# If there is a PING_IDENTITY_PASSWORD, create the possible PASSWORD_FILEs with that value if the
-# file isn't already there
 #
-#   ROOT_USER_PASSWORDFILE
-#   ENCRYPTION_PASSWORD_FILE
-#   ADMIN_USER_PASSWORD_FILE
-
-if test -n "${PING_IDENTITY_PASSWORD}";
-then
-    if test -n "${ROOT_USER_PASSWORD_FILE}" && ! test -f "${ROOT_USER_PASSWORD_FILE}" ;
-    then
-        mkdir -p "$( dirname "${ROOT_USER_PASSWORD_FILE}" )"
-        echo "${PING_IDENTITY_PASSWORD}" > "${ROOT_USER_PASSWORD_FILE}"
-    fi
-    if test -n "${ENCRYPTION_PASSWORD_FILE}" && ! test -f "${ENCRYPTION_PASSWORD_FILE}" ;
-    then
-        mkdir -p "$( dirname "${ENCRYPTION_PASSWORD_FILE}" )"
-        echo "${PING_IDENTITY_PASSWORD}" > "${ENCRYPTION_PASSWORD_FILE}"
-    fi
-    if test -n "${ADMIN_USER_PASSWORD_FILE}" && ! test -f "${ADMIN_USER_PASSWORD_FILE}" ;
-    then
-        mkdir -p "$( dirname "${ADMIN_USER_PASSWORD_FILE}" )"
-        echo "${PING_IDENTITY_PASSWORD}" > "${ADMIN_USER_PASSWORD_FILE}"
-    fi
-fi
+# Build the password file options
+#
+buildPasswordFileOptions
 
 #
 # Build certification options

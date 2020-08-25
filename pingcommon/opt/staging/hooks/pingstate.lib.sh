@@ -146,7 +146,7 @@ compare_state_info()
 
     # If state has changed, emit different error messages for different products
     if test "${_stateChanged}" != 0 ; then
-        case PING_PRODUCT in
+        case ${PING_PRODUCT} in
             PingDirectory)
                 ;;
             *)

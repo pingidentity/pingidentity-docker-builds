@@ -8,6 +8,93 @@ ${VERBOSE} && set -x
 _setupArgumentsFile="${PD_PROFILE}/setup-arguments.txt"
 _configLDIF="${SERVER_ROOT_DIR}/config/config.ldif"
 
+buildPasswordFileOptions ()
+{
+    #
+    # Support legacy password file locations
+    # Set these as the defaults.  They will be overidden by the next section.
+    #
+    _legacySecretLocation="${STAGING_DIR}/.sec"
+    test -z "${ROOT_USER_PASSWORD_FILE}" && test -f "${_legacySecretLocation}/root-user-password" &&
+        echo "WARNING: A root-user-password file found in the legacy secret location '${_legacySecretLocation}'" &&
+        echo "         Consider moving to a more secure vault secret." &&
+        ROOT_USER_PASSWORD_FILE="${_legacySecretLocation}/root-user-password"
+
+    test -z "${ADMIN_USER_PASSWORD_FILE}" && test -f "${_legacySecretLocation}/admin-user-password" &&
+        echo "WARNING: A admin-user-password file found in the legacy secret location '${_legacySecretLocation}'" &&
+        echo "         Consider moving to a more secure vault secret." &&
+        ADMIN_USER_PASSWORD_FILE="${_legacySecretLocation}/admin-user-password"
+
+    test -z "${ENCRYPTION_PASSWORD_FILE}" && test -f "${_legacySecretLocation}/encryption-password" &&
+        echo "WARNING: A encryption-password file found in the legacy secret location '${_legacySecretLocation}'" &&
+        echo "         Consider moving to a more secure vault secret." &&
+        ENCRYPTION_PASSWORD_FILE="${_legacySecretLocation}/encryption-password"
+
+    #
+    # Set the default password files if not set at this point
+    #
+    test -z "${ROOT_USER_PASSWORD_FILE}" &&
+        ROOT_USER_PASSWORD_FILE="${SECRETS_DIR}/root-user-password" &&
+        echo "Using ROOT_USER_PASSWORD_FILE '${ROOT_USER_PASSWORD_FILE}'"
+
+    test -z "${ADMIN_USER_PASSWORD_FILE}" &&
+        ADMIN_USER_PASSWORD_FILE="${SECRETS_DIR}/admin-user-password" &&
+        echo "Using ADMIN_USER_PASSWORD_FILE '${ADMIN_USER_PASSWORD_FILE}'"
+
+    test -z "${ENCRYPTION_PASSWORD_FILE}" &&
+        ENCRYPTION_PASSWORD_FILE="${SECRETS_DIR}/encryption-password" &&
+        echo "Using ENCRYPTION_PASSWORD_FILE '${ENCRYPTION_PASSWORD_FILE}'"
+
+
+    export_container_env ROOT_USER_PASSWORD_FILE ADMIN_USER_PASSWORD_FILE ENCRYPTION_PASSWORD_FILE
+
+    # If there is a PING_IDENTITY_PASSWORD, create the possible PASSWORD_FILEs with that value if the
+    # file isn't already there
+    #
+    #   ROOT_USER_PASSWORDFILE
+    #   ENCRYPTION_PASSWORD_FILE
+    #   ADMIN_USER_PASSWORD_FILE
+
+    if test -n "${PING_IDENTITY_PASSWORD}";
+    then
+        if test -n "${ROOT_USER_PASSWORD_FILE}" && ! test -f "${ROOT_USER_PASSWORD_FILE}" ;
+        then
+            mkdir -p "$( dirname "${ROOT_USER_PASSWORD_FILE}" )"
+            echo "${PING_IDENTITY_PASSWORD}" > "${ROOT_USER_PASSWORD_FILE}"
+        fi
+        if test -n "${ENCRYPTION_PASSWORD_FILE}" && ! test -f "${ENCRYPTION_PASSWORD_FILE}" ;
+        then
+            mkdir -p "$( dirname "${ENCRYPTION_PASSWORD_FILE}" )"
+            echo "${PING_IDENTITY_PASSWORD}" > "${ENCRYPTION_PASSWORD_FILE}"
+        fi
+        if test -n "${ADMIN_USER_PASSWORD_FILE}" && ! test -f "${ADMIN_USER_PASSWORD_FILE}" ;
+        then
+            mkdir -p "$( dirname "${ADMIN_USER_PASSWORD_FILE}" )"
+            echo "${PING_IDENTITY_PASSWORD}" > "${ADMIN_USER_PASSWORD_FILE}"
+        fi
+    fi
+}
+
+#
+# Check for the cert files in the directory passed, and if found, then set
+# the certfile
+_checkAndSetCertDefaults ()
+{
+    _checkDir="${1}"
+
+    if test -f "${_checkDir}/${_certVarLower}.pin" ; then
+        if test -f "${_checkDir}/${_certVarLower}" ; then
+            eval "${_certFile}=${_checkDir}/${_certVarLower}"
+            eval "${_certType}=jks"
+        elif test -f "${_checkDir}/${_certVarLower}.p12" ; then
+            eval "${_certFile}=${_checkDir}/${_certVarLower}.p12"
+            eval "${_certType}=pkcs12"
+        fi
+        eval "${_certPinFile}=${_checkDir}/${_certVarLower}.pin"
+    fi
+}
+
+
 #
 # This is a helper function which will validate the certificate files and pins
 #
@@ -76,16 +163,19 @@ _validateCertificateOptions ()
             esac
         fi
     else
-        if test -f "${SERVER_ROOT_DIR}/config/${_certVarLower}" && test -f "${SERVER_ROOT_DIR}/config/${_certVarLower}.pin" ; then
-            eval "${_certFile}=${SERVER_ROOT_DIR}/config/${_certVarLower}"
-            eval "${_certType}=jks"
-        elif test -f "${SERVER_ROOT_DIR}/config/${_certVarLower}.p12" && test -f "${SERVER_ROOT_DIR}/config/${_certVarLower}.pin" ; then
-            eval "${_certFile}=${SERVER_ROOT_DIR}/config/${_certVarLower}.p12"
-            eval "${_certType}=pkcs12"
-        fi
+        #
+        # The cert file value isn't set, so we will attempt to set them
+        #
 
-        if test -f "${SERVER_ROOT_DIR}/config/${_certVarLower}.pin" ; then
-            eval "${_certPinFile}=${SERVER_ROOT_DIR}/config/${_certVarLower}.pin"
+        # Try to set the certificate based on the SECRETS_DIR.  If it is not
+        # found there, then check the SERVER_ROOT/config, as it might be set
+        # there after a RESTART (from original generateSelfSignedCert) or
+        # from a server-profile (legacy)
+
+        _checkAndSetCertDefaults "${SECRETS_DIR}"
+
+        if test -z "$( get_value "${_certFile}" )" ; then
+            _checkAndSetCertDefaults "${SERVER_ROOT_DIR}/config"
         fi
     fi
 }
@@ -157,8 +247,25 @@ getCertificateOptions ()
         certificateOptions="${certificateOptions} --trustStorePasswordFile ${TRUSTSTORE_PIN_FILE}"
     fi
 
-    # get the CERTIFICATE_NICKNAME. If not set, default to: server-cert
-    certificateOptions="${certificateOptions} --certNickname ${CERTIFICATE_NICKNAME:-server-cert}"
+    # get the CERTIFICATE_NICKNAME.
+    #
+    # Look in the keystore file for a single cert of type PrivateKeyEntry
+    if test -z "${CERTIFICATE_NICKNAME}"; then
+        CERTIFICATE_NICKNAME=$(
+            keytool -list \
+                -keystore "${KEYSTORE_FILE}" \
+                -storetype "${KEYSTORE_TYPE}" \
+                -protected \
+                -rfc \
+            | awk  'BEGIN { }
+                      /^Alias name: / { certAlias=$3 }
+                      /^Entry type: PrivateKeyEntry/  { ++n; privateKeyEntry=certAlias }
+                    END { if (n == 1) print privateKeyEntry }')
+
+        test -z "${CERTIFICATE_NICKNAME}" && CERTIFICATE_NICKNAME="server-cert"
+    fi
+
+    certificateOptions="${certificateOptions} --certNickname ${CERTIFICATE_NICKNAME}"
     echo "${certificateOptions}"
 }
 
@@ -280,6 +387,7 @@ generateSetupArguments ()
     --verbose \
     --acceptLicense \
     --skipPortCheck \
+    --licenseKeyFile "${LICENSE_DIR}/${LICENSE_FILE_NAME}" \
     --instanceName ${INSTANCE_NAME} \
     --location ${LOCATION} \
     $(test ! -z "${LDAP_PORT}" && echo "--ldapPort ${LDAP_PORT}") \

@@ -48,7 +48,7 @@ ONBUILD ENV PING_IDENTITY_DEVOPS_FILE=devops-secret
 #-- can be merged
 ONBUILD ENV STAGING_DIR=${BASE}/staging
 #-- Default path to the secrets
-ONBUILD ENV SECRETS_DIR=${STAGING_DIR}/.sec
+ONBUILD ENV SECRETS_DIR=/run/secrets
 #-- Path to the topology file
 ONBUILD ENV TOPOLOGY_FILE=${STAGING_DIR}/topology.json
 #-- Path where all the hooks scripts are stored

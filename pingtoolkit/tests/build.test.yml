@@ -1,14 +1,18 @@
-version: "2"
+version: "2.4"
 
 services:
   sut:
     image: ${REGISTRY}/pingtoolkit:${TAG}
     environment:
-      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
-      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
       - PING_IDENTITY_ACCEPT_EULA=YES
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_PATH=getting-started/pingtoolkit
+    ################################################
+    # /run/secrets - tmpfs
+    ################################################
+    volumes:
+      - type: tmpfs
+        target: /run/secrets
+        tmpfs:
+          size: 16m
     command: start-server /opt/out/instance/bin/hello.sh
-
-    

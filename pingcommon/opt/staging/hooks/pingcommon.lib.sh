@@ -29,32 +29,32 @@ fi
 #
 toLower ()
 {
-    echo -n ${*}|tr '[:upper:]' '[:lower:]'
+    printf "%s" "${*}"|tr '[:upper:]' '[:lower:]'
 }
 
 toLowerVar ()
 {
-    toLower $(eval echo -n \$${1})
+    toLower "$(eval printf "%s" \$"${1}")"
 }
 
 lowerVar()
 {
-    eval ${1}=$(toLowerVar ${1})
+    eval "${1}=$(toLowerVar "${1}")"
 }
 
 toUpper ()
 {
-    echo -n ${*}|tr '[:lower:]' '[:upper:]'
+    printf "%s" "${*}"|tr '[:lower:]' '[:upper:]'
 }
 
 toUpperVar ()
 {
-    toUpper $(eval echo -n \$${1})
+    toUpper "$(eval printf "%s" \$"${1}")"
 }
 
 upperVar()
 {
-    eval ${1}=$(toUpperVar ${1})
+    eval "${1}=$(toUpperVar "${1}")"
 }
 
 #
@@ -524,6 +524,22 @@ fi
 }
 
 ###############################################################################
+# source_container_env
+#
+# source and export all the CONTAINER_ENV variables
+###############################################################################
+source_container_env ()
+{
+    # shellcheck source=/dev/null
+    if test -f "${CONTAINER_ENV}"
+    then
+        set -o allexport
+        . "${CONTAINER_ENV}"
+        set +o allexport
+    fi
+}
+
+###############################################################################
 # export_container_env (var1, var2, ...)
 #
 # Write the var passed to the CONTAINER_VAR for communication to further
@@ -531,20 +547,22 @@ fi
 ###############################################################################
 export_container_env ()
 {
-  {
-      echo ""
-      echo_bar
-      echo "# Following variables set by hook ${CALLING_HOOK}"
-      echo_bar
-  } >> "${CONTAINER_ENV}"
+    {
+        echo ""
+        echo_bar
+        echo "# Following variables set by hook ${CALLING_HOOK}"
+        echo_bar
+    } >> "${CONTAINER_ENV}"
 
-  while test -n "${1}"
-  do
-    _var=${1} && shift
-    _val=$( get_value "${_var}" )
+    while test -n "${1}"
+    do
+        _var=${1} && shift
+        _val=$( get_value "${_var}" )
 
-    echo "${_var}=${_val}" >> "${CONTAINER_ENV}"
-  done
+        echo "${_var}=${_val}" >> "${CONTAINER_ENV}"
+    done
+
+    source_container_env
 }
 
 ###############################################################################
@@ -552,10 +570,4 @@ export_container_env ()
 ###############################################################################
 echo_green "----- Starting hook: ${CALLING_HOOK}"
 
-# shellcheck source=/dev/null
-if test -f "${CONTAINER_ENV}"
-then
-    set -o allexport
-    . "${CONTAINER_ENV}"
-    set +o allexport
-fi
+source_container_env
