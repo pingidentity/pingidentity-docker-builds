@@ -158,8 +158,9 @@ get_hashicorp_secrets()
                 if test -n "${_linkPath}"; then
                     _linkFile="${_linkPath}/${_writtenKey}"
 
-                    if test -f "${_linkFile}" ; then
-                        mv "${_linkFile}" "${_linkFile}.orig"
+                    if test -e "${_linkFile}" ; then
+                        # saving the original file/dir/liink to timestamped copy
+                        mv "${_linkFile}" "${_linkFile}.$(date '+%s')"
                     fi
 
                     ln -s "${_writtenFile}" "${_linkFile}"
