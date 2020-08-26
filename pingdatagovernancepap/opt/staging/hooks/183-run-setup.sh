@@ -39,8 +39,8 @@ END {if (major_eq && minor_ge || major_gt) {exit 0} else {exit 1}}' \
   "${_build_info}"
 }
 
-# shellcheck disable=SC2039,SC2086
-if ! test -f "${SERVER_ROOT_DIR}/config/configuration.yml" ;
+# shellcheck disable=SC2046
+if test -f "${SERVER_ROOT_DIR}"/bin/start-server-pre-82 ;
 then
 
   # Release 8.2.0.x added the ability to omit sensitive values from the
@@ -54,6 +54,7 @@ then
         --generateSelfSignedCertificate \
         --decisionPointSharedSecret "${DECISION_POINT_SHARED_SECRET}" \
         --excludeSensitiveValues \
+        --ignoreWarnings \
         ${ADDITIONAL_SETUP_ARGS} \
         2>&1
   # Release 8.1.0.x added the ability to specify the DB admin credentials, but
@@ -69,6 +70,7 @@ then
         --hostname "${REST_API_HOSTNAME}" \
         --generateSelfSignedCertificate \
         --decisionPointSharedSecret "${DECISION_POINT_SHARED_SECRET}" \
+        --ignoreWarnings \
         ${ADDITIONAL_SETUP_ARGS} \
         2>&1
   else
@@ -78,6 +80,7 @@ then
         --hostname "${REST_API_HOSTNAME}" \
         --generateSelfSignedCertificate \
         --decisionPointSharedSecret "${DECISION_POINT_SHARED_SECRET}" \
+        --ignoreWarnings \
         ${ADDITIONAL_SETUP_ARGS} \
         2>&1
   fi
@@ -91,3 +94,4 @@ then
       "${SERVER_ROOT_DIR}"/bin/start-server
   fi
 fi
+
