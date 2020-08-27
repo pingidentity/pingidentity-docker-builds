@@ -19,12 +19,5 @@ services:
     mem_limit: 1g
     memswap_limit: 1g
     mem_swappiness: 0
-    ################################################
-    # /run/secrets - tmpfs
-    ################################################
-    volumes:
-      - type: tmpfs
-        target: /run/secrets
-        tmpfs:
-          size: 16m
+    tmpfs: /run/secrets
     command: start-server /opt/wait-for localhost:9022 -t 180 -- curl -k https://localhost:9022/

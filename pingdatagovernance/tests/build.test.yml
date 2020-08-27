@@ -19,12 +19,5 @@ services:
     mem_limit: 1g
     memswap_limit: 1g
     mem_swappiness: 0
-    ################################################
-    # /run/secrets - tmpfs
-    ################################################
-    volumes:
-      - type: tmpfs
-        target: /run/secrets
-        tmpfs:
-          size: 16m
+    tmpfs: /run/secrets
     command: start-server /opt/wait-for localhost:443 -t 300 -- /opt/liveness.sh

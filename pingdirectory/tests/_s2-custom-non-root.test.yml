@@ -29,11 +29,5 @@ services:
     mem_swappiness: 0
     volumes:
       - ./_s2-custom-non-root.test.sh:/tmp/test.sh
-    ################################################
-    # /run/secrets - tmpfs
-    ################################################
-      - type: tmpfs
-        target: /run/secrets
-        tmpfs:
-          size: 16m
+    tmpfs: /run/secrets
     command: start-server /opt/wait-for localhost:1389 -t 300 -- /tmp/test.sh
