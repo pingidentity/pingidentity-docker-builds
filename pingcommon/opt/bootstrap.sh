@@ -84,12 +84,17 @@ fixPermissions ()
     touch /etc/motd
     # _candidateList=""
 
-    find "${BASE}" -not -name in -mindepth 1 -maxdepth 1 | while read -r directory    
+    find "${BASE}" -not -name in -mindepth 1 -maxdepth 1 | while read -r directory
     do
         # _candidateList="${_candidateList:+${_candidateList} }${directory}"
         chown -Rf ${PING_CONTAINER_UID}:${PING_CONTAINER_GID} /etc/motd "${directory}"
         chmod -Rf go-rwx "${directory}"
     done
+
+    # If there is a SECRETS_DIR, chmod to 777 for rwx to non-privileged user
+    if test -d "${SECRETS_DIR}"; then
+        chmod ugo+rwx "${SECRETS_DIR}"
+    fi
 }
 
 removePackageManager_alpine ()
@@ -131,7 +136,7 @@ then
         test -z "${_effectiveUserName}" && _effectiveUserName=${PING_CONTAINER_UNAME}
 
         echo "### Pattern: inside-out"
-        echo "### Stepdown requested to :" 
+        echo "### Stepdown requested to :"
         echo "###     user : ${PING_CONTAINER_UNAME} (id:${PING_CONTAINER_UID})"
         echo "###     group: ${PING_CONTAINER_GNAME} (id:${PING_CONTAINER_GID})"
         echo "### Stepdown effective to:"
@@ -142,7 +147,7 @@ then
         if test "${_effectiveGroupName}" = "${PING_CONTAINER_GNAME}"
         then
             # shellcheck disable=SC2086
-            addGroup ${PING_CONTAINER_GID} ${_effectiveGroupName} 
+            addGroup ${PING_CONTAINER_GID} ${_effectiveGroupName}
         fi
 
         # if the effective user name is as requested, it means no existing user with that name exist, create it

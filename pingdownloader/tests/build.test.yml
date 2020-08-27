@@ -6,12 +6,5 @@ services:
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
-    ################################################
-    # /run/secrets - tmpfs
-    ################################################
-    volumes:
-      - type: tmpfs
-        target: /run/secrets
-        tmpfs:
-          size: 16m
+    tmpfs: /run/secrets
     command: -p delegator --verify-gpg-signature

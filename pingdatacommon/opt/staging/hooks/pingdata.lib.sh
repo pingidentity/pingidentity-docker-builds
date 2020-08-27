@@ -256,7 +256,7 @@ getCertificateOptions ()
                 -keystore "${KEYSTORE_FILE}" \
                 -storetype "${KEYSTORE_TYPE}" \
                 -protected \
-                -rfc \
+                -rfc 2>/dev/null\
             | awk  'BEGIN { }
                       /^Alias name: / { certAlias=$3 }
                       /^Entry type: PrivateKeyEntry/  { ++n; privateKeyEntry=certAlias }

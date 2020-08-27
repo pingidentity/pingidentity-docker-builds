@@ -18,14 +18,7 @@ services:
     mem_limit: 1g
     memswap_limit: 1g
     mem_swappiness: 0
-    ################################################
-    # /run/secrets - tmpfs
-    ################################################
-    volumes:
-      - type: tmpfs
-        target: /run/secrets
-        tmpfs:
-          size: 16m
+    tmpfs: /run/secrets
 
   pingdirectoryproxy:
     image: ${REGISTRY}/pingdirectoryproxy:${PINGDIRECTORYPROXY_LATEST}-alpine-az11-${GIT_TAG}
@@ -46,14 +39,7 @@ services:
     mem_limit: 1g
     memswap_limit: 1g
     mem_swappiness: 0
-    ################################################
-    # /run/secrets - tmpfs
-    ################################################
-    volumes:
-      - type: tmpfs
-        target: /run/secrets
-        tmpfs:
-          size: 16m
+    tmpfs: /run/secrets
     depends_on: ["pingdirectory"]
 
   sut:
