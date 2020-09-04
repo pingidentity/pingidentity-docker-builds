@@ -1,0 +1,9 @@
+{
+  "credHelpers": {
+    "gcr.io": "gcloud",
+    "us.gcr.io": "gcloud",
+    "574076504146.dkr.ecr.us-east-2.amazonaws.com": "ecr-login",
+    "574076504146.dkr.ecr.us-west-2.amazonaws.com": "ecr-login"
+  },
+  "credsStore": "ecr-login"
+}

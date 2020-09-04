@@ -309,7 +309,7 @@ then
 elif test -n "${CI_COMMIT_REF_NAME}"
 then
     #we are in CI pipeline
-    FOUNDATION_REGISTRY="gcr.io/ping-identity"
+    FOUNDATION_REGISTRY="gcr.io/ping-gte"
     # FOUNDATION_REGISTRY="574076504146.dkr.ecr.us-west-2.amazonaws.com"
     # shellcheck disable=SC2155
     gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
@@ -334,3 +334,5 @@ export gitRevShort
 export gitRevLong
 export gitBranch
 export ciTag
+export AWS_ACCESS_KEY_ID=${ECR_AWS_ACCESS_KEY_ID}
+export AWS_SECRET_ACCESS_KEY=${ECR_AWS_SECRET_ACCESS_KEY}
