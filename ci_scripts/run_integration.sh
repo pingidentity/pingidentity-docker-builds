@@ -49,6 +49,17 @@ for _test in "${CI_PROJECT_DIR}/integration_tests/"${1:-*}.test.yml
 do
     banner "Running ${_test} integration test"
     _start=$( date '+%s' )
+    # `docker pull` has less package dependencies than `docker-compose pull`
+    # use docker pull to pull images before running `docker-compose up`
+    if test -z "${isLocalBuild}"
+      then
+        _testImages="$(grep '^\s*image' ${_test} | sed 's/image://' | sort | uniq)"
+        for _pullImage in ${_testImages} ; do
+          GIT_TAG=${ciTag}
+          REGISTRY=${FOUNDATION_REGISTRY}
+          docker pull $(eval echo "$_pullImage")
+        done
+    fi
     GIT_TAG=${ciTag} \
         REGISTRY=${FOUNDATION_REGISTRY} \
         docker-compose -f "${_test}" up --exit-code-from sut --abort-on-container-exit

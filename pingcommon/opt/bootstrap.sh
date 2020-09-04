@@ -95,6 +95,11 @@ fixPermissions ()
     if test -d "${SECRETS_DIR}"; then
         chmod ugo+rwx "${SECRETS_DIR}"
     fi
+
+    # change nginx path ownership to nginx user/group
+    if test -d /var/lib/nginx; then
+        chown -R "${_effectiveUserName}:${_effectiveGroupName}" /var/lib/nginx
+    fi
 }
 
 removePackageManager_alpine ()

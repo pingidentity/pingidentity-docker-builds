@@ -8,31 +8,30 @@ stages:
   - publish
   - cleanup
 
+default:
+  before_script:
+    - ci_scripts/before_script.sh
+  services:
+    - docker:18.09-dind
+variables:
+  DOCKER_HOST: tcp://localhost:2375
+  KUBERNETES_CPU_REQUEST: 1250m
+  KUBERNETES_CPU_LIMIT: 2000m
+  KUBERNETES_MEMORY_REQUEST: 500Mi
+  KUBERNETES_MEMORY_LIMIT: 500Mi
+  KUBERNETES_POLL_TIMEOUT: 600
+
+
 ################################################
 #                  INITIALIZATION
 ################################################
+
 i.checks:
   stage: intialization
   script:
-    - pwd
-    - env
-    - echo $USER
-    - type jq
-    - type aws
-    - aws --version
-    - type az
-    - az --version
-    - type docker
-    - docker info
-    - type docker-compose
-    - docker-compose version
-    - type envsubst
-    - envsubst --version
-    - type gcloud
-    - gcloud --version
-    - type git
-    - git --version
     - ci_scripts/if_readme_only.sh
+  tags:
+    - k8s
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -42,6 +41,8 @@ i.unmerged:
   stage: intialization
   script:
     - ci_scripts/unmerged_changes.sh
+  tags:
+    - k8s
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -55,6 +56,8 @@ f.pingfoundation:
   script:
     - ci_scripts/cleanup_docker.sh full
     - ci_scripts/build_foundation.sh
+  tags:
+    - k8s
   when: always
   except:
     variables:
@@ -66,6 +69,8 @@ f.pingdownloader:
     - jq . pingdownloader/gte-bits-repo.json
     - ci_scripts/build_downloader.sh
     - ci_scripts/run_smoke.sh --product pingdownloader --version none --shim  none --jvm none
+  tags:
+    - k8s
   when: always
   except:
     variables:
@@ -74,8 +79,8 @@ f.pingdownloader:
 d.pingdownloader:
   stage: deploy
   script:
-    - docker pull gcr.io/ping-identity/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}
-    - while read -r _registry ; do docker tag gcr.io/ping-identity/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA} ${_registry}/pingdownloader ; docker push ${_registry}/pingdownloader ; done < registry.list
+    - docker pull gcr.io/ping-gte/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}
+    - while read -r _registry ; do docker tag gcr.io/ping-gte/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA} ${_registry}/pingdownloader ; docker push ${_registry}/pingdownloader ; done < registry.list
   only:
     refs:
       - master
@@ -104,6 +109,8 @@ b.apache-jmeter:
   stage: products
   script:
     - ci_scripts/build_product.sh --product apache-jmeter
+  tags:
+    - k8s
   only:
     changes:
       - pingdownloader/**/*
@@ -123,6 +130,8 @@ t.apache-jmeter:
   stage: test.smoke
   script:
     - ci_scripts/run_smoke.sh --product apache-jmeter
+  tags:
+    - k8s
   only:
     changes:
       - pingdownloader/**/*
@@ -169,6 +178,8 @@ b.ldap-sdk-tools:
   stage: products
   script:
     - ci_scripts/build_product.sh --product ldap-sdk-tools
+  tags:
+    - k8s
   only:
     changes:
       - pingdownloader/**/*
@@ -188,6 +199,8 @@ t.ldap-sdk-tools:
   stage: test.smoke
   script:
     - ci_scripts/run_smoke.sh --product ldap-sdk-tools
+  tags:
+    - k8s
   only:
     changes:
       - pingdownloader/**/*
@@ -204,6 +217,11 @@ t.ldap-sdk-tools:
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)ldap-sdk-tools(?:$|,)/i
+  variables:
+    KUBERNETES_CPU_REQUEST: 1
+    KUBERNETES_CPU_LIMIT: 1
+    KUBERNETES_MEMORY_REQUEST: 2Gi
+    KUBERNETES_MEMORY_LIMIT: 2Gi
 
 d.ldap-sdk-tools:
   stage: deploy
@@ -234,6 +252,8 @@ b.pingaccess:
   stage: products
   script:
     - ci_scripts/build_product.sh --product pingaccess
+  tags:
+    - k8s
   only:
     changes:
       - pingcommon/**/*
@@ -258,6 +278,8 @@ t.pingaccess:
   stage: test.smoke
   script:
     - ci_scripts/run_smoke.sh --product pingaccess
+  tags:
+    - k8s
   only:
     changes:
       - pingcommon/**/*
@@ -311,6 +333,8 @@ b.pingcentral:
   stage: products
   script:
     - ci_scripts/build_product.sh --product pingcentral
+  tags:
+    - k8s
   only:
     changes:
       - pingcentral/**/*
@@ -331,6 +355,8 @@ t.pingcentral:
   stage: test.smoke
   script:
     - ci_scripts/run_smoke.sh --product pingcentral
+  tags:
+    - k8s
   only:
     changes:
       - pingcentral/**/*
@@ -381,6 +407,8 @@ b.pingdirectory:
   stage: products
   script:
     - ci_scripts/build_product.sh --product pingdirectory
+  tags:
+    - k8s
   only:
     changes:
       - pingcommon/**/*
@@ -406,6 +434,8 @@ t.pingdirectory:
   stage: test.smoke
   script:
     - ci_scripts/run_smoke.sh --product pingdirectory
+  tags:
+    - k8s
   only:
     changes:
       - pingdirectory/**/*
@@ -416,6 +446,11 @@ t.pingdirectory:
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml
+  variables:
+    KUBERNETES_CPU_REQUEST: 3
+    KUBERNETES_CPU_LIMIT: 3
+    KUBERNETES_MEMORY_REQUEST: 4Gi
+    KUBERNETES_MEMORY_LIMIT: 4Gi
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -458,6 +493,8 @@ b.pingdirectoryproxy:
   stage: products
   script:
     - ci_scripts/build_product.sh --product pingdirectoryproxy
+  tags:
+    - k8s
   only:
     changes:
       - pingcommon/**/*
@@ -481,6 +518,8 @@ t.pingdirectoryproxy:
   stage: test.smoke
   script:
     - ci_scripts/run_smoke.sh --product pingdirectoryproxy
+  tags:
+    - k8s
   only:
     changes:
       - pingbase/**/*
@@ -500,6 +539,7 @@ t.pingdirectoryproxy:
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectoryproxy(?:$|,)/i
+
 
 d.pingdirectoryproxy:
   stage: deploy
@@ -533,6 +573,8 @@ b.pingdelegator:
   stage: products
   script:
     - ci_scripts/build_product.sh --product pingdelegator
+  tags:
+    - k8s
   only:
     changes:
       - pingdownloader/**/*
@@ -554,6 +596,8 @@ t.pingdelegator:
   stage: test.smoke
   script:
     - ci_scripts/run_smoke.sh --product pingdelegator
+  tags:
+    - k8s
   only:
     changes:
       - pingdownloader/**/*
@@ -604,6 +648,8 @@ b.pingdataconsole:
   stage: products
   script:
     - ci_scripts/build_product.sh --product pingdataconsole
+  tags:
+    - k8s
   only:
     changes:
       - pingcommon/**/*
@@ -626,6 +672,8 @@ t.pingdataconsole:
   stage: test.smoke
   script:
     - ci_scripts/run_smoke.sh --product pingdataconsole
+  tags:
+    - k8s
   only:
     changes:
       - pingcommon/**/*
@@ -675,6 +723,8 @@ b.pingdatasync:
   stage: products
   script:
     - ci_scripts/build_product.sh --product pingdatasync
+  tags:
+    - k8s
   only:
     changes:
       - pingcommon/**/*
@@ -698,6 +748,8 @@ t.pingdatasync:
   stage: test.smoke
   script:
     - ci_scripts/run_smoke.sh --product pingdatasync
+  tags:
+    - k8s
   only:
     changes:
       - pingcommon/**/*
@@ -750,6 +802,8 @@ b.pingdatagovernance:
   stage: products
   script:
     - ci_scripts/build_product.sh --product pingdatagovernance
+  tags:
+    - k8s
   only:
     changes:
       - pingdatagovernance/**/*
@@ -772,6 +826,8 @@ t.pingdatagovernance:
   stage: test.smoke
   script:
     - ci_scripts/run_smoke.sh --product pingdatagovernance
+  tags:
+    - k8s
   only:
     changes:
       - pingcommon/**/*
@@ -824,6 +880,8 @@ b.pingdatagovernancepap:
   stage: products
   script:
     - ci_scripts/build_product.sh --product pingdatagovernancepap
+  tags:
+    - k8s
   only:
     changes:
       - pingdatagovernancepap/**/*
@@ -845,6 +903,8 @@ t.pingdatagovernancepap:
   stage: test.smoke
   script:
     - ci_scripts/run_smoke.sh --product pingdatagovernancepap
+  tags:
+    - k8s
   only:
     changes:
       - pingcommon/**/*
@@ -897,6 +957,8 @@ b.pingfederate:
   stage: products
   script:
     - ci_scripts/build_product.sh --product pingfederate
+  tags:
+    - k8s
   only:
     changes:
       - pingfederate/**/*
@@ -921,6 +983,8 @@ t.pingfederate:
   stage: test.smoke
   script:
     - ci_scripts/run_smoke.sh --product pingfederate
+  tags:
+    - k8s
   only:
     changes:
       - pingfederate/**/*
@@ -971,6 +1035,8 @@ b.pingtoolkit:
   stage: products
   script:
     - ci_scripts/build_product.sh --product pingtoolkit
+  tags:
+    - k8s
   only:
     changes:
       - pingtoolkit/**/*
@@ -992,6 +1058,8 @@ t.pingtoolkit:
   stage: test.smoke
   script:
     - ci_scripts/run_smoke.sh --product pingtoolkit --shim alpine
+  tags:
+    - k8s
   only:
     changes:
       - pingtoolkit/**/*
@@ -1038,10 +1106,76 @@ d.pingtoolkit:
 ################################################
 #                  INTEGRATION TESTS
 ################################################
+pd-repl.latest:
+  stage: test.integration
+  script:
+    - ci_scripts/run_integration.sh pd-replicated.latest
+  tags:
+    - k8s
+  only:
+    changes:
+      - integration_tests/**/pd-replicated*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingdirectory/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  variables:
+    KUBERNETES_CPU_REQUEST: 2
+    KUBERNETES_CPU_LIMIT: 2
+    KUBERNETES_MEMORY_REQUEST: 4Gi
+    KUBERNETES_MEMORY_LIMIT: 4Gi
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
+      
+dg-8001:
+  stage: test.integration
+  script:
+    - ci_scripts/run_integration.sh dg-8001
+  tags:
+    - k8s
+  only:
+    changes:
+      - integration_tests/**/dg-8001*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      # - pingdirectory/**/*
+      - pingdatagovernance/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  variables:
+    KUBERNETES_CPU_REQUEST: 2
+    KUBERNETES_CPU_LIMIT: 2
+    KUBERNETES_MEMORY_REQUEST: 4Gi
+    KUBERNETES_MEMORY_LIMIT: 4Gi
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
+
+
 pa-pf-pd.latest:
   stage: test.integration
   script:
     - ci_scripts/run_integration.sh pa-pf-pd.latest
+  tags:
+    - k8s
   only:
     changes:
       - integration_tests/**/pa-pf-pd*
@@ -1054,6 +1188,11 @@ pa-pf-pd.latest:
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml
+  variables:
+    KUBERNETES_CPU_REQUEST: 3
+    KUBERNETES_CPU_LIMIT: 3
+    KUBERNETES_MEMORY_REQUEST: 4Gi
+    KUBERNETES_MEMORY_LIMIT: 4Gi
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -1068,6 +1207,8 @@ pds-pd.latest:
   stage: test.integration
   script:
     - ci_scripts/run_integration.sh pds-pd.latest
+  tags:
+    - k8s
   only:
     changes:
       - integration_tests/**/pds-pd*
@@ -1093,6 +1234,8 @@ pdp-pd.latest:
   stage: test.integration
   script:
     - ci_scripts/run_integration.sh pdp-pd.latest
+  tags:
+    - k8s
   only:
     changes:
       - integration_tests/**/pdp-pd*
@@ -1118,6 +1261,8 @@ pdg-pd.latest:
   stage: test.integration
   script:
     - ci_scripts/run_integration.sh pdg-pd.latest
+  tags:
+    - k8s
   only:
     changes:
       - integration_tests/**/pdg-pd*
@@ -1139,10 +1284,13 @@ pdg-pd.latest:
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
 
+
 pa-cluster.latest:
   stage: test.integration
   script:
     - ci_scripts/run_integration.sh pa-cluster.latest
+  tags:
+    - k8s
   only:
     changes:
       - integration_tests/**/pa-cluster*
@@ -1162,29 +1310,6 @@ pa-cluster.latest:
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i
 
-pd-repl.latest:
-  stage: test.integration
-  script:
-    - ci_scripts/run_integration.sh pd-replicated.latest
-  only:
-    changes:
-      - integration_tests/**/pd-replicated*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
 
 p.github:
   stage: publish
