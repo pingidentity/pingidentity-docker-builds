@@ -89,7 +89,7 @@ else
             else
                 _licenseError=$( jq -r ".error" "${LICENSE_FILE}" 2> /dev/null)
 
-                if test -z "${_licenseError}" || "${_licenseError}" = "null"
+                if test -z "${_licenseError}" || test "${_licenseError}" = "null"
                 then
                     _licenseError="Error (${_httpResultCode}).  Please contact devops_program@pingidentity.com with this log."
                 fi
