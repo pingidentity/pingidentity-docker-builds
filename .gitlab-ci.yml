@@ -11,10 +11,7 @@ stages:
 default:
   before_script:
     - ci_scripts/before_script.sh
-  services:
-    - docker:18.09-dind
 variables:
-  DOCKER_HOST: tcp://localhost:2375
   KUBERNETES_CPU_REQUEST: 1250m
   KUBERNETES_CPU_LIMIT: 2000m
   KUBERNETES_MEMORY_REQUEST: 500Mi
@@ -32,6 +29,10 @@ i.checks:
     - ci_scripts/if_readme_only.sh
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -43,6 +44,10 @@ i.unmerged:
     - ci_scripts/unmerged_changes.sh
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -58,6 +63,10 @@ f.pingfoundation:
     - ci_scripts/build_foundation.sh
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   when: always
   except:
     variables:
@@ -71,6 +80,10 @@ f.pingdownloader:
     - ci_scripts/run_smoke.sh --product pingdownloader --version none --shim  none --jvm none
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   when: always
   except:
     variables:
@@ -111,6 +124,10 @@ b.apache-jmeter:
     - ci_scripts/build_product.sh --product apache-jmeter
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingdownloader/**/*
@@ -132,6 +149,10 @@ t.apache-jmeter:
     - ci_scripts/run_smoke.sh --product apache-jmeter
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingdownloader/**/*
@@ -180,6 +201,10 @@ b.ldap-sdk-tools:
     - ci_scripts/build_product.sh --product ldap-sdk-tools
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingdownloader/**/*
@@ -201,6 +226,8 @@ t.ldap-sdk-tools:
     - ci_scripts/run_smoke.sh --product ldap-sdk-tools
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
   only:
     changes:
       - pingdownloader/**/*
@@ -218,6 +245,7 @@ t.ldap-sdk-tools:
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)ldap-sdk-tools(?:$|,)/i
   variables:
+    DOCKER_HOST: tcp://localhost:2375
     KUBERNETES_CPU_REQUEST: 1
     KUBERNETES_CPU_LIMIT: 1
     KUBERNETES_MEMORY_REQUEST: 2Gi
@@ -254,6 +282,10 @@ b.pingaccess:
     - ci_scripts/build_product.sh --product pingaccess
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingcommon/**/*
@@ -280,6 +312,10 @@ t.pingaccess:
     - ci_scripts/run_smoke.sh --product pingaccess
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingcommon/**/*
@@ -335,6 +371,10 @@ b.pingcentral:
     - ci_scripts/build_product.sh --product pingcentral
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingcentral/**/*
@@ -357,6 +397,10 @@ t.pingcentral:
     - ci_scripts/run_smoke.sh --product pingcentral
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingcentral/**/*
@@ -409,6 +453,10 @@ b.pingdirectory:
     - ci_scripts/build_product.sh --product pingdirectory
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingcommon/**/*
@@ -436,6 +484,8 @@ t.pingdirectory:
     - ci_scripts/run_smoke.sh --product pingdirectory
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
   only:
     changes:
       - pingdirectory/**/*
@@ -447,6 +497,7 @@ t.pingdirectory:
       - pingjvm/*
       - .gitlab-ci.yml
   variables:
+    DOCKER_HOST: tcp://localhost:2375
     KUBERNETES_CPU_REQUEST: 3
     KUBERNETES_CPU_LIMIT: 3
     KUBERNETES_MEMORY_REQUEST: 4Gi
@@ -495,6 +546,10 @@ b.pingdirectoryproxy:
     - ci_scripts/build_product.sh --product pingdirectoryproxy
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingcommon/**/*
@@ -520,6 +575,10 @@ t.pingdirectoryproxy:
     - ci_scripts/run_smoke.sh --product pingdirectoryproxy
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingbase/**/*
@@ -575,6 +634,10 @@ b.pingdelegator:
     - ci_scripts/build_product.sh --product pingdelegator
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingdownloader/**/*
@@ -598,6 +661,10 @@ t.pingdelegator:
     - ci_scripts/run_smoke.sh --product pingdelegator
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingdownloader/**/*
@@ -650,6 +717,10 @@ b.pingdataconsole:
     - ci_scripts/build_product.sh --product pingdataconsole
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingcommon/**/*
@@ -674,6 +745,10 @@ t.pingdataconsole:
     - ci_scripts/run_smoke.sh --product pingdataconsole
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingcommon/**/*
@@ -725,6 +800,10 @@ b.pingdatasync:
     - ci_scripts/build_product.sh --product pingdatasync
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingcommon/**/*
@@ -750,6 +829,10 @@ t.pingdatasync:
     - ci_scripts/run_smoke.sh --product pingdatasync
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingcommon/**/*
@@ -804,6 +887,10 @@ b.pingdatagovernance:
     - ci_scripts/build_product.sh --product pingdatagovernance
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingdatagovernance/**/*
@@ -828,6 +915,10 @@ t.pingdatagovernance:
     - ci_scripts/run_smoke.sh --product pingdatagovernance
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingcommon/**/*
@@ -882,6 +973,10 @@ b.pingdatagovernancepap:
     - ci_scripts/build_product.sh --product pingdatagovernancepap
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingdatagovernancepap/**/*
@@ -905,6 +1000,10 @@ t.pingdatagovernancepap:
     - ci_scripts/run_smoke.sh --product pingdatagovernancepap
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingcommon/**/*
@@ -959,6 +1058,10 @@ b.pingfederate:
     - ci_scripts/build_product.sh --product pingfederate
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingfederate/**/*
@@ -985,6 +1088,10 @@ t.pingfederate:
     - ci_scripts/run_smoke.sh --product pingfederate
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingfederate/**/*
@@ -1037,6 +1144,10 @@ b.pingtoolkit:
     - ci_scripts/build_product.sh --product pingtoolkit
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingtoolkit/**/*
@@ -1060,6 +1171,10 @@ t.pingtoolkit:
     - ci_scripts/run_smoke.sh --product pingtoolkit --shim alpine
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - pingtoolkit/**/*
@@ -1112,6 +1227,8 @@ pd-repl.latest:
     - ci_scripts/run_integration.sh pd-replicated.latest
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
   only:
     changes:
       - integration_tests/**/pd-replicated*
@@ -1123,6 +1240,7 @@ pd-repl.latest:
       - pingjvm/*
       - .gitlab-ci.yml
   variables:
+    DOCKER_HOST: tcp://localhost:2375
     KUBERNETES_CPU_REQUEST: 2
     KUBERNETES_CPU_LIMIT: 2
     KUBERNETES_MEMORY_REQUEST: 4Gi
@@ -1143,6 +1261,8 @@ dg-8001:
     - ci_scripts/run_integration.sh dg-8001
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
   only:
     changes:
       - integration_tests/**/dg-8001*
@@ -1155,6 +1275,7 @@ dg-8001:
       - pingjvm/*
       - .gitlab-ci.yml
   variables:
+    DOCKER_HOST: tcp://localhost:2375
     KUBERNETES_CPU_REQUEST: 2
     KUBERNETES_CPU_LIMIT: 2
     KUBERNETES_MEMORY_REQUEST: 4Gi
@@ -1176,6 +1297,8 @@ pa-pf-pd.latest:
     - ci_scripts/run_integration.sh pa-pf-pd.latest
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
   only:
     changes:
       - integration_tests/**/pa-pf-pd*
@@ -1189,6 +1312,7 @@ pa-pf-pd.latest:
       - pingjvm/*
       - .gitlab-ci.yml
   variables:
+    DOCKER_HOST: tcp://localhost:2375
     KUBERNETES_CPU_REQUEST: 3
     KUBERNETES_CPU_LIMIT: 3
     KUBERNETES_MEMORY_REQUEST: 4Gi
@@ -1209,6 +1333,10 @@ pds-pd.latest:
     - ci_scripts/run_integration.sh pds-pd.latest
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - integration_tests/**/pds-pd*
@@ -1236,6 +1364,10 @@ pdp-pd.latest:
     - ci_scripts/run_integration.sh pdp-pd.latest
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - integration_tests/**/pdp-pd*
@@ -1263,6 +1395,10 @@ pdg-pd.latest:
     - ci_scripts/run_integration.sh pdg-pd.latest
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - integration_tests/**/pdg-pd*
@@ -1291,6 +1427,10 @@ pa-cluster.latest:
     - ci_scripts/run_integration.sh pa-cluster.latest
   tags:
     - k8s
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
   only:
     changes:
       - integration_tests/**/pa-cluster*
