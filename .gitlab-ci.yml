@@ -8,6 +8,8 @@ stages:
   - publish
   - cleanup
 
+# image: gcr.io/ping-gte/ubuntu-gitlab-private:latest
+
 default:
   before_script:
     - ci_scripts/before_script.sh
