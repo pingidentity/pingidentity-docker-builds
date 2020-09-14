@@ -287,7 +287,7 @@ _getLatestSnapshotVersionForProduct ()
             # echo "1.4.0-SNAPSHOT"
             ;;
         pingfederate)
-            _curl "https://bld-fed01.corp.pingidentity.com/job/PingFederate_Mainline/lastSuccessfulBuild/artifact/pf-server/HuronPeak/assembly/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
+            _curl "https://bld-fed01.corp.pingidentity.com/view/Gitlab%20Builds/job/Mainline/job/master/lastSuccessfulBuild/artifact/pf-server/HuronPeak/assembly/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
             ;;
         pingaccess)
             _curl "https://art01.corp.pingidentity.com/artifactory/repo/com/pingidentity/products/pingaccess/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/metadata/versioning/latest)' -

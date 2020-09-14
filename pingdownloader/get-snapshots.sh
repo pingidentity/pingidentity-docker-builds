@@ -50,7 +50,7 @@ _getURLForProduct ()
             _url="${_baseURL:+${_baseURL}/${_basePath}/${1}}"
             ;;
         pingfederate)
-            _url="https://bld-fed01.corp.pingidentity.com/job/PingFederate_Mainline/lastSuccessfulBuild"
+            _url="https://bld-fed01.corp.pingidentity.com/view/Gitlab%20Builds/job/Mainline/job/master/lastSuccessfulBuild"
             ;;
         pingcentral)
             # _url="https://gitlab.corp.pingidentity.com/api/v4/projects/2990/jobs/artifacts/master/raw/distribution/target" 
