@@ -298,13 +298,11 @@ is_gte_81() {
 getJvmOptions ()
 {
     jvmOptions=""
-    origMaxHeapSize=""
     if test "$( is_gte_81 )" -eq 1 && test "${PING_PRODUCT}" = "PingDirectory"; then
         # If PingDirectory 8.1.0.0 or greater is run and the MAX_HEAP_SIZE is 384m, then it's
         # assumed to have never been set so it'll update it to the minimum needed
         # for version 8.1.0.0 or greater.
         if test "${MAX_HEAP_SIZE}" = "384m"; then
-            origMaxHeapSize="${MAX_HEAP_SIZE}"
             MAX_HEAP_SIZE="768m"
         fi
     fi
@@ -321,15 +319,9 @@ getJvmOptions ()
             ;;
     esac
 
-    # If the original MAX_HEAP_SIZE was set, then it must have been manually set
-    # ensure that it is maintained
-    if test -n "${origMaxHeapSize}"; then
-        MAX_HEAP_SIZE=${origMaxHeapSize}
-    fi
-
     if test -n "${MAX_HEAP_SIZE}" && ! test "${MAX_HEAP_SIZE}" = "AUTO" ; then
         jvmOptions="${jvmOptions} --maxHeapSize ${MAX_HEAP_SIZE}"
-    fi
+    fi    
 
     echo "${jvmOptions}"
 }
