@@ -32,9 +32,9 @@ printf "
 " "Topology Master Server" "POD Server" "${_masterTopologyHostname}:${_masterTopologyLdapsPort}" "${_podHostname}:${_podLdapsPort:?}"
 
 # manage-topology add-server does not currently support an admin password file - see DS-43027
-if test -f "${ADMIN_USER_PASSWORD_FILE}"; then
-    ADMIN_USER_PASSWORD=$(cat "${ADMIN_USER_PASSWORD_FILE}")
-else
+# Read the value from file using get_value if necessary, or default to PING_IDENTITY_PASSWORD.
+ADMIN_USER_PASSWORD="$(get_value ADMIN_USER_PASSWORD true)"
+if test -z "${ADMIN_USER_PASSWORD}"; then
     ADMIN_USER_PASSWORD="${PING_IDENTITY_PASSWORD}"
 fi
 

@@ -385,15 +385,30 @@ sleep_at_most ()
 }
 
 ###############################################################################
-# get_value (variable)
+# get_value (variable, checkFile)
 #
-# Get the value of a variable passed, preserving any spaces
+# Get the value of a variable passed, preserving any spaces.
+# If the provided variable isn't set, and the value of the second parameter 
+# checkFile is true, then the corresponding file variable will be checked.
+# For example if "get_value ADMIN_USER_PASSWORD true" is called and the
+# ADMIN_USER_PASSWORD variable isn't set, then the ADMIN_USER_PASSWORD_FILE
+# variable will be checked. If the file variable is set, the value will be
+# read from the corresponding file.
 ###############################################################################
 get_value ()
 {
     # the following will preserve spaces in the printf
     IFS="%%"
-    eval printf '%s' "\${${1}}"
+    value="$(eval printf '%s' "\${${1}}")"
+    checkFile="$(toLower ${2})"
+    if test -z "${value}" && test "${checkFile}" = "true"; then
+        fileVar="${1}_FILE"
+        file="$(eval printf '%s' "\${${fileVar}}")"
+        if test -n "${file}"; then
+           value="$(cat ${file})"
+        fi
+    fi
+    eval printf '%s' "${value}"
     unset IFS
 }
 
@@ -496,7 +511,7 @@ echo_vars ()
 ###############################################################################
 # warn_unsafe_variables ()
 #
-# Provide hard warning about any varialbes starting with UNSAFE_
+# Provide hard warning about any variables starting with UNSAFE_
 ###############################################################################
 warn_unsafe_variables ()
 {
