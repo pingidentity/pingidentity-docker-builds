@@ -2,7 +2,7 @@ version: "2.4"
 
 services:
   sut:
-    image: ${REGISTRY}/pingdatagovernance:8.1.0.0-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingdatagovernance:8.2.0.0-EA-alpine-az11-${GIT_TAG}
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}

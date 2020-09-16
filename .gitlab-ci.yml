@@ -15,8 +15,6 @@ default:
     - ci_scripts/before_script.sh
   services:
     - docker:18.09-dind
-  tags:
-    - k8s
 variables:
   DOCKER_HOST: tcp://localhost:2375
   KUBERNETES_CPU_REQUEST: 1250m

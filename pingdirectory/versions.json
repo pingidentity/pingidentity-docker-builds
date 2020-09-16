@@ -2,6 +2,23 @@
     "latest":"8.1.0.0",
     "versions":[
         {
+            "version": "8.2.0.0-EA",
+            "preferredShim": "alpine",
+            "shims":[
+                {
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "version": "8.1.0.0",
             "preferredShim": "alpine",
             "shims":[
