@@ -61,7 +61,7 @@ then
     # before the service is actually started.  The post start SHOULD
     # poll the service (i.e. curl commands or ldapsearch or ...) to verify it
     # is running before performing the actual post start tasks.
-    run_if_present "${HOOKS_DIR}/80-post-start.sh" &
+    run_hook "80-post-start.sh" &
 
     if test -n "${TAIL_LOG_FILES}" ;
     then

@@ -56,9 +56,17 @@ ENV PING_PRODUCT=PingDataSync
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
 ENV STARTUP_FOREGROUND_OPTS="--nodetach"
 
+#-- The default retry timeout in seconds for manage-topology and
+#-- remove-defunct-server
+ENV RETRY_TIMEOUT_SECONDS=180
+
+#-- Failover administrative user
+ENV ADMIN_USER_NAME=admin
+
 #-- Location of file with the root user password (i.e. cn=directory manager).
 #-- Defaults to the /SECRETS_DIR/root-user-password
 ENV ROOT_USER_PASSWORD_FILE=
+ENV ADMIN_USER_PASSWORD_FILE=
 
 ENV PD_PROFILE="${STAGING_DIR}/pd.profile"
 

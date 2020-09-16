@@ -27,18 +27,6 @@ END {if (maj && min && ga) {exit 0} else {exit 1}}' \
     "${_build_info}"
 }
 
-# Checks if the product version is 8.2.x.x-EA or greater
-is_ge_82() {
-  test -f "${_build_info}" \
-    && awk \
-'BEGIN {major_gt=0;major_eq=0;minor_ge=0}
-$1=="Major" && $3>8 {major_gt=1}
-$1=="Major" && $3==8 {major_eq=1}
-$1=="Minor" && $3>=2 {minor_ge=1}
-END {if (major_eq && minor_ge || major_gt) {exit 0} else {exit 1}}' \
-  "${_build_info}"
-}
-
 # shellcheck disable=SC2046
 if test -f "${SERVER_ROOT_DIR}"/bin/start-server-pre-82 ;
 then
