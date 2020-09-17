@@ -163,6 +163,16 @@ fi
 latestVersion=$( _getLatestVersionForProduct "${productToDeploy}" )
 
 #
+# perform a docker login to docker hub.  This is required to properly authenticate and
+# sign images with docker
+#
+echo "Logging into docker hub..."
+requirePipelineVar DOCKER_USER
+requirePipelineVar DOCKER_PASSWORD
+
+docker login --username "${DOCKER_USER}" --password "${DOCKER_PASSWORD}"
+
+#
 # Determine whether the commit is associated with a sprint tag
 #   a print tag ends with 4 digits, YYMM
 #
