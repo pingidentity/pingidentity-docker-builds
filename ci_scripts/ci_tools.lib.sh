@@ -149,6 +149,19 @@ _getLicenseVersion ()
     echo ${1}| cut -d. -f1,2
 }
 
+###############################################################################
+# get_value (variable)
+#
+# Get the value of a variable passed, preserving any spaces
+###############################################################################
+get_value ()
+{
+    # the following will preserve spaces in the printf
+    IFS="%%"
+    eval printf '%s' "\${${1}}"
+    unset IFS
+}
+
 # echos banner bar of 80 hashes '#'
 banner_bar ()
 {
@@ -296,6 +309,33 @@ _getLatestSnapshotVersionForProduct ()
     return ${?}
 }
 
+################################################################################
+# Verify that the file is found.  If not, then error/exit
+################################################################################
+requirePipelineFile ()
+{
+    _pipelineFile="$(get_value "${1}")"
+
+    if test ! -f "${_pipelineFile}" ; then
+        echo_red "${_pipelineFile} file missing. Needs to be defined/created (i.e. ci/cd pipeline file)"
+        exit 1
+    fi
+}
+
+################################################################################
+# Verify that the variable is found and not empty.  If not, then error/exit
+################################################################################
+requirePipelineVar ()
+{
+    _pipelineVar="${1}"
+
+    if test -z "${_pipelineVar}" ; then
+        echo_red "${_pipelineVar} variable missing. Needs to be defined/created (i.e. ci/cd pipeline variable)"
+        exit 1
+    fi
+}
+
+
 if test -n "${PING_IDENTITY_SNAPSHOT}"
 then
     #we are in building snapshot
@@ -309,8 +349,66 @@ then
 elif test -n "${CI_COMMIT_REF_NAME}"
 then
     #we are in CI pipeline
-    FOUNDATION_REGISTRY="gcr.io/ping-gte"
-    # FOUNDATION_REGISTRY="574076504146.dkr.ecr.us-west-2.amazonaws.com"
+    # Ensure that the pipe-line provides the following variables
+    #  - PIPELINE_BUILD_REGISTRY_VENDOR
+    #  - PIPELINE_BUILD_REGISTRY
+    #  - PIPELINE_BUILD_REPO
+    requirePipelineVar PIPELINE_BUILD_REGISTRY_VENDOR
+    requirePipelineVar PIPELINE_BUILD_REGISTRY
+    requirePipelineVar PIPELINE_BUILD_REPO
+
+    FOUNDATION_REGISTRY="${PIPELINE_BUILD_REGISTRY}/${PIPELINE_BUILD_REPO}"
+
+    banner "CI PIPELINE using ${PIPELINE_BUILD_REGISTRY_VENDOR} - ${FOUNDATION_REGISTRY}"
+
+    case "${PIPELINE_BUILD_REGISTRY_VENDOR}" in
+        aws)
+            # shellcheck source=./aws_tools.lib.sh
+            . "${CI_SCRIPTS_DIR}/aws_tools.lib.sh"
+            ;;
+        google)
+            # shellcheck source=./google_tools.lib.sh
+            . "${CI_SCRIPTS_DIR}/google_tools.lib.sh"
+            ;;
+        azure)
+            echo_red "azure not implemented yet"
+            exit 1
+            # shellcheck source=./azure_tools.lib.sh
+            . "${CI_SCRIPTS_DIR}/azure_tools.lib.sh"
+            ;;
+    esac
+
+    #
+    # setup the docker config.json.  Provides instructions to docker on how to
+    # authenticate to google, aws, azure
+    #
+    requirePipelineFile DOCKER_CONFIG_JSON
+
+    echo "Using docker config.json '${DOCKER_CONFIG_JSON}'"
+    mkdir -p /root/.docker
+    cp "${DOCKER_CONFIG_JSON}" /root/.docker/config.json
+
+    #
+    # setup the docker trust material.
+    #
+    requirePipelineFile DOCKER_TRUST_PRIVATE_KEY_FILE
+    requirePipelineVar DOCKER_TRUST_PRIVATE_KEY
+    requirePipelineVar DOCKER_TRUST_PRIVATE_KEY_SIGNER
+
+    echo "Using docker trust private key '${DOCKER_TRUST_PRIVATE_KEY}'"
+    echo "Using docker trust private key file'${DOCKER_TRUST_PRIVATE_KEY_FILE}'"
+    echo "Using docker trust private key signer '${DOCKER_TRUST_PRIVATE_KEY_SIGNER}'"
+    mkdir -p /root/.docker/trust/private
+    cp "${DOCKER_TRUST_PRIVATE_KEY_FILE}" "/root/.docker/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
+    chmod 600 "/root/.docker/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
+
+    docker trust key load "/root/.docker/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
+
+
+    # In order to initialize the docker login to ecr, a single docker pull needs
+    # to occur.  This basically primes the pump for docker builds with FROM's later on
+    docker pull "${PIPELINE_BUILD_REGISTRY}/ci-utils/hello:latest"
+
     # shellcheck disable=SC2155
     gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
     # shellcheck disable=SC2155
@@ -334,5 +432,4 @@ export gitRevShort
 export gitRevLong
 export gitBranch
 export ciTag
-export AWS_ACCESS_KEY_ID=${ECR_AWS_ACCESS_KEY_ID}
-export AWS_SECRET_ACCESS_KEY=${ECR_AWS_SECRET_ACCESS_KEY}
+

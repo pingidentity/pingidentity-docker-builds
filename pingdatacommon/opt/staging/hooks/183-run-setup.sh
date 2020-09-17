@@ -82,5 +82,9 @@ ${_manage_profile_cmd}
 if test $? -ne 0 ; then
     test -f /tmp/rejects.ldif && cat /tmp/rejects.ldif
     echo_red "Error during 'manage-profile setup'"
+    echo_red "Log '${SERVER_ROOT_DIR}/logs/tools/manage-profile.log'"
+    cat "${SERVER_ROOT_DIR}/logs/tools/manage-profile.log"
+    echo_red "Log '${SERVER_ROOT_DIR}/logs/tools/install-ds.log'"
+    cat "${SERVER_ROOT_DIR}/logs/tools/install-ds.log"
     exit 183
 fi
