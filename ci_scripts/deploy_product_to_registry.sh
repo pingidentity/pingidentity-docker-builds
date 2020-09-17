@@ -58,9 +58,10 @@ tag_and_push ()
         echo "Pushing ${_target}"
         if test "${registryToDeployTo}" = "$(jq -r '. | .registries | .[] | select(.name == "dockerhub global") | .registry' "${_file}")"
         then
-            ${dryRun} docker trust revoke "${_target}"
-            ${dryRun} docker trust sign "${_target}"
+            ${dryRun} docker --config "${_config_dir}" trust revoke "${_target}"
+            ${dryRun} docker --config "${_config_dir}" trust sign "${_target}"
         else
+            echo_red "Pushing to a non dockerhub global.  We need revisit this next push."
             ${dryRun} docker push "${_target}"
         fi
         ${dryRun} docker image rm -f "${_target}"
@@ -167,10 +168,23 @@ latestVersion=$( _getLatestVersionForProduct "${productToDeploy}" )
 # sign images with docker
 #
 echo "Logging into docker hub..."
-requirePipelineVar DOCKER_USER
+requirePipelineVar DOCKER_USERNAME
 requirePipelineVar DOCKER_PASSWORD
 
-docker login --username "${DOCKER_USER}" --password "${DOCKER_PASSWORD}"
+#
+# Move docker config.json over to an ecr version
+#
+_config_dir="/root/.docker"
+_config_ecr_dir="/root/.docker-ecr"
+
+mkdir -p "${_config_ecr_dir}"
+mv "${_config_dir}/config.json" "${_config_ecr_dir}/config.json"
+
+#
+# login to docker.io using the default config.json
+#
+docker --config "${_config_dir}" login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
+
 
 #
 # Determine whether the commit is associated with a sprint tag
@@ -222,7 +236,7 @@ do
             banner "Processing ${productToDeploy} ${_shim} ${_jvm}"
             fullTag="${_version}-${_shimLongTag}-${_jvm}-${ciTag}"
             test -z "${dryRun}" \
-                && docker pull "${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
+                && docker --config "${_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
             _jvmVersion=$( _getJVMVersionForID "${_jvm}" )
             for registryToDeployTo in ${_registryList}
             do
