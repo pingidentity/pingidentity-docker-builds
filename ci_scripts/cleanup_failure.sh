@@ -15,21 +15,26 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
-images="$(gcloud container images list --repository=gcr.io/ping-gte)"
+banner "Cleaning up after failure"
+#
+# The functions below should be defined in the vendor_tools.lib.sh scripts
+#
+echo "getting images for: ${FOUNDATION_REGISTRY}"
+images="$(_getDockerRepoName)"
 for _image in ${images:5}
 do
-    echo "RUNNING FOR IMAGE: ${_image}"
-    tags=$(gcloud container images list-tags "${_image}" --format="value(tags)" --filter=TAGS:"${ciTag}" | sed -e 's/,/ /g' )
+    echo "  getting tags for image: ${_image}"
+    tags="$(_getDockerTagsForRepo "${_image}" "${ciTag}")"
     for tag in ${tags}
     do
-        echo "RUNNING FOR TAG: ${tag}"
-        gcloud container images untag "${_image}:${tag}" --quiet
+        echo "    untagging image tag: ${tag}"
+        _untagDockerImage "${_image}" "${tag}"
     done
-    digests="$(gcloud container images list-tags "${_image}" --filter='-tags:*'  --format='get(digest)' --limit=1000)"
+    digests=_getUntaggedImageDigests "${_image}"
     for digest in ${digests}
     do
-    echo "RUNNING FOR DIGEST: ${digest}"
-    gcloud container images delete ${_image}@${digest} --quiet
+        echo "    deleting image digest: ${digest}"
+        _deleteImageDigest "${_image}" "${digest}"
     done
 done
 

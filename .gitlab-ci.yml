@@ -8,7 +8,9 @@ stages:
   - publish
   - cleanup
 
-# image: gcr.io/ping-gte/ubuntu-gitlab-private:latest
+# Using gcr.io --- GDO-470
+# Need to move this to ECR eventually
+image: gcr.io/ping-gte/ubuntu-gitlab-ecr:latest
 
 default:
   before_script:
@@ -1076,7 +1078,7 @@ pd-repl.latest:
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
-      
+
 dg-8001:
   stage: test.integration
   script:
@@ -1154,6 +1156,11 @@ pds-pd.latest:
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml
+  variables:
+    KUBERNETES_CPU_REQUEST: 2
+    KUBERNETES_CPU_LIMIT: 2
+    KUBERNETES_MEMORY_REQUEST: 4Gi
+    KUBERNETES_MEMORY_LIMIT: 4Gi
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -1204,6 +1211,11 @@ pdg-pd.latest:
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml
+  variables:
+    KUBERNETES_CPU_REQUEST: 2
+    KUBERNETES_CPU_LIMIT: 2
+    KUBERNETES_MEMORY_REQUEST: 4Gi
+    KUBERNETES_MEMORY_LIMIT: 4Gi
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
