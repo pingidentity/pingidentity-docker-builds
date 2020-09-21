@@ -85,6 +85,11 @@
             "name": "apache-jmeter",
             "mapping": "apache-jmeter-${version}.zip",
             "latestVersion": "5.3.0"
+        },
+        {
+            "name": "pingintelligence-ase",
+            "mapping": "PingIntelligence-ASE-rhel-${version}.zip",
+            "latestVersion": "4.2"
         }
     ]
 }
