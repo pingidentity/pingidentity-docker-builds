@@ -1,0 +1,22 @@
+{
+    "latest":"4.2",
+    "versions":[
+        {
+            "version": "4.2",
+            "preferredShim": "centos",
+            "shims":[
+                {
+                    "shim": "centos",
+                    "preferredJVM": "co11",
+                    "jvms": [
+                        {
+                            "jvm": "co11",
+                            "build": true,
+                            "deploy": true
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
