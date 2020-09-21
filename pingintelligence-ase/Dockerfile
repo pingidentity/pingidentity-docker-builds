@@ -65,6 +65,11 @@ ENV ROOT_USER_PASSWORD_FILE=
 ENV ADMIN_USER_PASSWORD_FILE=
 ENV ENCRYPTION_PASSWORD_FILE=
 
+#-- The timezone the ASE container is operating in
+ENV  ASE_TIMEZONE=local
+
+#--
+
 #-- Files tailed once container has started
 ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/*"
 

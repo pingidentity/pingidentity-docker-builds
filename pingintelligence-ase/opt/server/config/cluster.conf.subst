@@ -1,0 +1,25 @@
+; API Security Enforcer's cluster configuration.
+; This file is in the standard .ini format. The comments start with a semicolon (;).
+; Section is enclosed in []
+; Following configurations are applicable only if cluster is enabled with true in ase.conf
+
+; unique cluster id.
+; valid character class is [ A-Z a-z 0-9 _ - . / ]
+; nodes in same cluster should share same cluster id
+cluster_id=ase_cluster
+
+; cluster management port.
+cluster_manager_port=8020
+
+; cluster peer nodes.
+; a comma-separated list of hostname:cluster_manager_port or IPv4_address:cluster_manager_port
+; this node will try to connect all the nodes in this list
+; they should share same cluster id
+peer_node=${PEER_NODE}
+
+; cluster secret key.
+; maximum length of secret key is 128 characters (deobfuscated length).
+; every node should have same secret key to join same cluster.
+; this field can not be empty.
+; change default key for production.
+cluster_secret_key=OBF:AES:nPJOh3wXQWK/BOHrtKu3G2SGiAEElOSvOFYEiWfIVSdummoFwSR8rDh2bBnhTDdJ:7LFcqXQlqkW9kldQoFg0nJoLSojnzHDbD3iAy84pT84
