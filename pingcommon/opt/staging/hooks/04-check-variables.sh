@@ -12,8 +12,8 @@
 
 #######################################################################################################
 
-# warn about any UNSAFE_ variables
-warn_unsafe_variables
+# warn about any UNSAFE_ or deprecated variables
+print_variable_warnings
 
 #
 # Flag used to track any validation errors (set by the echo_vars below).  If errors are found, then this
