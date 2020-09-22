@@ -29,11 +29,11 @@
 <a name="devops-license"></a>
 ## Devops License
 
-Before running this image, you must obtain an evaluation [license](https://pingidentity-devops.gitbook.io/devops/prod-license).
+Before running this image, you must obtain an evaluation [license](https://pingidentity-devops.gitbook.io/devops/getstarted/devopsregistration).
 
 <a name="getting-started"></a>
 ## Getting Started
-Before getting started, you will need to obtain a valid PingCentral license. 
+Before getting started, you will need to obtain a valid PingCentral license.
 You will then need to override the existing license with your valid license in `pingcentral/conf`.
 
 <a name="running-with-docker"></a>
@@ -41,13 +41,13 @@ You will then need to override the existing license with your valid license in `
 
 <a name="docker-external-db"></a>
 ### Running PingCentral Docker With an External Database (MySQL / PostgreSQL / RDS / etc)
-On first startup with a database, PingCentral creates a hostkey which is used in concert with the database.  
+On first startup with a database, PingCentral creates a hostkey which is used in concert with the database.
 If you are not planning on starting PingCentral up with a completely fresh external database every run, this hostkey needs to be preserved.
 
 The first step in this process is to first obtain the hostkey:
  - Edit `pingcentral/conf/mysql/application.properties` to contain the correct information for your MySQL database
  - Startup PingCentral in Docker: `docker run --name pingcentral -d -p 9022:9022 ping/pingcentral`
- - Once PingCentral is running, Copy the hostkey that was automatically created out of the Docker container and onto your local filesystem: 
+ - Once PingCentral is running, Copy the hostkey that was automatically created out of the Docker container and onto your local filesystem:
     `docker cp pingcentral:/opt/pingcentral/conf/pingcentral.jwk .`
  - Place this pingcentral.jwk file somewhere safe. For this example, we will place it in `pingcentral/conf/mysql/`
 
@@ -58,7 +58,7 @@ Now all future runs of pingcentral in docker will properly start and connect to 
 
 <a name="docker-h2"></a>
 ### Running PingCentral Docker with H2
-The H2 database resides in the file system.  In order to preserve the database between docker runs and avoid its destruction, 
+The H2 database resides in the file system.  In order to preserve the database between docker runs and avoid its destruction,
 the H2 database must be preserved in a volume.  You can do this by specifying a volume when running docker:
 
 `docker run --name pingcentral --volume pingcentral/conf/h2/pingcentral.jwk:/opt/pingcentral/conf/pingcentral.jwk --volume pingcentral/conf/h2/pingcentral.mv.db:/opt/pingcentral/h2-data/pingcentral.mv.db -d -p 9022:9022 ping/pingcentral`
@@ -73,7 +73,7 @@ Starting up PingCentral with docker-compose with a blank MySQL database is as si
 
 `docker-compose -f docker-compose-mysql.yml up -d`
 
-To preserve the database between runs, simply use the command: `docker-compose -f docker-compose-mysql.yml stop` instead of `down`. 
+To preserve the database between runs, simply use the command: `docker-compose -f docker-compose-mysql.yml stop` instead of `down`.
 
 If you wish to copy the database files out of the container, you can use the command: `docker cp mysql:/var/lib/mysql /path/to/save`
 
@@ -81,7 +81,7 @@ If you wish to copy the database files out of the container, you can use the com
 ### Running PingCentral Docker-Compose with H2
 The docker-compose file for PingCentral and an H2 database is located at `pingcentral/docker-compose-h2.yml`
 
-A blank H2 database and its associated hostkey is included in `pingcentral/conf/h2` for your use. 
+A blank H2 database and its associated hostkey is included in `pingcentral/conf/h2` for your use.
 By default, the h2 docker compose file will preserve the database between runs in this pingcentral/conf/h2 location.
 If you wish to start PingCentral up with a blank database on each run, simply edit the `docker-compose-h2.yml` file and remove the following lines:
 ```$xslt

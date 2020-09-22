@@ -118,7 +118,7 @@ then
 #
 #
 # More info on obtaining your DevOps User and Key can be found at:
-#      https://pingidentity-devops.gitbook.io/devops/prod-license
+#      https://pingidentity-devops.gitbook.io/devops/getstarted/devopsregistration
 #
 ##################################################################################"
     container_failure 17 "License File absent"
