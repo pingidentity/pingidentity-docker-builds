@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
 # warn about any UNSAFE_ variables
-warn_unsafe_variables
+print_variable_warnings
 
 exit 0
