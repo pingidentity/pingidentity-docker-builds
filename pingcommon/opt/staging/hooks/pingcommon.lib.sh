@@ -388,7 +388,7 @@ sleep_at_most ()
 # get_value (variable, checkFile)
 #
 # Get the value of a variable passed, preserving any spaces.
-# If the provided variable isn't set, and the value of the second parameter 
+# If the provided variable isn't set, and the value of the second parameter
 # checkFile is true, then the corresponding file variable will be checked.
 # For example if "get_value ADMIN_USER_PASSWORD true" is called and the
 # ADMIN_USER_PASSWORD variable isn't set, then the ADMIN_USER_PASSWORD_FILE
@@ -405,10 +405,10 @@ get_value ()
         fileVar="${1}_FILE"
         file="$(eval printf '%s' "\${${fileVar}}")"
         if test -n "${file}"; then
-           value="$(cat ${file})"
+            value="$(cat ${file})"
         fi
     fi
-    eval printf '%s' "${value}"
+    printf '%s' "${value}"
     unset IFS
 }
 
@@ -450,7 +450,8 @@ echo_req_vars ()
 # Echo a formatted list of variables and their value.
 # If the variable is empty, then, '---- empty ----' will be echoed
 # If the variable is found in env_vars file, then '(env_vars overridden)'
-# If the varaible has a _REDACT=true, then '*** REDACTED ***'
+# If the variable has a _REDACT=true, or if the _redactAll variable is set
+# to true, then '*** REDACTED ***'
 ###############################################################################
 echo_vars ()
 {
@@ -476,7 +477,7 @@ echo_vars ()
     _varRedact="${_var}_REDACT"
     _varRedact=$( get_value "${_varRedact}" )
 
-    if test "${_varRedact}" = "true"
+    if test "${_varRedact}" = "true" || test "${_redactAll}" = "true"
     then
       _val="*** REDACTED ***"
     fi
@@ -516,26 +517,87 @@ echo_vars ()
 warn_unsafe_variables ()
 {
 
-_unsafeValues="$(env | grep "^UNSAFE_" | awk -F'=' '{ print $2 }')"
+    _unsafeValues="$(env | grep "^UNSAFE_" | awk -F'=' '{ print $2 }')"
 
-if test -n "${_unsafeValues}"; then
-    echo_red "################################################################################"
-    echo_red "######################### WARNING - UNSAFE_ VARIABLES ##########################"
-    echo_red "################################################################################"
-    echo_red "#  The following UNSAFE variables are used.  Be aware of unintended consequences"
-    echo_red "#  as it is considered unsafe to continue, especially in production deployments."
-    echo_red ""
+    if test -n "${_unsafeValues}"; then
+        echo_red "################################################################################"
+        echo_red "######################### WARNING - UNSAFE_ VARIABLES ##########################"
+        echo_red "################################################################################"
+        echo_red "#  The following UNSAFE variables are used.  Be aware of unintended consequences"
+        echo_red "#  as it is considered unsafe to continue, especially in production deployments."
+        echo_red ""
 
-    for _unsafeVar in $(env | grep "^UNSAFE_" | sort | awk -F'=' '{ print $1 }') ; do
-        _unsafeValue=$( get_value "${_unsafeVar}" )
+        for _unsafeVar in $(env | grep "^UNSAFE_" | sort | awk -F'=' '{ print $1 }') ; do
+            _unsafeValue=$( get_value "${_unsafeVar}" )
 
-        test -n "${_unsafeValue}" && echo_vars "${_unsafeVar}"
+            test -n "${_unsafeValue}" && echo_vars "${_unsafeVar}"
+        done
+
+        echo_red ""
+        echo_red "################################################################################"
+        echo_red ""
+    fi
+}
+
+###############################################################################
+# warn_deprecated_variables ()
+#
+# Provide a warning about any deprecated variables
+###############################################################################
+warn_deprecated_variables ()
+{
+    # Add any new deprecated variables to this file in the pingcommon image.
+    _deprecatedVarsJson="/opt/staging/deprecated-variables.json"
+    if ! test -f "${_deprecatedVarsJson}"; then
+        return 0
+    fi
+
+    _deprecatedHeaderPrinted=false
+    # Read variable names from the json file
+    for _deprecatedVar in $(jq -r '.[] | .name' "${_deprecatedVarsJson}"); do
+        _deprecatedValue=$( get_value "${_deprecatedVar}" )
+        if test -n "${_deprecatedValue}"; then
+            if test "${_deprecatedHeaderPrinted}" != "true"; then
+                echo_yellow "################################################################################"
+                echo_yellow "################################################################################"
+                echo_yellow "###################### WARNING - DEPRECATED VARIABLES ##########################"
+                echo_yellow "#  The following deprecated variables were found. These variables may be removed"
+                echo_yellow "#  in a future release."
+                echo_yellow ""
+                _deprecatedHeaderPrinted=true
+            fi
+            # Don't print values of sensitive variables
+            _sensitive=$(jq -r ".[] | select(.name==\"${_deprecatedVar}\") | .sensitive" "${_deprecatedVarsJson}")
+            if test "${_sensitive}" = "true"; then
+                _redactAll=true
+            else
+                _redactAll=false
+            fi
+            echo_vars "${_deprecatedVar}"
+            # Print a specific message for variables that have provided one
+            _deprecatedVarMessage=$(jq -r ".[] | select(.name==\"${_deprecatedVar}\") | .message" "${_deprecatedVarsJson}")
+            if test -n "${_deprecatedVarMessage}" && test "${_deprecatedVarMessage}" != "null"; then
+                echo_yellow "# ${_deprecatedVarMessage}"
+            fi
+        fi
     done
+    if test "${_deprecatedHeaderPrinted}" = "true"; then
+        echo_yellow ""
+        echo_yellow "################################################################################"
+        echo_yellow ""
+    fi
+    _redactAll=false
+}
 
-    echo_red ""
-    echo_red "################################################################################"
-    echo_red ""
-fi
+###############################################################################
+# print_variable_warnings ()
+#
+# Print warnings for deprecated variables and variables starting with _UNSAFE
+###############################################################################
+print_variable_warnings ()
+{
+    warn_deprecated_variables
+    warn_unsafe_variables
 }
 
 ###############################################################################

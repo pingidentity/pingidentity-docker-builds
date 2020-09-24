@@ -10,7 +10,7 @@
 
 ## License
 
-Before running this image, you must obtain an evaluation [license](https://pingidentity-devops.gitbook.io/devops/prod-license).
+Before running this image, you must obtain an evaluation [license](https://pingidentity-devops.gitbook.io/devops/getstarted/devopsregistration).
 
 ## Commercial Support
 

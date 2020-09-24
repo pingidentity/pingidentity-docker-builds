@@ -1,8 +1,8 @@
 {
-    "latest": "10.1.0",
+    "latest": "10.1.1",
     "versions": [
         {
-            "version": "10.1.0",
+            "version": "10.2.0-Beta",
             "preferredShim": "alpine",
             "shims": [
                 {
@@ -13,6 +13,40 @@
                             "jvm": "az11",
                             "build": true,
                             "deploy": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "version": "10.1.1",
+            "preferredShim": "alpine",
+            "shims": [
+                {
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "version": "10.1.0",
+            "preferredShim": "alpine",
+            "shims": [
+                {
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": false,
+                            "deploy": false
                         }
                     ]
                 }
@@ -36,7 +70,7 @@
             ]
         },
         {
-            "version": "10.0.4",
+            "version": "10.0.5",
             "preferredShim": "alpine",
             "shims": [
                 {
@@ -47,6 +81,23 @@
                             "jvm": "az11",
                             "build": true,
                             "deploy": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "version": "10.0.4",
+            "preferredShim": "alpine",
+            "shims": [
+                {
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": false,
+                            "deploy": false
                         }
                     ]
                 }

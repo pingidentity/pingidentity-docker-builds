@@ -3,7 +3,7 @@ set -xe
 echo "hello from before script"
 
 pwd
-env
+env | sort
 echo $USER
 type jq
 type python

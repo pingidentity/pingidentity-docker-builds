@@ -8,10 +8,6 @@ stages:
   - publish
   - cleanup
 
-# Using gcr.io --- GDO-470
-# Need to move this to ECR eventually
-image: gcr.io/ping-gte/ubuntu-gitlab-ecr:latest
-
 default:
   before_script:
     - ci_scripts/before_script.sh
