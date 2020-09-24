@@ -8,8 +8,6 @@ stages:
   - publish
   - cleanup
 
-image: pingdevops.com/ci-utils/docker-builds-runner:latest
-
 default:
   before_script:
     - ci_scripts/before_script.sh
