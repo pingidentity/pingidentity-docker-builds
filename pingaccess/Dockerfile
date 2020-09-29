@@ -1,8 +1,8 @@
 #- # Ping Identity DevOps Docker Image - `pingaccess`
-#- 
+#-
 #- This docker image includes the Ping Identity PingAccess product binaries
 #- and associated hook scripts to create and run both PingAccess Admin and
-#- Engine nodes. 
+#- Engine nodes.
 #-
 #- ## Related Docker Images
 #- - `pingidentity/pingbase` - Parent Image
@@ -44,7 +44,7 @@ COPY ["/opt","/opt"]
 RUN ["/opt/build.sh"]
 
 #
-# the final image 
+# the final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
 ARG LICENSE_VERSION
@@ -68,9 +68,9 @@ ENV PA_ENGINE_PORT=3000
 EXPOSE ${PA_ADMIN_PORT} ${PA_ENGINE_PORT} ${HTTPS_PORT}
 COPY --from=final-staging ["/","/"]
 
-#- ## Running a PingDirectory container
-#- To run a PingAccess container: 
-#- 
+#- ## Running a PingAccess container
+#- To run a PingAccess container:
+#-
 #- ```shell
 #-   docker run \
 #-            --name pingaccess \
@@ -81,14 +81,14 @@ COPY --from=final-staging ["/","/"]
 #-            --env SERVER_PROFILE_PATH=getting-started/pingaccess \
 #-            pingidentity/pingaccess:edge
 #- ```
-#- 
-#- 
+#-
+#-
 #- Follow Docker logs with:
-#- 
+#-
 #- ```
 #- docker logs -f pingaccess
 #- ```
-#- 
+#-
 #- If using the command above with the embedded [server profile](https://pingidentity-devops.gitbook.io/devops/config/containeranatomy), log in with:
 #- * https://localhost:9000
 #-   * Username: Administrator
