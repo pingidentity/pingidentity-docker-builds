@@ -10,13 +10,20 @@ _osID=$( awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </
 
 case "${_osID}" in
     alpine)
-        apk --no-cache --update add git git-lfs curl ca-certificates jq zip gnupg libintl openssh-client inotify-tools parallel
+        apk --no-cache --update add git git-lfs curl ca-certificates zip gnupg libintl openssh-client inotify-tools parallel
         # install package dependency for variable substitution
         apk --no-cache --update add gettext
         # extract just the binary we need
-        cp /usr/bin/envsubst /usr/local/bin/envsubst 
+        cp /usr/bin/envsubst /usr/local/bin/envsubst
         # wipe the dependency
         apk --no-cache --update del gettext
+
+        # install jq and dependency library
+        apk --no-cache add oniguruma jq
+        # extract just the binary we need
+        cp /usr/bin/jq /usr/local/bin/jq
+        # wipe the jq from the apk installed list
+        apk --no-cache del jq
         # altogether remove the package manager
         # rm -rf /sbin/apk /etc/apk /lib/apk /usr/share/apk /var/lib/apk
     ;;
@@ -41,7 +48,7 @@ case "${_osID}" in
     ;;
 esac
 
-chmod -Rf a+rwx /opt 
+chmod -Rf a+rwx /opt
 
 test -f "/opt/build.sh.post" && sh /opt/build.sh.post
 

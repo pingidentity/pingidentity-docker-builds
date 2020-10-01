@@ -66,7 +66,7 @@ tag_and_push ()
     if test "${productToDeploy}" = "pingdownloader"
     then
         _source="${FOUNDATION_REGISTRY}/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
-        _target="${registryToDeployTo}/pingdownloader"
+        _target="${registryToDeployTo}/pingdownloader:latest"
     else
         _source="${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
         _target="${registryToDeployTo}/${productToDeploy}:${1}"
@@ -80,7 +80,7 @@ tag_and_push ()
         echo "Pushing ${_target}"
         if test "${registryToDeployTo}" = "$(jq -r '. | .registries | .[] | select(.name == "dockerhub global") | .registry' "${_file}")"
         then
-            docker --config "${_config_dir}" trust revoke "${_target}"
+            docker --config "${_config_dir}" --yes trust revoke "${_target}"
             docker --config "${_config_dir}" trust sign "${_target}"
         else
             echo_red "Pushing to a non dockerhub global.  We need revisit this next push."
@@ -240,6 +240,8 @@ banner "Deploying ${productToDeploy}"
 #
 if test "${productToDeploy}" = "pingdownloader"
 then
+    test -z "${dryRun}" \
+                && docker --config "${_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
     for registryToDeployTo in ${_registryList}
     do
         tag_and_push ""
