@@ -60,8 +60,18 @@ exec_cmd_fail ()
 #
 tag_and_push ()
 {
-    _source="${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
-    _target="${registryToDeployTo}/${productToDeploy}:${1}"
+    #
+    # Special case for pingdownloader since it only has a tag for the branch and short sha
+    #
+    if test "${productToDeploy}" = "pingdownloader"
+    then
+        _source="${FOUNDATION_REGISTRY}/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
+        _target="${registryToDeployTo}/pingdownloader"
+    else
+        _source="${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
+        _target="${registryToDeployTo}/${productToDeploy}:${1}"
+    fi
+
     _file="${CI_PROJECT_DIR}/registries.json"
     test -z "${dryRun}" \
         && docker tag "${_source}" "${_target}"
@@ -145,15 +155,15 @@ done
 #
 # read in the lines from the passed registry file
 #
-while read -r _registry
-do
-    if test -n "${_registry}"
-    then
-        _registryList="${_registryList:+${_registryList} }${_registry}"
-    fi
-done < "${_registryListFile}"
-
-banner "Deploying to registry(s) '${_registryListFile}'"
+if test -f "${_registryListFile}" ; then
+    while read -r _registry
+    do
+        if test -n "${_registry}"
+        then
+            _registryList="${_registryList:+${_registryList} }${_registry}"
+        fi
+    done < "${_registryListFile}"
+fi
 
 # _commitHasTags=$( git tag --points-at "${CI_COMMIT_SHA}" )
 # _commitBranch=$( git branch --contains "${CI_COMMIT_SHA}" )
@@ -176,6 +186,8 @@ fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
+
+banner "Deploying to registry(s) '${_registryListFile}'"
 
 if test -z "${versionsToDeploy}"
 then
@@ -222,6 +234,19 @@ done
 
 # _dateStamp=$( date '%y%m%d')
 banner "Deploying ${productToDeploy}"
+
+#
+# Special case for pingdownloader, as it doesn't have versions to deploy
+#
+if test "${productToDeploy}" = "pingdownloader"
+then
+    tag_and_push ""
+    exit 0
+fi
+
+#
+# For all other products with versions
+#
 for _version in ${versionsToDeploy}
 do
     if test -z "${shimsToDeploy}"
