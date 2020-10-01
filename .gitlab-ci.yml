@@ -71,7 +71,7 @@ f.pingdownloader:
 d.pingdownloader:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --product pingdirectory
+    - ci_scripts/deploy_product_to_registry.sh --product pingdownloader
   only:
     refs:
       - master
