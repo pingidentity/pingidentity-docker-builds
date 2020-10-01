@@ -80,13 +80,13 @@ tag_and_push ()
         echo "Pushing ${_target}"
         if test "${registryToDeployTo}" = "$(jq -r '. | .registries | .[] | select(.name == "dockerhub global") | .registry' "${_file}")"
         then
-            exec_cmd_fail docker --config "${_config_dir}" trust revoke "${_target}"
-            exec_cmd_fail docker --config "${_config_dir}" trust sign "${_target}"
+            docker --config "${_config_dir}" trust revoke "${_target}"
+            docker --config "${_config_dir}" trust sign "${_target}"
         else
             echo_red "Pushing to a non dockerhub global.  We need revisit this next push."
-            exec_cmd_fail docker push "${_target}"
+            docker push "${_target}"
         fi
-        exec_cmd_fail docker image rm -f "${_target}"
+        docker image rm -f "${_target}"
     else
         echo "${_target}"
     fi
@@ -240,7 +240,10 @@ banner "Deploying ${productToDeploy}"
 #
 if test "${productToDeploy}" = "pingdownloader"
 then
-    tag_and_push ""
+    for registryToDeployTo in ${_registryList}
+    do
+        tag_and_push ""
+    done
     exit 0
 fi
 
@@ -278,7 +281,7 @@ do
 
         for _jvm in ${_jvmsToBuild}
         do
-            banner "Processing ${productToDeploy} ${_shim} ${_jvm}"
+            banner "Processing ${productToDeploy} ${_shim} ${_jvm} ${_version}"
             fullTag="${_version}-${_shimLongTag}-${_jvm}-${ciTag}"
             test -z "${dryRun}" \
                 && docker --config "${_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
