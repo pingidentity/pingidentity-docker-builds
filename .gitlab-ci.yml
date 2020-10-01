@@ -71,7 +71,7 @@ f.pingdownloader:
 d.pingdownloader:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdirectory
+    - ci_scripts/deploy_product_to_registry.sh --product pingdirectory
   only:
     refs:
       - master
@@ -139,7 +139,7 @@ t.apache-jmeter:
 d.apache-jmeter:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product apache-jmeter
+    - ci_scripts/deploy_product_to_registry.sh --product apache-jmeter
   only:
     refs:
       - master
@@ -209,7 +209,7 @@ t.ldap-sdk-tools:
 d.ldap-sdk-tools:
   stage: deploy
   script:
-    - VERBOSE=true ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product ldap-sdk-tools
+    - VERBOSE=true ci_scripts/deploy_product_to_registry.sh --product ldap-sdk-tools
   only:
     refs:
       - master
@@ -284,7 +284,7 @@ t.pingaccess:
 d.pingaccess:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingaccess
+    - ci_scripts/deploy_product_to_registry.sh --product pingaccess
   only:
     refs:
       - master
@@ -354,7 +354,7 @@ t.pingcentral:
 d.pingcentral:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingcentral
+    - ci_scripts/deploy_product_to_registry.sh --product pingcentral
   only:
     refs:
       - master
@@ -435,7 +435,7 @@ t.pingdirectory:
 d.pingdirectory:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdirectory
+    - ci_scripts/deploy_product_to_registry.sh --product pingdirectory
   only:
     refs:
       - master
@@ -511,7 +511,7 @@ t.pingdirectoryproxy:
 d.pingdirectoryproxy:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdirectoryproxy
+    - ci_scripts/deploy_product_to_registry.sh --product pingdirectoryproxy
   only:
     refs:
       - master
@@ -584,7 +584,7 @@ t.pingdelegator:
 d.pingdelegator:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdelegator
+    - ci_scripts/deploy_product_to_registry.sh --product pingdelegator
   only:
     refs:
       - master
@@ -656,7 +656,7 @@ t.pingdataconsole:
 d.pingdataconsole:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdataconsole
+    - ci_scripts/deploy_product_to_registry.sh --product pingdataconsole
   only:
     refs:
       - master
@@ -728,7 +728,7 @@ t.pingdatasync:
 d.pingdatasync:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdatasync
+    - ci_scripts/deploy_product_to_registry.sh --product pingdatasync
   only:
     refs:
       - master
@@ -802,7 +802,7 @@ t.pingdatagovernance:
 d.pingdatagovernance:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdatagovernance
+    - ci_scripts/deploy_product_to_registry.sh --product pingdatagovernance
   only:
     refs:
       - master
@@ -875,7 +875,7 @@ t.pingdatagovernancepap:
 d.pingdatagovernancepap:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingdatagovernancepap
+    - ci_scripts/deploy_product_to_registry.sh --product pingdatagovernancepap
   only:
     refs:
       - master
@@ -950,7 +950,7 @@ t.pingfederate:
 d.pingfederate:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingfederate
+    - ci_scripts/deploy_product_to_registry.sh --product pingfederate
   only:
     refs:
       - master
@@ -1021,7 +1021,7 @@ t.pingtoolkit:
 d.pingtoolkit:
   stage: deploy
   script:
-    - ci_scripts/deploy_product_to_registry.sh --registry-file registry.list --product pingtoolkit
+    - ci_scripts/deploy_product_to_registry.sh --product pingtoolkit
   only:
     refs:
       - master
