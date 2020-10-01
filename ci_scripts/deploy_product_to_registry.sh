@@ -17,8 +17,10 @@ Usage: ${0} {options}
 
     -r, --registry
         The registry to deploy new image tags to (may be specified multiple times)
+        May also set variable DEPLOY_REGISTRY
     -l, --registry-file
         The file with the list of registries to deploy to (must be provided if --registry is omitted)
+        May also set variable DEPLOY_REGISTRY_FILE
     * -p, --product
         The name of the product for which to build a docker image
     -v, --version
@@ -44,6 +46,16 @@ END_USAGE
 }
 
 #
+# Executes the command passed, and fails if return code ne 1
+#
+exec_cmd_fail ()
+{
+    eval "${dryRun} $*"
+
+    test $? -ne 0 && echo "Error: $*" && exit 1
+}
+
+#
 # Tags the product being deployed and push into registry
 #
 tag_and_push ()
@@ -58,19 +70,20 @@ tag_and_push ()
         echo "Pushing ${_target}"
         if test "${registryToDeployTo}" = "$(jq -r '. | .registries | .[] | select(.name == "dockerhub global") | .registry' "${_file}")"
         then
-            ${dryRun} docker --config "${_config_dir}" trust revoke "${_target}"
-            ${dryRun} docker --config "${_config_dir}" trust sign "${_target}"
+            exec_cmd_fail docker --config "${_config_dir}" trust revoke "${_target}"
+            exec_cmd_fail docker --config "${_config_dir}" trust sign "${_target}"
         else
             echo_red "Pushing to a non dockerhub global.  We need revisit this next push."
-            ${dryRun} docker push "${_target}"
+            exec_cmd_fail docker push "${_target}"
         fi
-        ${dryRun} docker image rm -f "${_target}"
+        exec_cmd_fail docker image rm -f "${_target}"
     else
         echo "${_target}"
     fi
 }
 
-_registryList=""
+_registryList="${DEPLOY_REGISTRY}"
+_registryListFile="${DEPLOY_REGISTRY_FILE}"
 while test -n "${1}"
 do
     case "${1}" in
@@ -89,13 +102,7 @@ do
             shift
             test -z "${1}" && usage "You must provide a registry file"
             test -f "${1}" || usage "The registry file provided does not exist or is not a file"
-            while read -r _registry
-            do
-                if test -n "${_registry}"
-                then
-                    _registryList="${_registryList:+${_registryList} }${_registry}"
-                fi
-            done < "${1}"
+            _registryListFile="${1}"
             ;;
         -j|--jvm)
             shift
@@ -135,6 +142,19 @@ do
     shift
 done
 
+#
+# read in the lines from the passed registry file
+#
+while read -r _registry
+do
+    if test -n "${_registry}"
+    then
+        _registryList="${_registryList:+${_registryList} }${_registry}"
+    fi
+done < "${_registryListFile}"
+
+banner "Deploying to registry(s) '${_registryListFile}'"
+
 # _commitHasTags=$( git tag --points-at "${CI_COMMIT_SHA}" )
 # _commitBranch=$( git branch --contains "${CI_COMMIT_SHA}" )
 # test -z "${dryRun}" \
@@ -144,7 +164,7 @@ done
 #     && exit 1
 
 test -z "${_registryList}" \
-    && usage "Specifying a registry to deploy to is required"
+    && usage "Specifying a registry to deploy to is required (You may set variables DEPLOY_REGISTRY or DEPLOY_REGISTRY_FILE)"
 test -z "${productToDeploy}" \
     && usage "Specifying a product to deploy is required"
 

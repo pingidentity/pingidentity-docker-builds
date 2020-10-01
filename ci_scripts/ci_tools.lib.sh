@@ -335,11 +335,48 @@ requirePipelineVar ()
     fi
 }
 
+################################################################################
+# Bring in config.json from variable.  Provides instructions to docker on how to
+# authenticate to docker registries
+################################################################################
+setupDockerConfigJson ()
+{
+    # Ensure that the pipe-line provides the following variables/files
+    #  - PIPELINE_BUILD_REGISTRY_VENDOR
+    #  - PIPELINE_BUILD_REGISTRY
+    #  - PIPELINE_BUILD_REPO
+    #  - DOCKER_CONFIG_JSON
+    requirePipelineVar PIPELINE_BUILD_REGISTRY_VENDOR
+    requirePipelineVar PIPELINE_BUILD_REGISTRY
+    requirePipelineVar PIPELINE_BUILD_REPO
+    requirePipelineFile DOCKER_CONFIG_JSON
+
+    echo "Using docker config.json '${DOCKER_CONFIG_JSON}'"
+    mkdir -p /root/.docker
+    cp "${DOCKER_CONFIG_JSON}" /root/.docker/config.json
+
+    # In order to initialize the docker login to ecr, a single docker pull needs
+    # to occur.  This basically primes the pump for docker builds with FROM's later on
+    docker pull "${PIPELINE_BUILD_REGISTRY}/ci-utils/hello:latest"
+}
 
 if test -n "${PING_IDENTITY_SNAPSHOT}"
 then
     #we are in building snapshot
-    FOUNDATION_REGISTRY="art01.corp.pingidentity.com:5200"
+    FOUNDATION_REGISTRY="${PIPELINE_BUILD_REGISTRY}/${PIPELINE_BUILD_REPO}"
+
+    banner "CI PIPELINE using ${PIPELINE_BUILD_REGISTRY_VENDOR} - ${FOUNDATION_REGISTRY}"
+
+    # Ensure that the pipe-line provides the following variables
+    #  - SNAPSHOT_REGISTRY
+    requirePipelineVar DEPLOY_REGISTRY
+    echo "Deploying to DEPLOY_REGISTRY '${DEPLOY_REGISTRY}'"
+
+    #
+    # setup the docker config.json.
+    #
+    setupDockerConfigJson
+
     # shellcheck disable=SC2155
     gitRevShort=$( date '+%H%M')
     # shellcheck disable=SC2155
@@ -349,17 +386,14 @@ then
 elif test -n "${CI_COMMIT_REF_NAME}"
 then
     #we are in CI pipeline
-    # Ensure that the pipe-line provides the following variables
-    #  - PIPELINE_BUILD_REGISTRY_VENDOR
-    #  - PIPELINE_BUILD_REGISTRY
-    #  - PIPELINE_BUILD_REPO
-    requirePipelineVar PIPELINE_BUILD_REGISTRY_VENDOR
-    requirePipelineVar PIPELINE_BUILD_REGISTRY
-    requirePipelineVar PIPELINE_BUILD_REPO
-
     FOUNDATION_REGISTRY="${PIPELINE_BUILD_REGISTRY}/${PIPELINE_BUILD_REPO}"
 
     banner "CI PIPELINE using ${PIPELINE_BUILD_REGISTRY_VENDOR} - ${FOUNDATION_REGISTRY}"
+
+    #
+    # setup the docker config.json.
+    #
+    setupDockerConfigJson
 
     case "${PIPELINE_BUILD_REGISTRY_VENDOR}" in
         aws)
@@ -378,15 +412,6 @@ then
             ;;
     esac
 
-    #
-    # setup the docker config.json.  Provides instructions to docker on how to
-    # authenticate to google, aws, azure
-    #
-    requirePipelineFile DOCKER_CONFIG_JSON
-
-    echo "Using docker config.json '${DOCKER_CONFIG_JSON}'"
-    mkdir -p /root/.docker
-    cp "${DOCKER_CONFIG_JSON}" /root/.docker/config.json
 
     #
     # setup the docker trust material.
@@ -403,11 +428,6 @@ then
     chmod 600 "/root/.docker/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
 
     docker trust key load "/root/.docker/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
-
-
-    # In order to initialize the docker login to ecr, a single docker pull needs
-    # to occur.  This basically primes the pump for docker builds with FROM's later on
-    docker pull "${PIPELINE_BUILD_REGISTRY}/ci-utils/hello:latest"
 
     # shellcheck disable=SC2155
     gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
