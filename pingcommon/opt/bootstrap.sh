@@ -96,7 +96,6 @@ fixPermissions ()
         chmod ugo+rwx "${SECRETS_DIR}"
     fi
 
-    # change nginx path ownership to nginx user/group
     if test -d /var/lib/nginx; then
         chown -R "${_effectiveUserName}:${_effectiveGroupName}" /var/lib/nginx
     fi
@@ -165,7 +164,7 @@ then
         fixPermissions
 
         # compute the step-down command that is going to be shimmed before tini
-        _runUnprivileged="${BASE}/gosu ${PING_CONTAINER_UID}"
+        _runUnprivileged="su-exec ${PING_CONTAINER_UID}"
 
         removePackageManager
     fi
