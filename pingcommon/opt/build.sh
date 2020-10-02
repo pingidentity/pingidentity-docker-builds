@@ -25,6 +25,13 @@ case "${_osID}" in
         # wipe the jq from the apk installed list
         apk --no-cache del jq
         # altogether remove the package manager
+
+        # Suppor for the inside-out security pattern, allowing for running as non-privilaged user
+        apk --no-cache add su-exec
+
+        # Removing apk installed file, removing false positive CVEs
+        rm /lib/apk/db/installed
+
         # rm -rf /sbin/apk /etc/apk /lib/apk /usr/share/apk /var/lib/apk
     ;;
     centos)

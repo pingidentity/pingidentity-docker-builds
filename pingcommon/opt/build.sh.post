@@ -3,7 +3,7 @@ echo "Post-build stage (like fixing permissions)"
 set -x
 # it is necessary to make the message of the day writable for the user
 # so that the motd facility can work with:
-#   - inside-out permissions (when stepped down via gosu or any setuid for that matter)
+#   - inside-out permissions (when stepped down via su-exec or any setuid for that matter)
 #   - with outside-in security context
 #       - when -u|--user is provided to docker
 #       - when security context block is defined in k8s configmap
