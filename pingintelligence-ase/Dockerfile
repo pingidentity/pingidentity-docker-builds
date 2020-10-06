@@ -61,9 +61,9 @@ ENV STARTUP_FOREGROUND_OPTS=""
 #-- has been started with replication enabled
 ENV STARTUP_BACKGROUND_OPTS=""
 
-ENV ROOT_USER_PASSWORD_FILE=
-ENV ADMIN_USER_PASSWORD_FILE=
-ENV ENCRYPTION_PASSWORD_FILE=
+ENV ROOT_USER_PASSWORD_FILE=""
+ENV ADMIN_USER_PASSWORD_FILE=""
+ENV ENCRYPTION_PASSWORD_FILE=""
 
 # ase.conf
 #-- The timezone the ASE container is operating in
@@ -85,7 +85,7 @@ ENV GOOGLE_PUBSUB_CONCURRENCY=1000
 #-- Throttle the number of messages published per second. (Min: 1, Max:10000, default:1000)
 ENV GOOGLE_PUBSUB_QPS=1000
 #-- The API key to use to authenticate with Google
-ENV GOOGLE_PUBSUB_APIKEY
+ENV GOOGLE_PUBSUB_APIKEY=""
 #-- Maximum number of messages buffered in memory (Min: 1, Max: 10000, Default: 300)
 ENV CACHE_QUEUE_SIZE=300
 #-- Timeout in seconds to publish a message to Google Pub/Sub. (Min: 10, Max: 300, Default: 30)
@@ -93,19 +93,19 @@ ENV GOOGLE_PUBSUB_TIMEOUT=30
 
 # cluster.conf
 #-- a comma-separated list of hostname:cluster_manager_port or IPv4_address:cluster_manager_port
-ENV PEER_NODE
+ENV PEER_NODE=""
 
 # abs.conf
 #-- a comma-separated list of abs nodes having hostname:port or ipv4:port as an address.
 ENV ABS_ENDPOINT="127.0.0.1:8080"
 #-- access key for ase to authenticate with abs node
-ENV ABS_ACCESS_KEY
+ENV ABS_ACCESS_KEY=""
 #-- secret key for ase to authenticate with abs node
-ENV ABS_SECRET_KEY
+ENV ABS_SECRET_KEY=""
 #-- Setting this value to true will enable encrypted communication with ABS.
 ENV ABS_ENABLE_SSL="true"
 #-- Configure the location of ABS's trusted CA certificates.
-ENV ABS_CA_CERT_PATH
+ENV ABS_CA_CERT_PATH=""
 
 
 #-- Files tailed once container has started
