@@ -10,59 +10,69 @@ ${VERBOSE} && set -x
 EXTENSIONS_DIR="${STAGING_DIR}/extensions"
 PROFILE_EXTENSIONS_DIR="${PD_PROFILE}/server-sdk-extensions"
 
-if test -d "${EXTENSIONS_DIR}" ; 
+if test -d "${EXTENSIONS_DIR}" ;
 then
     extensionID=0
     # shellcheck disable=SC2044
-    for remoteInstallFile in $(find "${EXTENSIONS_DIR}" -type f -name \*remote.list ) ; 
+
+    # Create tmp directory to hold tempoary zip and signature files
+    _tmpExtDir="$( mktemp -d )"
+
+    for remoteInstallFile in $(find "${EXTENSIONS_DIR}" -type f -name \*remote.list ) ;
     do
         if test -n "${remoteInstallFile}" && test -f "${remoteInstallFile}" ; then
             while IFS=" " read -r extensionUrl extensionSignatureUrl keyServer keyID || test -n "${extensionUrl}" ;
             do
                 extensionID=$(( extensionID + 1 ))
-                printf "Extension URL: %s - extension Signature URL: %s - GPG repo: %s - GPG key: %s\n" "${extensionUrl}" "${extensionSignatureUrl}" "${keyServer}" "${keyID}"
-                tmpDir="$( mktemp -d )"
-                extensionFile="${tmpDir}/extension-${extensionID}.zip"
+                echo "Extension #: ${extensionID}"
+                echo "  Extension URL: ${extensionUrl}"
+                echo "  Signature URL: ${extensionSignatureUrl:- --not set ---}"
+
+                if test -n "${keyServer}" && test -n "${keyID}" ; then
+                    echo_yellow "################################################################################"
+                    echo_yellow "################################################################################"
+                    echo_yellow "################## WARNING - GPG SIGNATURE SUPPORT REMOVED #####################"
+                    echo_yellow "#  Support for extention validation of a gpg signature with key server/id is    "
+                    echo_yellow "#  no longer supported."
+                    echo_yellow "#"
+                    echo_yellow "#  Validating provided checksum signatures (.sha1), if provided, continues to be"
+                    echo_yellow "#  supported."
+                    echo_yellow "################################################################################"
+                fi
+
+                extensionFile="${_tmpExtDir}/extension-${extensionID}.zip"
                 curl -sSLo "${extensionFile}" "${extensionUrl}"
-                # extensionFile=$(ls -1tr "${tmpDir}" | tail -1 )
-                
-                export GNUPGHOME="${tmpDir}"
+
+                # TODO - Check for existence of URLs with .sha1, .sha256, .sha512 and depending on that existence
+                #        check for those signatures. This would remove the need to speicify the extensionSignatureUrl
+
                 if test -n "${extensionSignatureUrl}" ; then
                     extensionSignatureFile="${extensionFile}.signature"
                     curl -sSLo "${extensionSignatureFile}" "${extensionSignatureUrl}"
-                    # extensionSignatureFile=$(ls -1tr "${tmpDir}" | tail -1 )
-                    if test -n "${keyServer}" && test -n "${keyID}" ; then
-                        signatureMatched=false
-                        gpg --batch --keyserver "${keyServer}" --recv-keys "${keyID}"
-                        gpg --batch --verify "${extensionSignatureFile}" "${extensionFile}"
-                        if test ${?} -eq 0 ; then
-                            signatureMatched=true
-                        fi
-                        gpgconf --kill all
-                        if ! test ${signatureMatched} ; then
-                            echo_red "The PGP signature for ${extensionUrl} did not match. Skipping..."
-                            continue
-                        fi
-                        echo_green "The PGP signature for ${extensionUrl} matched."
-                    else
-                        extensionRemoteSignature=$( cat "${extensionSignatureFile}" )
-                        extensionLocalSignature=$( sha1sum "${extensionFile}" | awk '{print $1}' )
-                        if ! test "${extensionRemoteSignature}" = "${extensionLocalSignature}" ; then
-                            echo_red "The SHA1 signature for ${extensionUrl} did not match. Skipping..."
-                            continue
-                        fi
-                        echo_green "The SHA1 signature for ${extensionUrl} matched."
-                    fi
-                else
-                    if ! test ${ENABLE_INSECURE_REMOTE_EXTENSIONS:-false} ; then
+
+                    extensionRemoteSignature=$( cat "${extensionSignatureFile}" )
+                    extensionLocalSignature=$( sha1sum "${extensionFile}" | awk '{print $1}' )
+                    if ! test "${extensionRemoteSignature}" = "${extensionLocalSignature}" ; then
+                        echo_red "The SHA1 signature did not match. Skipping..."
                         continue
+                    fi
+                    echo_green "The SHA1 signature matched."
+                else
+                    if test "$(toLower "${ENABLE_INSECURE_REMOTE_EXTENSIONS:-false}")" = "false" ; then
+                        echo_red "The SHA1 signature not provided and insecure remote extensions are not allowed."
+                        echo_red "  set 'ENABLE_INSECURE_REMOTE_EXTENSIONS=true' to allow.  Skipping..."
+                        continue
+                    else
+                        echo_yellow "The SHA1 signature not provided however allowed 'ENABLE_INSECURE_REMOTE_EXTENSIONS=${ENABLE_INSECURE_REMOTE_EXTENSIONS}'"
                     fi
                 fi
 
                 mkdir -p "${PROFILE_EXTENSIONS_DIR}"
                 cp "${extensionFile}" "${PROFILE_EXTENSIONS_DIR}"/
-                rm -rf "${tmpDir}"
             done < "${remoteInstallFile}"
         fi
     done
+
+    # Cleanup temporary file
+    rm -rf "${_tmpExtDir}"
 fi
