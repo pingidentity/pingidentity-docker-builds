@@ -45,6 +45,8 @@ if test ${_returnCode} -ne 0 ; then
     container_failure 183 "Invalid JVM options"
 fi
 
+export certificateOptions encryptionOption jvmOptions
+
 # Test to see if a Ping Data profile (i.e. pd.profile) is found.  If not, create it
 
 test -d "${PD_PROFILE}" || mkdir -p "${PD_PROFILE}"
@@ -62,8 +64,10 @@ if test -d "${STAGING_DIR}/dsconfig"; then
 fi
 
 # If the a setup-arguments.txt file isn't found, then generate
+_isSetupArgumentsGenerated=false
 if test ! -f "${_setupArgumentsFile}"; then
     generateSetupArguments
+    _isSetupArgumentsGenerated=true
 fi
 
 # run the manage-profile to setup the server
@@ -78,8 +82,14 @@ _manage_profile_cmd="${SERVER_ROOT_DIR}/bin/manage-profile setup \
 echo "  ${_manage_profile_cmd}"
 
 ${_manage_profile_cmd}
+_manageProfileRC=$?
 
-if test $? -ne 0 ; then
+# Delete the generated setup-arguments.txt file from the profile
+if test "${_isSetupArgumentsGenerated}" = "true"; then
+    rm "${_setupArgumentsFile}"
+fi
+
+if test ${_manageProfileRC} -ne 0 ; then
     test -f /tmp/rejects.ldif && cat /tmp/rejects.ldif
     echo_red "Error during 'manage-profile setup'"
     echo_red "Log '${SERVER_ROOT_DIR}/logs/tools/manage-profile.log'"
