@@ -643,6 +643,38 @@ export_container_env ()
 }
 
 ###############################################################################
+# contains (str1, str2)
+#
+# Check if str1 contains str2
+###############################################################################
+contains ()
+{
+    string="$1"
+    substring="$2"
+    if test "${string#*$substring}" != "$string"
+    then
+        # substring is in string
+        return 0
+    else
+        # substring is not in string
+        return 1
+    fi
+}
+
+###############################################################################
+# contains_ignore_case (str1, str2)
+#
+# Check if str1 contains str2, ignoring case
+###############################################################################
+contains_ignore_case ()
+{
+    stringLower="$(toLower "$1")"
+    substringLower="$(toLower "$2")"
+    contains "${stringLower}" "${substringLower}"
+    return ${?}
+}
+
+###############################################################################
 # main
 ###############################################################################
 echo_green "----- Starting hook: ${CALLING_HOOK}"
