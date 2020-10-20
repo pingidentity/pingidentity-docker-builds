@@ -88,8 +88,19 @@ getProfile ()
         test -n "${serverProfileBranch}" && echo "   branch: ${serverProfileBranch}"
         test -n "${serverProfilePath}" && echo "     path: ${serverProfilePath}"
 
-        git clone --depth 1 ${serverProfileBranch:+--branch ${serverProfileBranch}} "${serverProfileUrl}" "${SERVER_PROFILE_DIR}"
-        die_on_error 141 "Git clone failure"  || exit ${?}
+        _gitCloneStderrFile="/tmp/cloneStderr.txt"
+        git clone --depth 1 ${serverProfileBranch:+--branch ${serverProfileBranch}} "${serverProfileUrl}" "${SERVER_PROFILE_DIR}" 2> "${_gitCloneStderrFile}"
+        if test "$?" -ne "0"
+        then
+            # Don't show clone error if the URL should be redacted
+            if test "${SERVER_PROFILE_URL_REDACT}" != "true"
+            then
+                cat "${_gitCloneStderrFile}"
+            fi
+            rm "${_gitCloneStderrFile}"
+            container_failure 141 "Git clone failure"
+        fi
+        rm "${_gitCloneStderrFile}"
 
         #
         # Perform Security Checks on the Server Profile cloned
