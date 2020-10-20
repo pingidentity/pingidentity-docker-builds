@@ -140,8 +140,9 @@ done
 
 pf_console_util="${PF_BIN}/pf-consoleutils.jar"
 pf_crypto_luna="${PF_SERVER_LIB}/pf-crypto-luna.jar"
+pf_fips="${PF_HOME}/lib/bc-fips-1.0.2.jar"
 
-PF_BOOT_CLASSPATH="${PF_BOOT_CLASSPATH}${PF_BOOT_CLASSPATH:+:}${pf_console_util}:${xmlbeans}:${pfxml}:${pf_crypto_luna}"
+PF_BOOT_CLASSPATH="${PF_BOOT_CLASSPATH}${PF_BOOT_CLASSPATH:+:}${pf_console_util}:${xmlbeans}:${pfxml}:${pf_crypto_luna}:${pf_fips}"
 
 PF_CLASSPATH="${PF_CLASSPATH}${PF_CLASSPATH:+:}${PF_BOOT_CLASSPATH}"
 
@@ -202,6 +203,22 @@ then
     warn "Missing run.properties; using defaults."
     runprops=""
 fi
+
+function getProperty {
+    if [ -f "${runprops}" ]; then
+        PROP_KEY=$1
+        PROP_VALUE=`cat "${runprops}" | grep "${PROP_KEY}" | cut -d'=' -f2`
+        echo ${PROP_VALUE}
+        return 0
+    else
+        echo true
+        return 0
+    fi
+}
+APPROVED_ONLY=$( getProperty "org.bouncycastle.fips.approved_only" )
+
+# Only use FIPS approved methods if the Bouncy Castle FIPS module is used
+JAVA_OPTS="${JAVA_OPTS} -Dorg.bouncycastle.fips.approved_only=${APPROVED_ONLY}"
 
 trap 'kill ${PID}; wait ${PID}; cat </dev/null 2>/dev/null >${RUNFILE}' 1 2 3 6
 trap 'kill -9 ${PID}; cat </dev/null >${RUNFILE} 2>/dev/null' 15
