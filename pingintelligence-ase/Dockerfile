@@ -20,7 +20,7 @@ ARG GIT_TAG
 
 FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
 FROM ${REGISTRY}/pingdatacommon:${GIT_TAG} as common
-FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
+# FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${SHIM} as final-staging
 ENV SHIM=${SHIM}
@@ -31,7 +31,7 @@ COPY --from=product-staging ["/opt/","/opt/"]
 #   so they can be patched
 COPY --from=common ["/opt/","/opt/"]
 # get the jvm
-COPY --from=jvm ["/opt/java","/opt/java"]
+# COPY --from=jvm ["/opt/java","/opt/java"]
 
 # apply product-specific hooks and patches
 COPY ["/opt","/opt"]

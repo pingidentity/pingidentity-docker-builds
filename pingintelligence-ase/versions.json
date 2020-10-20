@@ -3,14 +3,14 @@
     "versions":[
         {
             "version": "4.2",
-            "preferredShim": "centos",
+            "preferredShim": "centos:7.6",
             "shims":[
                 {
-                    "shim": "centos",
-                    "preferredJVM": "co11",
+                    "shim": "centos:7.6",
+                    "preferredJVM": "none",
                     "jvms": [
                         {
-                            "jvm": "co11",
+                            "jvm": "none",
                             "build": true,
                             "deploy": true
                         }

@@ -20,6 +20,8 @@ RUN /get-bits.sh --product ${PRODUCT} \
         ${PING_IDENTITY_SNAPSHOT} \
         --verify-gpg-signature \
     && unzip /tmp/product.zip -d /tmp/ \
+        -x *.example \
+        -x *.conf \
     && mv /tmp/ase /opt/server
 
 FROM scratch
