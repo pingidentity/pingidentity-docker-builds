@@ -80,7 +80,7 @@ tag_and_push ()
         echo "Pushing ${_target}"
         if test "${registryToDeployTo}" = "$(jq -r '. | .registries | .[] | select(.name == "dockerhub global") | .registry' "${_file}")"
         then
-            docker --config "${_config_dir}" --yes trust revoke "${_target}"
+            docker --config "${_config_dir}" trust revoke --yes "${_target}"
             docker --config "${_config_dir}" trust sign "${_target}"
         else
             echo_red "Pushing to a non dockerhub global.  We need revisit this next push."
