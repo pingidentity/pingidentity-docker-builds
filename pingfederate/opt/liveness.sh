@@ -1,6 +1,11 @@
 #!/usr/bin/env sh
 URL="https://localhost:${PF_ENGINE_PORT}/pf/heartbeat.ping"
-test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" && URL="https://localhost:${PF_ADMIN_PORT}/pingfederate/app"
+if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" -o "${OPERATIONAL_MODE}" = "STANDALONE" ; then
+  if ! test -f /tmp/ready ; then
+    exit 1
+  fi
+  test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" && URL="https://localhost:${PF_ADMIN_PORT}/pingfederate/app"
+fi
 curl -sSk -o /dev/null "${URL}"
 if test ${?} -ne 0 ; 
 then

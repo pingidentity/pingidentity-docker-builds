@@ -12,7 +12,7 @@
 echo "INFO: OPERATIONAL_MODE: ${OPERATIONAL_MODE}"
 if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE"
 then
-    echo "INFO: Shutting down the eth01 interface..."
+    echo "INFO: Shutting down the eth0 interface..."
     ip link set eth0 down
 fi
 
