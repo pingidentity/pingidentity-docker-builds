@@ -22,6 +22,7 @@ RUN /get-bits.sh --product ${PRODUCT} \
     && unzip /tmp/product.zip -d /tmp/ \
         -x *.example \
         -x *.conf \
+        -x *_rhel7.sh \
     && mv /tmp/ase /opt/server
 
 FROM scratch
