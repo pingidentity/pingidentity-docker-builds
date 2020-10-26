@@ -1,12 +1,12 @@
 {
-    "latest":"4.2",
+    "latest":"4.3",
     "versions":[
         {
-            "version": "4.2",
-            "preferredShim": "centos:7.6",
+            "version": "4.3",
+            "preferredShim": "centos:7.6.1810",
             "shims":[
                 {
-                    "shim": "centos:7.6",
+                    "shim": "centos:7.6.1810",
                     "preferredJVM": "none",
                     "jvms": [
                         {
