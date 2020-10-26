@@ -17,8 +17,10 @@ Usage: ${0} {options}
 
     -r, --registry
         The registry to deploy new image tags to (may be specified multiple times)
+        May also set variable DEPLOY_REGISTRY
     -l, --registry-file
         The file with the list of registries to deploy to (must be provided if --registry is omitted)
+        May also set variable DEPLOY_REGISTRY_FILE
     * -p, --product
         The name of the product for which to build a docker image
     -v, --version
@@ -44,12 +46,32 @@ END_USAGE
 }
 
 #
+# Executes the command passed, and fails if return code ne 1
+#
+exec_cmd_fail ()
+{
+    eval "${dryRun} $*"
+
+    test $? -ne 0 && echo "Error: $*" && exit 1
+}
+
+#
 # Tags the product being deployed and push into registry
 #
 tag_and_push ()
 {
-    _source="${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
-    _target="${registryToDeployTo}/${productToDeploy}:${1}"
+    #
+    # Special case for pingdownloader since it only has a tag for the branch and short sha
+    #
+    if test "${productToDeploy}" = "pingdownloader"
+    then
+        _source="${FOUNDATION_REGISTRY}/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
+        _target="${registryToDeployTo}/pingdownloader:latest"
+    else
+        _source="${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
+        _target="${registryToDeployTo}/${productToDeploy}:${1}"
+    fi
+
     _file="${CI_PROJECT_DIR}/registries.json"
     test -z "${dryRun}" \
         && docker tag "${_source}" "${_target}"
@@ -58,19 +80,20 @@ tag_and_push ()
         echo "Pushing ${_target}"
         if test "${registryToDeployTo}" = "$(jq -r '. | .registries | .[] | select(.name == "dockerhub global") | .registry' "${_file}")"
         then
-            ${dryRun} docker --config "${_config_dir}" trust revoke "${_target}"
-            ${dryRun} docker --config "${_config_dir}" trust sign "${_target}"
+            docker --config "${_config_dir}" trust revoke --yes "${_target}"
+            docker --config "${_config_dir}" trust sign "${_target}"
         else
             echo_red "Pushing to a non dockerhub global.  We need revisit this next push."
-            ${dryRun} docker push "${_target}"
+            docker push "${_target}"
         fi
-        ${dryRun} docker image rm -f "${_target}"
+        docker image rm -f "${_target}"
     else
         echo "${_target}"
     fi
 }
 
-_registryList=""
+_registryList="${DEPLOY_REGISTRY}"
+_registryListFile="${DEPLOY_REGISTRY_FILE}"
 while test -n "${1}"
 do
     case "${1}" in
@@ -89,13 +112,7 @@ do
             shift
             test -z "${1}" && usage "You must provide a registry file"
             test -f "${1}" || usage "The registry file provided does not exist or is not a file"
-            while read -r _registry
-            do
-                if test -n "${_registry}"
-                then
-                    _registryList="${_registryList:+${_registryList} }${_registry}"
-                fi
-            done < "${1}"
+            _registryListFile="${1}"
             ;;
         -j|--jvm)
             shift
@@ -135,6 +152,19 @@ do
     shift
 done
 
+#
+# read in the lines from the passed registry file
+#
+if test -f "${_registryListFile}" ; then
+    while read -r _registry
+    do
+        if test -n "${_registry}"
+        then
+            _registryList="${_registryList:+${_registryList} }${_registry}"
+        fi
+    done < "${_registryListFile}"
+fi
+
 # _commitHasTags=$( git tag --points-at "${CI_COMMIT_SHA}" )
 # _commitBranch=$( git branch --contains "${CI_COMMIT_SHA}" )
 # test -z "${dryRun}" \
@@ -144,7 +174,7 @@ done
 #     && exit 1
 
 test -z "${_registryList}" \
-    && usage "Specifying a registry to deploy to is required"
+    && usage "Specifying a registry to deploy to is required (You may set variables DEPLOY_REGISTRY or DEPLOY_REGISTRY_FILE)"
 test -z "${productToDeploy}" \
     && usage "Specifying a product to deploy is required"
 
@@ -156,6 +186,8 @@ fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
+
+banner "Deploying to registry(s) '${_registryListFile}'"
 
 if test -z "${versionsToDeploy}"
 then
@@ -202,6 +234,24 @@ done
 
 # _dateStamp=$( date '%y%m%d')
 banner "Deploying ${productToDeploy}"
+
+#
+# Special case for pingdownloader, as it doesn't have versions to deploy
+#
+if test "${productToDeploy}" = "pingdownloader"
+then
+    test -z "${dryRun}" \
+                && docker --config "${_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
+    for registryToDeployTo in ${_registryList}
+    do
+        tag_and_push ""
+    done
+    exit 0
+fi
+
+#
+# For all other products with versions
+#
 for _version in ${versionsToDeploy}
 do
     if test -z "${shimsToDeploy}"
@@ -233,7 +283,7 @@ do
 
         for _jvm in ${_jvmsToBuild}
         do
-            banner "Processing ${productToDeploy} ${_shim} ${_jvm}"
+            banner "Processing ${productToDeploy} ${_shim} ${_jvm} ${_version}"
             fullTag="${_version}-${_shimLongTag}-${_jvm}-${ciTag}"
             test -z "${dryRun}" \
                 && docker --config "${_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"

@@ -23,7 +23,7 @@ echo_green()
 
 _curl ()
 {
-    _httpResultCode=$( 
+    _httpResultCode=$(
         curl \
             --get \
             --silent \
@@ -44,9 +44,9 @@ _curl ()
 
 download_and_verify ()
 {
-	export GNUPGHOME="$(mktemp -d)" 
+	export GNUPGHOME="$(mktemp -d)"
     TMP_VS="$( mktemp -d )"
-    PAYLOAD="${TMP_VS}/payload" 
+    PAYLOAD="${TMP_VS}/payload"
     SIGNATURE="${TMP_VS}/signature"
     KEY="${TMP_VS}/key"
     OBJECT="${1}"
@@ -55,21 +55,21 @@ download_and_verify ()
     DESTINATION="${4}"
     echo "disable-ipv6" >> "${GNUPGHOME}/dirmngr.conf"
 
-    
+
     if ! _curl --header "devops-purpose: signature" --output "${SIGNATURE}" "${OBJECT}.asc" ;
     then
         echo_red "Downloading the payload signature failed"
         return 1
     fi
-    
+
     if ! _curl --header "devops-purpose: payload-signed" --output "${PAYLOAD}" "${OBJECT}" ;
     then
         echo_red "Downloading the payload failed"
         return 2
     fi
     #
-    # the gpg cli does not natively support retries, forcing us to 
-    # manually implement retries to fetch the signature from the 
+    # the gpg cli does not natively support retries, forcing us to
+    # manually implement retries to fetch the signature from the
     # GPG public key server
     #
     if test "${KEY_ID}" = "file" ;
@@ -107,7 +107,7 @@ download_and_verify ()
         echo_red "Obtaining the public key to verify the payload signature failed"
         return ${_returnCode}
     fi
-    
+
     gpg --batch --verify "${SIGNATURE}" "${PAYLOAD}" >/dev/null 2>/dev/null
     _returnCode=${?}
     if test ${_returnCode} -eq 0 ;
@@ -129,21 +129,11 @@ BASE="${BASE:-/opt}"
 if download_and_verify "https://gte-bits-repo.s3.amazonaws.com/tini" "https://gte-bits-repo.s3.amazonaws.com/signing-key-public.gpg" "file" "${BASE}/tini" ;
 then
     echo_green Successfully obtained and verified tini
-    chmod +x "${BASE}/tini" 
-    rm -f "${PAYLOAD}" "${SIGNATURE}" 
+    chmod +x "${BASE}/tini"
+    rm -f "${PAYLOAD}" "${SIGNATURE}"
 else
     echo_red Could not obtain or verify tini
     exit 1
 fi
 
-if download_and_verify "https://gte-bits-repo.s3.amazonaws.com/gosu" "https://gte-bits-repo.s3.amazonaws.com/signing-key-public.gpg" "file" "${BASE}/gosu" ;
-then
-    echo_green Successfully obtained and verified gosu
-    chmod +x "${BASE}/gosu" 
-    "${BASE}/gosu" nobody true 
-    rm -f ${PAYLOAD} ${SIGNATURE} 
-else
-    echo_red Could not obtain or verify gosu
-    exit 1
-fi
 exit 0

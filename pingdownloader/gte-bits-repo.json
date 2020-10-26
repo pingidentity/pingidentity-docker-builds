@@ -20,13 +20,13 @@
         {
             "name": "pingaccess",
             "mapping": "pingaccess-${version}.zip",
-            "latestVersion": "6.1.1",
+            "latestVersion": "6.1.2",
             "licenseFile": "pingaccess.lic"
         },
         {
             "name": "pingcentral",
             "mapping": "ping-central-${version}.zip",
-            "latestVersion": "1.4.0",
+            "latestVersion": "1.5.0",
             "licenseFile": "pingcentral.lic"
         },
         {

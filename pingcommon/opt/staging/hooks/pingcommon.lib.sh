@@ -113,6 +113,31 @@ isOS ()
     return ${?}
 }
 
+getSemanticImageVersion() {
+  version=$(echo "${IMAGE_VERSION}" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]")
+  major=$(echo "${version}" | awk -F"." '{ print $1 }')
+  minor=$(echo "${version}" | awk -F"." '{ print $2 }')
+  patch=$(echo "${version}" | awk -F"." '{ print $3 }')
+}
+
+# send desired semantic version to be compared to image version.
+#   example: IMAGE_VERSION=10.1.0
+#   test $(isImageVersionGtEq 10.0.0) -eq 0 && echo "current image is greater or equal"
+isImageVersionGtEq() {
+  getSemanticImageVersion
+  aVersion=${1}
+  aMajor=$(echo "${aVersion}" | awk -F"." '{ print $1 }')
+  aMinor=$(echo "${aVersion}" | awk -F"." '{ print $2 }')
+  aPatch=$(echo "${aVersion}" | awk -F"." '{ print $3 }')
+  if test "${major}" -le "${aMajor}" && \
+    test "${minor}" -le "${aMinor}" && \
+    test "${patch}" -lt "${aPatch}" ; then
+      echo 1
+  else 
+    echo 0
+  fi
+}
+
 ###############################################################################
 # echo_red (message)
 #
@@ -640,6 +665,38 @@ export_container_env ()
     done
 
     source_container_env
+}
+
+###############################################################################
+# contains (str1, str2)
+#
+# Check if str1 contains str2
+###############################################################################
+contains ()
+{
+    string="$1"
+    substring="$2"
+    if test "${string#*$substring}" != "$string"
+    then
+        # substring is in string
+        return 0
+    else
+        # substring is not in string
+        return 1
+    fi
+}
+
+###############################################################################
+# contains_ignore_case (str1, str2)
+#
+# Check if str1 contains str2, ignoring case
+###############################################################################
+contains_ignore_case ()
+{
+    stringLower="$(toLower "$1")"
+    substringLower="$(toLower "$2")"
+    contains "${stringLower}" "${substringLower}"
+    return ${?}
 }
 
 ###############################################################################
