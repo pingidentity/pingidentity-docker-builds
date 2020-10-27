@@ -69,8 +69,16 @@ ENV STARTUP_FOREGROUND_OPTS="--nodetach"
 #-- has been started with replication enabled
 ENV STARTUP_BACKGROUND_OPTS=""
 
+#-- Location of file with the root user password (i.e. cn=directory manager).
+#-- Defaults to the /SECRETS_DIR/root-user-password
 ENV ROOT_USER_PASSWORD_FILE=
+
+#-- Location of file with the admin password, used as the password replication admin
+#-- Defaults to the /SECRETS_DIR/admin-user-password
 ENV ADMIN_USER_PASSWORD_FILE=
+
+#-- Location of file with the passphrase for setting up encryption
+#-- Defaults to the /SECRETS_DIR/encryption-password
 ENV ENCRYPTION_PASSWORD_FILE=
 
 #-- Files tailed once container has started
