@@ -42,14 +42,27 @@ case "${_osID}" in
         yum -y install --releasever ${_versionID} epel-release
         curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | bash
         # yum -y install java-11-openjdk-devel gettext bind-utils git git-lfs jq unzip openssh-clients nmap-ncat
-        yum -y install  --releasever ${_versionID} gettext bind-utils git git-lfs jq unzip openssh-clients nmap-ncat inotify-tools
+        yum -y install --releasever ${_versionID} gettext bind-utils git git-lfs jq unzip openssh-clients nmap-ncat inotify-tools
+        yum -y install gcc make
+        cd /tmp
+        curl -sL https://github.com/ncopa/su-exec/archive/v0.2.tar.gz | tar xzf -
+        make -C su-exec-0.2
+        cp /tmp/su-exec-0.2/su-exec /usr/local/bin
+        yum -y autoremove gcc make
         yum -y clean all
-        rm -rf /var/cache/yum
+        # rm -rf /var/cache/yum
+        rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki
     ;;
     ubuntu)
         apt-get -y update
         apt-get -y install apt-utils
         apt-get -y install curl gettext-base dnsutils git git-lfs jq unzip openssh-client netcat inotify-tools
+        apt-get -y install gcc make
+        cd /tmp
+        curl -sL https://github.com/ncopa/su-exec/archive/v0.2.tar.gz | tar xzf -
+        make -C su-exec-0.2
+        cp /tmp/su-exec-0.2/su-exec /usr/local/bin
+        apt-get --purge remove gcc make
         apt-get -y autoremove
         rm -rf /var/lib/apt/lists/*
     ;;
