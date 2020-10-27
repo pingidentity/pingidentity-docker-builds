@@ -1131,16 +1131,58 @@ prepareToJoinTopology ()
     _priorNumInstances=$(jq ".serverInstances | length" "${_priorTopoFile}" )
 
     #
-    #- * If this server is already in prior topology, then replication or failover is already enabled
+    #- * If this server is already in a prior topology, then replication or failover may already be enabled.
+    #- * It is also possible that this server has lost its volume and isn't aware of the topology.
+    #- * When that is the case, run remove-defunct-server and re-add this server to the topology from the seed server.
     #
     if test ! -z "$(jq -r ".serverInstances[] | select(.instanceName==\"${_podInstanceName}\") | .instanceName" "${_priorTopoFile}")"; then
-        if test "${PING_PRODUCT}" = "PingDirectory"; then
-            echo "This instance (${_podInstanceName}) is already found in topology --> No need to enable replication"
-            dsreplication status --displayServerTable --showAll
+        # Get the topology according to this instance if possible.
+        _currentTopoFile="/tmp/currentTopology.json"
+        rm -rf "${_currentTopoFile}"
+        manage-topology export \
+            --hostname "${_podHostname}" \
+            --port "${_podLdapsPort}" \
+            --exportFilePath "${_currentTopoFile}"
+        # Check if this server knows about the seed server.
+        if test -z "$(jq -r ".serverInstances[] | select(.instanceName==\"${_seedInstanceName}\") | .instanceName" "${_currentTopoFile}")"; then
+            if is_ge_82; then
+                # If this instance does not think it is in the seed server's topology, then it may have lost its volume. 
+                # Remove the remnants of this server from the seed server's topology so it can be re-added below.
+                echo_yellow "Seed server topology and local topology are out of sync. Running remove-defunct-server before re-adding this server to the topology."
+                remove-defunct-server --no-prompt \
+                    --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
+                    --topologyFilePath "${_priorTopoFile}" \
+                    --serverInstanceName "${_podInstanceName}" \
+                    --ignoreOnline \
+                    --bindDN "${ROOT_USER_DN}" \
+                    --bindPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
+                    --enableDebug --globalDebugLevel verbose
+                _returnCode=$?
+
+                if test ${_returnCode} -ne 0; then
+                    echo_red "**********"
+                    echo_red "Failed to run the remove-defunct-server tool while setting up the topology"
+                    echo_red "Contents of remove-defunct-server.log file:"
+                    cat "${SERVER_ROOT_DIR}"/logs/tools/remove-defunct-server.log
+                    exit ${_returnCode}
+                fi
+                _priorNumInstances=$((${_priorNumInstances} - 1))
+            else
+                # Due to a bug in PD versions before 8.2.0.0-EA (see DS-42438), we can't run remove-defunct-server here.
+                # The command must be run on the seed server itself without using the topologyFilePath argument.
+                echo_red "Seed server topology and local topology are out of sync. May need to run remove-defunct-server on the seed server and restart this container."
+                exit 1
+            fi
         else
-            echo "This instance (${_podInstanceName}) is already found in topology --> No need to enable failover"
+            # If the server knows about the seed server's topology locally, then everything is good.
+            if test "${PING_PRODUCT}" = "PingDirectory"; then
+                echo "This instance (${_podInstanceName}) is already found in topology --> No need to enable replication"
+                dsreplication status --displayServerTable --showAll
+            else
+                echo "This instance (${_podInstanceName}) is already found in topology --> No need to enable failover"
+            fi
+            exit 0
         fi
-        exit 0
     fi
 
     #
