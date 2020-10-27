@@ -28,6 +28,8 @@ _importBulkConfig=$(
 )
 
 if test "${_importBulkConfig}" = "200"
+  echo "INFO: Removing Imported Bulk File"
+  rm "${BULK_CONFIG_DIR}/${BULK_CONFIG_FILE}"
 then
   if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE"
   then
