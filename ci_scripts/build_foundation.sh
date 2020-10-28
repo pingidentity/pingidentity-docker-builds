@@ -216,7 +216,7 @@ do
 
     for _jvm in ${_jvms}
     do
-        if test "${_jvm}" = "none"
+        if test "${_jvm}" = "nojvm"
         then
             continue
         fi
