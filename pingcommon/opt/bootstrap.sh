@@ -84,7 +84,7 @@ fixPermissions ()
     touch /etc/motd
     # _candidateList=""
 
-    find "${BASE}" -not -name in -mindepth 1 -maxdepth 1 | while read -r directory
+    find "${BASE}" -mindepth 1 -maxdepth 1 -not -name in| while read -r directory
     do
         # _candidateList="${_candidateList:+${_candidateList} }${directory}"
         chown -Rf ${PING_CONTAINER_UID}:${PING_CONTAINER_GID} /etc/motd "${directory}"
