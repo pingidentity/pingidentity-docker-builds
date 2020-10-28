@@ -16,15 +16,15 @@ usage ()
 	cat <<END_USAGE1
 Usage: docker run pingidentity/pingdownloader {options}
 
-This tool can be used to download either product binaries (.zip) files or 
+This tool can be used to download either product binaries (.zip) files or
 product evaluation licenses (.lic).  By default, the product binaries will
-be downloaded.  If the -l option is provided then only a license will be 
+be downloaded.  If the -l option is provided then only a license will be
 downloaded.  If a license is pulled, a Ping DevOps Key/User is required.
 
 Options include:
     *-p, --product {product-name}    The name of the product bits/license to download
     -v, --version {version-num}      The version of the product bits/license to download.
-                                     by default, the downloader will pull the 
+                                     by default, the downloader will pull the
                                      latest version
     -u, --devops-user {devops-user}  Your Ping DevOps Username
                                      Alternately, you may pass PING_IDENTITY_DEVOPS_USER
@@ -37,10 +37,10 @@ Options include:
     -m, --metadata-file              The file name with the repository metadata
 
 For product downloads:
-    -c, --conserve-name              Use this option to conserve the original 
+    -c, --conserve-name              Use this option to conserve the original
                                      file name by default, the downloader will
                                      rename the file product.zip
-    -n, --dry-run:                   This will cause the URL to be displayed 
+    -n, --dry-run:                   This will cause the URL to be displayed
                                      but the the bits not to be downloaded
     --verify-gpg-signature           Verify the GPG signature. The bits are removed in
                                      the event verification fails
@@ -49,14 +49,14 @@ For product downloads:
 
 For license downloads:
     *-l, --license                   Download a license file
-    
+
 Where {product-name} is one of:
 END_USAGE1
 
 	for prodName in ${availableProducts}; do
 	    echo "   ${prodName}"
 	done
-    
+
 	cat <<END_USAGE2
 
 Example:
@@ -107,7 +107,7 @@ echo_green ()
 #                       i.e. pingdirectory --> PingDirectory
 #
 #    Product URL - URL used to download the filename.  In most cases, a defaultURL is
-#                  provided.  If a specific location is required, then a product URL 
+#                  provided.  If a specific location is required, then a product URL
 #                  is specified (i.e. ldapsdkURL --> https://somewhereelse.com/ldapsdk...)
 #
 #    Product Latest Version - If no specific version is requested, the latest version will
@@ -117,7 +117,7 @@ getProps ()
 {
     _tmpApp=${devopsApp}
     devopsApp="pingdownloader"
-    
+
 	if ! _curl -H "devops-purpose: get-metadata" "${repositoryURL}${metadataFile}" -o "${outputProps}"
     then
         usage "Unable to get bits metadata. Network Issue?"
@@ -128,8 +128,8 @@ getProps ()
 }
 
 ##########################################################################################
-# Based on the productLatestVersion variable, evaluate the version from the 
-# properties file  
+# Based on the productLatestVersion variable, evaluate the version from the
+# properties file
 # Example: ...LatestVersion=1.0.0.0
 ##########################################################################################
 getProductVersion ()
@@ -151,7 +151,7 @@ getProductVersion ()
 }
 
 ##########################################################################################
-# Based on the productMapping variable, evaluate the mapping from the 
+# Based on the productMapping variable, evaluate the mapping from the
 # properties file  Note that there needs to be 2 consecutive evals
 # since there may be a variable encoding in the variable
 # Example: ...Mapping=productName-${version}.zip
@@ -171,10 +171,10 @@ getProductFile ()
 ##########################################################################################
 getProductURL ()
 {
-	defaultURL=$( jq -r '.defaultURL' "${outputProps}" ) 
-	
+	defaultURL=$( jq -r '.defaultURL' "${outputProps}" )
+
 	prodURL=$( jq -r ".products[] | select(.name==\"${product}\").url" "${outputProps}" )
-	
+
 	prodURL=$( eval echo "$prodURL" )
 
 	# If a produtURL wasn't provide, we should use the defaultDownloadURL
@@ -222,7 +222,7 @@ cleanup ()
 
 _curl ()
 {
-    _httpResultCode=$( 
+    _httpResultCode=$(
         curl \
             --get \
             --silent \
@@ -245,10 +245,10 @@ _curl ()
 
 download_and_verify ()
 {
-	GNUPGHOME="$(mktemp -d)" 
+	GNUPGHOME="$(mktemp -d)"
     export GNUPGHOME
     TMP_VS="$( mktemp -d )"
-    PAYLOAD="${TMP_VS}/payload" 
+    PAYLOAD="${TMP_VS}/payload"
     SIGNATURE="${TMP_VS}/signature"
     KEY="${TMP_VS}/key"
     OBJECT="${1}"
@@ -257,27 +257,27 @@ download_and_verify ()
     DESTINATION="${4}"
     echo "disable-ipv6" >> "${GNUPGHOME}/dirmngr.conf"
 
-    
+
     if ! _curl --header "devops-purpose: signature" --output "${SIGNATURE}" "${OBJECT}.asc"
     then
         echo_red "Downloading the payload signature failed"
         return 1
     fi
-    
+
     if ! _curl --header "devops-purpose: payload-signed" --output "${PAYLOAD}" "${OBJECT}"
     then
         echo_red "Downloading the payload failed"
         return 2
     fi
     #
-    # the gpg cli does not natively support retries, forcing us to 
-    # manually implement retries to fetch the signature from the 
+    # the gpg cli does not natively support retries, forcing us to
+    # manually implement retries to fetch the signature from the
     # GPG public key server
     #
     if test "${KEY_ID}" = "file"
     then
         # pass "file" as the key argument to have this function download the file instead
-        if _curl --header "devops-purpose: signature-key" --output "${KEY}" "${KEY_SERVER}" 
+        if _curl --header "devops-purpose: signature-key" --output "${KEY}" "${KEY_SERVER}"
         then
             gpg --import "${KEY}" >/dev/null 2>/dev/null
             _returnCode=${?}
@@ -309,7 +309,7 @@ download_and_verify ()
         echo_red "Obtaining the public key to verify the payload signature failed"
         return ${_returnCode}
     fi
-    
+
     gpg --batch --verify "${SIGNATURE}" "${PAYLOAD}" >/dev/null 2>/dev/null
     _returnCode=${?}
     if test ${_returnCode} -eq 0
@@ -352,7 +352,7 @@ do
 			;;
         -p|--product)
 			shift
-			test -z "${1}" && usage "Product argument missing"			
+			test -z "${1}" && usage "Product argument missing"
 			# lowercase the argument value (the product name )
 			product=$( echo "${1}" | tr '[:upper:]' '[:lower:]' )
 			;;
@@ -456,11 +456,14 @@ then
         pingcentral)
             productShortName="PC"
             ;;
+        pingintelligence)
+            productShortName="pingintelligence"
+            ;;
         *)
            usage "No license files available for $product"
         ;;
     esac
-    
+
     getProductLicenseFile
     output="product.lic"
     test ${conserveName} && test -n "${licenseFile}" && output=${licenseFile}
@@ -487,8 +490,8 @@ echo "
 
 if test ${pullLicense}
 then
-    echo "#      DOWNLOADING: product.lic"  
-    echo "#               TO: ${output}" 
+    echo "#      DOWNLOADING: product.lic"
+    echo "#               TO: ${output}"
     cd /tmp || exit 2
     if test -n "${dryRun}"
     then
@@ -514,9 +517,9 @@ END_CURL
     fi
 else
     echo "#      DOWNLOADING: ${prodFile}"
-    echo "#               TO: ${output}" 
+    echo "#               TO: ${output}"
     cd /tmp || exit 2
-    
+
     if test -n "${dryRun}"
     then
         echo curl -sSL -w '%{http_code}' -o "${output}" -H "devops-user: ${devopsUser}" -H "devops-key: ${devopsKey}" -H "devops-app: ${devopsApp}" "${url}"
