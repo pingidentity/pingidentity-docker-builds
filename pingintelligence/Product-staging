@@ -2,7 +2,7 @@ ARG REGISTRY
 ARG GIT_TAG
 
 FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
-ARG PRODUCT=pingintelligence-ase-rhel
+ARG PRODUCT=pingintelligence-ase
 ARG VERSION
 ARG DEVOPS_USER
 ARG DEVOPS_KEY

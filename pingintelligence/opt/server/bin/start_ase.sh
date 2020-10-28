@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+test "${VERBOSE}" = "true" && set -x
 
 # Copyright 2020 Ping Identity Corporation.
 # Ping Identity reserves all rights in the program as delivered. Unauthorized use, copying,
@@ -83,6 +84,7 @@ fi
 
 # check if timezone is set to utc in ase.conf and export TZ variable
 var_tz_val=$( awk -F= '$0~/^timezone/{print tolower($2)}' "${SERVER_ROOT_DIR}/config/ase.conf" )
+test ${?} -ne 0 && echo "Could not parse ASE configuration file" && exit 7
 case "${var_tz_val}" in
     utc)
         log "Starting ASE in UTC timezone"
@@ -97,4 +99,4 @@ case "${var_tz_val}" in
 esac
 
 echo "Starting API Security Enforcer..."
-exec "${CONTROLLER_BINARY}" "${CONTROLLER_CONFIG_DIR}" ${CONTROLLER_START_ARGS} >> ${CONTROLLER_LOG}
+exec "${CONTROLLER_BINARY}" "${CONTROLLER_CONFIG_DIR}" management start >> "${CONTROLLER_LOG}"
