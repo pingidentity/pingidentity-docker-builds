@@ -12,6 +12,6 @@
 # Applies the RAW Server Bits from the built images into SERVER_ROOT
 if test "${RUN_PLAN}" = "START"
 then
-    echo "Copying product bits to SERVER_ROOT"
+    echo "Copying product bits to SERVER_ROOT (${SERVER_ROOT})"
     cp -af "${SERVER_BITS_DIR}" "${SERVER_ROOT_DIR}"
 fi
