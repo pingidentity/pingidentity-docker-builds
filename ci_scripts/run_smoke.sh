@@ -131,13 +131,6 @@ do
 
         for _jvm in ${_jvms}
         do
-            # if test "${_jvm}" = "none"
-            # then
-            #     _jvm=""
-            # else
-            #     _jvmVersion=$( _getJVMVersionForID "${_jvm}" )
-            # fi
-
             _tag="${_version}"
             test -n "${_shimTag}" && _tag="${_tag:+${_tag}-}${_shimTag}"
             test -n "${_jvm}" && _tag="${_tag:+${_tag}-}${_jvm}"
