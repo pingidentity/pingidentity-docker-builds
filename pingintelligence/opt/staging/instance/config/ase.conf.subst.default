@@ -1,74 +1,62 @@
-; This is API Security Enforcer's main configuration file. This file is in the standard .ini format.
-; It contains ports, firewall, log, ABS flags. The comments start with a semicolon (;).
+mode=${PING_INTELLIGENCE_ASE_MODE}
+http_ws_port=${PING_INTELLIGENCE_ASE_HTTP_PORT}
+https_wss_port=${PING_INTELLIGENCE_ASE_HTTPS_PORT}
+management_port=${PING_INTELLIGENCE_ASE_MGMT_PORT}
+admin_log_level=${PING_INTELLIGENCE_ASE_ADMIN_LOG_LEVEL}
+http_ws_process=${PING_INTELLIGENCE_ASE_HTTP_PROCESS}
+https_wss_process=${PING_INTELLIGENCE_ASE_HTTPS_PROCESS}
+enable_access_log=${PING_INTELLIGENCE_ASE_ENABLE_ACCESS_LOG}
+flush_log_immediate=${PING_INTELLIGENCE_ASE_FLUSH_LOG_IMMEDIATELY}
+enable_cluster=${PING_INTELLIGENCE_ASE_ENABLE_CLUSTER}
+enable_firewall=${PING_INTELLIGENCE_ASE_ENABLE_FIREWALL}
+enable_xff=${PING_INTELLIGENCE_ASE_ENABLE_XFOWARDED_FOR}
+enable_sslv3=${PING_INTELLIGENCE_ASE_ENABLE_SSL_V3}
+enable_abs=${PING_INTELLIGENCE_ASE_ENABLE_ABS}
+enable_abs_attack=${PING_INTELLIGENCE_ASE_ENABLE_ABS_ATTACK_LIST_RETRIEVAL}
+abs_attack_request_minutes=${PING_INTELLIGENCE_ASE_ATTACK_LIST_REFRESH_MINUTES}
+enable_ase_detected_attack=${PING_INTELLIGENCE_ASE_BLOCK_AUTODETECTED_ATTACKS}
+enable_audit=${PING_INTELLIGENCE_ASE_ENABLE_AUDIT}
+syslog_server=${PING_INTELLIGENCE_ASE_SYSLOG_SERVER}
+enable_ase_health=${PING_INTELLIGENCE_ASE_ENABLE_HEALTH}
+server_ca_cert_path=${PING_INTELLIGENCE_ASE_CA_CERT_PATH}
+enable_sideband_authentication=${PING_INTELLIGENCE_ASE_ENABLE_SIDEBAND_AUTHENTICATION}
+enable_sideband_keepalive=${PING_INTELLIGENCE_ASE_ENABLE_SIDEBAND_KEEPALIVE}
+keystore_password=${PING_INTELLIGENCE_ASE_KEYSTORE_PASSWORD}
+enable_hostname_rewrite=${PING_INTELLIGENCE_ASE_HOSTNAME_REWRITE}
+timezone=${PING_INTELLIGENCE_ASE_TIMEZONE}
+enable_google_pubsub=${PING_INTELLIGENCE_ASE_ENABLE_GOOGLE_PUBSUB}
+google_pubsub_topic=${PING_INTELLIGENCE_ASE_GOOGLE_PUBSUB_TOPIC}
+google_pubsub_concurrency=${PING_INTELLIGENCE_ASE_GOOGLE_PUBSUB_CONCURRENCY}
+google_pubsub_qps=${PING_INTELLIGENCE_ASE_GOOGLE_PUBSUB_QPS}
+google_pubsub_apikey=${PING_INTELLIGENCE_ASE_GOOGLE_PUBSUB_APIKEY}
+cache_queue_size=${PING_INTELLIGENCE_ASE_CACHE_QUEUE_SIZE}
+google_pubsub_timeout=${PING_INTELLIGENCE_ASE_GOOGLE_PUBSUB_TIMEOUT_SECONDS}
+hostname_refresh=${PING_INTELLIGENCE_ASE_HOSTNAME_REFRESH_SECONDS}
+decoy_alert_interval=${PING_INTELLIGENCE_ASE_DECOY_ALERT_INTERVAL_MINUTES}
 
-; Defines running mode for API Security Enforcer (Allowed values are inline or sideband).
-mode=${MODE}
-
-; Defines http(s)/websocket(s) ports for API Security Enforcer. Linux user should have the privilege to bind to these ports.
-; If you comment out a port, then that protocol is disabled.
-http_ws_port=80
-https_wss_port=443
-
-; REST API
-management_port=8010
-
-; For controller.log and balancer.log only
-; 1-5 (FATAL, ERROR, WARNING, INFO, DEBUG)
-admin_log_level=${ADMIN_LOG_LEVEL}
-
-; Defines the number of processes for a protocol.
-; The maximum number of allowed process for each protocol is 6 (1 master + 5 child). The
-; following defines 1 process for both http/ws and https/wss protocol.
-http_ws_process=1
-https_wss_process=1
-
-; Enable or disable access logs to the filesystem (request/response).
-; WARNING! It must be set to true for sending logs to ABS for analytics.
-enable_access_log=true
-; To write access log immediately to the filesystem, set to true.
-flush_log_immediate=true
-
-; Setting this value to true will enable this node to participate in an API Security Enforcer
-; cluster. Define cluster configurations in the cluster.conf
-enable_cluster=${ENABLE_CLUSTER}
-
-; Current API Security Enforcer version has 3 firewall features: API Mapping, API Pattern
-; Enforcement, and Attack Types.
-enable_firewall=true
-
-; X-Forwarded For
-enable_xff=false
-
-; SSLv3
-enable_sslv3=false
-
+attack_list_memory=128MB
+; Authentication method. Format is <auth_agent>::<auth_service>
+; Valid values for auth_agent are ase and pam
+; ase agent only supports db auth_service
+; pam agent can support user configured pam services
+; For example ase::db, pam::passwd, pam::ldap etc
+auth_method=ase::db
 ; enable Nagle's algorithm (if NIC card is 1G).
 enable_1G=true
-
 ; tcp send buffer size in bytes(kernel)
 tcp_send_buffer_size=65535
 ; tcp receive buffer size in bytes(kernel)
 tcp_receive_buffer_size=65535
-
 ; buffer size for send and receive in KBs (user)
 buffer_size=16KB
 
-; Set this value to true, to allow API Security Enforcer to send logs to ABS. This
-; configuration depends on the value of the enable_access_log parameter.
-enable_abs=${ENABLE_ABS}
-
-; Set this value to true, to allow API Security Enforcer to fetch attack list from ABS.
-enable_abs_attack=false
-
-; This value determines how often API Security Enforcer will get attack list from ABS.
-abs_attack_request_minutes=10
-
-; Set this value to true, to allow API Security Enforcer to block auto detected attacks.
-enable_ase_detected_attack=false
-
 ; Set this value to true to enable email for both alerts and daily reports.
 enable_email=false
-
+; Defines threshold for an email alert. For example, if CPU usage is 70%, you will get an
+; alert.
+cpu_usage=70
+memory_usage=70
+filesystem_size=70
 ; Defines report frequency in days [0=no reports, 1=every day, 2=once in two days and max is 7 ; days]
 email_report=1
 ; Specify your email settings
@@ -81,89 +69,3 @@ smtp_cert_verification=false
 sender_email=
 sender_password=
 receiver_email=
-
-; Defines threshold for an email alert. For example, if CPU usage is 70%, you will get an
-; alert.
-cpu_usage=70
-memory_usage=70
-filesystem_size=70
-
-; Authentication method. Format is <auth_agent>::<auth_service>
-; Valid values for auth_agent are ase and pam
-; ase agent only supports db auth_service
-; pam agent can support user configured pam services
-; For example ase::db, pam::passwd, pam::ldap etc
-auth_method=ase::db
-
-; Enable auditing. Valid values are true or false.
-enable_audit=true
-
-; Decoy alert interval in minutes. [min=15, default=3*60, max=24*60]
-decoy_alert_interval=180
-
-; Interval for a hostname lookup (in seconds). [min=10, default=60, max=86400]
-hostname_refresh=60
-
-; Syslog server settings. The valid format is host:port. Host can be an FQDN or an IPv4
-; address.
-syslog_server=
-
-; Attack List size in MB or GB. [min=64MB, max=1024GB]
-; ASE will take 3*(configured memory) internally. Make sure that the system has at least
-; 3*(configured memory) available
-; If you are running ASE inside a container, configure the container to use 3*(configured
-; memory) shared memory.
-attack_list_memory=128MB
-
-; Enable or Disable health check module. ASE uses '/ase' url for both http and https. This is
-; useful if ASE is deployed behind a load balancer.
-enable_ase_health=false
-
-; Location for server's trusted CA certificates. If empty, Server's certificate will not be
-; verified.
-server_ca_cert_path=
-
-; enable client side authentication. This setting is applicable only in sideband mode. Once enabled
-; request will be authenticated using authentication tokens.
-enable_sideband_authentication=${ENABLE_SIDEBAND_AUTHENTICATION}
-
-; enable connection keepalive for requests from gateway to ase.
-; This setting is applicable only in sideband mode.
-; Once enabled ase will add 'Connection: keep-alive' header in response
-; Once disabled ase will add 'Connection: close' header in response
-enable_sideband_keepalive=false
-
-; keystore password
-keystore_password=OBF:AES:sRNp0W7sSi1zrReXeHodKQ:lXcvbBhKZgDTrjQOfOkzR2mpca4bTUcwPAuerMPwvM4
-
-; enable hostname rewrite for inline mode. ASE will rewrite the host header in request
-; to the server's hostname
-enable_hostname_rewrite=false
-
-; Set the timezone to utc or local. The default timezone is local.
-timezone=${ASE_TIMEZONE}
-
-; Google Pub Sub Configuation
-enable_google_pubsub=${ENABLE_GOOGLE_PUBSUB}
-
-google_pubsub_topic=${GOOGLE_PUBSUB_TOPIC}
-
-; Number of concurrent connections to Google Pub/Sub
-; Minimum: 1, Default: 1000, Maximum: 1024
-google_pubsub_concurrency=${GOOGLE_PUBSUB_CONCURRENCY}
-
-; Number of messages published per second.
-; Minimum: 1, Default: 1000, Maximum: 10000
-google_pubsub_qps=${GOOGLE_PUBSUB_QPS}
-
-; Google service account API key (Optional)
-google_pubsub_apikey=${GOOGLE_PUBSUB_APIKEY}
-
-; Maximum number of messages buffered in memory
-; If queue is full, messages are written to logs/google_pubsub_failed.log
-; Minimum: 1, Default: 300, Maximum: 10000
-cache_queue_size=${CACHE_QUEUE_SIZE}
-
-; Timeout in seconds to publish a message to Google Pub/Sub.
-; Minimum: 10, Default: 30, Maximum: 300
-google_pubsub_timeout=${GOOGLE_PUBSUB_TIMEOUT}

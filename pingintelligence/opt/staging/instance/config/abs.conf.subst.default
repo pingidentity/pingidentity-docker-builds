@@ -1,19 +1,5 @@
-; API Security Enforcer ABS configuration.
-; This file is in the standard .ini format. The comments start with a semicolon (;).
-; Following configurations are applicable only if ABS is enabled with true.
-
-; a comma-separated list of abs nodes having hostname:port or ipv4:port as an address.
-abs_endpoint=${ABS_ENDPOINT}
-
-; access key for abs node
-access_key=${ABS_ACCESS_KEY}
-
-; secret key for abs node
-secret_key=${ABS_SECRET_KEY}
-
-; Setting this value to true will enable encrypted communication with ABS.
-enable_ssl=${ABS_ENABLE_SSL}
-
-; Configure the location of ABS's trusted CA certificates. If empty, ABS's certificate
-; will not be verified
-abs_ca_cert_path=${ABS_CA_CERT_PATH}
+abs_endpoint=${PING_INTELLIGENCE_ABS_ENDPOINT}
+access_key=${PING_INTELLIGENCE_ABS_ACCESS_KEY}
+secret_key=${PING_INTELLIGENCE_ABS_SECRET_KEY}
+enable_ssl=${PING_INTELLIGENCE_ABS_ENABLE_SSL}
+abs_ca_cert_path=${PING_INTELLIGENCE_ABS_CA_CERT_PATH}
