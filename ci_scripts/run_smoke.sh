@@ -131,6 +131,7 @@ do
 
         for _jvm in ${_jvms}
         do
+            test "${_jvm}" = "none" && _jvm=""
             _tag="${_version}"
             test -n "${_shimTag}" && _tag="${_tag:+${_tag}-}${_shimTag}"
             test -n "${_jvm}" && _tag="${_tag:+${_tag}-}${_jvm}"
