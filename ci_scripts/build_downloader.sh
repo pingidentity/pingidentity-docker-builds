@@ -71,7 +71,7 @@ DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker \
     image build \
     ${noCache} ${progress} \
     -t "${FOUNDATION_REGISTRY}/pingdownloader:${ciTag}" \
-    pingdownloader
+    "${CI_PROJECT_DIR}/pingdownloader"
 _returnCode=${?}
 _stop=$( date '+%s' )
 _duration=$(( _stop - _start ))
