@@ -170,7 +170,7 @@ do
 
     _buildVersion="${_version}"
 
-    if test -f "${productToBuild}/Product-staging"
+    if test -f "${CI_PROJECT_DIR}/${productToBuild}/Product-staging"
     then
         # Check if a file named product.zip is present within the product directory.
         # If so, use a different buildVersion to differentiate the build from regular
@@ -187,8 +187,8 @@ do
         _image="${FOUNDATION_REGISTRY}/${productToBuild}:staging-${_buildVersion}-${ciTag}"
         # build the staging for each product so we don't need to download and stage the product each time
         # shellcheck disable=SC2086
-        DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build \
-            -f "${productToBuild}/Product-staging" \
+        DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
+            -f "${CI_PROJECT_DIR}/${productToBuild}/Product-staging" \
             -t "${_image}" \
             ${progress} ${noCache} \
             --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
@@ -201,7 +201,7 @@ do
             ${PING_IDENTITY_GITLAB_TOKEN:+--build-arg PING_IDENTITY_GITLAB_TOKEN="${PING_IDENTITY_GITLAB_TOKEN}"} \
             ${VERBOSE:+--build-arg VERBOSE="true"} \
             ${_dependencies} \
-            "${productToBuild}"
+            "${CI_PROJECT_DIR}/${productToBuild}"
         _returnCode=${?}
         _stop=$( date '+%s' )
         _duration=$(( _stop - _start ))
@@ -246,7 +246,7 @@ do
 
             _image="${FOUNDATION_REGISTRY}/${productToBuild}:${fullTag}"
             # shellcheck disable=SC2086
-            DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build \
+            DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
                 -t "${_image}" \
                 ${progress} ${noCache} \
                 --build-arg PRODUCT="${productToBuild}" \
@@ -260,7 +260,7 @@ do
                 --build-arg IMAGE_GIT_REV="${gitRevLong}" \
                 --build-arg LICENSE_VERSION="${licenseVersion}" \
                 ${VERBOSE:+--build-arg VERBOSE="true"} \
-                "${productToBuild}"
+                "${CI_PROJECT_DIR}/${productToBuild}"
 
             _returnCode=${?}
             _stop=$( date '+%s' )

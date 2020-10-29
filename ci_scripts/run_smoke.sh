@@ -82,10 +82,10 @@ done
 returnCode=""
 
 test -z "${product}" && usage "Providing a product is required"
-! test -d "${product}" && echo "invalid product ${product}" && exit 98
-! test -d "${product}/tests/" && echo "${product} has non tests" && exit 98
+! test -d "${CI_PROJECT_DIR}/${product}" && echo "invalid product ${product}" && exit 98
+! test -d "${CI_PROJECT_DIR}/${product}/tests/" && echo "${product} has non tests" && exit 98
 
-if test -z "${versions}" && test  -f "${product}"/versions.json
+if test -z "${versions}" && test -f "${CI_PROJECT_DIR}/${product}"/versions.json
 then
 #   versions=$(grep -v "^#" "${product}"/versions)
     versions=$( _getAllVersionsToBuildForProduct "${product}" )
@@ -149,16 +149,16 @@ do
             fi
 
             # this is the loop where the actual test is run
-            for _test in "${product}"/tests/*.test.y*ml
+            for _test in "${CI_PROJECT_DIR}/${product}"/tests/*.test.y*ml
             do
                 banner "Running test $( basename "${_test}" ) on ${product}${_version:+ ${version}}${_shim:+ on ${shim}}${_jvm:+ with Java ${_jvmVersion}(${_jvm})}"
                 # sut = system under test
                 _start=$( date '+%s' )
-                env GIT_TAG="${ciTag}" TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f ./"${_test}" up --exit-code-from sut --abort-on-container-exit
+                env GIT_TAG="${ciTag}" TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f "${_test}" up --exit-code-from sut --abort-on-container-exit
                 _returnCode=${?}
                 _stop=$( date '+%s' )
                 _duration=$(( _stop - _start ))
-                env GIT_TAG="${ciTag}" TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f ./"${_test}" down
+                env GIT_TAG="${ciTag}" TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f "${_test}" down
                 if test ${_returnCode} -ne 0
                 then
                     _result="FAIL"
