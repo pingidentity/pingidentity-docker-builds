@@ -29,7 +29,7 @@ then
             ;;
         *)
             echo "Verifying license with a network query to https://license.pingidentity.com."
-            echo "You may opt out of this setting environment variable 'MUTE_LICENSE_VERFICATION=yes'."
+            echo "You may opt out of this setting environment variable 'MUTE_LICENSE_VERIFICATION=yes'."
             echo "   License File: ${LICENSE_FILE}"
             echo "        License: ${_licenseID}"
 

@@ -17,8 +17,8 @@ variables:
   DOCKER_HOST: tcp://localhost:2375
   KUBERNETES_CPU_REQUEST: 1250m
   KUBERNETES_CPU_LIMIT: 2000m
-  KUBERNETES_MEMORY_REQUEST: 500Mi
-  KUBERNETES_MEMORY_LIMIT: 500Mi
+  KUBERNETES_MEMORY_REQUEST: 2000000000
+  KUBERNETES_MEMORY_LIMIT: 2000000000
   KUBERNETES_POLL_TIMEOUT: 600
 
 
@@ -203,8 +203,8 @@ t.ldap-sdk-tools:
   variables:
     KUBERNETES_CPU_REQUEST: 1
     KUBERNETES_CPU_LIMIT: 1
-    KUBERNETES_MEMORY_REQUEST: 2Gi
-    KUBERNETES_MEMORY_LIMIT: 2Gi
+    KUBERNETES_MEMORY_REQUEST: 2000000000
+    KUBERNETES_MEMORY_LIMIT: 2000000000
 
 d.ldap-sdk-tools:
   stage: deploy
@@ -392,6 +392,7 @@ b.pingdirectory:
       - pingdatasync/**/*
       - pingdirectory/**/*
       - pingfederate/**/*
+      - pingdatagovernance/**/*
       - integration_tests/**/*
       - ci_scripts/*
       - pingjvm/*
@@ -420,8 +421,8 @@ t.pingdirectory:
   variables:
     KUBERNETES_CPU_REQUEST: 3
     KUBERNETES_CPU_LIMIT: 3
-    KUBERNETES_MEMORY_REQUEST: 4Gi
-    KUBERNETES_MEMORY_LIMIT: 4Gi
+    KUBERNETES_MEMORY_REQUEST: 4000000000
+    KUBERNETES_MEMORY_LIMIT: 4000000000
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -1062,8 +1063,8 @@ pd-repl.latest:
   variables:
     KUBERNETES_CPU_REQUEST: 2
     KUBERNETES_CPU_LIMIT: 2
-    KUBERNETES_MEMORY_REQUEST: 4Gi
-    KUBERNETES_MEMORY_LIMIT: 4Gi
+    KUBERNETES_MEMORY_REQUEST: 4000000000
+    KUBERNETES_MEMORY_LIMIT: 4000000000
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -1092,8 +1093,8 @@ dg-8001:
   variables:
     KUBERNETES_CPU_REQUEST: 2
     KUBERNETES_CPU_LIMIT: 2
-    KUBERNETES_MEMORY_REQUEST: 4Gi
-    KUBERNETES_MEMORY_LIMIT: 4Gi
+    KUBERNETES_MEMORY_REQUEST: 4000000000
+    KUBERNETES_MEMORY_LIMIT: 4000000000
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -1124,8 +1125,8 @@ pa-pf-pd.latest:
   variables:
     KUBERNETES_CPU_REQUEST: 3
     KUBERNETES_CPU_LIMIT: 3
-    KUBERNETES_MEMORY_REQUEST: 4Gi
-    KUBERNETES_MEMORY_LIMIT: 4Gi
+    KUBERNETES_MEMORY_REQUEST: 4000000000
+    KUBERNETES_MEMORY_LIMIT: 4000000000
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -1154,8 +1155,8 @@ pds-pd.latest:
   variables:
     KUBERNETES_CPU_REQUEST: 2
     KUBERNETES_CPU_LIMIT: 2
-    KUBERNETES_MEMORY_REQUEST: 4Gi
-    KUBERNETES_MEMORY_LIMIT: 4Gi
+    KUBERNETES_MEMORY_REQUEST: 4000000000
+    KUBERNETES_MEMORY_LIMIT: 4000000000
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -1209,8 +1210,8 @@ pdg-pd.latest:
   variables:
     KUBERNETES_CPU_REQUEST: 2
     KUBERNETES_CPU_LIMIT: 2
-    KUBERNETES_MEMORY_REQUEST: 4Gi
-    KUBERNETES_MEMORY_LIMIT: 4Gi
+    KUBERNETES_MEMORY_REQUEST: 4000000000
+    KUBERNETES_MEMORY_LIMIT: 4000000000
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
