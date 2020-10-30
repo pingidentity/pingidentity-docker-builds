@@ -1052,6 +1052,7 @@ b.pingintelligence:
     - ci_scripts/build_product.sh --product pingintelligence
   only:
     changes:
+      - integration_tests/pi-*
       - pingintelligence/**/*
       - pingcommon/**/*
       - pingbase/**/*
@@ -1072,6 +1073,7 @@ t.pingintelligence:
     - ci_scripts/run_smoke.sh --product pingintelligence
   only:
     changes:
+      - integration_tests/pi-*
       - pingintelligence/**/*
       - pingcommon/**/*
       - pingbase/**/*
