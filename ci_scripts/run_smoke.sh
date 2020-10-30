@@ -131,11 +131,7 @@ do
 
         for _jvm in ${_jvms}
         do
-            case "${_jvm}" in
-                none|nojvm)
-                    _jvm=""
-                ;;
-            esac
+            tetst "${_jvm}" = "none" && _jvm=""
 
             if test -n "${_jvm}"
             then
