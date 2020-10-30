@@ -33,8 +33,13 @@ cache_queue_size=${PING_INTELLIGENCE_ASE_CACHE_QUEUE_SIZE}
 google_pubsub_timeout=${PING_INTELLIGENCE_ASE_GOOGLE_PUBSUB_TIMEOUT_SECONDS}
 hostname_refresh=${PING_INTELLIGENCE_ASE_HOSTNAME_REFRESH_SECONDS}
 decoy_alert_interval=${PING_INTELLIGENCE_ASE_DECOY_ALERT_INTERVAL_MINUTES}
-
-attack_list_memory=128MB
+; tcp send buffer size in bytes(kernel)
+tcp_send_buffer_size=${PING_INTELLIGENCE_TCP_SEND_BUFFER_BYTES}
+; tcp receive buffer size in bytes(kernel)
+tcp_receive_buffer_size=${PING_INTELLIGENCE_TCP_RECEIVE_BUFFER_BYTES}
+;
+attack_list_memory=${PING_INTELLIGENCE_ASE_ATTACK_LIST_MEMORY}
+;
 ; Authentication method. Format is <auth_agent>::<auth_service>
 ; Valid values for auth_agent are ase and pam
 ; ase agent only supports db auth_service
@@ -43,13 +48,9 @@ attack_list_memory=128MB
 auth_method=ase::db
 ; enable Nagle's algorithm (if NIC card is 1G).
 enable_1G=true
-; tcp send buffer size in bytes(kernel)
-tcp_send_buffer_size=65535
-; tcp receive buffer size in bytes(kernel)
-tcp_receive_buffer_size=65535
 ; buffer size for send and receive in KBs (user)
 buffer_size=16KB
-
+;
 ; Set this value to true to enable email for both alerts and daily reports.
 enable_email=false
 ; Defines threshold for an email alert. For example, if CPU usage is 70%, you will get an
