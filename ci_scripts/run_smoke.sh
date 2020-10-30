@@ -131,7 +131,7 @@ do
 
         for _jvm in ${_jvms}
         do
-            tetst "${_jvm}" = "none" && _jvm=""
+            test "${_jvm}" = "none" && _jvm=""
 
             if test -n "${_jvm}"
             then
