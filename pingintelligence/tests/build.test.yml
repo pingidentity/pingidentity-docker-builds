@@ -20,4 +20,4 @@ services:
     memswap_limit: 1g
     mem_swappiness: 0
     tmpfs: /run/secrets
-    command: start-server /opt/wait-for localhost:443 -t 180 -- liveness.sh
+    command: start-server /opt/wait-for localhost:8443 -t 180 -- liveness.sh
