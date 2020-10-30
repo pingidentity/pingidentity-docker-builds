@@ -1317,7 +1317,7 @@ pa-cluster.latest:
 pi-basic.latest:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh pi-basic.latest
+    - ci_scripts/run_integration.sh pi-basic
   only:
     changes:
       - integration_tests/**/pi-basic*
