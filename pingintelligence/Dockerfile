@@ -55,11 +55,17 @@ ENV ROOT_USER_PASSWORD_FILE=""
 ENV ADMIN_USER_PASSWORD_FILE=""
 ENV ENCRYPTION_PASSWORD_FILE=""
 
+#-- PingIntelligence global variables
+#-- PingIntelligence default administrative user (this should probably not be changed)
+ENV PING_INTELLIGENCE_ADMIN_USER="admin"
+#-- PingIntelligence default administrative user credentials (this should be changed)
+ENV PING_INTELLIGENCE_ADMIN_PASSWORD="2FederateM0re"
+
 # ase.conf
 #-- The ASE HTTP listener port
-ENV PING_INTELLIGENCE_ASE_HTTP_PORT=80
+ENV PING_INTELLIGENCE_ASE_HTTP_PORT=8000
 #-- The ASE HTTPS listener port
-ENV PING_INTELLIGENCE_ASE_HTTPS_PORT=443
+ENV PING_INTELLIGENCE_ASE_HTTPS_PORT=8443
 #-- the ASE management port
 ENV PING_INTELLIGENCE_ASE_MGMT_PORT=8010
 #-- The timezone the ASE container is operating in
@@ -128,6 +134,12 @@ ENV PING_INTELLIGENCE_ASE_GOOGLE_PUBSUB_APIKEY=""
 ENV PING_INTELLIGENCE_ASE_CACHE_QUEUE_SIZE=300
 #-- Timeout in seconds to publish a message to Google Pub/Sub. (Min: 10, Max: 300, Default: 30)
 ENV PING_INTELLIGENCE_ASE_GOOGLE_PUBSUB_TIMEOUT_SECONDS=30
+#-- Kernel TCP send buffer size in bytes
+ENV PING_INTELLIGENCE_TCP_SEND_BUFFER_BYTES=212992
+#--Kenrel TCP receive buffer size in bytes
+ENV PING_INTELLIGENCE_TCP_RECEIVE_BUFFER_BYTES=212992
+#--
+ENV PING_INTELLIGENCE_ASE_ATTACK_LIST_MEMORY="128MB"
 
 # cluster.conf
 #-- a comma-separated list of hostname:cluster_manager_port or IPv4_address:cluster_manager_port
@@ -142,7 +154,7 @@ ENV PING_INTELLIGENCE_CLUSTER_SECRET_KEY="OBF:AES:nPJOh3wXQWK/BOHrtKu3G2SGiAEElO
 
 # abs.conf
 #-- a comma-separated list of abs nodes having hostname:port or ipv4:port as an address.
-ENV PING_INTELLIGENCE_ABS_ENDPOINT="127.0.0.1:8080"
+ENV PING_INTELLIGENCE_ABS_ENDPOINT=""
 #-- access key for ase to authenticate with abs node
 ENV PING_INTELLIGENCE_ABS_ACCESS_KEY=""
 #-- secret key for ase to authenticate with abs node
@@ -154,6 +166,6 @@ ENV PING_INTELLIGENCE_ABS_CA_CERT_PATH=""
 
 
 #-- Files tailed once container has started
-ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/*"
+ENV TAIL_LOG_FILES=""
 
 COPY --from=final-staging ["/","/"]
