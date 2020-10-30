@@ -3,17 +3,14 @@ version: "2.4"
 services:
   pingintelligence:
     image: ${REGISTRY}/pingintelligence:${PINGINTELLIGENCE_LATEST}-centos_7.6.1810-nojvm-${GIT_TAG}
-    # image: pingidentity/pingintelligence:4.3-centos_7.6.1810-nojvm-GDO-215_PingIntelligence_ASE-9cb7
     command: start-server
     environment:
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
       - SERVER_PROFILE_PATH=pi-basic
       - SERVER_PROFILE_BRANCH=GDO-215_PingIntelligence_ASE
-      - PING_INTELLIGENCE_ASE_HTTP_PORT=8000
-      - PING_INTELLIGENCE_ASE_HTTPS_PORT=8443
       - PING_INTELLIGENCE_ASE_ENABLE_HEALTH=true
     env_file:
-      - ~/.pingidentity/devops
+      - /tmp/integration_tests.properties
     # ports:
     #   - 9000:8000
     #   - 9443:8443
