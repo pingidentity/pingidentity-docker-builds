@@ -20,7 +20,7 @@
         {
             "name": "pingaccess",
             "mapping": "pingaccess-${version}.zip",
-            "latestVersion": "6.1.2",
+            "latestVersion": "6.1.3",
             "licenseFile": "pingaccess.lic"
         },
         {
