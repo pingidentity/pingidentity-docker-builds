@@ -3,17 +3,19 @@
 TIMEOUT=15
 QUIET=0
 
-echoerr() {
-    if test "$QUIET" -ne 1 ; then 
-        printf "%s\n" "$*" 1>&2; 
+echoerr ()
+{
+    if test "${QUIET}" -ne 1 ; then
+        printf "%s\n" "${*}" 1>&2;
     fi
 }
 
-usage() {
-  exitcode="$1"
-  cat << USAGE >&2
+usage ()
+{
+    exitcode="${1}"
+    cat << USAGE >&2
 Usage:
-  $cmdname host:port [-t timeout] [-- command args]
+  wait-for host:port [-t timeout] [-- command args]
   where options include:
       -h | --host                     Host to check connectivity
       -p | --port                     Port to check connectivity (Defaults to 443)
@@ -23,165 +25,196 @@ Usage:
       -t TIMEOUT | --timeout=timeout  Timeout in seconds, zero for no timeout
       -- COMMAND ARGS                 Execute command with args after the test finishes
 USAGE
-  exit "$exitcode"
+    exit "${exitcode}"
 }
 
-wait_for() {
-  for i in $( seq $TIMEOUT ) ; do
-    SERVER_FOUND=false
-    FILE_FOUND=false
-    DIR_FOUND=false
-    if ! test -z "$HOST" ; then
-      nc -z "$HOST" "$PORT" > /dev/null 2>&1
-      
-      result=$?
-      if test $result -eq 0 ; then
-        if test $# -gt 0 ; then
-          exec "$@"
+wait_for ()
+{
+    for i in $( seq ${TIMEOUT} )
+    do
+        SERVER_FOUND=false
+        FILE_FOUND=false
+        DIR_FOUND=false
+        if test -n "${HOST}"
+        then
+            nc -z "${HOST}" "${PORT}" > /dev/null 2>&1
+
+            result=${?}
+            if test ${result} -eq 0
+            then
+                if test ${#} -gt 0
+                then
+                    exec "${@}"
+                fi
+                SERVER_FOUND=true
+            fi
+        else
+            SERVER_FOUND=true
         fi
-        SERVER_FOUND=true
-      fi
-    else
-      SERVER_FOUND=true
+
+        if test -n "${FILE}"
+        then
+            if test -f "${FILE}"
+            then
+                FILE_FOUND=true
+            fi
+        else
+            FILE_FOUND=true
+        fi
+
+        if test -n "${DIR}"
+        then
+            if test -d "${DIR}"
+            then
+                DIR_FOUND=true
+            fi
+        else
+            DIR_FOUND=true
+        fi
+
+        if ${SERVER_FOUND} && ${DIR_FOUND} && ${FILE_FOUND}
+        then
+            exit 0
+        fi
+        sleep 1
+    done
+
+    exitcode=0
+    if ! ${SERVER_FOUND}
+    then
+        echoerr "Error: Timed out waiting for server ${HOST}:${PORT}"
+        exitcode=$(( ${exitcode} + 4 ))
     fi
 
-    if ! test -z "$FILE" ; then
-      if test -f "$FILE" ; then
-        FILE_FOUND=true
-      fi
-    else
-      FILE_FOUND=true
+    if ! ${FILE_FOUND}
+    then
+        echoerr "Error: Timed out waiting for file ${FILE}"
+        exitcode=$(( ${exitcode} + 8 ))
     fi
 
-    if ! test -z "$DIR" ; then
-      if test -d "$DIR" ; then
-        DIR_FOUND=true
-      fi
-    else
-      DIR_FOUND=true
+    if ! ${DIR_FOUND}
+    then
+        echoerr "Error: Timed out waiting for dir $DIR"
+        exitcode=$(( ${exitcode} + 16 ))
     fi
 
-    if $SERVER_FOUND && $DIR_FOUND && $FILE_FOUND ; then
-      exit 0
-    fi
-    sleep 1
-  done
-  
-  exitcode=0
-  if ! $SERVER_FOUND ; then
-    echoerr "Error: Timed out waiting for server $HOST:$PORT"
-    exitcode=$(($exitcode+4))
-  fi
-  if ! $FILE_FOUND ; then
-    echoerr "Error: Timed out waiting for file $FILE"
-    exitcode=$(($exitcode+8))
-  fi
-  if ! $DIR_FOUND ; then
-    echoerr "Error: Timed out waiting for dir $DIR"
-    exitcode=$(($exitcode+16))
-  fi
-
-  echo "Operation timed out" >&2
-  exit "$exitcode"
+    echo "Operation timed out" >&2
+    exit "${exitcode}"
 }
 
-while test $# -gt 0 ; do
-  case "$1" in
-    *:* )
-    if ! test -z "$HOST" ; then
-      echoerr "Error: Host has been provided multiple times."
-      usage 2
-    fi
-    if ! test -z "$PORT" ; then
-      echoerr "Error: Port has been provided multiple times."
-      usage 2
-    fi
-    HOST=$(printf "%s\n" "$1"| cut -d : -f 1)
-    PORT=$(printf "%s\n" "$1"| cut -d : -f 2)
-    shift 1
-    ;;
-    -q | --quiet)
-    QUIET=1
-    shift 1
-    ;;
-    -t)
-    TIMEOUT="$2"
-    if [ "$TIMEOUT" = "" ]; then break; fi
-    shift 2
-    ;;
-    --timeout=*)
-    TIMEOUT="${1#*=}"
-    shift 1
-    ;;
-    --)
-    shift
-    break
-    ;;
-    --help)
-    usage 0
-    ;;
-    -h | --host)
-    if ! test -z "$HOST" ; then
-      echoerr "Error: Host has been provided multiple times."
-      usage 2
-    fi
-    if test $# -lt 2 ; then
-      echoerr "Error: No argument provided for host."
-      usage 2
-    fi
-    HOST="$2"
-    shift 2
-    ;;
-    -p | --port)
-    if test $# -lt 2 ; then
-      echoerr "Error: No argument provided for port."
-      usage 2
-    fi
-    if ! test -z "$PORT" ; then
-      echoerr "Error: Port has been provided multiple times."
-      usage 2
-    fi
-    PORT="$2"
-    shift 2
-    ;;
-    -f | --file)
-    if ! test -z "$FILE" ; then
-      echoerr "Error: File has been provided multiple times."
-      usage 2
-    fi
-    if test $# -lt 2 ; then
-      echoerr "Error: No argument provided for file."
-      usage 2
-    fi
-    FILE="$2"
-    shift 2
-    ;;
-    -d | --dir)
-    if ! test -z "$DIR" ; then
-      echoerr "Error: Dir has been provided multiple times."
-      usage 2
-    fi
-    if test $# -lt 2 ; then
-      echoerr "Error: No argument provided for dir."
-      usage 2
-    fi
-    DIR="$2"
-    shift 2
-    ;;
-    *)
-    echoerr "Unknown argument: $1"
-    usage 1
-    ;;
-  esac
+while test ${#} -gt 0
+do
+    case "${1}" in
+        *:* )
+            if test -n "${HOST}"
+            then
+                echoerr "Error: Host has been provided multiple times."
+                usage 2
+            fi
+            if test -n "${PORT}"
+            then
+                echoerr "Error: Port has been provided multiple times."
+                usage 2
+            fi
+            HOST=$( printf "%s\n" "${1}"| cut -d : -f 1 )
+            PORT=$( printf "%s\n" "${1}"| cut -d : -f 2 )
+            shift 1
+            ;;
+        -q | --quiet)
+            QUIET=1
+            shift 1
+            ;;
+        -t)
+            TIMEOUT="${2}"
+            if test -z "${TIMEOUT}"
+            then
+                break
+            fi
+            shift 2
+            ;;
+        --timeout=*)
+            TIMEOUT="${1#*=}"
+            shift 1
+            ;;
+        --)
+            shift
+            break
+            ;;
+        --help)
+            usage 0
+            ;;
+        -h | --host)
+            if test -n "${HOST}"
+            then
+                echoerr "Error: Host has been provided multiple times."
+                usage 2
+            fi
+            if test ${#} -lt 2
+            then
+                echoerr "Error: No argument provided for host."
+                usage 2
+            fi
+            HOST="${2}"
+            shift 2
+            ;;
+        -p | --port)
+            if test ${#} -lt 2
+            then
+                echoerr "Error: No argument provided for port."
+                usage 2
+            fi
+            if test -n "${PORT}"
+            then
+                echoerr "Error: Port has been provided multiple times."
+                usage 2
+            fi
+            PORT="${2}"
+            shift 2
+            ;;
+        -f | --file)
+            if test -n "${FILE}"
+            then
+                echoerr "Error: File has been provided multiple times."
+                usage 2
+            fi
+            if test ${#} -lt 2
+            then
+                echoerr "Error: No argument provided for file."
+                usage 2
+            fi
+            FILE="${2}"
+            shift 2
+            ;;
+        -d | --dir)
+            if test -n "${DIR}"
+            then
+                echoerr "Error: Dir has been provided multiple times."
+                usage 2
+            fi
+            if test ${#} -lt 2
+            then
+                echoerr "Error: No argument provided for dir."
+                usage 2
+            fi
+            DIR="${2}"
+            shift 2
+            ;;
+        *)
+            echoerr "Unknown argument: ${1}"
+            usage 1
+            ;;
+    esac
 done
 
-if test -z "$HOST" && test -z "$FILE" && test -z "$DIR" ; then
-  echoerr "Error: you need to provide at least one of host, file, or dir to test."
-  usage 2
+if test -z "${HOST}" && test -z "${FILE}" && test -z "${DIR}"
+then
+    echoerr "Error: you need to provide at least one of host, file, or dir to test."
+    usage 2
 fi
 
-if test -z "$PORT" && ! test -z "$HOST" ; then
-  PORT="443"
+if test -z "${PORT}" && test -n "${HOST}"
+then
+    PORT="443"
 fi
 
-wait_for "$@"
+wait_for "${@}"

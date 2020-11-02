@@ -131,10 +131,10 @@ do
 
         for _jvm in ${_jvms}
         do
-            if test "${_jvm}" = "none"
+            test "${_jvm}" = "none" && _jvm=""
+
+            if test -n "${_jvm}"
             then
-                _jvm=""
-            else
                 _jvmVersion=$( _getJVMVersionForID "${_jvm}" )
             fi
 

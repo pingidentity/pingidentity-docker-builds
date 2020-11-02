@@ -216,6 +216,10 @@ do
 
     for _jvm in ${_jvms}
     do
+        if test "${_jvm}" = "nojvm"
+        then
+            continue
+        fi
         banner "Building pingjvm for JDK ${_jvm} for ${_shim}"
         _start=$( date '+%s' )
         _image="${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimTag}-${ciTag}"

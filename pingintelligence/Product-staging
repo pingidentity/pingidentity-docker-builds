@@ -1,0 +1,30 @@
+ARG REGISTRY
+ARG GIT_TAG
+
+FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
+ARG PRODUCT=pingintelligence-ase
+ARG VERSION
+ARG DEVOPS_USER
+ARG DEVOPS_KEY
+ARG VERBOSE
+ARG PING_IDENTITY_SNAPSHOT
+
+COPY tmp /tmp
+
+# copy your product zip file into the staging image
+RUN /get-bits.sh --product ${PRODUCT} \
+        --version ${VERSION} \
+        --devops-user ${DEVOPS_USER} \
+        --devops-key ${DEVOPS_KEY} \
+        --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
+        ${PING_IDENTITY_SNAPSHOT} \
+        --verify-gpg-signature \
+    && unzip /tmp/product.zip -d /tmp/ \
+        -x *.example \
+        -x *.conf \
+        -x *_rhel7.sh \
+    && mv /tmp/ase /opt/server
+
+FROM scratch
+# get the product staged above (single slender layer)
+COPY --from=staging ["/opt/","/opt/"]

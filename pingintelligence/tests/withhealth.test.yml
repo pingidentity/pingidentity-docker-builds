@@ -1,0 +1,24 @@
+version: "2.4"
+services:
+  sut:
+    image: ${REGISTRY}/pingintelligence:${TAG}
+    environment:
+      - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
+      - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
+      - PING_IDENTITY_ACCEPT_EULA=YES
+      - PING_INTELLIGENCE_ASE_ENABLE_HEALTH=true
+      - VERBOSE=true
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    # PingIntelligence ASE requires at least 256m of shared memory, do not omit this setting
+    shm_size: 384m
+    mem_limit: 1g
+    memswap_limit: 1g
+    mem_swappiness: 0
+    tmpfs: /run/secrets
+    command: start-server /opt/wait-for localhost:8443 -t 180 -- liveness.sh

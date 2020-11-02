@@ -1044,6 +1044,76 @@ d.pingtoolkit:
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingtoolkit(?:$|,)/i
 
 ################################################
+#                  PING INTELLIGENCE
+################################################
+b.pingintelligence:
+  stage: products
+  script:
+    - ci_scripts/build_product.sh --product pingintelligence
+  only:
+    changes:
+      - integration_tests/pi-*
+      - pingintelligence/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingintelligence(?:$|,)/i
+
+t.pingintelligence:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_smoke.sh --product pingintelligence
+  only:
+    changes:
+      - integration_tests/pi-*
+      - pingintelligence/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingintelligence(?:$|,)/i
+
+d.pingintelligence:
+  stage: deploy
+  script:
+    - ci_scripts/deploy_product_to_registry.sh --product pingintelligence
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - pingintelligence/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingintelligence(?:$|,)/i
+
+################################################
 #                  INTEGRATION TESTS
 ################################################
 pd-repl.latest:
@@ -1245,6 +1315,28 @@ pa-cluster.latest:
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i
+
+pi-basic.latest:
+  stage: test.integration
+  script:
+    - ci_scripts/run_integration.sh pi-basic
+  only:
+    changes:
+      - integration_tests/**/pi-basic*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingintelligence/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingintelligence(?:$|,)/i
 
 ################################################
 #                  Publish To Github

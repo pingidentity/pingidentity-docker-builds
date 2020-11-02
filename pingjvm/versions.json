@@ -31,6 +31,12 @@
             "from": "openjdk:11-jre-slim"
         },
         {
+            "shims": ["centos:7.6"],
+            "id": "conoj",
+            "version": "0",
+            "from": "scratch"
+        },
+        {
             "shims": ["ubuntu","ubuntu:latest","ubuntu:18.04"],
             "id": "ua11",
             "version": "11",

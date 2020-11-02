@@ -87,9 +87,9 @@
             "latestVersion": "5.3.0"
         },
         {
-            "name": "pingintelligence-ase",
+            "name": "pingintelligence",
             "mapping": "PingIntelligence-ASE-rhel-${version}.zip",
-            "latestVersion": "4.2"
+            "latestVersion": "4.3"
         }
     ]
 }

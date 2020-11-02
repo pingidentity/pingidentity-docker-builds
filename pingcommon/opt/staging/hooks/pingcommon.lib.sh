@@ -62,6 +62,9 @@ upperVar()
 #
 _curl ()
 {
+    extras="--retry-connrefused"
+    # CentOS curl does not support the retry on connection rerfused option
+    isOS "centos" && extras=""
     _httpResultCode=$(
         curl \
             --get \
@@ -72,7 +75,7 @@ _curl ()
             --connect-timeout 2 \
             --retry 6 \
             --retry-max-time 30 \
-            --retry-connrefused \
+            ${extras} \
             --retry-delay 3 \
             "${@}"
     )
@@ -133,7 +136,7 @@ isImageVersionGtEq() {
     test "${minor}" -le "${aMinor}" && \
     test "${patch}" -lt "${aPatch}" ; then
       echo 1
-  else 
+  else
     echo 0
   fi
 }
