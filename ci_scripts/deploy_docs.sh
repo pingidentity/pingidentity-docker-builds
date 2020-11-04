@@ -74,8 +74,9 @@ append_footer ()
 #
 append_env_table_header ()
 {
+    # TODO: future if a 'from registry pingbase', automatically add this comment
     case "${dockerImage}" in
-        pingaccess|pingdirectory|pingdatasync|pingfederate|pingdatagovernance|pingdatagovernancepap|pingtoolkit|pingcentral)
+        pingaccess|pingdirectory|pingdatasync|pingfederate|pingdatagovernance|pingdatagovernancepap|pingtoolkit|pingcentral|pingintelligence|pingdelegator|pingdataproxy)
             if test "${ENV_TABLE_ACTIVE}" != "true"
             then
                 ENV_TABLE_ACTIVE="true"
@@ -291,7 +292,7 @@ parse_dockerfile ()
 dockerImages="pingaccess pingfederate pingdirectory pingdatagovernance pingdatagovernancepap pingdatasync
 pingbase pingcommon pingdatacommon
 pingdataconsole pingdownloader ldap-sdk-tools pingtoolkit
-pingdirectoryproxy pingdelegator apache-jmeter pingcentral"
+pingdirectoryproxy pingdelegator apache-jmeter pingcentral pingintelligence"
 #
 # Parse the provided arguments, if any
 #
