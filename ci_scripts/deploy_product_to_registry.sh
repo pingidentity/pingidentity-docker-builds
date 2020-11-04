@@ -80,8 +80,8 @@ tag_and_push ()
         echo "Pushing ${_target}"
         if test "${registryToDeployTo}" = "$(jq -r '. | .registries | .[] | select(.name == "dockerhub global") | .registry' "${_file}")"
         then
-            docker --config "${_config_dir}" trust revoke --yes "${_target}"
-            docker --config "${_config_dir}" trust sign "${_target}"
+            docker --config "${DOCKER_CONFIG_HUB_DIR}" trust revoke --yes "${_target}"
+            docker --config "${DOCKER_CONFIG_HUB_DIR}" trust sign "${_target}"
         else
             echo_red "Pushing to a non dockerhub global.  We need revisit this next push."
             docker push "${_target}"
@@ -196,29 +196,6 @@ fi
 latestVersion=$( _getLatestVersionForProduct "${productToDeploy}" )
 
 #
-# perform a docker login to docker hub.  This is required to properly authenticate and
-# sign images with docker
-#
-echo "Logging into docker hub..."
-requirePipelineVar DOCKER_USERNAME
-requirePipelineVar DOCKER_PASSWORD
-
-#
-# Move docker config.json over to an ecr version
-#
-_config_dir="/root/.docker"
-_config_ecr_dir="/root/.docker-ecr"
-
-mkdir -p "${_config_ecr_dir}"
-mv "${_config_dir}/config.json" "${_config_ecr_dir}/config.json"
-
-#
-# login to docker.io using the default config.json
-#
-docker --config "${_config_dir}" login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
-
-
-#
 # Determine whether the commit is associated with a sprint tag
 #   a print tag ends with 4 digits, YYMM
 #
@@ -238,6 +215,7 @@ banner "Deploying ${productToDeploy}"
 #
 # Special case for pingdownloader, as it doesn't have versions to deploy
 #
+_config_ecr_dir="/root/.docker"
 if test "${productToDeploy}" = "pingdownloader"
 then
     test -z "${dryRun}" \
