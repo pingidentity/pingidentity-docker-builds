@@ -62,7 +62,7 @@ ENV PF_ENGINE_PUBLIC_HOSTNAME=localhost
 #-- an empty string.
 ENV PF_ENGINE_PUBLIC_PORT=9031
 
-#- The client id that was set up with Ping Federate for Ping Delegator.
+#-- The client id that was set up with Ping Federate for Ping Delegator.
 ENV PF_DELEGATOR_CLIENTID=dadmin
 
 #-- The hostname for the DS instance the app will be interfacing with.
