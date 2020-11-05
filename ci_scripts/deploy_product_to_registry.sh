@@ -80,8 +80,8 @@ tag_and_push ()
         echo "Pushing ${_target}"
         if test "${registryToDeployTo}" = "$(jq -r '. | .registries | .[] | select(.name == "dockerhub global") | .registry' "${_file}")"
         then
-            docker --config "${DOCKER_CONFIG_HUB_DIR}" trust revoke --yes "${_target}"
-            docker --config "${DOCKER_CONFIG_HUB_DIR}" trust sign "${_target}"
+            docker --config "${_docker_config_hub_dir}" trust revoke --yes "${_target}"
+            docker --config "${_docker_config_hub_dir}" trust sign "${_target}"
         else
             echo_red "Pushing to a non dockerhub global.  We need revisit this next push."
             docker push "${_target}"
@@ -209,17 +209,20 @@ do
     fi
 done
 
+#Docker config locations for ECR and DockerHub
+_docker_config_hub_dir="/root/.docker-hub"
+_docker_config_ecr_dir="/root/.docker"
+
 # _dateStamp=$( date '%y%m%d')
 banner "Deploying ${productToDeploy}"
 
 #
 # Special case for pingdownloader, as it doesn't have versions to deploy
 #
-_config_ecr_dir="/root/.docker"
 if test "${productToDeploy}" = "pingdownloader"
 then
     test -z "${dryRun}" \
-                && docker --config "${_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
+                && docker --config "${_docker_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
     for registryToDeployTo in ${_registryList}
     do
         tag_and_push ""
@@ -264,7 +267,7 @@ do
             banner "Processing ${productToDeploy} ${_shim} ${_jvm} ${_version}"
             fullTag="${_version}-${_shimLongTag}-${_jvm}-${ciTag}"
             test -z "${dryRun}" \
-                && docker --config "${_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
+                && docker --config "${_docker_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
             _jvmVersion=$( _getJVMVersionForID "${_jvm}" )
             for registryToDeployTo in ${_registryList}
             do
