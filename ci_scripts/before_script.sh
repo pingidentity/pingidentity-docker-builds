@@ -40,10 +40,10 @@ git --version
 echo "Logging into docker hub..."
 requirePipelineVar DOCKER_USERNAME
 requirePipelineVar DOCKER_PASSWORD
-export DOCKER_CONFIG_HUB_DIR="/root/.docker-hub"
-mkdir -p "${DOCKER_CONFIG_HUB_DIR}"
+_docker_config_hub_dir="/root/.docker-hub"
+mkdir -p "${_docker_config_hub_dir}"
 
 #
 # login to docker.io using the default config.json
 #
-docker --config "${DOCKER_CONFIG_HUB_DIR}" login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
+docker --config "${_docker_config_hub_dir}" login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
