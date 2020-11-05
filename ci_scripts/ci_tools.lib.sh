@@ -423,11 +423,11 @@ then
     echo "Using docker trust private key '${DOCKER_TRUST_PRIVATE_KEY}'"
     echo "Using docker trust private key file'${DOCKER_TRUST_PRIVATE_KEY_FILE}'"
     echo "Using docker trust private key signer '${DOCKER_TRUST_PRIVATE_KEY_SIGNER}'"
-    mkdir -p /root/.docker/trust/private
-    cp "${DOCKER_TRUST_PRIVATE_KEY_FILE}" "/root/.docker/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
-    chmod 600 "/root/.docker/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
+    mkdir -p "/root/.docker-hub/trust/private"
+    cp "${DOCKER_TRUST_PRIVATE_KEY_FILE}" "/root/.docker-hub/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
+    chmod 600 "/root/.docker-hub/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
 
-    docker trust key load "/root/.docker/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
+    docker trust key load "/root/.docker-hub/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
 
     # shellcheck disable=SC2155
     gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
