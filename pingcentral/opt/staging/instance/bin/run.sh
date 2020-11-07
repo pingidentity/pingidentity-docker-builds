@@ -32,6 +32,7 @@ LOG="${PINGCENTRAL_HOME}/log"
 LOG4J2_PROPS="${CONFIG}/log4j2.xml"
 cd "${PINGCENTRAL_HOME}"
 java -jar \
+    --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
     -Dlogging.config="${LOG4J2_PROPS}" \
     -Dspring.config.additional-location="file:${CONFIG}/" \
     -Dpingcentral.jwk="${CONFIG}/pingcentral.jwk" \
