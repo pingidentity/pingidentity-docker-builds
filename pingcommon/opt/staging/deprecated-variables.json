@@ -7,5 +7,10 @@
         "name": "PA_ADMIN_PASSWORD",
         "sensitive": true,
         "message": "Use PING_IDENTITY_PASSWORD instead of PA_ADMIN_PASSWORD."
+    },
+    {
+        "name": "REST_API_HOSTNAME",
+        "sensitive": false,
+        "message": "Use PING_EXTERNAL_BASE_URL to specify the PAP's external hostname:port"
     }
 ]
