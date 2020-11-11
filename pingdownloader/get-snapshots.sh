@@ -109,7 +109,7 @@ _getLatestSnapshotImageForProductVersionID ()
 {
     case "${1}" in
         pingcentral)
-            _curlSafeFile ${TARGET_FILE} -H "PRIVATE-TOKEN: ${PING_IDENTITY_GITLAB_TOKEN}" "https://gitlab.corp.pingidentity.com/api/v4/projects/2990/jobs/artifacts/master/raw/distribution/target/ping-central-${2}.zip?job=deploy-job"
+            _curlSafeFile ${TARGET_FILE} -H "PRIVATE-TOKEN: ${PING_IDENTITY_GITLAB_TOKEN}" "https://gitlab.corp.pingidentity.com/api/v4/projects/2990/jobs/artifacts/master/raw/distribution/target/ping-central-${2}.zip?job=verify-master-job"
             ;;
         pingfederate)
             _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct "${1}" )/artifact/pf-server/HuronPeak/assembly/target/${1}-${2}-${3}.zip"
