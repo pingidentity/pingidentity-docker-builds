@@ -9,7 +9,7 @@
 #- These bits will be placed into the STAGING_DIR location (defaults to
 #- ${BASE_DIR}/staging).
 #-
-#- Server Profiles may be layered to copy in profils from a parent/ancestor server
+#- Server Profiles may be layered to copy in profiles from a parent/ancestor server
 #- profile.  An example might be a layer of profiles that look like:
 #-
 #- - Dev Environment Configs (DEV_CONFIG)
@@ -131,6 +131,8 @@ getProfile ()
         # shellcheck disable=SC2086
         cp -af ${SERVER_PROFILE_DIR}/${serverProfilePath}/. "${STAGING_DIR}"
         die_on_error 142 "Copy to staging failure"  || exit ${?}
+    else
+        echo_yellow "INFO: ${1}_URL not set, skipping"
     fi
 }
 
