@@ -107,6 +107,10 @@ expandFiles()
 # main
 cd "${STAGING_DIR}" || exit 15
 # shellcheck disable=SC2044
+
+# Source secret envs
+source_secret_envs
+
 for _zipBundle in $( find "." -type f -iname \*.zip.subst )
 do
     echo "expanding .zip file - ${_zipBundle}"

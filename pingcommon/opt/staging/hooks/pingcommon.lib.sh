@@ -210,6 +210,16 @@ cat_indent ()
 }
 
 ###############################################################################
+# cat_comment (file)
+#
+# cat a file to stdout and indent with a comment '# '
+###############################################################################
+cat_comment ()
+{
+    test -f "${1}" && sed 's/^/# /' < "${1}"
+}
+
+###############################################################################
 # run_if_present (script)
 #
 # runs a script, if the script is present
@@ -642,6 +652,34 @@ source_container_env ()
         . "${CONTAINER_ENV}"
         set +o allexport
     fi
+}
+
+###############################################################################
+# source_secret_envs
+#
+# source and export all ${SECRETS_DIR}/*.env files
+###############################################################################
+source_secret_envs ()
+{
+    # for _secretJson in "${SECRETS_DIR}"/*.env.json; do
+
+    #     echo "Processing JSON Secret File ${_secretJson}"
+    #     for key in $(cat "${_secretJson}" | jq -r "keys | flatten[]");
+    #     do
+    #         eval "export $key=\"$(cat ${_secretJson} | jq -r ".$key")\""
+    #     done
+    # done
+
+    for _secretProps in "${SECRETS_DIR}"/*.env; do
+        test -f "${_secretProps}" || break # handle if no *.env files found
+
+        echo "Sourcing secret env ${_secretProps}"
+
+        set -o allexport
+        # shellcheck source=/dev/null
+        . "${_secretProps}"
+        set +o allexport
+    done
 }
 
 ###############################################################################

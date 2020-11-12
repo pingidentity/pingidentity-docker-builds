@@ -177,6 +177,12 @@ getProfile ${serverProfilePrefix}
 # Add STAGING_DIR state information
 add_state_info "${STAGING_DIR}"
 
+# Compare all the changes with previous/current state
+echo
+compare_state_info
+
+# Flash the current state with current date/time
+flash_state_info
 # GDO-200 - Try to encourage orchestration variables over env_vars
 _env_vars_file="${STAGING_DIR}/env_vars"
 if test -f "${_env_vars_file}"

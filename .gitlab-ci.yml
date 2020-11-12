@@ -6,7 +6,6 @@ stages:
   - test.integration
   - deploy
   - publish
-  - cleanup
 
 default:
   before_script:
@@ -1357,26 +1356,3 @@ p.github:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_REF_NAME =~ /^\[skip deploy\]*/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-
-################################################
-#                  Cleanup
-################################################
-c.failure:
-  stage: cleanup
-  script:
-    - ci_scripts/cleanup_failure.sh
-  when: on_failure
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip cleanup\]/
-
-# c.always:
-#   stage: cleanup
-#   script:
-#     - ci_scripts/cleanup_docker.sh full
-#   when: always
-#   except:
-#     variables:
-#       - $CI_COMMIT_REF_NAME =~ /^workspace.*/

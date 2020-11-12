@@ -38,7 +38,7 @@ echo_vars   SECRUITY_CHECKS_STRICT SECURITY_CHECKS_FILENAME
 
 if test -n "${VAULT_TYPE}"; then
     echo_header "Vault/Secrets Management"
-    echo_vars VAULT_TYPE VAULT_ADDR VAULT_TOKEN
+    echo_vars VAULT_TYPE VAULT_ADDR
 fi
 
 echo_header "DevOps User/Key"
