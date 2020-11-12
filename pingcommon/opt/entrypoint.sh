@@ -6,11 +6,17 @@ ${VERBOSE} && set -x
 
 # shellcheck source=staging/hooks/pingstate.lib.sh
 . "${HOOKS_DIR}/pingstate.lib.sh"
+# shellcheck source=staging/hooks/pingsecrets.lib.sh
+. "${HOOKS_DIR}/pingsecrets.lib.sh"
 
 echo_green "Command: ${*}"
 
-# Capture environment variables state info
+# Process secrets
+process_secrets
+
+# Capture environment variables and secrets state info
 add_state_info "environment_variables"
+add_state_info "${SECRETS_DIR}"
 
 HOSTNAME=$(hostname -f)
 DOMAINNAME=$(hostname -d)
