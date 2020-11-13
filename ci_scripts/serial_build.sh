@@ -30,6 +30,8 @@ Usage: ${0} {options}
     -v, --version
         the version of the product for which to build a docker image
         this setting overrides the versions in the version file of the target product
+    --use-proxy
+        If the http_proxy or HTTP_PROXY variables are set, pass them on to docker build
     --verbose-build
         verbose docker build not using docker buildkit
     --dry-run
@@ -77,6 +79,14 @@ do
             ;;
         --verbose-build)
             buildOptions="${buildOptions:+${buildOptions} }--verbose-build"
+            ;;
+        --use-proxy)
+            for v in http_proxy https_proxy HTTP_PROXY HTTPS_PROXY no_proxy NO_PROXY; do
+              if test -n "${!v}"
+              then
+                useProxy="$useProxy --build-arg $v=${!v}"
+              fi
+            done
             ;;
         -v|--version)
             shift
