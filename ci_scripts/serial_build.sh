@@ -117,7 +117,12 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
 "${CI_SCRIPTS_DIR}/cleanup_docker.sh" full
-"${CI_SCRIPTS_DIR}/build_downloader.sh"
+if test -n "${useProxy}"
+then
+  "${CI_SCRIPTS_DIR}/build_downloader.sh" --use-proxy
+else
+  "${CI_SCRIPTS_DIR}/build_downloader.sh"
+fi
 "${CI_SCRIPTS_DIR}/build_foundation.sh"
 
 test -z "${_products}" && _products="apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingdirectoryproxy pingdelegator pingfederate pingtoolkit"
