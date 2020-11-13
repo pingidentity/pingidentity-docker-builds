@@ -85,6 +85,7 @@ do
               if test -n "${!v}"
               then
                 buildOptions="${buildOptions} --build-arg $v=${!v}"
+                useProxy="${useProxy} --build-arg $v=${!v}"
               fi
             done
             ;;
