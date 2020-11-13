@@ -259,7 +259,7 @@ do
             # shellcheck disable=SC2086
             DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
                 -t "${_image}" \
-                ${progress} ${noCache} \
+                ${progress} ${noCache} ${useProxy} \
                 --build-arg PRODUCT="${productToBuild}" \
                 --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
                 --build-arg GIT_TAG="${ciTag}" \
