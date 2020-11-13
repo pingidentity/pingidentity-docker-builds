@@ -120,10 +120,12 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 if test -n "${useProxy}"
 then
   "${CI_SCRIPTS_DIR}/build_downloader.sh" --use-proxy
+  "${CI_SCRIPTS_DIR}/build_foundation.sh" --use-proxy
 else
   "${CI_SCRIPTS_DIR}/build_downloader.sh"
+  "${CI_SCRIPTS_DIR}/build_foundation.sh"
 fi
-"${CI_SCRIPTS_DIR}/build_foundation.sh"
+
 
 test -z "${_products}" && _products="apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingdirectoryproxy pingdelegator pingfederate pingtoolkit"
 
