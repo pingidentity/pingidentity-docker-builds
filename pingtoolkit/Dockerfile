@@ -1,7 +1,7 @@
 #- # Ping Identity DevOps Docker Image - `pingtoolkit`
-#- 
-#- This docker image includes the Ping Identity PingToolkit 
-#- and associated hook scripts to create a container that can pull in a SERVER_PROFILE 
+#-
+#- This docker image includes the Ping Identity PingToolkit
+#- and associated hook scripts to create a container that can pull in a SERVER_PROFILE
 #- run scripts.  The typical use case of this image would be an init container or a pod/container
 #- to perform tasks aside a running set of pods/containers.
 #-
@@ -14,12 +14,12 @@ ARG PRODUCT
 ARG SHIM
 ARG SHIM_TAG
 # ARG VERSION
-# ARG JVM
+ARG JVM
 ARG REGISTRY
 ARG GIT_TAG
 
 FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
-# FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
+FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${SHIM} as final-staging
 ENV SHIM=${SHIM}
@@ -30,7 +30,7 @@ ENV SHIM=${SHIM}
 COPY --from=common ["/opt/","/opt/"]
 
 # get the jvm
-# COPY --from=jvm ["/opt/java","/opt/java"]
+COPY --from=jvm ["/opt/java","/opt/java"]
 
 # apply product-specific hooks and patches
 COPY ["/opt","/opt"]
@@ -39,9 +39,8 @@ COPY ["/opt","/opt"]
 RUN ["/opt/build.sh"]
 
 #
-# The final image 
+# The final image
 #
-# FROM pingidentity/pingbase:shim-${SHIM}
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
 ENV PING_PRODUCT="PingToolkit"
 ENV STARTUP_COMMAND="tail"
