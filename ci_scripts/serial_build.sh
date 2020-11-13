@@ -84,7 +84,7 @@ do
             for v in http_proxy https_proxy HTTP_PROXY HTTPS_PROXY no_proxy NO_PROXY; do
               if test -n "${!v}"
               then
-                useProxy="$useProxy --build-arg $v=${!v}"
+                buildOptions="${buildOptions} --build-arg $v=${!v}"
               fi
             done
             ;;
