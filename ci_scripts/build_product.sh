@@ -198,13 +198,6 @@ do
         _image="${FOUNDATION_REGISTRY}/${productToBuild}:staging-${_buildVersion}-${ciTag}"
         # build the staging for each product so we don't need to download and stage the product each time
         # shellcheck disable=SC2086
-        echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
-        echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
-        echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
-        echo "${useProxy}"
-        echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
-        echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
-        echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
         DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
             -f "${CI_PROJECT_DIR}/${productToBuild}/Product-staging" \
             -t "${_image}" \
