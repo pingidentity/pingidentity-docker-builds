@@ -443,7 +443,7 @@ get_value ()
         fileVar="${1}_FILE"
         file="$(eval printf '%s' "\${${fileVar}}")"
         if test -n "${file}"; then
-            value="$(cat ${file})"
+            value="$(cat "${file}")"
         fi
     fi
     printf '%s' "${value}"
@@ -661,15 +661,6 @@ source_container_env ()
 ###############################################################################
 source_secret_envs ()
 {
-    # for _secretJson in "${SECRETS_DIR}"/*.env.json; do
-
-    #     echo "Processing JSON Secret File ${_secretJson}"
-    #     for key in $(cat "${_secretJson}" | jq -r "keys | flatten[]");
-    #     do
-    #         eval "export $key=\"$(cat ${_secretJson} | jq -r ".$key")\""
-    #     done
-    # done
-
     for _secretProps in "${SECRETS_DIR}"/*.env; do
         test -f "${_secretProps}" || break # handle if no *.env files found
 
@@ -746,3 +737,4 @@ contains_ignore_case ()
 echo_green "----- Starting hook: ${CALLING_HOOK}"
 
 source_container_env
+source_secret_envs
