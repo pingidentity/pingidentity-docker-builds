@@ -664,8 +664,6 @@ source_secret_envs ()
     for _secretProps in "${SECRETS_DIR}"/*.env; do
         test -f "${_secretProps}" || break # handle if no *.env files found
 
-        echo "Sourcing secret env ${_secretProps}"
-
         set -o allexport
         # shellcheck source=/dev/null
         . "${_secretProps}"
