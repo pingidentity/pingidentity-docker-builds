@@ -459,16 +459,103 @@ waitUntilLdapUp ()
     done
 }
 
-# Checks if the product version is 8.2.x.x-EA or greater
-is_ge_82() {
-  test -f "${SERVER_ROOT_DIR}/build-info.txt" \
-    && awk \
-'BEGIN {major_gt=0;major_eq=0;minor_ge=0}
-$1=="Major" && $3>8 {major_gt=1}
-$1=="Major" && $3==8 {major_eq=1}
-$1=="Minor" && $3>=2 {minor_ge=1}
-END {if (major_eq && minor_ge || major_gt) {exit 0} else {exit 1}}' \
-  "${SERVER_ROOT_DIR}/build-info.txt"
+# Print the product version constructed by fields in build-info.txt
+# from stdin.
+#
+# Usage:
+#   > cat build-info.txt | build_info_version
+#   8.1.0.0-GA
+#
+build_info_version() {
+  awk \
+'BEGIN {maj=0;min=0;pt=0;patch=0;qal=""}
+$1=="Major" {maj=$3}
+$1=="Minor" {min=$3}
+$1=="Point" {pt=$3}
+$1=="Patch" {patch=$3}
+$2=="Qualifier:" && $3~/EA$/ {qal="-EA"}
+$2=="Number:" && $3~/-GA$/ {qal="-GA"}
+END {print maj "." min "." pt "." patch qal}'
+}
+
+# Convert a PingData version from stdin to a version string that can be
+# compared. The qualifier is converted to a numeric value, and the interior
+# version segments are left zero-padded. As an example,
+# 8.2.0.0-GA is converted to 80200002.
+#
+# TODO: Somehow differentiate between product SNAPSHOTs of EA and GA builds.
+# The current logic considers all SNAPSHOTs to be ordered before EA builds, when
+# GA SNAPSHOTs should be ordered after EA.
+#
+# Qualifiers:
+#     -GA - 2
+#     -EA - 1
+#   Other - 0
+#
+# Usage:
+#   > echo "8.2.0.0-EA" | sortable_version
+#   802000001
+#
+sortable_version() {
+  awk \
+'BEGIN {FS="[.-]";qal=0}
+$5=="EA" {qal=1}
+$5=="GA" {qal=2}
+END { printf "%d%02d%02d%02d%d",$1,$2,$3,$4,qal }'
+}
+
+# Check if the version argument (e.g. "8.1.0.0-GA")
+# is equal to the build version.
+#
+# Usage:
+#   > is_version_eq "8.1.0.0-GA"
+#   > echo "${?}"
+#   1
+#
+# @param $1 A version string to compare.
+#
+is_version_eq() {
+  _build_info_version=$(build_info_version <"${SERVER_ROOT_DIR}"/build-info.txt \
+    | sortable_version)
+  _sortable_version=$(echo "${1}" | sortable_version)
+  test "${_build_info_version}" = "${_sortable_version}"
+}
+
+# Check if the version argument (e.g. "8.2.0.0-GA")
+# is greater than the build version. SNAPSHOT versions
+# without qualifiers (or any qualifier besides "-EA" or "-GA")
+# are ordered before "-EA" builds, which are ordered before
+# "-GA" builds.
+#
+# Usage:
+#   > is_version_gt "8.2.0.0-EA"
+#   > echo "${?}"
+#   0
+#
+# @param $1 A version string to compare.
+#
+is_version_gt() {
+  _build_info_version=$(build_info_version <"${SERVER_ROOT_DIR}"/build-info.txt\
+    | sortable_version)
+  _sortable_version=$(echo "${1}" | sortable_version)
+  test "${_build_info_version}" -gt "${_sortable_version}"
+}
+
+# Check if the version argument (e.g. "8.2.0.0")
+# is greater than or equal to the build version.
+# SNAPSHOT versions without qualifiers (or any qualifier besides
+# "-EA" or "-GA") are ordered before "-EA" builds, which are
+# ordered before "-GA" builds.
+#
+# Usage:
+#   > is_version_ge "8.2.0.0-EA"
+#   > echo "${?}"
+#   1
+#
+# @param $1 A version string to compare.
+#
+is_version_ge() {
+  is_version_eq "${1}" || is_version_gt "${1}"
 }
 
 # Build environment variables needed for starting up the container and joining a
@@ -1070,7 +1157,7 @@ prepareToJoinTopology ()
     # 
     #- * Only version 8.2-EA and greater support configuring sync failover
     #
-    if test "${PING_PRODUCT}" = "PingDataSync" && ! is_ge_82; then
+    if test "${PING_PRODUCT}" = "PingDataSync" && ! is_version_ge "8.2.0.0-EA"; then
         echo "PingDataSync failover will not be configured. Product version older than 8.2.0.0-EA."
         exit 0
     fi
@@ -1145,7 +1232,7 @@ prepareToJoinTopology ()
             --exportFilePath "${_currentTopoFile}"
         # Check if this server knows about the seed server.
         if test -z "$(jq -r ".serverInstances[] | select(.instanceName==\"${_seedInstanceName}\") | .instanceName" "${_currentTopoFile}")"; then
-            if is_ge_82; then
+            if is_version_ge "8.2.0.0-EA"; then
                 # If this instance does not think it is in the seed server's topology, then it may have lost its volume. 
                 # Remove the remnants of this server from the seed server's topology so it can be re-added below.
                 echo_yellow "Seed server topology and local topology are out of sync. Running remove-defunct-server before re-adding this server to the topology."

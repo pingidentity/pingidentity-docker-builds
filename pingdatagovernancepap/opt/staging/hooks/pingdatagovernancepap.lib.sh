@@ -24,3 +24,4 @@ check_external_url_oidc() {
     echo_yellow "Current PING_EXTERNAL_BASE_URL value: ${PING_EXTERNAL_BASE_URL}"
   fi
 }
+

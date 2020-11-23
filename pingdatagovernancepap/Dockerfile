@@ -159,3 +159,30 @@ COPY --from=final-staging ["/","/"]
 #-            pingidentity/pingdatagovernancepap:edge
 #- ```
 #-
+#-
+#- ## Changing the default periodic database backup schedule and location
+#-
+#- The PAP performs periodic backups of the policy database. The results
+#- are placed in the `policy-backup` directory underneath the instance root.
+#-
+#- Use the `PING_BACKUP_SCHEDULE` environment variable to specify the PAP's
+#- periodic database backup schedule in the form of a cron expression.
+#- The cron expression will be evaluated against the container timezone,
+#- UTC. Use the `PING_H2_BACKUP_DIR` environment variable to change the
+#- backup output directory.
+#-
+#- For example, to perform backups daily at UTC noon and place backups in
+#- `/opt/out/backup`:
+#-
+#- ```
+#-   docker run \
+#-            --name pingdatagovernancepap \
+#-            --env PING_EXTERNAL_BASE_URL=my-pap-hostname:8443 \
+#-            --env PING_BACKUP_SCHEDULE="0 0 12 * * ?" \
+#-            --env PING_H2_BACKUP_DIR=/opt/out/backup \
+#-            --publish 8443:443 \
+#-            --detach \
+#-            pingidentity/pingdatagovernancepap:edge
+#- ```
+#-
+#-
