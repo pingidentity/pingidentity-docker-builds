@@ -77,8 +77,8 @@ else
                 test "${PING_DEBUG}" = "true" && cat_indent "${LICENSE_FILE}"
                 echo ""
 
-                case "${PING_IDENTITY_ACCEPT_EULA}" in
-                    YES|yes|Y|y)
+                case $(toLower "${PING_IDENTITY_ACCEPT_EULA}") in
+                    yes|y)
                         ;;
                     *)
                     container_failure 17 "You must accept the EULA by providing the environment variable PING_IDENTITY_ACCEPT_EULA=YES"
