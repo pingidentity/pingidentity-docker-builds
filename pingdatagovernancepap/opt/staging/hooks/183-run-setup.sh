@@ -65,7 +65,7 @@ EOF
 
     # Release 8.2.0.0-GA added an adminConnector for policy database backup
     # and healthcheck.
-    if is_version_ge "8.2.0.0-GA" ;
+    if is_version_ge "8.2.0.0-RC" ;
     then
       echo "--adminPort 8444" >>"${_setup_args_file}"
     fi
@@ -112,7 +112,7 @@ EOF
   fi
 
   # Select the correct liveness check based on the build version
-  if is_version_ge "8.2.0.0-GA" ;
+  if is_version_ge "8.2.0.0-RC" ;
   then
     rm "${BASE}"/liveness.sh-pre-82ga
   else
