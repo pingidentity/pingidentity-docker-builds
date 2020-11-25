@@ -14,8 +14,13 @@ ${VERBOSE} && set -x
 # shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
 . "${HOOKS_DIR}/pingdata.lib.sh"
 
-# Check availability and set variables necessary for enabling replication
-prepareToJoinTopology
+# Check availability and set variables necessary for enabling failover
+# If this method returns a non-zero exit code, then we shouldn't try
+# to enable failover
+if ! prepareToJoinTopology; then
+    echo "Failover will not be configured."
+    exit 0
+fi
 
 #
 #- * Enabling PingDataSync failover
