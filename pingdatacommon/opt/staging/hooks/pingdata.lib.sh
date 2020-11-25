@@ -473,7 +473,8 @@ $1=="Major" {maj=$3}
 $1=="Minor" {min=$3}
 $1=="Point" {pt=$3}
 $1=="Patch" {patch=$3}
-$2=="Qualifier:" && $3~/EA$/ {qal="-EA"}
+$2=="Qualifier:" && $3~/^-[A-Z0-9]+$/ {qal=$3}
+$2=="Qualifier:" && $3~/^[A-Z0-9]+$/ {qal="-" $3}
 $2=="Number:" && $3~/-GA$/ {qal="-GA"}
 END {print maj "." min "." pt "." patch qal}'
 }
@@ -488,9 +489,10 @@ END {print maj "." min "." pt "." patch qal}'
 # GA SNAPSHOTs should be ordered after EA.
 #
 # Qualifiers:
-#     -GA - 2
-#     -EA - 1
-#   Other - 0
+#     -GA  - 3
+#     -RCn - 2
+#     -EA  - 1
+#   Other  - 0
 #
 # Usage:
 #   > echo "8.2.0.0-EA" | sortable_version
@@ -500,7 +502,8 @@ sortable_version() {
   awk \
 'BEGIN {FS="[.-]";qal=0}
 $5=="EA" {qal=1}
-$5=="GA" {qal=2}
+$5~/^RC[0-9]*$/ {qal=2}
+$5=="GA" {qal=3}
 END { printf "%d%02d%02d%02d%d",$1,$2,$3,$4,qal }'
 }
 
@@ -523,9 +526,9 @@ is_version_eq() {
 
 # Check if the version argument (e.g. "8.2.0.0-GA")
 # is greater than the build version. SNAPSHOT versions
-# without qualifiers (or any qualifier besides "-EA" or "-GA")
-# are ordered before "-EA" builds, which are ordered before
-# "-GA" builds.
+# without qualifiers (or any qualifier besides "-EA", "-RCn"
+# or "-GA") are ordered before "-EA" builds, which are 
+# ordered before "-RCn", which are before "-GA" builds.
 #
 # Usage:
 #   > is_version_gt "8.2.0.0-EA"
@@ -544,8 +547,8 @@ is_version_gt() {
 # Check if the version argument (e.g. "8.2.0.0")
 # is greater than or equal to the build version.
 # SNAPSHOT versions without qualifiers (or any qualifier besides
-# "-EA" or "-GA") are ordered before "-EA" builds, which are
-# ordered before "-GA" builds.
+# "-EA", "-RCn", or "-GA") are ordered before "-EA" builds, which are
+# ordered before "-RCn", which are before "-GA" builds.
 #
 # Usage:
 #   > is_version_ge "8.2.0.0-EA"
