@@ -1145,6 +1145,10 @@ buildRunPlan ()
 
 # Wait for the seed server and ensure all variables are set for this server
 # to join a topology for replication (PingDirectory) or failover (PingDataSync).
+#
+# This method returns 0 if the server was successfully prepared and should move
+# forward with joining the topology. It will return a non-zero exit code if the
+# server should not attempt to join the topology.
 prepareToJoinTopology ()
 {
     #
@@ -1159,7 +1163,7 @@ prepareToJoinTopology ()
     #
     if test "${PING_PRODUCT}" = "PingDataSync" && ! is_version_ge "8.2.0.0-EA"; then
         echo "PingDataSync failover will not be configured. Product version older than 8.2.0.0-EA."
-        exit 0
+        return 1
     fi
 
     #
@@ -1188,7 +1192,7 @@ prepareToJoinTopology ()
         else
             echo "PD_STATE is GENESIS ==> Failover on this server won't be set up until more instances are added"
         fi
-        exit 0
+        return 1
     fi
 
     if test -z "${_seedInstanceName}" || test -z "${_seedHostname}" || test -z "${_seedLdapsPort}"; then
@@ -1197,6 +1201,7 @@ prepareToJoinTopology ()
         else
             echo "PingDataSync failover will not be configured. Seed server could not be determined."
         fi
+        return 1
     fi
 
     #
@@ -1251,14 +1256,14 @@ prepareToJoinTopology ()
                     echo_red "Failed to run the remove-defunct-server tool while setting up the topology"
                     echo_red "Contents of remove-defunct-server.log file:"
                     cat "${SERVER_ROOT_DIR}"/logs/tools/remove-defunct-server.log
-                    exit ${_returnCode}
+                    return ${_returnCode}
                 fi
                 _priorNumInstances=$((${_priorNumInstances} - 1))
             else
                 # Due to a bug in PD versions before 8.2.0.0-EA (see DS-42438), we can't run remove-defunct-server here.
                 # The command must be run on the seed server itself without using the topologyFilePath argument.
                 echo_red "Seed server topology and local topology are out of sync. May need to run remove-defunct-server on the seed server and restart this container."
-                exit 1
+                return 1
             fi
         else
             # If the server knows about the seed server's topology locally, then everything is good.
@@ -1268,7 +1273,7 @@ prepareToJoinTopology ()
             else
                 echo "This instance (${_podInstanceName}) is already found in topology --> No need to enable failover"
             fi
-            exit 0
+            return 1
         fi
     fi
 
@@ -1283,7 +1288,7 @@ prepareToJoinTopology ()
             echo "We are the SEED Server: ${_seedInstanceName} --> No need to enable failover"
         fi
         echo "TODO: We need to check for other servers"
-        exit 0
+        return 1
     fi
 
     #

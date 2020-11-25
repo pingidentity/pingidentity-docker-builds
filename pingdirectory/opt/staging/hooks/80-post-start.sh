@@ -16,7 +16,12 @@ ${VERBOSE} && set -x
 test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib.sh"
 
 # Check availability and set variables necessary for enabling replication
-prepareToJoinTopology
+# If this method returns a non-zero exit code, then we shouldn't try
+# to enable replication
+if ! prepareToJoinTopology; then
+    echo "Replication will not be configured."
+    exit 0
+fi
 
 #
 #- * Enabling Replication
