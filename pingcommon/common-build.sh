@@ -75,7 +75,7 @@ download_and_verify ()
     if test "${KEY_ID}" = "file" ;
     then
         # pass "file" as the key argument to have this function download the file instead
-        if _curl --header "devops-pupose: signature-key" --output "${KEY}" ${KEY_SERVER} ;
+        if _curl --header "devops-purpose: signature-key" --output "${KEY}" ${KEY_SERVER} ;
         then
             gpg --import "${KEY}" >/dev/null 2>/dev/null
             _returnCode=${?}
