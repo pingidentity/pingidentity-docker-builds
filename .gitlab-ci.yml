@@ -11,7 +11,7 @@ default:
   before_script:
     - ci_scripts/before_script.sh
   services:
-    - docker:18.09-dind
+    - $ARTIFACTORY_REGISTRY_MIRROR/docker:18.09-dind
 variables:
   DOCKER_HOST: tcp://localhost:2375
   KUBERNETES_CPU_REQUEST: 1250m
