@@ -27,7 +27,6 @@ RUN /get-bits.sh --product ${PRODUCT} \
         -x *.exe \
         -x */start-ds \
         -x */stop-ds \
-        -x */docs/* \
         -x */uninstall \
         -x */webapps/* \
         -x */resource/*.zip \
@@ -35,6 +34,11 @@ RUN /get-bits.sh --product ${PRODUCT} \
         -x */config/MakeLDIF/* \
         -x */bin/make-ldif \
         -x */lib/wrapper.jar \
+    && find /tmp/PingDirectoryProxy/docs -type f \
+        ! -iname "unboundid.css" \
+        ! -path "/tmp/PingDirectoryProxy/docs/images/*" \
+        ! -path "/tmp/PingDirectoryProxy/docs/rest-api-specs/*" \
+        -delete \
     && mv /tmp/PingDirectoryProxy /opt/server 
 
 FROM scratch
