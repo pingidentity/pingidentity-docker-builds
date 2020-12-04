@@ -1,5 +1,6 @@
 ARG SHIM
-FROM ${SHIM} as jvm-staging
+ARG DEPS
+FROM ${DEPS}${SHIM} as jvm-staging
 COPY ["build-jvm.sh","/"]
 RUN ["/build-jvm.sh"]
 

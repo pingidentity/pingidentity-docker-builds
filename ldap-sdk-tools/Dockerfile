@@ -1,5 +1,5 @@
 #- # Ping Identity Docker Image - `pingdataconsole`
-#- 
+#-
 #- This docker image provides an apine image with the LDAP Client
 #- SDK tools to be used against other PingDirectory instances.
 #-
@@ -13,13 +13,14 @@ ARG SHIM_TAG
 ARG VERSION
 ARG JVM
 ARG REGISTRY
+ARG DEPS
 ARG GIT_TAG
 
 FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
 FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
-FROM ${SHIM} as final-staging
+FROM ${DEPS}${SHIM} as final-staging
 ENV SHIM=${SHIM}
 
 # get the product bits FIRST
@@ -40,7 +41,7 @@ COPY ["/opt","/opt"]
 RUN ["/opt/build.sh"]
 
 #
-# the final image 
+# the final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
 LABEL	maintainer=devops_program@pingidentity.com \
@@ -53,11 +54,11 @@ COPY --from=final-staging ["/","/"]
 
 #- ## List all available tools
 #- `docker run -it --rm pingidentity/ldap-sdk-tools ls`
-#- 
+#-
 #- ## Use LDAPSearch
 #- ### Get some help
 #- `docker run -it --rm pingidentity/ldap-sdk-tools ldapsearch --help`
-#- 
+#-
 #- ### Simple search
 #- ```Bash
 #- docker run -it --rm pingidentity/ldap-sdk-tools \
@@ -65,7 +66,7 @@ COPY --from=final-staging ["/","/"]
 #-         -b dc=example,dc=com \
 #-         -p 1389 "(objectClass=*)"
 #- ```
-#- 
+#-
 #- ### Save output to host file
 #- ```Bash
 #- docker run -it --rm \
@@ -76,7 +77,7 @@ COPY --from=final-staging ["/","/"]
 #-         --port 1389 \
 #-         --outputFormat json "(objectClass=*)" >/tmp/search-result.json
 #- ```
-#- 
+#-
 #- ## Use manage-certificates
 #- ### trusting certificates
 #- ```Bash

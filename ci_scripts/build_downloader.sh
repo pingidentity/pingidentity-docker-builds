@@ -70,6 +70,7 @@ _start=$( date '+%s' )
 DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker \
     image build \
     ${noCache} ${progress} \
+    --build-arg DEPS="${DEPS_REGISTRY}" \
     -t "${FOUNDATION_REGISTRY}/pingdownloader:${ciTag}" \
     "${CI_PROJECT_DIR}/pingdownloader"
 _returnCode=${?}

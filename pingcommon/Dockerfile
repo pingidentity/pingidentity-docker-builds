@@ -7,7 +7,8 @@
 
 # This substrate layer will gather common bits for all images
 #  like su-exec and tini
-FROM alpine as substrate
+ARG DEPS
+FROM ${DEPS}alpine:3.12.1 as substrate
 COPY ["common-build.sh","/"]
 RUN ["/common-build.sh"]
 

@@ -31,7 +31,7 @@ COPY ["/opt","/opt"]
 RUN ["/opt/build.sh"]
 
 #
-# the final image 
+# the final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
 COPY --from=final-staging ["/","/"]

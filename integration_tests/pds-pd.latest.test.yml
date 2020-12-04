@@ -8,7 +8,7 @@ services:
       - USER_BASE_DN=o=sync
       - MAX_HEAP_SIZE=768m
     env_file:
-      # Property file below provides common envrionment variables for all integration_tests.
+      # Property file below provides common environment variables for all integration_tests.
       # run_integration.sh creates /tmp/integration_tests.properties at runtime.
       - /tmp/integration_tests.properties
     ulimits:
@@ -18,8 +18,8 @@ services:
       nofile:
         soft: 65535
         hard: 65535
-    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-100000000}b
-    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-100000000}b
+    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-1000000000}b
+    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-1000000000}b
     mem_swappiness: 0
     tmpfs: /run/secrets
 
@@ -37,17 +37,18 @@ services:
       nofile:
         soft: 65535
         hard: 65535
-    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-100000000}b
-    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-100000000}b
+    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-1000000000}b
+    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-1000000000}b
     mem_swappiness: 0
     tmpfs: /run/secrets
     depends_on: ["pingdirectory"]
 
   sut:
-    image: postman/newman
+    image: ${DEPS}postman/newman
     entrypoint: ["/usr/bin/env"]
     command: sh -c "/tmp/wait-for pingdirectory:389 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
     volumes:
       - ./pds-pd.postman_collection.json:/tmp/collection.json
       - ./wait-for:/tmp/wait-for
     depends_on: ["pingdatasync"]
+

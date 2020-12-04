@@ -16,13 +16,14 @@ ARG SHIM_TAG
 ARG VERSION
 ARG JVM
 ARG REGISTRY
+ARG DEPS
 ARG GIT_TAG
 
 FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
 FROM ${REGISTRY}/pingdatacommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
-FROM ${SHIM} as final-staging
+FROM ${DEPS}${SHIM} as final-staging
 ENV SHIM=${SHIM}
 
 # get the product bits FIRST

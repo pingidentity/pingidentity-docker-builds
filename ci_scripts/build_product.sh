@@ -192,6 +192,7 @@ do
             -t "${_image}" \
             ${progress} ${noCache} \
             --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
+            --build-arg DEPS="${DEPS_REGISTRY}" \
             --build-arg GIT_TAG="${ciTag}" \
             --build-arg DEVOPS_USER="${PING_IDENTITY_DEVOPS_USER}" \
             --build-arg DEVOPS_KEY="${PING_IDENTITY_DEVOPS_KEY}" \
@@ -251,6 +252,7 @@ do
                 ${progress} ${noCache} \
                 --build-arg PRODUCT="${productToBuild}" \
                 --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
+                --build-arg DEPS="${DEPS_REGISTRY}" \
                 --build-arg GIT_TAG="${ciTag}" \
                 --build-arg JVM="${_jvm}" \
                 --build-arg SHIM="${_shim}" \

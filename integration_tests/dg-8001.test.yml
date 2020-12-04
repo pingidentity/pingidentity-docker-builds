@@ -16,8 +16,9 @@ services:
       nofile:
         soft: 65535
         hard: 65535
-    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-100000000}b
-    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-100000000}b
+    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-4000000000}b
+    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-4000000000}b
+    oom_kill_disable: true
     mem_swappiness: 0
     tmpfs: /run/secrets
     command: start-server /opt/wait-for localhost:443 -t 300 -- /opt/liveness.sh
