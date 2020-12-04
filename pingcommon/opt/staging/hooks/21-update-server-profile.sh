@@ -24,7 +24,7 @@ then
     cd "${SERVER_PROFILE_DIR}" || exit 97
     git pull
     # shellcheck disable=SC2035
-    cp -af . "${STAGING_DIR}"
+    cp -Rf . "${STAGING_DIR}"
     # shellcheck disable=SC2164
     cd -
 

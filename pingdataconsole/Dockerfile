@@ -1,5 +1,5 @@
 #- # Ping Identity Docker Image - `pingdataconsole`
-#- 
+#-
 #- This docker image provides a tomcat image with the PingDataConsole
 #- deployed to be used in configuration of the PingData products.
 #-
@@ -14,13 +14,14 @@ ARG SHIM_TAG
 ARG VERSION
 ARG JVM
 ARG REGISTRY
+ARG DEPS
 ARG GIT_TAG
 
 FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
 FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
-FROM ${SHIM} as final-staging
+FROM ${DEPS}${SHIM} as final-staging
 ENV SHIM=${SHIM}
 
 # get the product bits FIRST
@@ -41,7 +42,7 @@ COPY ["/opt","/opt"]
 RUN ["/opt/build.sh"]
 
 #
-# the final image 
+# the final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
 COPY --from=final-staging ["/","/"]
@@ -52,8 +53,8 @@ ENV STARTUP_FOREGROUND_OPTS="run"
 ENV STARTUP_BACKGROUND_OPTS="start"
 
 #- ## Run
-#- To run a PingDataConsole container: 
-#- 
+#- To run a PingDataConsole container:
+#-
 #- ```shell
 #-   docker run \
 #-            --name pingdataconsole \
@@ -61,14 +62,14 @@ ENV STARTUP_BACKGROUND_OPTS="start"
 #-            --detach \
 #-            pingidentity/pingdataconsole
 #- ```
-#- 
-#- 
+#-
+#-
 #- Follow Docker logs with:
-#- 
+#-
 #- ```
 #- docker logs -f pingdataconsole
 #- ```
-#- 
+#-
 #- If using the command above with the embedded [server profile](https://pingidentity-devops.gitbook.io/devops/config/containeranatomy), log in with:
 #- * http://localhost:${HTTPS_PORT}/console/login
 #- ```

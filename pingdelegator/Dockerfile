@@ -15,12 +15,13 @@ ARG SHIM
 ARG SHIM_TAG
 ARG VERSION
 ARG REGISTRY
+ARG DEPS
 ARG GIT_TAG
 
 FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
 FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
 
-FROM ${SHIM} as final-staging
+FROM ${DEPS}${SHIM} as final-staging
 ENV SHIM=${SHIM}
 
 # get the product bits FIRST

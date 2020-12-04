@@ -81,7 +81,7 @@ if test "${_generatingSelfSignedCert}" = "false"; then
             echo "    ${SERVER_ROOT_DIR}/config/${_certFile} ==>"
             echo "      ${PD_PROFILE}/server-root/pre-setup/config/${_certFile}"
 
-            cp -af "${SERVER_ROOT_DIR}/config/${_certFile}" \
+            cp -f "${SERVER_ROOT_DIR}/config/${_certFile}" \
             "${PD_PROFILE}/server-root/pre-setup/config/${_certFile}"
         else
             echo "    ... not found in existing install or was found in pd.profile"
@@ -136,7 +136,7 @@ if test ! -f "${_pdProfileLicense}" ; then
     echo "  Copying in license from existing install."
     echo "    ${_currentLicense} ==> "
     echo "      ${_pdProfileLicense}"
-    cp -af "${_currentLicense}" "${_pdProfileLicense}"
+    cp -f "${_currentLicense}" "${_pdProfileLicense}"
 else
     echo "Using new license from ${_pdProfileLicense}"
 fi

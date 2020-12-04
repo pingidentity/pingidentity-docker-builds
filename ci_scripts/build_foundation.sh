@@ -138,7 +138,8 @@ _image="${FOUNDATION_REGISTRY}/pingcommon:${ciTag}"
 # shellcheck disable=SC2086
 DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
     ${progress} ${noCache} \
-     -t "${_image}" "${CI_PROJECT_DIR}/pingcommon"
+    --build-arg DEPS="${DEPS_REGISTRY}" \
+    -t "${_image}" "${CI_PROJECT_DIR}/pingcommon"
 _returnCode=${?}
 _stop=$( date '+%s' )
 _duration=$(( _stop - _start ))
@@ -228,6 +229,7 @@ do
         DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
             ${progress} ${noCache} \
             --build-arg SHIM="${_jvm_from}" \
+    	    --build-arg DEPS="${DEPS_REGISTRY}" \
             -t "${_image}" "${CI_PROJECT_DIR}/pingjvm"
         _returnCode=${?}
         _stop=$( date '+%s' )

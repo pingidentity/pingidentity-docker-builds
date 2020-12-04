@@ -1,5 +1,5 @@
 #- # Ping Identity DevOps Docker Image - `pingcentral`
-#- 
+#-
 #- This docker image includes the Ping Identity PingCentral product binaries
 #- and associated hook scripts to create and run PingCentral in a container.
 #-
@@ -15,13 +15,14 @@ ARG SHIM_TAG
 ARG VERSION
 ARG JVM
 ARG REGISTRY
+ARG DEPS
 ARG GIT_TAG
 
 FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
 FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
-FROM ${SHIM} as final-staging
+FROM ${DEPS}${SHIM} as final-staging
 ENV SHIM=${SHIM}
 
 # get the product bits FIRST
@@ -42,7 +43,7 @@ COPY ["/opt","/opt"]
 RUN ["/opt/build.sh"]
 
 #
-# The final image 
+# The final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
 ARG LICENSE_VERSION
@@ -77,7 +78,7 @@ COPY --from=final-staging ["/","/"]
 #-            --env-file ~/.pingidentity/devops \
 #-            pingidentity/pingcentral:edge
 #- ```
-#- 
+#-
 #- or if you want to specify everything yourself:
 #- ```shell
 #-   docker run \
@@ -89,13 +90,13 @@ COPY --from=final-staging ["/","/"]
 #-            --env PING_IDENTITY_DEVOPS_KEY=<yourdevopskeyhere> \
 #-            pingidentity/pingcentral:edge
 #- ```
-#- 
+#-
 #- Follow Docker logs with:
-#- 
+#-
 #- ``` shell
 #- docker logs -f pingcentral
 #- ```
-#- 
+#-
 #- If using the command above with the embedded [server profile](https://pingidentity-devops.gitbook.io/devops/config/containeranatomy), log in with:
 #- * https://localhost:9022/
 #-   * Username: Administrator

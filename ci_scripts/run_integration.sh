@@ -49,26 +49,27 @@ for _test in "${CI_PROJECT_DIR}/integration_tests/"${1:-*}.test.yml
 do
     banner "Running ${_test} integration test"
     _start=$( date '+%s' )
+
+    export GIT_TAG="${ciTag}"
+    export REGISTRY="${FOUNDATION_REGISTRY}"
+    export DEPS="${DEPS_REGISTRY}"
+
     # `docker pull` has less package dependencies than `docker-compose pull`
     # use docker pull to pull images before running `docker-compose up`
     if test -z "${isLocalBuild}"
-      then
+    then
         _testImages="$(grep '^\s*image' ${_test} | sed 's/image://' | sort | uniq)"
         for _pullImage in ${_testImages} ; do
-          GIT_TAG=${ciTag}
-          REGISTRY=${FOUNDATION_REGISTRY}
-          docker pull $(eval echo "$_pullImage")
+            docker pull "$( eval echo "${_pullImage}" )"
         done
     fi
-    GIT_TAG=${ciTag} \
-        REGISTRY=${FOUNDATION_REGISTRY} \
-        docker-compose -f "${_test}" up --exit-code-from sut --abort-on-container-exit
+
+    docker-compose -f "${_test}" up --exit-code-from sut --abort-on-container-exit
     _returnCode=${?}
     _stop=$( date '+%s' )
     _duration=$(( _stop - _start ))
-    GIT_TAG=${ciTag} \
-        REGISTRY=${FOUNDATION_REGISTRY} \
-        docker-compose -f "${_test}" down
+
+    docker-compose -f "${_test}" down
     if test ${_returnCode} -ne 0
     then
         _result="FAIL"

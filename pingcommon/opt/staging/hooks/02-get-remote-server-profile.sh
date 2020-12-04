@@ -129,7 +129,7 @@ getProfile ()
         fi
 
         # shellcheck disable=SC2086
-        cp -af ${SERVER_PROFILE_DIR}/${serverProfilePath}/. "${STAGING_DIR}"
+        cp -Rf ${SERVER_PROFILE_DIR}/${serverProfilePath}/. "${STAGING_DIR}"
         die_on_error 142 "Copy to staging failure"  || exit ${?}
     else
         echo_yellow "INFO: ${1}_URL not set, skipping"

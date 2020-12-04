@@ -364,6 +364,9 @@ if test -n "${PING_IDENTITY_SNAPSHOT}"
 then
     #we are in building snapshot
     FOUNDATION_REGISTRY="${PIPELINE_BUILD_REGISTRY}/${PIPELINE_BUILD_REPO}"
+    # we terminate to DEPS registry with a slash so it can be omitted to revert to implicit
+    DEPS_REGISTRY="${PIPELINE_DEPS_REGISTRY}/"
+
 
     banner "CI PIPELINE using ${PIPELINE_BUILD_REGISTRY_VENDOR} - ${FOUNDATION_REGISTRY}"
 
@@ -387,6 +390,8 @@ elif test -n "${CI_COMMIT_REF_NAME}"
 then
     #we are in CI pipeline
     FOUNDATION_REGISTRY="${PIPELINE_BUILD_REGISTRY}/${PIPELINE_BUILD_REPO}"
+    # we terminate to DEPS registry with a slash so it can be omitted to revert to implicit
+    DEPS_REGISTRY="${PIPELINE_DEPS_REGISTRY}/"
 
     banner "CI PIPELINE using ${PIPELINE_BUILD_REGISTRY_VENDOR} - ${FOUNDATION_REGISTRY}"
 
@@ -439,6 +444,7 @@ else
     # shellcheck disable=SC2034
     isLocalBuild=true
     FOUNDATION_REGISTRY="pingidentity"
+    DEPS_REGISTRY=""
     # shellcheck disable=SC2155
     gitBranch=$(git rev-parse --abbrev-ref HEAD)
     # shellcheck disable=SC2155
@@ -448,6 +454,7 @@ else
     ciTag="${gitBranch}-${gitRevShort}"
 fi
 export FOUNDATION_REGISTRY
+export DEPS_REGISTRY
 export gitRevShort
 export gitRevLong
 export gitBranch
