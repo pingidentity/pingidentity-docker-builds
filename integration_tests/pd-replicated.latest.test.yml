@@ -6,7 +6,7 @@ services:
     scale: 2
     environment:
       - SERVER_PROFILE_PATH=baseline/pingdirectory
-      - MAX_HEAP_SIZE=900m
+      - MAX_HEAP_SIZE=768m
       - ORCHESTRATION_TYPE=COMPOSE
       - COMPOSE_SERVICE_NAME=integration_tests_pingdirectory
       - TAIL_LOG_FILES=
@@ -21,8 +21,8 @@ services:
       nofile:
         soft: 65535
         hard: 65535
-    mem_limit: 1200m
-    memswap_limit: 1200m
+    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-4000000000}b
+    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-4000000000}b
     mem_swappiness: 0
     tmpfs: /run/secrets
     networks:

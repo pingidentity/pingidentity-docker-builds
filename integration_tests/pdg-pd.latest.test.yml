@@ -21,8 +21,8 @@ services:
       nofile:
         soft: 65535
         hard: 65535
-    mem_limit: ${KUBERNETES_MEMORY_LIMIT}
-    memswap_limit: ${KUBERNETES_MEMORY_LIMIT}
+    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-4000000000}b
+    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-4000000000}b
     mem_swappiness: 0
     tmpfs: /run/secrets
 
@@ -44,8 +44,8 @@ services:
       nofile:
         soft: 65535
         hard: 65535
-    mem_limit: ${KUBERNETES_MEMORY_LIMIT}
-    memswap_limit: ${KUBERNETES_MEMORY_LIMIT}
+    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-1000000000}b
+    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-1000000000}b
     mem_swappiness: 0
     tmpfs: /run/secrets
     depends_on: ["pingdirectory"]
