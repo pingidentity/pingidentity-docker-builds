@@ -134,6 +134,10 @@ COPY --from=final-staging ["/","/"]
 #-            --detach \
 #-            --env SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git \
 #-            --env SERVER_PROFILE_PATH=getting-started/pingfederate \
+#-            --env PING_IDENTITY_ACCEPT_EULA=YES \
+#-            --env PING_IDENTITY_DEVOPS_USER \
+#-            --env PING_IDENTITY_DEVOPS_KEY \
+#-            --tmpfs /run/secrets \
 #-            pingidentity/pingfederate:edge
 #- ```
 #-

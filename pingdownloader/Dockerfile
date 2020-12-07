@@ -20,7 +20,7 @@ CMD ["--help"]
 
 #- ## Usage
 #- ```shell
-#- docker run pingidentity/pingdownloader -p <product_name>
+#- docker run --env PING_IDENTITY_DEVOPS_USER --env PING_IDENTITY_DEVOPS_KEY pingidentity/pingdownloader -p <product_name>
 #- ```
 #- ### Options
 #- ```shell
@@ -34,15 +34,15 @@ CMD ["--help"]
 #- ## Examples
 #- Download the latest PingDirectory
 #- ```
-#- docker run pingidentity/pingdownloader -p PingDirectory
+#- docker run --env PING_IDENTITY_DEVOPS_USER --env PING_IDENTITY_DEVOPS_KEY pingidentity/pingdownloader -p PingDirectory
 #- ```
 #-
 #- Download a specific version of PingDirectory
 #- ```
-#- docker run pingidentity/pingdownloader -p PingDirectory -v 7.3.0.0
+#- docker run --env PING_IDENTITY_DEVOPS_USER --env PING_IDENTITY_DEVOPS_KEY pingidentity/pingdownloader -p PingDirectory -v 7.3.0.0
 #- ```
 #-
 #- Download a product to /tmp on the host, as opposed to /tmp in the PingDownloader container
 #- ```
-#- docker run --rm -v /tmp:/tmp pingidentity/pingdownloader -p PingFederate
+#- docker run --env PING_IDENTITY_DEVOPS_USER --env PING_IDENTITY_DEVOPS_KEY --rm -v /tmp:/tmp pingidentity/pingdownloader -p PingFederate
 #- ```
