@@ -67,6 +67,10 @@ COPY --from=final-staging ["/","/"]
 #- ```shell docker run -Pt \
 #-            --name pingcentral \
 #-            --env-file ~/.pingidentity/devops \
+#-            --env PING_IDENTITY_ACCEPT_EULA=YES \
+#-            --env PING_IDENTITY_DEVOPS_USER \
+#-            --env PING_IDENTITY_DEVOPS_KEY \
+#-            --tmpfs /run/secrets \
 #-            pingidentity/pingcentral:edge
 #- ```
 #- or with long options in the background:
@@ -76,6 +80,10 @@ COPY --from=final-staging ["/","/"]
 #-            --publish 9022:9022 \
 #-            --detach \
 #-            --env-file ~/.pingidentity/devops \
+#-            --env PING_IDENTITY_ACCEPT_EULA=YES \
+#-            --env PING_IDENTITY_DEVOPS_USER \
+#-            --env PING_IDENTITY_DEVOPS_KEY \
+#-            --tmpfs /run/secrets \
 #-            pingidentity/pingcentral:edge
 #- ```
 #-
@@ -86,8 +94,9 @@ COPY --from=final-staging ["/","/"]
 #-            --publish 9022:9022 \
 #-            --detach \
 #-            --env PING_IDENTITY_ACCEPT_EULA=YES \
-#-            --env PING_IDENTITY_DEVOPS_USER=<yourdevopsuser@example.com> \
-#-            --env PING_IDENTITY_DEVOPS_KEY=<yourdevopskeyhere> \
+#-            --env PING_IDENTITY_DEVOPS_USER \
+#-            --env PING_IDENTITY_DEVOPS_KEY \
+#-            --tmpfs /run/secrets \
 #-            pingidentity/pingcentral:edge
 #- ```
 #-

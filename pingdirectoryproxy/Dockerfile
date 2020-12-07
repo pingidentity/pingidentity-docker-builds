@@ -97,8 +97,12 @@ COPY --from=final-staging ["/","/"]
 #-            --publish 8443:443 \
 #-            --detach \
 #-            --env SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git \
-#-            --env SERVER_PROFILE_PATH=getting-started/pingdirectoryproxy \
-#-           pingidentity/pingdirectoryproxy:edge
+#-            --env SERVER_PROFILE_PATH=baseline/pingdirectoryproxy \
+#-            --env PING_IDENTITY_ACCEPT_EULA=YES \
+#-            --env PING_IDENTITY_DEVOPS_USER \
+#-            --env PING_IDENTITY_DEVOPS_KEY \
+#-            --tmpfs /run/secrets \
+#-            pingidentity/pingdirectoryproxy:edge
 #- ```
 #-
 #- You can view the Docker logs with the command:
@@ -132,15 +136,6 @@ COPY --from=final-staging ["/","/"]
 #- | LDAP Base DN    | dc=example,dc=com                 |
 #- | Root Username   | cn=administrator                  |
 #- | Root Password   | 2FederateM0re                     |
-#-
-#- ## Connection with a REST Client
-#- Connection a REST client from Postman or a browser using the default ports and credentials
-#-
-#- |                 |                                   |
-#- | --------------: | --------------------------------- |
-#- | URL             | https://localhost:8443/scim/Users |
-#- | Username        | cn=administrator                  |
-#- | Password        | 2FederateM0re                     |
 #-
 #- ## Stopping/Removing the container
 #- To stop the container:

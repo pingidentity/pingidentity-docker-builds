@@ -104,7 +104,11 @@ ENV STARTUP_BACKGROUND_OPTS="${STARTUP_FOREGROUND_OPTS}"
 #-            --name pingdelegator \
 #-            --publish 6443:6443 \
 #-            --detach \
-#-            pingidentity/pingdelegator
+#-            --env PING_IDENTITY_ACCEPT_EULA=YES \
+#-            --env PING_IDENTITY_DEVOPS_USER \
+#-            --env PING_IDENTITY_DEVOPS_KEY \
+#-            --tmpfs /run/secrets \
+#-            pingidentity/pingdelegator:edge
 #- ```
 #-
 #- PingDelegator does require running instances of PingFederate/PingDirectory.  To

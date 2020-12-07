@@ -46,13 +46,13 @@ If you are not planning on starting PingCentral up with a completely fresh exter
 
 The first step in this process is to first obtain the hostkey:
  - Edit `pingcentral/conf/mysql/application.properties` to contain the correct information for your MySQL database
- - Startup PingCentral in Docker: `docker run --name pingcentral -d -p 9022:9022 ping/pingcentral`
+ - Startup PingCentral in Docker: `docker run --name pingcentral -d -p 9022:9022 pingidentity/pingcentral:edge`
  - Once PingCentral is running, Copy the hostkey that was automatically created out of the Docker container and onto your local filesystem:
     `docker cp pingcentral:/opt/pingcentral/conf/pingcentral.jwk .`
  - Place this pingcentral.jwk file somewhere safe. For this example, we will place it in `pingcentral/conf/mysql/`
 
 Now all future runs of pingcentral in docker will properly start and connect to your database with the following command:
-`docker run --name pingcentral --volume pingcentral/conf/mysql/pingcentral.jwk:/opt/pingcentral/conf/pingcentral.jwk -d -p 9022:9022 ping/pingcentral`
+`docker run --name pingcentral --volume pingcentral/conf/mysql/pingcentral.jwk:/opt/pingcentral/conf/pingcentral.jwk -d -p 9022:9022 pingidentity/pingcentral:edge`
 
 - Note: If you wish to use a different database, or destroy your database, you will need to redo this process.
 
@@ -61,7 +61,7 @@ Now all future runs of pingcentral in docker will properly start and connect to 
 The H2 database resides in the file system.  In order to preserve the database between docker runs and avoid its destruction,
 the H2 database must be preserved in a volume.  You can do this by specifying a volume when running docker:
 
-`docker run --name pingcentral --volume pingcentral/conf/h2/pingcentral.jwk:/opt/pingcentral/conf/pingcentral.jwk --volume pingcentral/conf/h2/pingcentral.mv.db:/opt/pingcentral/h2-data/pingcentral.mv.db -d -p 9022:9022 ping/pingcentral`
+`docker run --name pingcentral --volume pingcentral/conf/h2/pingcentral.jwk:/opt/pingcentral/conf/pingcentral.jwk --volume pingcentral/conf/h2/pingcentral.mv.db:/opt/pingcentral/h2-data/pingcentral.mv.db -d -p 9022:9022 pingidentity/pingcentral:edge`
 
 A blank H2 database and its associated hostkey is included in `pingcentral/conf/h2` for your use.
 
