@@ -15,8 +15,8 @@ services:
       nofile:
         soft: 65535
         hard: 65535
-    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-100000000}b
-    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-100000000}b
+    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-2000000000}b
+    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-2000000000}b
     mem_swappiness: 0
     tmpfs: /run/secrets
     command: start-server /opt/wait-for localhost:9000 -t 180 -- curl -k https://localhost:9000/pa/heartbeat.ping
