@@ -72,20 +72,30 @@ tag_and_push ()
         _target="${registryToDeployTo}/${productToDeploy}:${1}"
     fi
 
-    _file="${CI_PROJECT_DIR}/registries.json"
     test -z "${dryRun}" \
         && docker tag "${_source}" "${_target}"
     if test -z "${isLocalBuild}"
     then
         echo "Pushing ${_target}"
-        if test "${registryToDeployTo}" = "$(jq -r '. | .registries | .[] | select(.name == "dockerhub global") | .registry' "${_file}")"
-        then
-            docker --config "${_docker_config_hub_dir}" trust revoke --yes "${_target}"
-            docker --config "${_docker_config_hub_dir}" trust sign "${_target}"
-        else
-            echo_red "Pushing to a non dockerhub global.  We need revisit this next push."
-            docker push "${_target}"
-        fi
+        #DOCKER_HUB_REGISTRY and ARTIFACTORY_REGISTRY are pipeline vars
+        #Use Docker Content Trust to Sign and push images to a specified registry
+        case "${registryToDeployTo}" in
+            DOCKER_HUB_REGISTRY)
+                docker --config "${_docker_config_hub_dir}" trust revoke --yes "${_target}"
+                docker --config "${_docker_config_hub_dir}" trust sign "${_target}"
+                ;;
+            ARTIFACTORY_REGISTRY)
+                # See https://www.jfrog.com/confluence/display/JFROG/Working+with+Docker+Content+Trust
+                # docker --config "${_docker_config_artifactory_dir}" trust revoke --yes "${_target}"
+                # docker --config "${_docker_config_artifactory_dir}" trust sign "${_target}"
+                docker --config "${_docker_config_artifactory_dir}" push "${_target}"
+                ;;
+            *)
+                echo_red "ERROR: Registry to Deploy To Not Recognized For: ${registryToDeployTo}"
+                echo_red " -- Defaulting to unsigned docker push"
+                docker push "${_target}"
+        esac
+
         docker image rm -f "${_target}"
     else
         echo "${_target}"
@@ -209,9 +219,10 @@ do
     fi
 done
 
-#Docker config locations for ECR and DockerHub
+#Define docker config file locations based on different image registry providers
 _docker_config_hub_dir="/root/.docker-hub"
 _docker_config_ecr_dir="/root/.docker"
+_docker_config_artifactory_dir="/root/.docker-artifactory"
 
 # _dateStamp=$( date '%y%m%d')
 banner "Deploying ${productToDeploy}"

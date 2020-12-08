@@ -31,7 +31,7 @@ _getUntaggedImageDigests ()
     aws ecr list-images --repository-name "${1}" | jq -r '.imageIds[]|select(.imageTag == null)|.imageDigest'
 }
 
-# delete digest fr an image
+# delete digest for an image
 _deleteImageDigest ()
 {
     aws ecr batch-delete-image \

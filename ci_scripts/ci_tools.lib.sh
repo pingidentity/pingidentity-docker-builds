@@ -341,24 +341,45 @@ requirePipelineVar ()
 ################################################################################
 setupDockerConfigJson ()
 {
+    # perform a docker login to docker hub.  This is required to properly authenticate and
+    # sign images with docker as well as avoid rate limiting from Dockers new policies.
+    #
+    echo "Logging into docker hub..."
+    requirePipelineVar DOCKER_USERNAME
+    requirePipelineVar DOCKER_PASSWORD
+    requirePipelineVar DOCKER_HUB_REGISTRY
+    mkdir -p "${_docker_config_hub_dir}"
+
+    # login to docker.io to create the docker hub config.json
+    docker --config "${_docker_config_hub_dir}" login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
+
     # Ensure that the pipe-line provides the following variables/files
-    #  - PIPELINE_BUILD_REGISTRY_VENDOR
-    #  - PIPELINE_BUILD_REGISTRY
-    #  - PIPELINE_BUILD_REPO
-    #  - DOCKER_CONFIG_JSON
     requirePipelineVar PIPELINE_BUILD_REGISTRY_VENDOR
     requirePipelineVar PIPELINE_BUILD_REGISTRY
     requirePipelineVar PIPELINE_BUILD_REPO
-    requirePipelineFile DOCKER_CONFIG_JSON
+    requirePipelineFile ECR_DOCKER_CONFIG_JSON
 
-    echo "Using docker config.json '${DOCKER_CONFIG_JSON}'"
-    mkdir -p /root/.docker
-    cp "${DOCKER_CONFIG_JSON}" /root/.docker/config.json
+    echo "Using ECR docker config.json '${ECR_DOCKER_CONFIG_JSON}'"
+    mkdir -p "${_docker_config_ecr_dir}"
+    cp "${ECR_DOCKER_CONFIG_JSON}" "${_docker_config_ecr_dir}/config.json"
 
     # In order to initialize the docker login to ecr, a single docker pull needs
     # to occur.  This basically primes the pump for docker builds with FROM's later on
-    docker pull "${PIPELINE_BUILD_REGISTRY}/ci-utils/hello:latest"
+    docker --config "${_docker_config_ecr_dir}" pull "${PIPELINE_BUILD_REGISTRY}/ci-utils/hello:latest"
+
+    # Ensure that the pipe-line provides the following variables/files
+    requirePipelineVar ARTIFACTORY_REGISTRY
+    requirePipelineFile ARTIFACTORY_DOCKER_CONFIG_JSON
+
+    echo "Using Artifactory docker config.json '${ARTIFACTORY_DOCKER_CONFIG_JSON}'"
+    mkdir -p "${_docker_config_artifactory_dir}"
+    cp "${ARTIFACTORY_DOCKER_CONFIG_JSON}" "${_docker_config_artifactory_dir}/config.json"
 }
+
+#Define docker config file locations based on different image registry providers
+_docker_config_hub_dir="/root/.docker-hub"
+_docker_config_ecr_dir="/root/.docker"
+_docker_config_artifactory_dir="/root/.docker-artifactory"
 
 if test -n "${PING_IDENTITY_SNAPSHOT}"
 then
@@ -369,11 +390,6 @@ then
 
 
     banner "CI PIPELINE using ${PIPELINE_BUILD_REGISTRY_VENDOR} - ${FOUNDATION_REGISTRY}"
-
-    # Ensure that the pipe-line provides the following variables
-    #  - SNAPSHOT_REGISTRY
-    requirePipelineVar DEPLOY_REGISTRY
-    echo "Deploying to DEPLOY_REGISTRY '${DEPLOY_REGISTRY}'"
 
     #
     # setup the docker config.json.
@@ -428,11 +444,12 @@ then
     echo "Using docker trust private key '${DOCKER_TRUST_PRIVATE_KEY}'"
     echo "Using docker trust private key file'${DOCKER_TRUST_PRIVATE_KEY_FILE}'"
     echo "Using docker trust private key signer '${DOCKER_TRUST_PRIVATE_KEY_SIGNER}'"
-    mkdir -p "/root/.docker-hub/trust/private"
-    cp "${DOCKER_TRUST_PRIVATE_KEY_FILE}" "/root/.docker-hub/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
-    chmod 600 "/root/.docker-hub/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
 
-    docker trust key load "/root/.docker-hub/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
+    #Use private key file with DockerHub
+    mkdir -p "${_docker_config_hub_dir}/trust/private"
+    cp "${DOCKER_TRUST_PRIVATE_KEY_FILE}" "${_docker_config_hub_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
+    chmod 600 "${_docker_config_hub_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
+    docker trust key load "${_docker_config_hub_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
 
     # shellcheck disable=SC2155
     gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )

@@ -20,7 +20,7 @@ banner "Cleaning up after failure"
 # The functions below should be defined in the vendor_tools.lib.sh scripts
 #
 echo "getting images for: ${FOUNDATION_REGISTRY}"
-images="$(_getDockerRepoName)"
+images="$(_getDockerRepoNames)"
 for _image in ${images:5}
 do
     echo "  getting tags for image: ${_image}"
