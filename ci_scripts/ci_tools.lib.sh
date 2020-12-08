@@ -336,14 +336,15 @@ requirePipelineVar ()
 }
 
 ################################################################################
-# Bring in config.json from variable.  Provides instructions to docker on how to
+# This function does the following:
+# 1) Perform a docker login to docker hub.  This is required to properly authenticate and
+# sign images with docker as well as avoid rate limiting from Dockers new policies.
+# 2) Bring in the docker config.json for ECR. Provides instructions to docker on how to
 # authenticate to docker registries
+# 3) Bring in the docker config.json for Artifactory.
 ################################################################################
 setupDockerConfigJson ()
 {
-    # perform a docker login to docker hub.  This is required to properly authenticate and
-    # sign images with docker as well as avoid rate limiting from Dockers new policies.
-    #
     echo "Logging into docker hub..."
     requirePipelineVar DOCKER_USERNAME
     requirePipelineVar DOCKER_PASSWORD

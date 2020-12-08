@@ -66,10 +66,10 @@ tag_and_push ()
     if test "${productToDeploy}" = "pingdownloader"
     then
         _source="${FOUNDATION_REGISTRY}/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
-        _target="${registryToDeployTo}/pingdownloader:latest"
+        _target="${targetRegistry}/pingdownloader:latest"
     else
         _source="${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
-        _target="${registryToDeployTo}/${productToDeploy}:${1}"
+        _target="${targetRegistry}/${productToDeploy}:${1}"
     fi
 
     test -z "${dryRun}" \
@@ -79,19 +79,19 @@ tag_and_push ()
         echo "Pushing ${_target}"
         #DOCKER_HUB_REGISTRY and ARTIFACTORY_REGISTRY are pipeline vars
         #Use Docker Content Trust to Sign and push images to a specified registry
-        case "${registryToDeployTo}" in
-            DOCKER_HUB_REGISTRY)
+        case "${targetRegistry}" in
+            $DOCKER_HUB_REGISTRY)
                 docker --config "${_docker_config_hub_dir}" trust revoke --yes "${_target}"
                 docker --config "${_docker_config_hub_dir}" trust sign "${_target}"
                 ;;
-            ARTIFACTORY_REGISTRY)
+            $ARTIFACTORY_REGISTRY)
                 # See https://www.jfrog.com/confluence/display/JFROG/Working+with+Docker+Content+Trust
                 # docker --config "${_docker_config_artifactory_dir}" trust revoke --yes "${_target}"
                 # docker --config "${_docker_config_artifactory_dir}" trust sign "${_target}"
                 docker --config "${_docker_config_artifactory_dir}" push "${_target}"
                 ;;
             *)
-                echo_red "ERROR: Registry to Deploy To Not Recognized For: ${registryToDeployTo}"
+                echo_red "ERROR: Registry to Deploy To Not Recognized For: ${targetRegistry}"
                 echo_red " -- Defaulting to unsigned docker push"
                 docker push "${_target}"
         esac
@@ -115,7 +115,7 @@ do
         -r|--registry)
             shift
             test -z "${1}" && usage "You must provide a registry"
-            # registryToDeployTo=${1}
+            # targetRegistry=${1}
             _registryList="${_registryList:+${_registryList} }${1}"
             ;;
         -l|--registry-file)
@@ -234,7 +234,7 @@ if test "${productToDeploy}" = "pingdownloader"
 then
     test -z "${dryRun}" \
                 && docker --config "${_docker_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
-    for registryToDeployTo in ${_registryList}
+    for targetRegistry in ${_registryList}
     do
         tag_and_push ""
     done
@@ -280,7 +280,7 @@ do
             test -z "${dryRun}" \
                 && docker --config "${_docker_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
             _jvmVersion=$( _getJVMVersionForID "${_jvm}" )
-            for registryToDeployTo in ${_registryList}
+            for targetRegistry in ${_registryList}
             do
                 tag_and_push "${_version}-${_shimLongTag}-java${_jvmVersion}-edge"
                 if test -n "${sprint}"
