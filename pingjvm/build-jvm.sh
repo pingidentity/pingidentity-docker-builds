@@ -16,7 +16,7 @@ then
             case "${_javaMajor}" in
                 11)
                     # optimized modules azul 11 alpine modules
-                    _modules="java.base,java.compiler,java.datatransfer,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,org.openjsse,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.jdwp.agent,jdk.httpserver,jdk.jcmd,jdk.localedata,jdk.management,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.rmic,jdk.security.auth,jdk.security.jgss,jdk.xml.dom,jdk.zipfs"
+                    _modules="java.base,java.compiler,java.datatransfer,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,org.openjsse,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.jdwp.agent,jdk.httpserver,jdk.jcmd,jdk.localedata,jdk.management,jdk.management.agent,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.rmic,jdk.security.auth,jdk.security.jgss,jdk.xml.dom,jdk.zipfs"
                 ;;
                 *)
                     # all azul modules
@@ -62,7 +62,7 @@ _java_security_path=/opt/java/conf/security
 if test -f ${_java_security_path}/java.security ;
 then
 # search the file to add the "security.provider.4=org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider"
-# after the listed JSSE provider. 
+# after the listed JSSE provider.
 # Renumber the supported security providers.
     awk '{
         for(i=1;i<=NF;i++)
@@ -75,7 +75,7 @@ then
                     print"security.provider.4=org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider"
                     sub(/[1-9]/, substr($i, index($i,"=")-1)+1)
                     print
-                    next 
+                    next
                 }
 
                 if(b>0)
@@ -85,18 +85,18 @@ then
                 }
             }
         }
-    } 1' ${_java_security_path}/java.security > ${_java_security_path}/java.security.bcfips 
+    } 1' ${_java_security_path}/java.security > ${_java_security_path}/java.security.bcfips
     mv ${_java_security_path}/java.security.bcfips ${_java_security_path}/java.security
 
     if test -f ${_java_security_path}/openjsse.security ;
     then
-        _index=$( awk '/security.provider.([1-9]|[1][1-9])=SunJSSE/{ 
+        _index=$( awk '/security.provider.([1-9]|[1][1-9])=SunJSSE/{
             print substr($1, length("security.provider.")+1, index($1,"=") - length("security.provider.")-1)
-            }' ${_java_security_path}/java.security )  
+            }' ${_java_security_path}/java.security )
 
-        awk '/=org.openjsse.net.ssl.OpenJSSE/{ gsub(/[1-9]|[1-9][0-9]/, "'${_index}'") } 1' ${_java_security_path}/openjsse.security > ${_java_security_path}/openjsse.security.bcfips 
+        awk '/=org.openjsse.net.ssl.OpenJSSE/{ gsub(/[1-9]|[1-9][0-9]/, "'${_index}'") } 1' ${_java_security_path}/openjsse.security > ${_java_security_path}/openjsse.security.bcfips
         mv ${_java_security_path}/openjsse.security.bcfips ${_java_security_path}/openjsse.security
-        
+
     fi
 
 fi
