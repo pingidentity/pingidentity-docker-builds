@@ -31,7 +31,7 @@
 #
 test "${VERBOSE}" = "true" && set -x
 
-set_java_home_and_args () 
+set_java_home_and_args ()
 {
   PRIVATE_UNBOUNDID_JAVA_BIN=${UNBOUNDID_JAVA_BIN}
   PRIVATE_UNBOUNDID_JAVA_HOME=${UNBOUNDID_JAVA_HOME}
@@ -90,7 +90,7 @@ set_java_home_and_args ()
 }
 
 # Determine whether the detected Java environment is acceptable for use.
-test_java () 
+test_java ()
 {
   if test -z "${PRIVATE_UNBOUNDID_JAVA_ARGS}"
   then
@@ -209,7 +209,7 @@ set_environment_vars () {
     # other form), then we'll use that value.  Otherwise, we'll use a default
     # of 65535.
     if test -z "${NUM_FILE_DESCRIPTORS}"
-    then 
+    then
       if test -s "${INSTANCE_ROOT}/config/num-file-descriptors"
       then
         # shellcheck disable=SC1090
@@ -261,7 +261,7 @@ set_environment_vars () {
     # variable is set through some other form), then we'll use that value.
     # Otherwise, on Linux only, we'll use a minimum of 16383, and on other
     # platforms we will use the existing value.
-    _osID=$( test -f /etc/os-release && awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null || uname ) 
+    _osID=$( test -f /etc/os-release && awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null || uname )
     PROCESSES_OPTION=-u
     ulimit ${PROCESSES_OPTION} >/dev/null 2>&1
     if test ${?} -ne 0 &&  test "${_osID}" = "alpine"
@@ -342,7 +342,7 @@ set_environment_vars () {
     done
 
     export PATH LD_LIBRARY_PATH LD_LIBRARY_PATH_32 LD_LIBRARY_PATH_64 \
-         LD_PRELOAD LD_PRELOAD_32 LD_PRELOAD_34 UNBOUNDID_ENV_VARS_SET
+         LD_PRELOAD LD_PRELOAD_32 LD_PRELOAD_64 UNBOUNDID_ENV_VARS_SET
   fi
 
   # set Postgres environment variables
@@ -410,7 +410,7 @@ fi
 # Attempt to determine the width and height of the user's terminal
 # specifying TERM if it is missing to avoid tput error messages.
 if type tput >/dev/null 2>/dev/null
-then 
+then
     if test -n "${TERM:+x}"
     then
         TPUT="/usr/bin/tput"
