@@ -27,10 +27,10 @@ _importBulkConfig=$(
         2>/dev/null
 )
 
-if test "${_importBulkConfig}" = "200"
+if test "${_importBulkConfig}" = "200" ; then
   echo "INFO: Removing Imported Bulk File"
   rm "${BULK_CONFIG_DIR}/${BULK_CONFIG_FILE}"
-then
+  
   if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE"
   then
     _replicateConfig=$(
