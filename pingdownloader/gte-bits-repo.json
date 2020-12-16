@@ -68,7 +68,7 @@
         {
             "name": "pingfederate",
             "mapping": "pingfederate-${version}.zip",
-            "latestVersion": "10.1.3",
+            "latestVersion": "10.2.0",
             "licenseFile": "pingfederate.lic"
         },
         {
