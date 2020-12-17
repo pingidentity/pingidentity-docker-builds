@@ -1,8 +1,8 @@
-# Ping Identity PingCentral Docker Image
+# Ping Identity PingIntelligence Docker Image
 
 ## Documentation
 
-* [PingCentral Docker Image](https://devops.pingidentity.com/docker-images/pingcentral/) - Information on this image
+* [PingDownloader Docker Image](https://devops.pingidentity.com/docker-images/pingintelligence/) - Information on this image
 
 * [DevOps Program Documentation](https://devops.pingidentity.com/) - Getting started with Ping Identity DevOps Program
 
