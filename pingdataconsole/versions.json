@@ -1,8 +1,8 @@
 {
-    "latest": "8.1.0.0",
+    "latest": "8.2.0.0",
     "versions": [
         {
-            "version": "8.2.0.0-EA",
+            "version": "8.2.0.0",
             "preferredShim": "alpine",
             "shims": [
                 {
@@ -13,6 +13,29 @@
                             "jvm": "az11",
                             "build": true,
                             "deploy": true
+                        }
+                    ]
+                }
+            ],
+            "dependencies": [
+                {
+                    "product": "apache-tomcat",
+                    "version": "9.0.41"
+                }
+            ]
+        },
+        {
+            "version": "8.2.0.0-EA",
+            "preferredShim": "alpine",
+            "shims": [
+                {
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": false,
+                            "deploy": false
                         }
                     ]
                 }

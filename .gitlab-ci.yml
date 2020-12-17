@@ -1144,36 +1144,6 @@ pd-repl.latest:
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
 
-dg-8001:
-  stage: test.integration
-  script:
-    - ci_scripts/run_integration.sh dg-8001
-  only:
-    changes:
-      - integration_tests/**/dg-8001*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      # - pingdirectory/**/*
-      - pingdatagovernance/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
-  variables:
-    KUBERNETES_CPU_REQUEST: 2
-    KUBERNETES_CPU_LIMIT: 2
-    KUBERNETES_MEMORY_REQUEST: 4000000000
-    KUBERNETES_MEMORY_LIMIT: 4000000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
-
 
 pa-pf-pd.latest:
   stage: test.integration

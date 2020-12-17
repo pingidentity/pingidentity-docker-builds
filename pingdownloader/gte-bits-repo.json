@@ -9,7 +9,7 @@
         {
             "name": "delegator",
             "mapping": "pingdirectory-delegator-${version}.zip",
-            "latestVersion": "4.2.1"
+            "latestVersion": "4.4.0"
         },
         {
             "name": "ldapsdk",
@@ -32,37 +32,37 @@
         {
             "name": "pingdatametrics",
             "mapping": "PingDataMetrics-${version}.zip",
-            "latestVersion": "8.1.0.0",
+            "latestVersion": "8.2.0.0",
             "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdatasync",
             "mapping": "PingDataSync-${version}.zip",
-            "latestVersion": "8.1.0.0",
+            "latestVersion": "8.2.0.0",
             "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdatagovernance",
             "mapping": "PingDataGovernance-${version}.zip",
-            "latestVersion": "8.1.0.0",
+            "latestVersion": "8.2.0.0",
             "licenseFile": "PingDataGovernance.lic"
         },
         {
             "name": "pingdatagovernancepap",
             "mapping": "PingDataGovernance-PAP-${version}.zip",
-            "latestVersion": "8.1.0.0",
+            "latestVersion": "8.2.0.0",
             "licenseFile": "PingDataGovernance.lic"
         },
         {
             "name": "pingdirectory",
             "mapping": "PingDirectory-${version}.zip",
-            "latestVersion": "8.1.0.0",
+            "latestVersion": "8.2.0.0",
             "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdirectoryproxy",
             "mapping": "PingDirectoryProxy-${version}.zip",
-            "latestVersion": "8.1.0.0",
+            "latestVersion": "8.2.0.0",
             "licenseFile": "PingDirectory.lic"
         },
         {
