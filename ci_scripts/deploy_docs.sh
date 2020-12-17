@@ -82,7 +82,7 @@ append_env_table_header ()
                 ENV_TABLE_ACTIVE="true"
 
                 append_doc "## Environment Variables"
-                append_doc "In addition to environment variables inherited from **[pingidentity/pingbase](https://pingidentity-devops.gitbook.io/devops/docker-images/pingbase)**,"
+                append_doc "In addition to environment variables inherited from **[pingidentity/pingbase](https://devops.pingidentity.com/docker-images/pingbase/)**,"
                 append_doc "the following environment \`ENV\` variables can be used with "
                 append_doc "this image. "
                 append_doc ""

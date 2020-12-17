@@ -5,7 +5,7 @@
 #-
 #- ## Related Docker Images
 #- - pingidentity/pingbase - Parent Image
-#- 	>**This image inherits, and can use, Environment Variables from [pingidentity/pingbase](https://pingidentity-devops.gitbook.io/devops/dockerimagesref/pingbase)**
+#- 	>**This image inherits, and can use, Environment Variables from [pingidentity/pingbase](https://devops.pingidentity.com/docker-images/pingbase/)**
 #- - pingidentity/pingcommon - Common Ping files (i.e. hook scripts)
 #- - pingidentity/pingdownloader - Used to download product bits
 #-
@@ -106,7 +106,7 @@ COPY --from=final-staging ["/","/"]
 #- docker logs -f pingcentral
 #- ```
 #-
-#- If using the command above with the embedded [server profile](https://pingidentity-devops.gitbook.io/devops/config/containeranatomy), log in with:
+#- If using the command above with the embedded [server profile](https://devops.pingidentity.com/reference/config/), log in with:
 #- * https://localhost:9022/
 #-   * Username: Administrator
 #-   * Password: 2Federate

@@ -5,7 +5,7 @@
 #-
 #- ## Related Docker Images
 #- - pingidentity/pingbase - Parent Image
-#- 	>**This image inherits, and can use, Environment Variables from [pingidentity/pingbase](https://pingidentity-devops.gitbook.io/devops/dockerimagesref/pingbase)**
+#- 	>**This image inherits, and can use, Environment Variables from [pingidentity/pingbase](https://devops.pingidentity.com/docker-images/pingbase/)**
 #- - pingidentity/pingdownloader - Used to download product bits
 #-
 ARG PRODUCT

@@ -2,13 +2,13 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-#- This script is started in the background immediately before 
+#- This script is started in the background immediately before
 #- the server within the container is started
 #-
 #- This is useful to implement any logic that needs to occur after the
 #- server is up and running
 #-
-#- For example, enabling replication in PingDirectory, initializing Sync 
+#- For example, enabling replication in PingDirectory, initializing Sync
 #- Pipes in PingDataSync or issuing admin API calls to PingFederate or PingAccess
 
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
@@ -17,16 +17,16 @@
 set -e
 echo_yellow "NOTE: PingAccess 6.1 natively supports data.json ingestion,"
 echo_yellow "and is the recommended method for configuration. For more information, see:"
-echo_yellow "https://pingidentity-devops.gitbook.io/devops/config/containeranatomy/profilestructures#for-pa-6-1-0"
+echo_yellow "https://devops.pingidentity.com/reference/profileStructures/#pingaccess"
 
 echo "INFO: begin importing data.."
 
-# # to Test an import call from the container you can use: 
+# # to Test an import call from the container you can use:
 # curl -k -v -X POST -u "Administrator:${PING_IDENTITY_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
 #   -d @${STAGING_DIR}/instance/data/data.json \
 #   https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import
 
-# to check on the status of an import use: 
+# to check on the status of an import use:
 # curl -k -v -X GET -u "Administrator:${PING_IDENTITY_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
 #   https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows/1
 
@@ -59,7 +59,7 @@ then
         cat "${_out}" | jq
         exit 85
     fi
-    
+
     _import_id=$( jq -r .id "${_out}" )
     _out=/tmp/import.status.out
     _attempts=300
@@ -101,13 +101,13 @@ then
                     # unexpected error
                     echo_red "Import status: ${_import_status}"
                     echo_red "ERROR: Unsuccessful Import"
-                    exit 85 
+                    exit 85
                 ;;
             esac
         else
             echo "There was an error retrieving import status, retrying in 3 seconds (HTTP Code: ${_import_http_code})"
             # Something is really wrong, retrying at most 3 times
-            if test ${_attempts} -gt 3 
+            if test ${_attempts} -gt 3
             then
                 _attempts=3
             fi
