@@ -77,8 +77,8 @@ ENV STARTUP_BACKGROUND_OPTS="start"
 #- If using the command above with the embedded [server profile](https://devops.pingidentity.com/reference/config/), log in with:
 #- * http://localhost:${HTTPS_PORT}/console/login
 #- ```
-#- Server: pingdirectory
+#- Server: pingdirectory:636
 #- Username: administrator
 #- Password: 2FederateM0re
 #- ```
-#- >make sure you have a PingDirectory running
+#- > make sure you have a PingDirectory running
