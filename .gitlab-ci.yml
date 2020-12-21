@@ -265,8 +265,6 @@ t.pingaccess:
       - pingbase/**/*
       - pingdownloader/**/*
       - pingaccess/**/*
-      - pingdirectory/**/*
-      - pingfederate/**/*
       - pingjvm/*
       - ci_scripts/*
       - .gitlab-ci.yml

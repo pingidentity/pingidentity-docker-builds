@@ -95,7 +95,7 @@ user.info.endpoint=${PF_OIDC_USER_INFO_ENDPOINT}
 #   The full URL of end session endpoint at the OP. When this property does not have a value,
 #   the administrator shall be shown the default PingFederate administrative console logout page.
 #
-end.session.endpoint=${PF_OIDC_USER_SESSION_ENDPOINT}
+end.session.endpoint=${PF_OIDC_END_SESSION_ENDPOINT}
 
 #   -----------------------------
 #   Issuer (REQUIRED)
