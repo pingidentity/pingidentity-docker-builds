@@ -687,7 +687,7 @@ b.pingdatasync:
       - pingbase/**/*
       - pingdownloader/**/*
       - pingdatasync/**/*
-      - pingdirctory/**/*
+      - pingdirectory/**/*
       - integration_tests/**/*
       - ci_scripts/*
       - pingjvm/*
@@ -758,6 +758,7 @@ b.pingdatagovernance:
   only:
     changes:
       - pingdatagovernance/**/*
+      - pingdirectory/**/*
       - pingcommon/**/*
       - pingdatacommon/**/*
       - pingbase/**/*

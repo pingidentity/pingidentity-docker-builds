@@ -282,23 +282,11 @@ getEncryptionOption ()
     echo "${encryptionOption}"
 }
 
-# returns a 1 if the product version of the image is 8.1 or higher
-is_gte_81() {
-  version=$(echo "${IMAGE_VERSION}" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+")
-  major=$(echo "${version}" | awk -F"." '{ print $1 }')
-  minor=$(echo "${version}" | awk -F"." '{ print $2 }')
-  if test "${major}" -eq 8 && test "${minor}" -ge 1 || test "${major}" -gt 8; then
-    echo 1
-  else
-    echo 0
-  fi
-}
-
 # returns the jvm option used during the setup of a PingData product
 getJvmOptions ()
 {
     jvmOptions=""
-    if test "$( is_gte_81 )" -eq 1 && test "${PING_PRODUCT}" = "PingDirectory"; then
+    if test "$( isImageVersionGtEq 8.1.0 )" -eq 0 && test "${PING_PRODUCT}" = "PingDirectory"; then
         # If PingDirectory 8.1.0.0 or greater is run and the MAX_HEAP_SIZE is 384m, then it's
         # assumed to have never been set so it'll update it to the minimum needed
         # for version 8.1.0.0 or greater.
@@ -321,7 +309,7 @@ getJvmOptions ()
 
     if test -n "${MAX_HEAP_SIZE}" && ! test "${MAX_HEAP_SIZE}" = "AUTO" ; then
         jvmOptions="${jvmOptions} --maxHeapSize ${MAX_HEAP_SIZE}"
-    fi    
+    fi
 
     echo "${jvmOptions}"
 }
@@ -527,7 +515,7 @@ is_version_eq() {
 # Check if the version argument (e.g. "8.2.0.0-GA")
 # is greater than the build version. SNAPSHOT versions
 # without qualifiers (or any qualifier besides "-EA", "-RCn"
-# or "-GA") are ordered before "-EA" builds, which are 
+# or "-GA") are ordered before "-EA" builds, which are
 # ordered before "-RCn", which are before "-GA" builds.
 #
 # Usage:
@@ -575,13 +563,13 @@ buildRunPlan ()
 
     # Goal of building a run plan is to provide a plan for the server as it starts up
     # Options for the RUN_PLAN and the PD_STATE are as follows:
-    # 
+    #
     # RUN_PLAN (Initially set to UNKNOWN)
     #          START   - Instructs the container to start from scratch.  This is primarily
     #                    because a server.uuid file is not present.
     #          RESTART - Instructs the container to restart an existing instance.  This is
     #                    primarily because an existing server.uuid file is prsent.
-    # 
+    #
     # PD_STATE (Initially set to UNKNOWN)
     #          SETUP   - Specifies that the server should be setup
     #          RESTART - Specifies that the server should be restarted
@@ -1161,7 +1149,7 @@ prepareToJoinTopology ()
     echo "        ${_podHostname:?}:${_podLdapsPort:?}"
     waitUntilLdapUp "${_podHostname}" "${_podLdapsPort}" ""
 
-    # 
+    #
     #- * Only version 8.2-EA and greater support configuring sync failover
     #
     if test "${PING_PRODUCT}" = "PingDataSync" && ! is_version_ge "8.2.0.0-EA"; then
@@ -1241,7 +1229,7 @@ prepareToJoinTopology ()
         # Check if this server knows about the seed server.
         if test -z "$(jq -r ".serverInstances[] | select(.instanceName==\"${_seedInstanceName}\") | .instanceName" "${_currentTopoFile}")"; then
             if is_version_ge "8.2.0.0-EA"; then
-                # If this instance does not think it is in the seed server's topology, then it may have lost its volume. 
+                # If this instance does not think it is in the seed server's topology, then it may have lost its volume.
                 # Remove the remnants of this server from the seed server's topology so it can be re-added below.
                 echo_yellow "Seed server topology and local topology are out of sync. Running remove-defunct-server before re-adding this server to the topology."
                 remove-defunct-server --no-prompt \
@@ -1364,4 +1352,68 @@ removeDefunctServer()
     --bindPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
     --enableDebug --globalDebugLevel verbose
     echo "Server removal exited with return code: $?"
+}
+
+# Get dsconfig options, depending if the servers is running or not (offline)
+get_dsconfig_options ()
+{
+    # shellcheck disable=SC2039
+    wait-for "${HOSTNAME}:${LDAPS_PORT}" -t 1 >/dev/null 2>/dev/null
+
+    if test $? -eq 0; then
+        echo "--no-prompt --quiet --hostname ${HOSTNAME} --port ${LDAPS_PORT} --bindDN ${ROOT_USER_DN} --bindPasswordFile ${ROOT_USER_PASSWORD_FILE} --useSSL --trustAll"
+    else
+        echo "--no-prompt --quiet --offline"
+    fi
+}
+
+# Set the Availability of the server to UNAVAILABLE with manual status
+set_server_unavailable ()
+{
+    _status="${1:=not ready}"
+
+    if test "$( isImageVersionGtEq 8.2.0 )" -eq 0
+    then
+        _jsonMsg="{ \"status\":\"${_status}\", \"source\":\"${0}\", \"udpated\":\"$(date)\" }"
+
+        _dsconfigOptions=$(get_dsconfig_options)
+
+        echo "Setting Server to Unavailable - ${_jsonMsg}"
+
+        # shellcheck disable=SC2086
+        dsconfig set-http-servlet-extension-prop ${_dsconfigOptions} \
+            --extension-name "Available or Degraded State" \
+            --set override-status-code:503 \
+            --set "additional-response-contents:${_jsonMsg}"
+
+        # shellcheck disable=SC2086
+        dsconfig set-http-servlet-extension-prop ${_dsconfigOptions} \
+            --extension-name "Available State" \
+            --set override-status-code:503 \
+            --set "additional-response-contents:${_jsonMsg}"
+    fi
+}
+
+
+# Set the Availability of the server to AVAILABLE with manual status
+set_server_available ()
+{
+    if test "$( isImageVersionGtEq 8.2.0 )" -eq 0
+    then
+        _dsconfigOptions=$(get_dsconfig_options)
+
+        echo "Setting Server to Available"
+
+        # shellcheck disable=SC2086
+        dsconfig set-http-servlet-extension-prop ${_dsconfigOptions} \
+            --extension-name "Available or Degraded State" \
+            --reset override-status-code \
+            --reset additional-response-contents
+
+        # shellcheck disable=SC2086
+        dsconfig set-http-servlet-extension-prop ${_dsconfigOptions} \
+            --extension-name "Available State" \
+            --reset override-status-code \
+            --reset additional-response-contents
+    fi
 }

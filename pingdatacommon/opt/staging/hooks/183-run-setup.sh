@@ -98,3 +98,13 @@ if test ${_manageProfileRC} -ne 0 ; then
     cat "${SERVER_ROOT_DIR}/logs/tools/install-ds.log"
     exit 183
 fi
+
+# If the product is PingDirectory, set the server unavailable since there
+# may be additional replication work to do before we can allow the server
+# to respond correctly to a readiness.sh check.
+#
+# It is important to set the server back available during the 80-post-start.sh
+# hook.
+if test "${PING_PRODUCT}" = "PingDirectory"; then
+    set_server_unavailable "configuring server"
+fi
