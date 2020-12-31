@@ -70,4 +70,3 @@ if test ${_addServerResult} -ne 0; then
 fi
 
 exit ${_addServerResult}
-

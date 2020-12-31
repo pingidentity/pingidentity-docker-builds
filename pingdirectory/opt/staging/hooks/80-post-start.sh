@@ -20,8 +20,12 @@ test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib
 # to enable replication
 if ! prepareToJoinTopology; then
     echo "Replication will not be configured."
+    set_server_available
+
     exit 0
 fi
+
+set_server_unavailable "enabling replication"
 
 #
 #- * Enabling Replication
@@ -81,6 +85,8 @@ manage-topology export \
 
 cat "${TOPOLOGY_FILE}"
 
+set_server_unavailable "initializing replication"
+
 #
 #- * Initialize replication
 #
@@ -103,7 +109,6 @@ dsreplication initialize \
 _replInitResult=$?
 echo "Replication initialize result=${_replInitResult}"
 
-test ${_replInitResult} -eq 0 && dsreplication status --displayServerTable --showAll
+test ${_replInitResult} -eq 0 && set_server_available && dsreplication status --displayServerTable --showAll
 
 exit ${_replInitResult}
-

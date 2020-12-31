@@ -7,7 +7,7 @@
 
 _password="$(get_value PING_IDENTITY_PASSWORD true)"
 if test -z "${_password}"; then
-  echo_yellow "No PING_IDENITY_PASSWORD found. Using default password"
+  echo_yellow "No PING_IDENTITY_PASSWORD found. Using default password"
   _password=2Federate
 fi
 
@@ -30,7 +30,7 @@ _importBulkConfig=$(
 if test "${_importBulkConfig}" = "200" ; then
   echo "INFO: Removing Imported Bulk File"
   rm "${BULK_CONFIG_DIR}/${BULK_CONFIG_FILE}"
-  
+
   if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE"
   then
     _replicateConfig=$(
@@ -52,7 +52,7 @@ if test "${_importBulkConfig}" = "200" ; then
       exit 85
     fi
   fi
-else 
+else
   echo_red "$(jq -r . /tmp/import.status.out)"
   echo_red "Unable to import bulk config"
   exit 85

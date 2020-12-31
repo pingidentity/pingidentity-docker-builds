@@ -132,13 +132,12 @@ isImageVersionGtEq() {
   aMajor=$(echo "${aVersion}" | awk -F"." '{ print $1 }')
   aMinor=$(echo "${aVersion}" | awk -F"." '{ print $2 }')
   aPatch=$(echo "${aVersion}" | awk -F"." '{ print $3 }')
-  if test "${major}" -le "${aMajor}" && \
-    test "${minor}" -le "${aMinor}" && \
-    test "${patch}" -lt "${aPatch}" ; then
-      echo 1
-  else
-    echo 0
-  fi
+
+  test "${aMajor}" -gt "${major}" && echo 1 && return
+  test "${aMajor}" -eq "${major}" && test "${aMinor}" -gt "${minor}" && echo 1 && return
+  test "${aMajor}" -eq "${major}" && test "${aMinor}" -eq "${minor}" && test "${aPatch}" -gt "${patch}" && echo 1 && return
+
+  echo 0
 }
 
 ###############################################################################
