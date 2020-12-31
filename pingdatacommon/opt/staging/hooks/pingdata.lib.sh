@@ -742,6 +742,9 @@ buildRunPlan ()
 
                 echo "Number of servers available in this domain: ${_numHosts}"
 
+                #
+                # If there are no hosts found, this is situation where the k8s serivce cluster
+                # is returning no hosts, hence, there are no pingdirectories running
                 if test "${_numHosts}" -eq 0 ; then
                     #
                     # Second, we need to check other clusters
@@ -749,6 +752,18 @@ buildRunPlan ()
                         echo_red "We need to check all 0 servers in each cluster"
                     fi
 
+                    PD_STATE="GENESIS"
+                fi
+
+                # Note: Added when headless pingdirectory-cluster support was added for enhancements
+                #       to PingDirectory 8.2
+                #
+                # If there is only 1 host that is returned, and that host's IP is the same
+                # as the current _podHostName, then we can assured that this server is the first
+                # in the current statefulset to be started, and will mark as GENESIS
+                if test "${_numHosts}" -eq 1 && test "$(getIP "${_podHostname}")" = "$(getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}")"
+                then
+                    echo "Verified that this host/ip is the only pod found in domain '${K8S_STATEFUL_SET_SERVICE_NAME}'"
                     PD_STATE="GENESIS"
                 fi
             fi
