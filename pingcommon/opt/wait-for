@@ -28,74 +28,64 @@ USAGE
     exit "${exitcode}"
 }
 
-wait_for ()
-{
-    for i in $( seq ${TIMEOUT} )
-    do
+wait_for() {
+    for i in $(seq ${TIMEOUT}); do
         SERVER_FOUND=false
         FILE_FOUND=false
         DIR_FOUND=false
-        if test -n "${HOST}"
-        then
-            nc -z "${HOST}" "${PORT}" > /dev/null 2>&1
+        _timedout=false
+        if test -n "${HOST}"; then
+            timeout 1 nc -z "${HOST}" "${PORT}" >/dev/null 2>&1
 
             result=${?}
-            if test ${result} -eq 0
-            then
-                if test ${#} -gt 0
-                then
+            if test ${result} -eq 0; then
+                if test ${#} -gt 0; then
                     exec "${@}"
                 fi
                 SERVER_FOUND=true
+            elif test ${result} -eq 124; then
+                _timedout=true
             fi
         else
             SERVER_FOUND=true
         fi
 
-        if test -n "${FILE}"
-        then
-            if test -f "${FILE}"
-            then
+        if test -n "${FILE}"; then
+            if test -f "${FILE}"; then
                 FILE_FOUND=true
             fi
         else
             FILE_FOUND=true
         fi
 
-        if test -n "${DIR}"
-        then
-            if test -d "${DIR}"
-            then
+        if test -n "${DIR}"; then
+            if test -d "${DIR}"; then
                 DIR_FOUND=true
             fi
         else
             DIR_FOUND=true
         fi
 
-        if ${SERVER_FOUND} && ${DIR_FOUND} && ${FILE_FOUND}
-        then
+        if ${SERVER_FOUND} && ${DIR_FOUND} && ${FILE_FOUND}; then
             exit 0
         fi
-        sleep 1
+        if ! ${_timedout}; then
+            sleep 1
+        fi
     done
 
     exitcode=0
-    if ! ${SERVER_FOUND}
-    then
+    if ! ${SERVER_FOUND}; then
         echoerr "Error: Timed out waiting for server ${HOST}:${PORT}"
-        exitcode=$(( ${exitcode} + 4 ))
+        exitcode=$((${exitcode} + 4))
     fi
-
-    if ! ${FILE_FOUND}
-    then
+    if ! ${FILE_FOUND}; then
         echoerr "Error: Timed out waiting for file ${FILE}"
-        exitcode=$(( ${exitcode} + 8 ))
+        exitcode=$((${exitcode} + 8))
     fi
-
-    if ! ${DIR_FOUND}
-    then
-        echoerr "Error: Timed out waiting for dir $DIR"
-        exitcode=$(( ${exitcode} + 16 ))
+    if ! ${DIR_FOUND}; then
+        echoerr "Error: Timed out waiting for dir ${DIR}"
+        exitcode=$((${exitcode} + 16))
     fi
 
     echo "Operation timed out" >&2
