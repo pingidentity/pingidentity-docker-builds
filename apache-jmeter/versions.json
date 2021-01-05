@@ -1,8 +1,8 @@
 {
-    "latest": "5.3",
+    "latest": "5.4",
     "versions": [
         {
-            "version": "5.3",
+            "version": "5.4",
             "preferredShim": "alpine",
             "shims": [
                 {
