@@ -1,8 +1,8 @@
 {
-    "latest":"4.3",
+    "latest":"4.4",
     "versions":[
         {
-            "version": "4.3",
+            "version": "4.4",
             "preferredShim": "centos:7.6.1810",
             "shims":[
                 {
@@ -13,6 +13,23 @@
                             "jvm": "nojvm",
                             "build": true,
                             "deploy": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "version": "4.3",
+            "preferredShim": "centos:7.6.1810",
+            "shims":[
+                {
+                    "shim": "centos:7.6.1810",
+                    "preferredJVM": "nojvm",
+                    "jvms": [
+                        {
+                            "jvm": "nojvm",
+                            "build": false,
+                            "deploy": false
                         }
                     ]
                 }
