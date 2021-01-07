@@ -62,6 +62,12 @@ ENV LICENSE_VERSION=${LICENSE_VERSION}
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/server.log
 
+#-- Defines the log file size max for ALL appenders
+ENV PF_LOG_SIZE_MAX="10000 KB"
+
+#-- Defines the maximum of log files to retain upon rotation
+ENV PF_LOG_NUMBER=2
+
 #-- Defines the port on which the PingFederate administrative
 #-- console and API runs.
 ENV PF_ADMIN_PORT=9999
