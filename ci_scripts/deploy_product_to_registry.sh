@@ -65,11 +65,13 @@ tag_and_push ()
     #
     if test "${productToDeploy}" = "pingdownloader"
     then
+        _target_tag="latest"
         _source="${FOUNDATION_REGISTRY}/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
-        _target="${targetRegistry}/pingdownloader:latest"
+        _target="${targetRegistry}/pingdownloader:${_target_tag}"
     else
+        _target_tag="${1}"
         _source="${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
-        _target="${targetRegistry}/${productToDeploy}:${1}"
+        _target="${targetRegistry}/${productToDeploy}:${_target_tag}"
     fi
 
     test -z "${dryRun}" \
@@ -81,7 +83,13 @@ tag_and_push ()
         #Use Docker Content Trust to Sign and push images to a specified registry
         case "${targetRegistry}" in
             $DOCKER_HUB_REGISTRY)
-                docker --config "${_docker_config_hub_dir}" trust revoke --yes "${_target}"
+                #Check to see if signature data already exists for tag
+                #If it does, remove the signature data
+                _tag_index=$(jq ". | index(\"${_target_tag}\")" <<< "${_signed_tags}")
+                if test "${_tag_index}" != "null"
+                then
+                    docker --config "${_docker_config_hub_dir}" trust revoke --yes "${_target}"
+                fi
                 docker --config "${_docker_config_hub_dir}" trust sign "${_target}"
                 ;;
             $ARTIFACTORY_REGISTRY)
@@ -224,6 +232,9 @@ _docker_config_hub_dir="/root/.docker-hub"
 _docker_config_ecr_dir="/root/.docker"
 _docker_config_artifactory_dir="/root/.docker-artifactory"
 
+#Pull down Docker Trust JSON on signature data
+_signed_tags=$( docker trust inspect "docker.io/pingidentity/${productToDeploy}" | jq "[.[0].SignedTags[].SignedTag]" )
+
 # _dateStamp=$( date '%y%m%d')
 banner "Deploying ${productToDeploy}"
 
@@ -279,37 +290,37 @@ do
             fullTag="${_version}-${_shimLongTag}-${_jvm}-${ciTag}"
             test -z "${dryRun}" \
                 && docker --config "${_docker_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
-            _jvmVersion=$( _getJVMVersionForID "${_jvm}" )
+            # _jvmVersion=$( _getJVMVersionForID "${_jvm}" )
             for targetRegistry in ${_registryList}
             do
-                tag_and_push "${_version}-${_shimLongTag}-java${_jvmVersion}-edge"
+                # tag_and_push "${_version}-${_shimLongTag}-java${_jvmVersion}-edge"
                 if test -n "${sprint}"
                 then
-                    tag_and_push "${sprint}-${_shimLongTag}-${_version}"
-                    if test "${_version}" = "${latestVersion}"
-                    then
-                        tag_and_push "${sprint}-${_shimLongTag}-latest"
-                        tag_and_push "${_shimLongTag}-latest"
-                    fi
+                    # tag_and_push "${sprint}-${_shimLongTag}-${_version}"
+                    # if test "${_version}" = "${latestVersion}"
+                    # then
+                        # tag_and_push "${sprint}-${_shimLongTag}-latest"
+                        # tag_and_push "${_shimLongTag}-latest"
+                    # fi
 
                     if test "${_shim}" = "${defaultShim}"
                     then
-                        tag_and_push "${sprint}-${_version}"
+                        # tag_and_push "${sprint}-${_version}"
                         tag_and_push "${_version}-latest"
-                        tag_and_push "${_version}"
+                        # tag_and_push "${_version}"
 
                         #if it's latest product version and a sprint, then it's "latest" overall and also just "edge".
                         if test "${_version}" = "${latestVersion}"
                         then
                             tag_and_push "latest"
-                            tag_and_push "${sprint}"
+                            # tag_and_push "${sprint}"
                         fi
                     fi
                 fi
 
                 if test "${_jvm}" = "${defaultJvm}"
                 then
-                    tag_and_push "${_version}-${_shimLongTag}-edge"
+                    # tag_and_push "${_version}-${_shimLongTag}-edge"
                     if test "${_shim}" = "${defaultShim}"
                     then
                         tag_and_push "${_version}-edge"
