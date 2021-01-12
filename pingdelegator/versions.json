@@ -1,8 +1,8 @@
 {
-    "latest": "4.4.0",
+    "latest": "4.4.1",
     "versions": [
         {
-            "version": "4.4.0",
+            "version": "4.4.1",
             "preferredShim": "alpine",
             "shims": [
                 {
@@ -30,8 +30,8 @@
                     "jvms": [
                         {
                             "jvm": "az11",
-                            "build": false,
-                            "deploy": false
+                            "build": true,
+                            "deploy": true
                         }
                     ]
                 }
