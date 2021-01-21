@@ -305,15 +305,15 @@ do
 
                     if test "${_shim}" = "${defaultShim}"
                     then
-                        # tag_and_push "${sprint}-${_version}"
+                        tag_and_push "${sprint}-${_version}"
                         tag_and_push "${_version}-latest"
-                        # tag_and_push "${_version}"
+                        tag_and_push "${_version}"
 
                         #if it's latest product version and a sprint, then it's "latest" overall and also just "edge".
                         if test "${_version}" = "${latestVersion}"
                         then
                             tag_and_push "latest"
-                            # tag_and_push "${sprint}"
+                            tag_and_push "${sprint}"
                         fi
                     fi
                 fi
