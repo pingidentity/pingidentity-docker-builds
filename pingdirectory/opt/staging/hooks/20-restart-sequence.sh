@@ -34,8 +34,6 @@ ${SERVER_ROOT_DIR}/bin/dsjavaproperties --initialize ${jvmOptions}
 # if this hook is provided it can be executed early on
 run_hook "21-update-server-profile.sh"
 
-echo_green "----- Resuming hook: ${0}"
-
 #
 # Build the password file options
 #

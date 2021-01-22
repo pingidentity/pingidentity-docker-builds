@@ -33,15 +33,22 @@ echo_header "Ping Identity DevOps Docker Image" \
 if test -z "${1}" -o "$1" = "start-server" ;
 then
     test -n "${1}" && shift
+    # First ensure the STAGING_DIR is clean, before copying in
+    # or pulling the server profile. This method will remove any
+    # files in STAGING_DIR that are not built into the image.
+    if test "${CLEAN_STAGING_DIR}" = "true"
+    then
+        clean_staging_dir
+    fi
+
     # If there are local IN_DIR files, this will copy them to a STAGING_DIRECTORY
-    # overwriting any fiiles that may alrady be in staging
+    # overwriting any files that may alrady be in staging
     apply_local_server_profile
 
     # if a git repo is provided, it has not yet been cloned
     # the only way to provide this hook is via the IN_DIR volume
     # aka "local server-profile"
     # or a previous run of the container that would then checkout
-    # hence the name on-restart
     #
     run_hook "01-start-server.sh"
     # shellcheck disable=SC1090

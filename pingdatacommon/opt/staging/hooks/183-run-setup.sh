@@ -70,10 +70,10 @@ if test ! -f "${_setupArgumentsFile}"; then
     _isSetupArgumentsGenerated=true
 fi
 
-# run the manage-profile to setup the server
+# run manage-profile to setup the server
 echo "Running manage_profile setup ....."
 _manage_profile_cmd="${SERVER_ROOT_DIR}/bin/manage-profile setup \
-    --profile ${PD_PROFILE} \
+    --profile "${PD_PROFILE}" \
     --useEnvironmentVariables \
     --tempProfileDirectory /tmp \
     --doNotStart \

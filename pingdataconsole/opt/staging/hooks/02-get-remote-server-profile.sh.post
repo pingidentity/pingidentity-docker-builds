@@ -8,7 +8,7 @@
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 #
-# Following is provided to support existing implemetnations using legacy keystore locations
+# Following is provided to support existing implementations using legacy keystore locations
 _legacyKeystoreFile="${STAGING_DIR}/keystore"
 _legacyKeystorePinFile="${STAGING_DIR}/.sec/.keystore.pin"
 

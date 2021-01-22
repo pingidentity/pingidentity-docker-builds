@@ -47,6 +47,10 @@ ONBUILD ENV PING_IDENTITY_DEVOPS_FILE=devops-secret
 #-- Path to the staging area where the remote and local server profiles
 #-- can be merged
 ONBUILD ENV STAGING_DIR=${BASE}/staging
+#-- Path to a manifest of files expected in the staging dir on first image startup
+ONBUILD ENV STAGING_MANIFEST=${BASE}/staging-manifest.txt
+#-- Whether to clean the staging dir when the image starts
+ONBUILD ENV CLEAN_STAGING_DIR=true
 #-- Default path to the secrets
 ONBUILD ENV SECRETS_DIR=/run/secrets
 #-- Path to the topology file
