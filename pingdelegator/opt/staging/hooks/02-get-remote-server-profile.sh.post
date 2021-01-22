@@ -11,7 +11,7 @@
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 #
-# Following is provided to support existing implemetnations using legacy certificate locations
+# Following is provided to support existing implementations using legacy certificate locations
 _legacyCertificateFile="${STAGING_DIR}/.sec/nginx.crt"
 _legacyCertificateKeyFile="${STAGING_DIR}/.sec/nginx.key"
 

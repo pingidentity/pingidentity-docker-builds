@@ -729,6 +729,42 @@ contains_ignore_case ()
 }
 
 ###############################################################################
+# clean_staging_file (filename)
+#
+# Processes an individual file for clean_staging_dir. If the staging manifest
+# exists, the specified filename is a file, and the filename is not included
+# in the manifest, then it will be deleted.
+###############################################################################
+clean_staging_file ()
+{
+    if test -f "${STAGING_MANIFEST}" && ! grep -Fxq "${1}" "${STAGING_MANIFEST}"
+    then
+        if test -f "${1}"
+        then
+            rm "${1}"
+        elif test -d "${1}"
+        then
+            rmdir "${1}"
+        fi
+    fi
+}
+
+###############################################################################
+# clean_staging_dir
+#
+# Clean the /opt/staging directory. This method deletes any files under
+# /opt/staging that are not listed in the manifest file
+# /opt/staging-manifest.txt, which is generated when the image is built.
+# If that manifest file does not exist, then no files will be deleted.
+# This method is used to clean the /opt/staging directory before copying a
+# local server profile or pulling a remote profile in.
+###############################################################################
+clean_staging_dir ()
+{
+    find "${STAGING_DIR}" | awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' | while read file; do clean_staging_file "${file}"; done
+}
+
+###############################################################################
 # main
 ###############################################################################
 echo_green "----- Starting hook: ${CALLING_HOOK}"

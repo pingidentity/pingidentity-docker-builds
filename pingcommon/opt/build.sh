@@ -72,6 +72,8 @@ chmod -Rf a+rwx /opt
 
 test -f "/opt/build.sh.post" && sh /opt/build.sh.post
 
+find "/opt/staging" > "/opt/staging-manifest.txt"
+
 # delete self
 rm -f "${0}"
 set +x
