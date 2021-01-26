@@ -16,3 +16,9 @@ COPY [ "/opt/","/opt/"]
 # VOLUME [ "/opt" ]
 
 ONBUILD ENV PD_PROFILE="${STAGING_DIR}/pd.profile"
+
+#-- Flag to force a run of dsjavaproperties --initialize. When this is false,
+#-- the java.properties file will only be regenerated on a restart when there
+#-- is a change in JVM or a change in the product-specific java options, such
+#-- as changing the MAX_HEAP_SIZE value.
+ONBUILD ENV REGENERATE_JAVA_PROPERTIES=false

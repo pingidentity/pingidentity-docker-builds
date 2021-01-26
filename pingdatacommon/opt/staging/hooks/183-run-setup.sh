@@ -44,6 +44,7 @@ if test ${_returnCode} -ne 0 ; then
     echo_red "${jvmOptions}"
     container_failure 183 "Invalid JVM options"
 fi
+save_jvm_settings "${jvmOptions}"
 
 export certificateOptions encryptionOption jvmOptions
 
