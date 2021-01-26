@@ -20,16 +20,22 @@ echo "Restarting container"
 #
 jvmOptions=$( getJvmOptions )
 _returnCode=${?}
-if test ${_returnCode} -ne 0 ; then
+if test ${_returnCode} -ne 0
+then
     echo_red "${jvmOptions}"
     container_failure 183 "Invalid JVM options"
 fi
 
 # Before running any ds tools, remove java.properties and re-create it
-# for the current JVM.
-echo "Re-generating java.properties for current JVM"
-# re-initialize the current java.properties.  a backup in same location will be created.
-${SERVER_ROOT_DIR}/bin/dsjavaproperties --initialize ${jvmOptions}
+# for the current JVM if necessary.
+if ! compare_and_save_jvm_settings "${jvmOptions}" || test "${REGENERATE_JAVA_PROPERTIES}" = "true"
+then
+    echo "JVM options and/or JVM version have changed. Re-generating java.properties for current JVM."
+    # re-initialize the current java.properties.  a backup in same location will be created.
+    ${SERVER_ROOT_DIR}/bin/dsjavaproperties --initialize ${jvmOptions}
+else
+    echo "JVM options and version have not changed. Will not generate a new java.properties file."
+fi
 
 # if this hook is provided it can be executed early on
 run_hook "21-update-server-profile.sh"

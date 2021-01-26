@@ -8,6 +8,9 @@ ${VERBOSE} && set -x
 _setupArgumentsFile="${PD_PROFILE}/setup-arguments.txt"
 _configLDIF="${SERVER_ROOT_DIR}/config/config.ldif"
 
+# Location to hold JVM state information
+JVM_STATE_DIR="${OUT_DIR}/jvm-settings-state"
+
 buildPasswordFileOptions ()
 {
     #
@@ -1409,7 +1412,6 @@ set_server_unavailable ()
     fi
 }
 
-
 # Set the Availability of the server to AVAILABLE with manual status
 set_server_available ()
 {
@@ -1431,4 +1433,57 @@ set_server_available ()
             --reset override-status-code \
             --reset additional-response-contents
     fi
+}
+
+# Save the current java version and jvm options to files in the state directory,
+# to be compared next time this container starts up. If either changes, then a new
+# java.properties file should be generated with dsjavaproperties --initialize.
+#
+# @param ${1} The JVM options that will be added to setup-arguments.txt and passed
+#             to dsjavaproperties if necessary.
+#
+# Usage example: save_jvm_settings "--jvmTuningParameter AGGRESSIVE --maxHeapSize 800m"
+#
+save_jvm_settings ()
+{
+    mkdir -p "${JVM_STATE_DIR}"
+
+    # Write passed JVM options for dsjavaproperties
+    echo "${1}" > "${JVM_STATE_DIR}/jvmOptions"
+
+    # Write java version info
+    # For some reason "java -version" writes its output to stderr instead of stdout
+    java -version 2> "${JVM_STATE_DIR}/jvmVersion"
+}
+
+# Compare current JVM options and version to previous saved values. If previous
+# values are present and match the current, this method will return 0. Otherwise,
+# it will return 1.
+#
+# @param ${1} The JVM options that will be added to setup-arguments.txt and passed
+#             to dsjavaproperties if necessary.
+#
+# Usage example: compare_and_save_jvm_settings "--jvmTuningParameter AGGRESSIVE --maxHeapSize 800m"
+#
+compare_and_save_jvm_settings ()
+{
+    if test -f "${JVM_STATE_DIR}/jvmOptions" && test -f "${JVM_STATE_DIR}/jvmVersion"
+    then
+        mv "${JVM_STATE_DIR}/jvmOptions" "${JVM_STATE_DIR}/jvmOptions.prev"
+        mv "${JVM_STATE_DIR}/jvmVersion" "${JVM_STATE_DIR}/jvmVersion.prev"
+    fi
+
+    # Write new settings for future restarts
+    save_jvm_settings "${1}"
+
+    # Determine if there are any changes
+    _diffRC=1
+    if test -f "${JVM_STATE_DIR}/jvmOptions.prev" && test -f "${JVM_STATE_DIR}/jvmVersion.prev"
+    then
+        diff "${JVM_STATE_DIR}/jvmOptions.prev" "${JVM_STATE_DIR}/jvmOptions" > /dev/null && \
+            diff "${JVM_STATE_DIR}/jvmVersion.prev" "${JVM_STATE_DIR}/jvmVersion" > /dev/null && \
+            _diffRC=0
+    fi
+
+    return ${_diffRC}
 }
