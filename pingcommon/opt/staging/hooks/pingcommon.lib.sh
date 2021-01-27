@@ -656,18 +656,19 @@ source_container_env ()
 ###############################################################################
 # source_secret_envs
 #
-# source and export all ${SECRETS_DIR}/*.env files
+# source and export all ${SECRETS_DIR}/*.env files (including subdirectories)
 ###############################################################################
 source_secret_envs ()
 {
-    for _secretProps in "${SECRETS_DIR}"/*.env; do
-        test -f "${_secretProps}" || break # handle if no *.env files found
-
+    find /run/secrets -type f -name '*.env' -print > /tmp/_envFile
+    while IFS= read -r _envFile
+    do
         set -o allexport
         # shellcheck source=/dev/null
-        . "${_secretProps}"
+        . "${_envFile}"
         set +o allexport
-    done
+    done < /tmp/_envFile
+    rm -f /tmp/_envFile
 }
 
 ###############################################################################
