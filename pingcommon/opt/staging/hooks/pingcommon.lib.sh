@@ -660,15 +660,18 @@ source_container_env ()
 ###############################################################################
 source_secret_envs ()
 {
-    find /run/secrets -type f -name '*.env' -print > /tmp/_envFile
-    while IFS= read -r _envFile
-    do
-        set -o allexport
-        # shellcheck source=/dev/null
-        . "${_envFile}"
-        set +o allexport
-    done < /tmp/_envFile
-    rm -f /tmp/_envFile
+    if test -d "${SECRETS_DIR}"
+    then
+        find "${SECRETS_DIR}" -type f -name '*.env' -print > /tmp/_envFile
+        while IFS= read -r _envFile
+        do
+            set -o allexport
+            # shellcheck source=/dev/null
+            . "${_envFile}"
+            set +o allexport
+        done < /tmp/_envFile
+        rm -f /tmp/_envFile
+    fi
 }
 
 ###############################################################################
