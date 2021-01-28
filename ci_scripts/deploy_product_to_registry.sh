@@ -93,7 +93,7 @@ tag_and_push ()
                 docker --config "${_docker_config_hub_dir}" trust sign "${_target}"
                 ;;
             $ARTIFACTORY_REGISTRY)
-                export DOCKER_CONTENT_TRUST_SERVER="https://${ARTIFACTORY_NOTARY_SERVER_IP}:4443"
+                export DOCKER_CONTENT_TRUST_SERVER="https://notaryserver:4443"
                 docker --config "${_docker_config_artifactory_dir}" trust revoke --yes "${_target}"
                 docker --config "${_docker_config_artifactory_dir}" trust sign "${_target}"
                 unset DOCKER_CONTENT_TRUST_SERVER
