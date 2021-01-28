@@ -93,10 +93,10 @@ tag_and_push ()
                 docker --config "${_docker_config_hub_dir}" trust sign "${_target}"
                 ;;
             $ARTIFACTORY_REGISTRY)
-                # See https://www.jfrog.com/confluence/display/JFROG/Working+with+Docker+Content+Trust
-                # docker --config "${_docker_config_artifactory_dir}" trust revoke --yes "${_target}"
-                # docker --config "${_docker_config_artifactory_dir}" trust sign "${_target}"
-                docker --config "${_docker_config_artifactory_dir}" push "${_target}"
+                export DOCKER_CONTENT_TRUST_SERVER="https://${ARTIFACTORY_NOTARY_SERVER_IP}:4443"
+                docker --config "${_docker_config_artifactory_dir}" trust revoke --yes "${_target}"
+                docker --config "${_docker_config_artifactory_dir}" trust sign "${_target}"
+                unset DOCKER_CONTENT_TRUST_SERVER
                 ;;
             *)
                 echo_red "ERROR: Registry to Deploy To Not Recognized For: ${targetRegistry}"
@@ -233,7 +233,7 @@ _docker_config_ecr_dir="/root/.docker"
 _docker_config_artifactory_dir="/root/.docker-artifactory"
 
 #Pull down Docker Trust JSON on signature data
-_signed_tags=$( docker trust inspect "docker.io/pingidentity/${productToDeploy}" | jq "[.[0].SignedTags[].SignedTag]" )
+_signed_tags=$( docker trust inspect "${DOCKER_HUB_REGISTRY}/${productToDeploy}" | jq "[.[0].SignedTags[].SignedTag]" )
 
 # _dateStamp=$( date '%y%m%d')
 banner "Deploying ${productToDeploy}"
