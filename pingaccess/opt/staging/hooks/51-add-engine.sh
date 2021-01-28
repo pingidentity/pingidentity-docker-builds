@@ -18,6 +18,7 @@ _out="/tmp/pa.api.request.out"
 _configzip="/tmp/engine-config.zip"
 _pahost=${PA_CONSOLE_HOST}
 _paport=${PA_ADMIN_PORT}
+_password=${PING_IDENTITY_PASSWORD:-PA_ADMIN_PASSWORD_INITIAL}
 # The environment variables PA_ADMIN_PRIVATE_... are automatically created from
 # ping-devops helm charts
 test -n "${PA_ADMIN_PRIVATE_HOSTNAME}" && _pahost=${PA_ADMIN_PRIVATE_HOSTNAME}
