@@ -450,7 +450,19 @@ then
     mkdir -p "${_docker_config_hub_dir}/trust/private"
     cp "${DOCKER_TRUST_PRIVATE_KEY_FILE}" "${_docker_config_hub_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
     chmod 600 "${_docker_config_hub_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
-    docker trust key load "${_docker_config_hub_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
+    docker --config "${_docker_config_hub_dir}" trust key load "${_docker_config_hub_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
+
+    #Use private key file with Artifactory
+    mkdir -p "${_docker_config_artifactory_dir}/trust/private"
+    cp "${DOCKER_TRUST_PRIVATE_KEY_FILE}" "${_docker_config_artifactory_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
+    chmod 600 "${_docker_config_artifactory_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
+    docker --config "${_docker_config_artifactory_dir}" trust key load "${_docker_config_artifactory_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
+
+    #Provide Root CA Certificate for Artifactory Notary Server
+    requirePipelineFile ARTIFACTORY_ROOT_CA_FILE
+    echo "Using root CA certificate file'${ARTIFACTORY_ROOT_CA_FILE}'"
+    cp "${ARTIFACTORY_ROOT_CA_FILE}" "/usr/local/share/ca-certificates/root-ca.crt"
+    update-ca-certificates
 
     # shellcheck disable=SC2155
     gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
