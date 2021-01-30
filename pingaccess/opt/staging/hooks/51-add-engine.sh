@@ -70,14 +70,14 @@ then
     echo "Retrieving Key Pair ID from administration API..."
     _pa_curl "${_httpsListenersURL}"
     test ${?} -ne 200 && die_on_error 51 "Could not retrieve key-pair ID using ${_httpsListenersURL}"
-    keypairid=$( jq '.items[] | select(.name=="CONFIG QUERY") | .keyPairId' "${_out}" )
+    keypairid=$( jq -r '.items[] | select(.name=="CONFIG QUERY") | .keyPairId' "${_out}" )
     echo "KeyPairId: ${keypairid}"
 
     # Get KeyPair Alias
     echo "Retrieving the Key Pair alias..."
     _pa_curl "${_keyPairsURL}"
     test ${?} -ne 200 && die_on_error 51 "Could not retrieve key-pair alias using ${_keyPairsURL}"
-    kpalias=$( jq '.items[] | select(.id=='${keypairid}') | .alias' "${_out}" )
+    kpalias=$( jq -r '.items[] | select(.id=='${keypairid}') | .alias' "${_out}" )
     echo "Key Pair Alias: ${kpalias}"
 
     # Get Certificate ID
@@ -85,7 +85,7 @@ then
     _pa_curl  "${_certsURL}"
     test ${?} -ne 200 && die_on_error 51 "Could not retrieve certificate ID using ${_certsURL}"
     # Escaped double-quotes are used below to handle aliases that contain spaces
-    certid=$( jq ".items[] | select(.alias==\"${kpalias}\" and .keyPair==true) | .id" "${_out}" )
+    certid=$( jq -r ".items[] | select(.alias==\"${kpalias}\" and .keyPair==true) | .id" "${_out}" )
     echo "Engine Cert ID: ${certid}"
 
     host=$( hostname )
@@ -97,7 +97,7 @@ then
             --user "${ROOT_USER}:${_password}" \
             --header "X-Xsrf-Header: PingAccess" \
             --data '{"name":"'"${host}"'", "selectedCertificateId": "'"${certid}"'"}' \
-            "${_enginesURL}" | jq '.id' )
+            "${_enginesURL}" | jq -r '.id' )
 
     echo "EngineId: ${engineid}"
     echo "Retrieving the engine config..."
