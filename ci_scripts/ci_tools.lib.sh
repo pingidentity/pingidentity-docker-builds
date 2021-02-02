@@ -464,6 +464,10 @@ then
     cp "${ARTIFACTORY_ROOT_CA_FILE}" "/usr/local/share/ca-certificates/root-ca.crt"
     update-ca-certificates
 
+    requirePipelineVar ARTIFACTORY_NOTARY_SERVER_IP
+    echo "Using notary server IP value'${ARTIFACTORY_NOTARY_SERVER_IP}'"
+    echo "${ARTIFACTORY_NOTARY_SERVER_IP} notaryserver" >> /etc/hosts
+
     # shellcheck disable=SC2155
     gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
     # shellcheck disable=SC2155
