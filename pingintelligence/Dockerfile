@@ -4,9 +4,10 @@
 #- and associated hook scripts to create and run PingIntelligence ASE instances.
 #-
 #- ## Related Docker Images
-#- - pingidentity/pingbase - Parent Image
+#- - `pingidentity/pingbase` - Parent Image
 #- 	>**This image inherits, and can use, Environment Variables from [pingidentity/pingbase](https://devops.pingidentity.com/docker-images/pingbase/)**
-#- - pingidentity/pingdownloader - Used to download product bits
+#- - `pingidentity/pingcommon` - Common Ping files (i.e. hook scripts)
+#- - `pingidentity/pingdownloader` - Used to download product bits
 #-
 ARG PRODUCT
 ARG SHIM
