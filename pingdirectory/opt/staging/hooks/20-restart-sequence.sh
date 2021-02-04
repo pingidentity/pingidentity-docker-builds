@@ -192,3 +192,9 @@ if test ${_manageProfileRC} -ne 0 ; then
     container_failure 20 "Resolve the issues with your server-profile"
 fi
 
+# Rebuild indexes if necessary
+echo ""
+echo "Rebuilding any new or untrusted indexes for base DN ${USER_BASE_DN}"
+rebuild-index --bulkRebuild new --bulkRebuild untrusted --baseDN "${USER_BASE_DN}"
+exit 0
+
