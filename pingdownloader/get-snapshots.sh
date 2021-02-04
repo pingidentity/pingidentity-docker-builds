@@ -39,7 +39,7 @@ _curlSafe ()
 
 _getURLForProduct ()
 {
-    _baseURL="http://nexus-qa.austin-eng.ping-eng.com:8081/nexus/service/local/repositories/snapshots/content"
+    _baseURL="${SNAPSHOT_NEXUS_URL}"
     case "${1}" in
         symphonic-pap-packaged)
             _basePath="com/pingidentity/pd/governance"
@@ -50,14 +50,13 @@ _getURLForProduct ()
             _url="${_baseURL:+${_baseURL}/${_basePath}/${1}}"
             ;;
         pingfederate)
-            _url="https://bld-fed01.corp.pingidentity.com/view/Gitlab%20Builds/job/Mainline/job/master/lastSuccessfulBuild"
+            _url="${SNAPSHOT_BLD_FED_URL}"
             ;;
         pingcentral)
-            # _url="https://gitlab.corp.pingidentity.com/api/v4/projects/2990/jobs/artifacts/master/raw/distribution/target" 
-            _url="https://art01.corp.pingidentity.com/artifactory/repo/com/pingidentity/pass/pass-common"
+            _url="${SNAPSHOT_ARTIFACTORY_URL}/pass/pass-common"
             ;;
         pingaccess)
-            _url="https://art01.corp.pingidentity.com/artifactory/repo/com/pingidentity/products/pingaccess"
+            _url="${SNAPSHOT_ARTIFACTORY_URL}/products/pingaccess"
             ;;
         *)
             _url=""
@@ -69,10 +68,6 @@ _getURLForProduct ()
 _getLatestSnapshotVersionForProduct ()
 {
     case "${1}" in
-        # pingcentral)
-        #     _curl "https://art01.corp.pingidentity.com/artifactory/repo/com/pingidentity/pass/pass-common/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/latest)' -
-        #     # echo "1.4.0-SNAPSHOT"
-        #     ;;
         pingfederate)
             _curl "$( _getURLForProduct "${1}" )/artifact/pf-server/HuronPeak/assembly/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
             ;;
@@ -89,9 +84,6 @@ _getLatestSnapshotVersionForProduct ()
 _getLatestSnapshotIDForProductVersion ()
 {
     case "${1}" in
-        # pingcentral)
-        #     date '+%Y%m%d'
-        #     ;;
         pingfederate)
             _curl "$( _getURLForProduct "${1}" )/buildNumber" 
             ;;
@@ -109,7 +101,7 @@ _getLatestSnapshotImageForProductVersionID ()
 {
     case "${1}" in
         pingcentral)
-            _curlSafeFile ${TARGET_FILE} -H "PRIVATE-TOKEN: ${PING_IDENTITY_GITLAB_TOKEN}" "https://gitlab.corp.pingidentity.com/api/v4/projects/2990/jobs/artifacts/master/raw/distribution/target/ping-central-${2}.zip?job=verify-master-job"
+            _curlSafeFile ${TARGET_FILE} -H "PRIVATE-TOKEN: ${PING_IDENTITY_GITLAB_TOKEN}" "https://${INTERNAL_GITLAB_URL}/api/v4/projects/2990/jobs/artifacts/master/raw/distribution/target/ping-central-${2}.zip?job=verify-master-job"
             ;;
         pingfederate)
             _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct "${1}" )/artifact/pf-server/HuronPeak/assembly/target/${1}-${2}-${3}.zip"
