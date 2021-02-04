@@ -10,6 +10,9 @@ ${VERBOSE} && set -x
 # shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
 test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 
+# shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdirectory.lib.sh
+test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib.sh"
+
 #
 # If we are:
 #  - kubernetes
@@ -47,29 +50,24 @@ fi
 #
 # If we are the GENESIS state, then process any templates if they are defined.
 #
+
 if test "${PD_STATE}" = "GENESIS" ;
 then
     echo "PD_STATE is GENESIS ==> Processing Templates"
 
-    # TODO need to process all ldif subdirectories, not just userRoot
-    LDIF_DIR="${PD_PROFILE}/ldif/userRoot"
-    TEMPLATE_DIR="${LDIF_DIR}"
     test -z "${MAKELDIF_USERS}" && MAKELDIF_USERS=0
 
-    # FIXME: this will break for file names with whitespaces
-    for template in $( find "${TEMPLATE_DIR}" -type f -iname \*.template 2>/dev/null ) ;
-    do
-            echo "Processing (${template}) template with ${MAKELDIF_USERS} users..."
-            GENERATED_LDIF_FILENAME="${template%.*}.ldif"
+    find "${PD_PROFILE}/ldif" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | while read _ldifDir
+        do
+        find "${_ldifDir}" -type f -iname \*.template 2>/dev/null | while read _template
+        do
+            echo "Processing (${_template}) template with ${MAKELDIF_USERS} users..."
+            _generatedLdifFilename="${_template%.*}.ldif"
             "${SERVER_ROOT_DIR}/bin/make-ldif" \
-                --templateFile "${template}"  \
-                --ldifFile "${GENERATED_LDIF_FILENAME}" \
+                --templateFile "${_template}"  \
+                --ldifFile "${_generatedLdifFilename}" \
                 --numThreads 3
-
-            # Add the generated ldif file to the profile's variables-ignore.txt file, to avoid
-            # the potential memory overhead of variable substitution on a large file.
-            GENERATED_LDIF_BASENAME=$( basename "${GENERATED_LDIF_FILENAME}" )
-            echo "ldif/userRoot/${GENERATED_LDIF_BASENAME}" >> "${PD_PROFILE}/variables-ignore.txt"
+        done
     done
 else
     echo "PD_STATE is not GENESIS ==> Skipping Templates"
@@ -84,3 +82,5 @@ else
 
     export_container_env _skipImports
 fi
+
+appendTemplatesToVariablesIgnore
