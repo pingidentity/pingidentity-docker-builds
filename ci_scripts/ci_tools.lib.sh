@@ -269,7 +269,7 @@ _curl ()
 ################################################################################
 _getLatestSnapshotVersionForProduct ()
 {
-    _baseURL="http://nexus-qa.austin-eng.ping-eng.com:8081/nexus/service/local/repositories/snapshots/content"
+    _baseURL="${SNAPSHOT_NEXUS_URL}"
     _basePath="com/unboundid/product/ds"
     case "${1}" in
         pingdirectory)
@@ -296,14 +296,13 @@ _getLatestSnapshotVersionForProduct ()
             _curl "${_baseURL}/${_basePath}/${_product}/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/latest)' -
             ;;
         pingcentral)
-            _curl "https://art01.corp.pingidentity.com/artifactory/repo/com/pingidentity/pass/pass-common/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/metadata/versioning/latest)' -
-            # echo "1.4.0-SNAPSHOT"
+            _curl "${SNAPSHOT_ARTIFACTORY_URL}/pass/pass-common/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/metadata/versioning/latest)' -
             ;;
         pingfederate)
-            _curl "https://bld-fed01.corp.pingidentity.com/view/Gitlab%20Builds/job/Mainline/job/master/lastSuccessfulBuild/artifact/pf-server/HuronPeak/assembly/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
+            _curl "${SNAPSHOT_BLD_FED_URL}/artifact/pf-server/HuronPeak/assembly/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
             ;;
         pingaccess)
-            _curl "https://art01.corp.pingidentity.com/artifactory/repo/com/pingidentity/products/pingaccess/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/metadata/versioning/latest)' -
+            _curl "${SNAPSHOT_ARTIFACTORY_URL}/products/pingaccess/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/metadata/versioning/latest)' -
             ;;
     esac
     return ${?}
