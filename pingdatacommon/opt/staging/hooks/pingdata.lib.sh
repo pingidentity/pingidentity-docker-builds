@@ -168,18 +168,10 @@ _validateCertificateOptions ()
     else
         #
         # The cert file value isn't set, so we will attempt to set them
+        # based on the SECRETS_DIR.
         #
 
-        # Try to set the certificate based on the SECRETS_DIR.  If it is not
-        # found there, then check the SERVER_ROOT/config, as it might be set
-        # there after a RESTART (from original generateSelfSignedCert) or
-        # from a server-profile (legacy)
-
         _checkAndSetCertDefaults "${SECRETS_DIR}"
-
-        if test -z "$( get_value "${_certFile}" )" ; then
-            _checkAndSetCertDefaults "${SERVER_ROOT_DIR}/config"
-        fi
     fi
 }
 
@@ -370,7 +362,6 @@ generateSetupArguments ()
     --verbose \
     --acceptLicense \
     --skipPortCheck \
-    --licenseKeyFile "${LICENSE_DIR}/${LICENSE_FILE_NAME}" \
     --instanceName ${INSTANCE_NAME} \
     --location ${LOCATION} \
     $(test ! -z "${LDAP_PORT}" && echo "--ldapPort ${LDAP_PORT}") \

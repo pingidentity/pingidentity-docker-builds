@@ -71,6 +71,14 @@ if test ! -f "${_setupArgumentsFile}"; then
     _isSetupArgumentsGenerated=true
 fi
 
+# Copy the license into the server profile
+_pdProfileLicense="${PD_PROFILE}/server-root/pre-setup/${LICENSE_FILE_NAME}"
+if test ! -f "${_pdProfileLicense}" ; then
+    echo "Adding license file to pd profile"
+    mkdir -p "${PD_PROFILE}/server-root/pre-setup"
+    cp "${LICENSE_DIR}/${LICENSE_FILE_NAME}" "${_pdProfileLicense}"
+fi
+
 # run manage-profile to setup the server
 echo "Running manage_profile setup ....."
 _manage_profile_cmd="${SERVER_ROOT_DIR}/bin/manage-profile setup \
