@@ -6,6 +6,8 @@ services:
     command: wait-for pingfederate:9031 -t 900 -- entrypoint.sh start-server
     environment:
       - SERVER_PROFILE_PATH=baseline/pingaccess
+      - PA_ADMIN_PRIVATE_HOSTNAME=pingaccess
+      - PF_ADMIN_PRIVATE_PORT_HTTPS=9999
     env_file:
       - /tmp/integration_tests.properties
     ulimits:

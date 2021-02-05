@@ -1260,30 +1260,6 @@ pdg-pd.latest:
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
 
-
-pa-cluster.latest:
-  stage: test.integration
-  script:
-    - ci_scripts/run_integration.sh pa-cluster.latest
-  only:
-    changes:
-      - integration_tests/**/pa-cluster*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingaccess/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i
-
 pi-basic.latest:
   stage: test.integration
   script:
