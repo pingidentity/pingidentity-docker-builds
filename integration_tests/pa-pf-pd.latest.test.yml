@@ -97,7 +97,7 @@ services:
   sut:
     image: ${DEPS}postman/newman
     entrypoint: ["/usr/bin/env"]
-    command: sh -c "tail -f /dev/null && /tmp/wait-for pingaccess:3000 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
+    command: sh -c "/tmp/wait-for pingaccess:3000 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
     volumes:
       - ./pa-pf-pd.postman_collection.json:/tmp/collection.json
       - ./wait-for:/tmp/wait-for
