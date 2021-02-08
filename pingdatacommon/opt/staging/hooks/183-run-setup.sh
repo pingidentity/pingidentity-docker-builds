@@ -115,5 +115,5 @@ fi
 # It is important to set the server back available during the 80-post-start.sh
 # hook.
 if test "${PING_PRODUCT}" = "PingDirectory"; then
-    set_server_unavailable "configuring server"
+    set_server_unavailable "Configuring server" offline
 fi
