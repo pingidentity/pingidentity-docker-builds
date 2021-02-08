@@ -1364,19 +1364,49 @@ removeDefunctServer()
 }
 
 # Get dsconfig options, depending if the servers is running or not (offline)
+#
+# @param ${1} server state ("online" or "offline"). If not specified or not
+#             a valid value, then wait-for will be used to determine whether
+#             the server is online or not.
+#
 get_dsconfig_options ()
 {
-    # shellcheck disable=SC2039
-    wait-for "${HOSTNAME}:${LDAPS_PORT}" -t 1 >/dev/null 2>/dev/null
+    case "$1" in
+        online)
+            _isOnline=true
+            ;;
+        offline)
+            _isOnline=false
+            ;;
+        *)
+            # shellcheck disable=SC2039
+            wait-for "${HOSTNAME}:${LDAPS_PORT}" -t 1 >/dev/null 2>/dev/null
+            if test $? -eq 0
+            then
+                _isOnline=true
+            else
+                _isOnline=false
+            fi
+            ;;
+    esac
 
-    if test $? -eq 0; then
-        echo "--no-prompt --quiet --hostname ${HOSTNAME} --port ${LDAPS_PORT} --bindDN ${ROOT_USER_DN} --bindPasswordFile ${ROOT_USER_PASSWORD_FILE} --useSSL --trustAll"
+    if test "${_isOnline}" = "true"
+    then
+        echo "--no-prompt --quiet --noPropertiesFile --hostname ${HOSTNAME} --port ${LDAPS_PORT} --bindDN ${ROOT_USER_DN} --bindPasswordFile ${ROOT_USER_PASSWORD_FILE} --useSSL --trustAll"
     else
-        echo "--no-prompt --quiet --offline"
+        echo "--no-prompt --quiet --offline --noPropertiesFile"
     fi
 }
 
-# Set the Availability of the server to UNAVAILABLE with manual status
+# Set the Availability returned by the server's availability servlets
+# to UNAVAILABLE with a custom response message.
+#
+# @param ${1} custom response message to display in availability servlets.
+#
+# @param ${2} server state ("online" or "offline"). If not specified or not
+#             a valid value, then wait-for will be used to determine whether
+#             the server is online or not.
+#
 set_server_unavailable ()
 {
     _status="${1:=not ready}"
@@ -1385,44 +1415,55 @@ set_server_unavailable ()
     then
         _jsonMsg="{ \"status\":\"${_status}\", \"source\":\"${0}\", \"udpated\":\"$(date)\" }"
 
-        _dsconfigOptions=$(get_dsconfig_options)
+        _dsconfigOptions=$(get_dsconfig_options "$2")
+        _batchFile=$(mktemp)
 
         echo "Setting Server to Unavailable - ${_jsonMsg}"
 
-        # shellcheck disable=SC2086
-        dsconfig set-http-servlet-extension-prop ${_dsconfigOptions} \
-            --extension-name "Available or Degraded State" \
-            --set override-status-code:503 \
-            --set "additional-response-contents:${_jsonMsg}"
+        echo "dsconfig set-http-servlet-extension-prop \\
+            --extension-name \"Available or Degraded State\" \\
+            --set override-status-code:503 \\
+            --set 'additional-response-contents:${_jsonMsg}'
+
+        dsconfig set-http-servlet-extension-prop \\
+            --extension-name \"Available State\" \\
+            --set override-status-code:503 \\
+            --set 'additional-response-contents:${_jsonMsg}'" > "${_batchFile}"
 
         # shellcheck disable=SC2086
-        dsconfig set-http-servlet-extension-prop ${_dsconfigOptions} \
-            --extension-name "Available State" \
-            --set override-status-code:503 \
-            --set "additional-response-contents:${_jsonMsg}"
+        dsconfig ${_dsconfigOptions} --batch-file "${_batchFile}"
+        rm "${_batchFile}"
     fi
 }
 
-# Set the Availability of the server to AVAILABLE with manual status
+# Set the Availability of the server to AVAILABLE.
+#
+# @param ${1} server state ("online" or "offline"). If not specified or not
+#             a valid value, then wait-for will be used to determine whether
+#             the server is online or not.
+#
 set_server_available ()
 {
     if test "$( isImageVersionGtEq 8.2.0 )" -eq 0
     then
-        _dsconfigOptions=$(get_dsconfig_options)
+        _dsconfigOptions=$(get_dsconfig_options "$1")
+        _batchFile=$(mktemp)
 
         echo "Setting Server to Available"
 
-        # shellcheck disable=SC2086
-        dsconfig set-http-servlet-extension-prop ${_dsconfigOptions} \
-            --extension-name "Available or Degraded State" \
-            --reset override-status-code \
+        echo "dsconfig set-http-servlet-extension-prop \\
+            --extension-name \"Available or Degraded State\" \\
+            --reset override-status-code \\
             --reset additional-response-contents
 
+        dsconfig set-http-servlet-extension-prop \\
+            --extension-name \"Available State\" \\
+            --reset override-status-code \\
+            --reset additional-response-contents" > "${_batchFile}"
+
         # shellcheck disable=SC2086
-        dsconfig set-http-servlet-extension-prop ${_dsconfigOptions} \
-            --extension-name "Available State" \
-            --reset override-status-code \
-            --reset additional-response-contents
+        dsconfig ${_dsconfigOptions} --batch-file "${_batchFile}"
+        rm "${_batchFile}"
     fi
 }
 
