@@ -198,6 +198,10 @@ do
             --build-arg DEVOPS_KEY="${PING_IDENTITY_DEVOPS_KEY}" \
             --build-arg PRODUCT="${productToBuild}" \
             --build-arg VERSION=${_buildVersion} \
+            --build-arg SNAPSHOT_ARTIFACTORY_URL="${SNAPSHOT_ARTIFACTORY_URL}" \
+            --build-arg SNAPSHOT_BLD_FED_URL="${SNAPSHOT_BLD_FED_URL}" \
+            --build-arg SNAPSHOT_NEXUS_URL="${SNAPSHOT_NEXUS_URL}" \
+            --build-arg INTERNAL_GITLAB_URL="${INTERNAL_GITLAB_URL}" \
             ${PING_IDENTITY_SNAPSHOT:+--build-arg PING_IDENTITY_SNAPSHOT="${PING_IDENTITY_SNAPSHOT}"} \
             ${PING_IDENTITY_GITLAB_TOKEN:+--build-arg PING_IDENTITY_GITLAB_TOKEN="${PING_IDENTITY_GITLAB_TOKEN}"} \
             ${VERBOSE:+--build-arg VERBOSE="true"} \

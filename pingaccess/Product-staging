@@ -6,6 +6,7 @@ FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
 ARG PRODUCT=pingaccess
 ARG VERSION
 ARG PING_IDENTITY_SNAPSHOT
+ARG SNAPSHOT_ARTIFACTORY_URL
 
 ARG DEVOPS_USER
 ARG DEVOPS_KEY
@@ -13,6 +14,7 @@ ARG VERBOSE
 
 COPY tmp /tmp
 
+ENV SNAPSHOT_ARTIFACTORY_URL=${SNAPSHOT_ARTIFACTORY_URL}
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} \
         --version ${VERSION} \
