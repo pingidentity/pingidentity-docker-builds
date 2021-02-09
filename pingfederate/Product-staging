@@ -5,6 +5,7 @@ FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
 ARG PRODUCT
 ARG VERSION
 ARG PING_IDENTITY_SNAPSHOT
+ARG SNAPSHOT_BLD_FED_URL
 
 
 # MODE could be standalone, engine, upgrade
@@ -29,6 +30,7 @@ COPY tmp /tmp
 # The line below avoids extracting the upgrade utility
 #        -x pingfederate-*/pingfederate/upgrade/* \
 
+ENV SNAPSHOT_BLD_FED_URL=${SNAPSHOT_BLD_FED_URL}
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} \
         --version ${VERSION} \

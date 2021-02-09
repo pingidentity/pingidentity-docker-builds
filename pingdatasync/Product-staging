@@ -8,9 +8,11 @@ ARG DEVOPS_USER
 ARG DEVOPS_KEY
 ARG VERBOSE
 ARG PING_IDENTITY_SNAPSHOT
+ARG SNAPSHOT_NEXUS_URL
 
 COPY tmp /tmp
 
+ENV SNAPSHOT_NEXUS_URL=${SNAPSHOT_NEXUS_URL}
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} \
         --version ${VERSION} \
