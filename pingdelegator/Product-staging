@@ -6,9 +6,12 @@ ARG PRODUCT
 ARG VERSION
 ARG DEVOPS_USER
 ARG DEVOPS_KEY
+ARG PING_IDENTITY_SNAPSHOT
+ARG SNAPSHOT_DELEGATOR_URL
 
 COPY tmp /tmp
 
+ENV SNAPSHOT_DELEGATOR_URL=${SNAPSHOT_DELEGATOR_URL}
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product delegator \
         --version ${VERSION} \

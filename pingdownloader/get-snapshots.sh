@@ -58,6 +58,9 @@ _getURLForProduct ()
         pingaccess)
             _url="${SNAPSHOT_ARTIFACTORY_URL}/products/pingaccess"
             ;;
+        pingdelegator)
+            _url="${SNAPSHOT_DELEGATOR_URL}"
+            ;;
         *)
             _url=""
             ;;
@@ -74,6 +77,9 @@ _getLatestSnapshotVersionForProduct ()
         pingaccess|pingcentral)
             _curl "$( _getURLForProduct "${1}" )/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/metadata/versioning/latest)' -
             ;;
+        pingdelegator)
+            _curl "$( _getURLForProduct "${1}" )/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/snapshotVersions/snapshotVersion/value)' -
+            ;;
         *)
             _curl "$( _getURLForProduct "${1}" )/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/latest)' -
         ;;
@@ -89,6 +95,9 @@ _getLatestSnapshotIDForProductVersion ()
             ;;
         pingaccess|pingcentral)
             _curl "$( _getURLForProduct "${1}" )/${2}/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' |xmllint --xpath 'concat(string(/metadata/versioning/snapshot/timestamp),"-",string(/metadata/versioning/snapshot/buildNumber))' -
+            ;;
+        pingdelegator)
+            _curl "$( _getURLForProduct "${1}" )/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/snapshotVersions/snapshotVersion/classifier)' -
             ;;
         *)
             _curl "$( _getURLForProduct "${1}" )/${2}/maven-metadata.xml" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -
@@ -109,6 +118,9 @@ _getLatestSnapshotImageForProductVersionID ()
         pingaccess)
             _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct "${1}" )/${2}/${1}-${2%-SNAPSHOT}-${3}.zip"
             ;;
+        pingdelegator)
+            _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct "${1}" )/pingdirectory-delegator-${2}-${3}.zip"
+            ;;
         *)
             _curlSafeFile "${TARGET_FILE}" "$( _getURLForProduct "${1}" )/${2}/${1}-${3}-image.zip"
             ;;
@@ -122,6 +134,9 @@ _getLatestSnapshotImageSignatureForProductVersionID ()
         # bad students who do not sign their work
         pingfederate|pingcentral|pingaccess)
             sha1sum /tmp/product.zip | awk '{print $1}' > "${TARGET_SIGNATURE}"
+            ;;
+        pingdelegator)
+            _curlSafeFile "${TARGET_SIGNATURE}" "$( _getURLForProduct "${1}")/pingdirectory-delegator-${2}-${3}.zip.sha1"
             ;;
         *)
             _curlSafeFile "${TARGET_SIGNATURE}" "$( _getURLForProduct "${1}" )/${2}/${1}-${3}-image.zip.sha1"
@@ -158,6 +173,9 @@ case "${1}" in
         ;;
     pingdatagovernancepap)
         _product=symphonic-pap-packaged
+        ;;
+    delegator)
+        _product=pingdelegator
         ;;
     pingfederate|pingaccess|pingcentral)
         _product="${1}"
