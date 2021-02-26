@@ -1,8 +1,8 @@
 {
-    "latest": "10.2.1",
+    "latest": "10.2.2",
     "versions": [
         {
-            "version": "10.2.1",
+            "version": "10.2.2",
             "preferredShim": "alpine",
             "shims": [
                 {
@@ -13,6 +13,23 @@
                             "jvm": "az11",
                             "build": true,
                             "deploy": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "version": "10.2.1",
+            "preferredShim": "alpine",
+            "shims": [
+                {
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": false,
+                            "deploy": false
                         }
                     ]
                 }
