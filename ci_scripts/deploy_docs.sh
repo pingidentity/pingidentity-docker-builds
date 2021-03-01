@@ -64,9 +64,9 @@ append_footer ()
 
     append_doc ""
     append_doc "---"
-    test -n "${_srcFile}" && append_doc "This document auto-generated from _[${_srcFile}](https://github.com/pingidentity/pingidentity-docker-builds/blob/master/${_srcFile})_"
+    test -n "${_srcFile}" && append_doc "This document is auto-generated from _[${_srcFile}](https://github.com/pingidentity/pingidentity-docker-builds/blob/master/${_srcFile})_"
     append_doc ""
-    append_doc "Copyright (c) 2020 Ping Identity Corporation. All rights reserved."
+    append_doc "Copyright (c) 2021 Ping Identity Corporation. All rights reserved."
 }
 
 #
@@ -83,8 +83,8 @@ append_env_table_header ()
 
                 append_doc "## Environment Variables"
                 append_doc "In addition to environment variables inherited from **[pingidentity/pingbase](https://devops.pingidentity.com/docker-images/pingbase/)**,"
-                append_doc "the following environment \`ENV\` variables can be used with "
-                append_doc "this image. "
+                append_doc "the following environment \`ENV\` variables can be used with"
+                append_doc "this image."
                 append_doc ""
 
                 append_doc "| ENV Variable  | Default     | Description"
@@ -97,8 +97,8 @@ append_env_table_header ()
                 ENV_TABLE_ACTIVE="true"
 
                 append_doc "## Environment Variables"
-                append_doc "The following environment \`ENV\` variables can be used with "
-                append_doc "this image. "
+                append_doc "The following environment \`ENV\` variables can be used with"
+                append_doc "this image."
                 append_doc ""
 
                 append_doc "| ENV Variable  | Default     | Description"
@@ -117,7 +117,7 @@ append_env_variable ()
     envDesc="${1}" && shift
     envDef="${1}" && shift
 
-    append_doc "| ${envVar}  | ${envDef}  | ${envDesc}"
+    append_doc "| ${envVar}  | ${envDef}  | ${envDesc} |"
 }
 
 #

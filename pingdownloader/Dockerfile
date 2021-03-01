@@ -28,7 +28,7 @@ CMD ["--help"]
 #-
 #- -c, --conserve-name: use this option to conserve the original file name. By   default, the downloader will rename the file product.zip
 #-
-#- -n, --dry-run:	this will cause the URL to be displayed but the the bits not to be downloaded
+#- -n, --dry-run: this will cause the URL to be displayed but the the bits not to be downloaded
 #-
 #- ```
 #- ## Examples

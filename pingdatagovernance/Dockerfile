@@ -50,7 +50,7 @@ ARG LICENSE_VERSION
 ENV PING_PRODUCT=PingDataGovernance
 #-- Name of License File
 ENV LICENSE_FILE_NAME=PingDataGovernance.lic
-#-- Shortname used when retrieving license from License Server
+#-- Short name used when retrieving license from License Server
 ENV LICENSE_SHORT_NAME=PG
 #-- Version used when retrieving license from License Server
 ENV LICENSE_VERSION=${LICENSE_VERSION}
@@ -60,11 +60,11 @@ ENV MAX_HEAP_SIZE=1g
 
 ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
 
-#-- Adding lockdown mode so non administrive connections be made until server
+#-- Adding lockdown mode so non administrative connections be made until server
 #-- has been started with replication enabled
 ENV STARTUP_FOREGROUND_OPTS="--nodetach"
 
-#-- Adding lockdown mode so non administrive connections be made until server
+#-- Adding lockdown mode so non administrative connections be made until server
 #-- has been started with replication enabled
 ENV STARTUP_BACKGROUND_OPTS=""
 
@@ -111,8 +111,8 @@ COPY --from=final-staging ["/","/"]
 #-   docker logs -f pingdatagovernance
 #- ```
 #-
-#- You should see the ouptut from a PingDataGovernance install and configuration, ending with a message the the PingDataGovernance has
-#- started.  After it starts, you will see some typical access logs.  Simply ``Ctrl-C`` afer to stop tailing the logs.
+#- You should see the output from a PingDataGovernance install and configuration, ending with a message the the PingDataGovernance has
+#- started.  After it starts, you will see some typical access logs.  Simply ``Ctrl-C`` after to stop tailing the logs.
 #-
 #-
 #- ## Stopping/Removing the container

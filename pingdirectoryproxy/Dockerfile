@@ -47,7 +47,7 @@ ARG LICENSE_VERSION
 ENV PING_PRODUCT=PingDirectoryProxy
 #-- Name of License File
 ENV LICENSE_FILE_NAME=PingDirectory.lic
-#-- Shortname used when retrieving license from License Server
+#-- Short name used when retrieving license from License Server
 ENV LICENSE_SHORT_NAME=PD
 #-- Version used when retrieving license from License Server
 ENV LICENSE_VERSION=${LICENSE_VERSION}
@@ -60,11 +60,11 @@ ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
 #-- Public hostname of the DA app
 ENV PD_DELEGATOR_PUBLIC_HOSTNAME=localhost
 
-#-- Adding lockdown mode so non administrive connections be made until server
+#-- Adding lockdown mode so non administrative connections be made until server
 #-- has been started with replication enabled
 ENV STARTUP_FOREGROUND_OPTS="--nodetach"
 
-#-- Adding lockdown mode so non administrive connections be made until server
+#-- Adding lockdown mode so non administrative connections be made until server
 #-- has been started with replication enabled
 ENV STARTUP_BACKGROUND_OPTS=""
 
@@ -111,10 +111,10 @@ COPY --from=final-staging ["/","/"]
 #-   docker logs -f pingdirectoryproxy
 #- ```
 #-
-#- You should see the ouptut from a PingDirectoryProxy install and configuration, ending with a message the the PingDirectoryProxy has started.  After it starts, you will see some typical access logs.  Simply ``Ctrl-C`` afer to stop tailing the logs.
+#- You should see the output from a PingDirectoryProxy install and configuration, ending with a message the the PingDirectoryProxy has started.  After it starts, you will see some typical access logs.  Simply ``Ctrl-C`` afer to stop tailing the logs.
 #-
 #- ## Running a sample 100/sec search rate test
-#- With the PingDirectoryProxy running from the pevious section, you can run a ``searchrate`` job that will send load to the directory at a rate if 100/sec using the following command.
+#- With the PingDirectoryProxy running from the previous section, you can run a ``searchrate`` job that will send load to the directory at a rate if 100/sec using the following command.
 #-
 #- ```
 #- docker exec -it pingdirectoryproxy \
