@@ -93,12 +93,12 @@ ENV PF_DEBUG_PORT=9030
 #-- Options include STANDALONE, CLUSTERED_CONSOLE, CLUSTERED_ENGINE.
 ENV OPERATIONAL_MODE="STANDALONE"
 
-#-- Defines mechamism for console authentication in run.properties.
+#-- Defines mechanism for console authentication in run.properties.
 #-- Options include none, native, LDAP, cert, RADIUS, OIDC.
 #-- If not set, default is native.
 ENV PF_CONSOLE_AUTHENTICATION=
 
-#-- Defines mechamism for admin api authentication in run.properties.
+#-- Defines mechanism for admin api authentication in run.properties.
 #-- Options include none, native, LDAP, cert, RADIUS, OIDC.
 #-- If not set, default is native.
 ENV PF_ADMIN_API_AUTHENTICATION=

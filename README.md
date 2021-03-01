@@ -12,5 +12,4 @@ Provides all components to build out the Ping Identity DevOps Docker Images for 
 
 ## Troubleshooting
 
-This repository is in active development and has not been officially released.
 If you experience issues with this project, please see details on contributing feedback at [Contributing](CONTRIBUTING.md).

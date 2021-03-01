@@ -24,10 +24,8 @@
 #
 if test -d "${SERVER_ROOT_DIR}"
 then
-    # echo "Found SERVER_ROOT: ${SERVER_ROOT_DIR}"
     RUN_PLAN="RESTART"
 else
-    # echo "Missing SERVER_ROOT: ${SERVER_ROOT_DIR}"
     RUN_PLAN="START"
 fi
 
