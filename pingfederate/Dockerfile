@@ -122,6 +122,9 @@ ENV PF_LDAP_PASSWORD="OBF:JWE:eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2Iiwia2
 #-- allow the system to choose an available non-loopback IP address.
 ENV CLUSTER_BIND_ADDRESS="NON_LOOPBACK"
 
+#-- Optional variable to enable provisioner on pingfederate
+ENV PF_PROVISIONER_MODE=OFF
+
 ENV BULK_CONFIG_DIR="${OUT_DIR}/instance/bulk-config"
 ENV BULK_CONFIG_FILE=data.json
 

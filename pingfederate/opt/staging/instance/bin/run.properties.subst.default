@@ -332,7 +332,7 @@ org.bouncycastle.fips.approved_only=true
 # When only one server is in use, set the value to STANDALONE.
 # When more than one server is in use and failover is desired,
 # set the value to FAILOVER for each server.
-pf.provisioner.mode=OFF
+pf.provisioner.mode=${PF_PROVISIONER_MODE}
 
 #
 # In failover mode, each node must have a unique ID from 1 to n, where n is the
