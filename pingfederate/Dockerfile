@@ -122,8 +122,17 @@ ENV PF_LDAP_PASSWORD="OBF:JWE:eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2Iiwia2
 #-- allow the system to choose an available non-loopback IP address.
 ENV CLUSTER_BIND_ADDRESS="NON_LOOPBACK"
 
-#-- Optional variable to enable provisioner on pingfederate
+#-- Provisioner Mode in run.properties
+#-- Options include OFF, STANDALONE, FAILOVER.
 ENV PF_PROVISIONER_MODE=OFF
+
+#-- Provisioner Node ID in run.properties
+#-- Initial active provisioning server node ID is 1
+ENV PF_PROVISIONER_NODE_ID=1
+
+#-- Provisioner Failover Grace Period in run.properties
+#-- Grace period, in seconds. Default 600 seconds
+ENV PF_PROVISIONER_GRACE_PERIOD=600
 
 ENV BULK_CONFIG_DIR="${OUT_DIR}/instance/bulk-config"
 ENV BULK_CONFIG_FILE=data.json

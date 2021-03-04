@@ -339,11 +339,11 @@ pf.provisioner.mode=${PF_PROVISIONER_MODE}
 # number of nodes in the failover network. The lower the node ID, the higher the
 # priority for that node (only one server can actively handle provisioning at
 # one time). Set the initial active provisioning server node ID to 1.
-provisioner.node.id=1
+provisioner.node.id=${PF_PROVISIONER_NODE_ID}
 
 # Grace period, in seconds, after which a node is considered dead and failover
 # occurs. This value should be larger than the provisioning-frequency cycle.
-provisioner.failover.grace.period=600
+provisioner.failover.grace.period=${PF_PROVISIONER_GRACE_PERIOD}
 
 #   Jetty Customization Properties
 #   ---------------------------
