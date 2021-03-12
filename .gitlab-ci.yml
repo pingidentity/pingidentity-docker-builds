@@ -773,6 +773,7 @@ b.pingdatagovernance:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 t.pingdatagovernance:
   stage: test.smoke
@@ -846,6 +847,7 @@ b.pingdatagovernancepap:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernancepap(?:$|,)/i
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
 
 t.pingdatagovernancepap:
   stage: test.smoke
