@@ -32,37 +32,37 @@
         {
             "name": "pingdatametrics",
             "mapping": "PingDataMetrics-${version}.zip",
-            "latestVersion": "8.2.0.2",
+            "latestVersion": "8.2.0.3",
             "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdatasync",
             "mapping": "PingDataSync-${version}.zip",
-            "latestVersion": "8.2.0.2",
+            "latestVersion": "8.2.0.3",
             "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdatagovernance",
             "mapping": "PingDataGovernance-${version}.zip",
-            "latestVersion": "8.2.0.2",
+            "latestVersion": "8.2.0.3",
             "licenseFile": "PingDataGovernance.lic"
         },
         {
             "name": "pingdatagovernancepap",
             "mapping": "PingDataGovernance-PAP-${version}.zip",
-            "latestVersion": "8.2.0.2",
+            "latestVersion": "8.2.0.3",
             "licenseFile": "PingDataGovernance.lic"
         },
         {
             "name": "pingdirectory",
             "mapping": "PingDirectory-${version}.zip",
-            "latestVersion": "8.2.0.2",
+            "latestVersion": "8.2.0.3",
             "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdirectoryproxy",
             "mapping": "PingDirectoryProxy-${version}.zip",
-            "latestVersion": "8.2.0.2",
+            "latestVersion": "8.2.0.3",
             "licenseFile": "PingDirectory.lic"
         },
         {
@@ -79,7 +79,7 @@
         {
             "name": "apache-tomcat",
             "mapping": "apache-tomcat-${version}.zip",
-            "latestVersion": "9.0.41"
+            "latestVersion": "9.0.44"
         },
         {
             "name": "apache-jmeter",

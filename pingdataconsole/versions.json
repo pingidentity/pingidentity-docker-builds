@@ -1,8 +1,8 @@
 {
-    "latest": "8.2.0.2",
+    "latest": "8.2.0.3",
     "versions": [
         {
-            "version": "8.2.0.2",
+            "version": "8.2.0.3",
             "preferredShim": "alpine",
             "shims": [
                 {
@@ -20,7 +20,30 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.41"
+                    "version": "9.0.44"
+                }
+            ]
+        },
+        {
+            "version": "8.2.0.2",
+            "preferredShim": "alpine",
+            "shims": [
+                {
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": false,
+                            "deploy": false
+                        }
+                    ]
+                }
+            ],
+            "dependencies": [
+                {
+                    "product": "apache-tomcat",
+                    "version": "9.0.44"
                 }
             ]
         },
@@ -43,7 +66,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.41"
+                    "version": "9.0.44"
                 }
             ]
         },
@@ -66,7 +89,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.41"
+                    "version": "9.0.44"
                 }
             ]
         },
@@ -89,7 +112,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.41"
+                    "version": "9.0.44"
                 }
             ]
         },
@@ -112,7 +135,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.41"
+                    "version": "9.0.44"
                 }
             ]
         },
@@ -135,7 +158,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.41"
+                    "version": "9.0.44"
                 }
             ]
         },
@@ -158,7 +181,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.41"
+                    "version": "9.0.44"
                 }
             ]
         },
@@ -181,7 +204,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.41"
+                    "version": "9.0.44"
                 }
             ]
         },
