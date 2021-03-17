@@ -56,9 +56,6 @@ do
             test -z "${1}" && usage "You must provide a JVM id"
             buildOptions="${buildOptions:+${buildOptions} }--jvm ${1}"
             ;;
-        --no-build-kit)
-            buildOptions="${buildOptions:+${buildOptions} }--no-build-kit"
-            ;;
         --no-cache)
             buildOptions="${buildOptions:+${buildOptions} }--no-cache"
             ;;

@@ -48,6 +48,15 @@ RUN ["/opt/build.sh"]
 # the final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
+#-- Image version and git revision, set by build process of the docker build
+ARG IMAGE_VERSION="undefined"
+ENV IMAGE_VERSION=${IMAGE_VERSION}
+ARG IMAGE_GIT_REV=""
+ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+
+LABEL image-version="${IMAGE_VERSION}" \
+      image-git-rev="${IMAGE_GIT_REV}"
+
 ARG LICENSE_VERSION
 # pingaccess comes ootb listening on 3000 but it is more natural for https traffic to be listened for on 443
 ENV PING_PRODUCT="PingAccess"
@@ -76,7 +85,7 @@ COPY --from=final-staging ["/","/"]
 #-   docker run \
 #-            --name pingaccess \
 #-            --publish 9000:9000 \
-#-            --publish 443:443 \
+#-            --publish 443:1443 \
 #-            --detach \
 #-            --env SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git \
 #-            --env SERVER_PROFILE_PATH=getting-started/pingaccess \

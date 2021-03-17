@@ -1574,7 +1574,7 @@
 		{
 			"id": "82a5089d-b359-4aa9-a24b-f1e8c3deae81",
 			"key": "pd_port_https",
-			"value": "443",
+			"value": "1443",
 			"type": "string"
 		},
 		{
@@ -1586,7 +1586,7 @@
 		{
 			"id": "538ba1ac-b760-458a-b388-d5b611df74c4",
 			"key": "pdg_port_https",
-			"value": "443",
+			"value": "1443",
 			"type": "string"
 		},
 		{

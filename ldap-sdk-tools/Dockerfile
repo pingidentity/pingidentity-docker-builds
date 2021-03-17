@@ -44,7 +44,15 @@ RUN ["/opt/build.sh"]
 # the final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
-LABEL	maintainer=devops_program@pingidentity.com \
+#-- Image version and git revision, set by build process of the docker build
+ARG IMAGE_VERSION="undefined"
+ENV IMAGE_VERSION=${IMAGE_VERSION}
+ARG IMAGE_GIT_REV=""
+ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+
+LABEL   image-version="${IMAGE_VERSION}" \
+        image-git-rev="${IMAGE_GIT_REV}" \
+		maintainer=devops_program@pingidentity.com \
 		license="Apache License v2.0, GPLv2, LGPLv2.1, Ping Identity UnboundID LDAP SDK Free Use" \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity LDAP SDK Tools (Alpine/OpenJDK8) Image"
@@ -88,7 +96,7 @@ COPY --from=final-staging ["/","/"]
 #-   pingidentity/ldap-sdk-tools:edge \
 #-   manage-certificates trust-server-certificate \
 #-     --hostname haveibeenpwned.com \
-#-     --port 443 \
+#-     --port 1443 \
 #-     --keystore /opt/out/hibp-2019.jks \
 #-     --keystore-password ${PWD}
 #- ls -all /tmp/hibp

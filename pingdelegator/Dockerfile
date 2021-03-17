@@ -26,6 +26,7 @@ ENV SHIM=${SHIM}
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
+COPY --from=product-staging ["/etc/nginx/nginx.conf", "/etc/nginx/nginx.conf"]
 
 # get Ping-wide common scripts
 #   this needs to happen after the bits have been laid down
@@ -44,16 +45,18 @@ RUN ["/opt/build.sh"]
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
 COPY --from=final-staging ["/","/"]
 
+#-- Image version and git revision, set by build process of the docker build
+ARG IMAGE_VERSION="undefined"
+ENV IMAGE_VERSION=${IMAGE_VERSION}
+ARG IMAGE_GIT_REV=""
+ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+
+LABEL image-version="${IMAGE_VERSION}" \
+      image-git-rev="${IMAGE_GIT_REV}"
+
 ENV PD_DELEGATOR_PUBLIC_HOSTNAME=localhost
 ENV PD_DELEGATOR_HTTP_PORT=6080
 ENV PD_DELEGATOR_HTTPS_PORT=6443
-
-#-- Container uid/gid and uname/gname that are required for nginx
-ENV PING_CONTAINER_PRIVILEGED=false
-ENV PING_CONTAINER_UID=100
-ENV PING_CONTAINER_GID=101
-ENV PING_CONTAINER_UNAME=nginx
-ENV PING_CONTAINER_GNAME=nginx
 
 #-- The hostname for the public Ping Federate instance used for SSO.
 ENV PF_ENGINE_PUBLIC_HOSTNAME=localhost

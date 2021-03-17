@@ -46,6 +46,15 @@ RUN ["/opt/build.sh"]
 # The final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
+#-- Image version and git revision, set by build process of the docker build
+ARG IMAGE_VERSION="undefined"
+ENV IMAGE_VERSION=${IMAGE_VERSION}
+ARG IMAGE_GIT_REV=""
+ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+
+LABEL image-version="${IMAGE_VERSION}" \
+      image-git-rev="${IMAGE_GIT_REV}"
+
 #-- PingIdentity license version
 ARG LICENSE_VERSION
 
@@ -79,8 +88,8 @@ COPY --from=final-staging ["/","/"]
 #- ```
 #-   docker run \
 #-            --name pingdatasync \
-#-            --publish 1389:389 \
-#-            --publish 8443:443 \
+#-            --publish 1389:1389 \
+#-            --publish 8443:1443 \
 #-            --detach \
 #-            --env SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git \
 #-            --env SERVER_PROFILE_PATH=simple-sync/pingdatasync \

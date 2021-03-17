@@ -37,6 +37,15 @@ COPY ["/opt","/opt"]
 RUN ["/opt/build.sh"]
 
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
+#-- Image version and git revision, set by build process of the docker build
+ARG IMAGE_VERSION="undefined"
+ENV IMAGE_VERSION=${IMAGE_VERSION}
+ARG IMAGE_GIT_REV=""
+ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+
+LABEL image-version="${IMAGE_VERSION}" \
+      image-git-rev="${IMAGE_GIT_REV}"
+
 #-- PingIdentity license version
 ARG LICENSE_VERSION
 #-- Ping product name

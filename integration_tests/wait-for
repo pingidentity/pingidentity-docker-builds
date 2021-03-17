@@ -186,7 +186,7 @@ if test -z "$HOST" && test -z "$FILE" && test -z "$DIR" ; then
 fi
 
 if test -z "$PORT" && ! test -z "$HOST" ; then
-  PORT="443"
+  PORT="1443"
 fi
 
 wait_for "$@"

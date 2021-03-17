@@ -32,8 +32,6 @@ Usage: ${0} {options}
         verbose docker build using plain progress output
     --no-cache
         no docker cache
-    --no-build-kit
-        build without using build-kit
     --help
         Display general usage information
 END_USAGE
@@ -41,7 +39,7 @@ END_USAGE
 }
 
 _totalStart=$( date '+%s' )
-DOCKER_BUILDKIT=${DOCKER_BUILDKIT:-1}
+DOCKER_BUILDKIT=1
 noCache=${DOCKER_BUILD_CACHE}
 while test -n "${1}"
 do
@@ -65,9 +63,6 @@ do
             shift
             test -z "${1}" && usage "You must provide a version to build"
             versionToBuild="${1}"
-            ;;
-        --no-build-kit)
-            DOCKER_BUILDKIT=0
             ;;
         --no-cache)
             noCache="--no-cache"

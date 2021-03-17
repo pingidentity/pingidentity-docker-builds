@@ -602,13 +602,13 @@
 		{
 			"id": "9bebf2b0-59db-440b-bcc2-e58d7dca657e",
 			"key": "pd_port_https",
-			"value": "443",
+			"value": "1443",
 			"type": "string"
 		},
 		{
 			"id": "0f69e830-65c2-44b6-8c49-2d56929c65c6",
 			"key": "pds_port_https",
-			"value": "443",
+			"value": "1443",
 			"type": "string"
 		},
 		{

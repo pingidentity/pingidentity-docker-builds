@@ -45,6 +45,15 @@ RUN ["/opt/build.sh"]
 # the final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
+#-- Image version and git revision, set by build process of the docker build
+ARG IMAGE_VERSION="undefined"
+ENV IMAGE_VERSION=${IMAGE_VERSION}
+ARG IMAGE_GIT_REV=""
+ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+
+LABEL image-version="${IMAGE_VERSION}" \
+      image-git-rev="${IMAGE_GIT_REV}"
+
 COPY --from=final-staging ["/","/"]
 ENV HTTP_PORT=8080
 ENV HTTPS_PORT=8443
@@ -77,7 +86,7 @@ ENV STARTUP_BACKGROUND_OPTS="start"
 #- If using the command above with the embedded [server profile](https://devops.pingidentity.com/reference/config/), log in with:
 #- * http://localhost:${HTTPS_PORT}/console/login
 #- ```
-#- Server: pingdirectory:636
+#- Server: pingdirectory:1636
 #- Username: administrator
 #- Password: 2FederateM0re
 #- ```
