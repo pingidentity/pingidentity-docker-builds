@@ -4,6 +4,49 @@ set -e
 
 test -f "/opt/build.sh.pre" && sh /opt/build.sh.pre
 
+# Update file permissions for the BASE and SECRETS_DIR for the default container user,
+# and update the /var/lib/nginx owner if necessary.
+fixPermissions ()
+{
+    touch /etc/motd
+    # Environment variables like BASE and SECRETS_DIR aren't available here.
+    BASE=/opt
+    SECRETS_DIR=/run/secrets
+
+    find "${BASE}" -mindepth 1 -maxdepth 1 -not -name in| while read -r directory
+    do
+        chown -Rf 9031:9999 /etc/motd "${directory}"
+        chmod -Rf go-rwx "${directory}"
+    done
+
+    # If there is a SECRETS_DIR, chmod to 777 for rwx to non-privileged user
+    if test -d "${SECRETS_DIR}"; then
+        chmod ugo+rwx "${SECRETS_DIR}"
+    fi
+
+    if test -d /var/lib/nginx; then
+        chown -R "ping:identity" /var/lib/nginx
+    fi
+}
+
+removePackageManager_alpine ()
+{
+    rm -f /sbin/apk
+}
+
+removePackageManager_centos ()
+{
+    rpm --erase yum
+    rpm --erase --nodeps rpm
+}
+
+removePackageManager_ubuntu ()
+{
+    dpkg -P apt
+    dpkg -P --force-remove-essential --force-depends dpkg
+}
+
+
 echo "Build stage (shim-specific installations)"
 set -x
 _osID=$( awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null )
@@ -26,13 +69,22 @@ case "${_osID}" in
         apk --no-cache del jq
         # altogether remove the package manager
 
-        # Suppor for the inside-out security pattern, allowing for running as non-privilaged user
+        # Support for the inside-out security pattern, allowing for running as non-privileged user
         apk --no-cache add su-exec
 
         # Removing apk installed file, removing false positive CVEs
         rm /lib/apk/db/installed
 
         # rm -rf /sbin/apk /etc/apk /lib/apk /usr/share/apk /var/lib/apk
+
+        # Create user and group
+        addgroup --gid 9999 identity
+        adduser --uid 9031 --ingroup identity --disabled-password --shell /bin/false ping
+
+        # Update permissions under /opt
+        fixPermissions
+
+        removePackageManager_alpine
     ;;
     centos)
         rm -rf /var/lib/rpm
@@ -52,6 +104,16 @@ case "${_osID}" in
         yum -y clean all
         # rm -rf /var/cache/yum
         rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki
+
+        # Create user and group
+        groupadd --gid 9999 identity
+        useradd --uid 9031 --gid identity --shell /bin/false ping
+
+        # Update permissions under /opt
+        fixPermissions
+
+        #TODO this causes issues because yum is a dependency of other yum-related packages.
+        #removePackageManager_centos
     ;;
     ubuntu)
         apt-get -y update
@@ -65,6 +127,15 @@ case "${_osID}" in
         apt-get --purge remove gcc make
         apt-get -y autoremove
         rm -rf /var/lib/apt/lists/*
+
+        # Create user and group
+        addgroup --gid 9999 identity
+        adduser --uid 9031 --ingroup identity --disabled-password --shell /bin/false ping
+
+        # Update permissions under /opt
+        fixPermissions
+
+        removePackageManager_ubuntu
     ;;
 esac
 

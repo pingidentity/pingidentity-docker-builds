@@ -204,7 +204,7 @@ fi
 
 if test -z "${PORT}" && test -n "${HOST}"
 then
-    PORT="443"
+    PORT="1443"
 fi
 
 wait_for "${@}"

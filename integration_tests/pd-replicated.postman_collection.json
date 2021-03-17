@@ -987,19 +987,19 @@
 		{
 			"id": "abdd7739-ca00-4447-bcb2-6b07e690ad27",
 			"key": "pd_port_https",
-			"value": "443",
+			"value": "1443",
 			"type": "string"
 		},
 		{
 			"id": "1ba0c3ad-4fc9-49dd-a56c-c16d855a5462",
 			"key": "pd_port_ldaps",
-			"value": "636",
+			"value": "1636",
 			"type": "string"
 		},
 		{
 			"id": "8b92bfbf-ec85-4c32-84d1-70cc9b70cc6d",
 			"key": "pd_port_ldap",
-			"value": "389",
+			"value": "1389",
 			"type": "string"
 		},
 		{

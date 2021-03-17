@@ -8,139 +8,128 @@ LABEL	name="Ping Identity Docker Image" \
         maintainer="devops_program@pingidentity.com" \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp."
-#-- Image version, set by build process of the docker build
-ONBUILD ARG IMAGE_VERSION="unspecified"
-ONBUILD ENV IMAGE_VERSION=${IMAGE_VERSION}
-
-#-- Image git revision, set by build process of the docker build
-ONBUILD ARG IMAGE_GIT_REV=""
-ONBUILD ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
-
-ONBUILD LABEL	image-version="${IMAGE_VERSION}" \
-                image-git-rev="${IMAGE_GIT_REV}"
-
 # Legal requirement to explicitly accept the terms of the PingIdentity License
 #-- Must be set to 'YES' for the container to start
-ONBUILD ENV PING_IDENTITY_ACCEPT_EULA=NO
+ENV PING_IDENTITY_ACCEPT_EULA=NO
 
 # the image base /might/ be changed at build-time but
 # be aware that the entrypoint will have to be
 # overridden to reflect the change
 #-- Location of the top level directory where everything is located in
 #-- image/container
-ONBUILD ARG BASE
-ONBUILD ENV BASE=${BASE:-/opt}
+ARG BASE
+ENV BASE=${BASE:-/opt}
 #-- Location of a local server-profile volume
-ONBUILD ENV IN_DIR=${BASE}/in
+ENV IN_DIR=${BASE}/in
 #-- Path to the runtime volume
-ONBUILD ENV OUT_DIR=${BASE}/out
+ENV OUT_DIR=${BASE}/out
 #-- Path to the server bits
-ONBUILD ENV SERVER_BITS_DIR=${BASE}/server
+ENV SERVER_BITS_DIR=${BASE}/server
 #-- Path to a volume generically used to export or backup data
-ONBUILD ENV BAK_DIR=${BASE}/backup
+ENV BAK_DIR=${BASE}/backup
 #-- Path to a volume generically used for logging
-ONBUILD ENV LOGS_DIR=${BASE}/logs
+ENV LOGS_DIR=${BASE}/logs
 
 #-- File name for devops-creds passed as a Docker secret
-ONBUILD ENV PING_IDENTITY_DEVOPS_FILE=devops-secret
+ENV PING_IDENTITY_DEVOPS_FILE=devops-secret
 
 #-- Path to the staging area where the remote and local server profiles
 #-- can be merged
-ONBUILD ENV STAGING_DIR=${BASE}/staging
+ENV STAGING_DIR=${BASE}/staging
 #-- Path to a manifest of files expected in the staging dir on first image startup
-ONBUILD ENV STAGING_MANIFEST=${BASE}/staging-manifest.txt
+ENV STAGING_MANIFEST=${BASE}/staging-manifest.txt
 #-- Whether to clean the staging dir when the image starts
-ONBUILD ENV CLEAN_STAGING_DIR=true
+ENV CLEAN_STAGING_DIR=true
 #-- Default path to the secrets
-ONBUILD ENV SECRETS_DIR=/run/secrets
+ENV SECRETS_DIR=/run/secrets
 #-- Path to the topology file
-ONBUILD ENV TOPOLOGY_FILE=${STAGING_DIR}/topology.json
+ENV TOPOLOGY_FILE=${STAGING_DIR}/topology.json
 #-- Path where all the hooks scripts are stored
-ONBUILD ENV HOOKS_DIR=${STAGING_DIR}/hooks
+ENV HOOKS_DIR=${STAGING_DIR}/hooks
 #-- Environment Property file use to share variables between scripts in container
-ONBUILD ENV CONTAINER_ENV=${STAGING_DIR}/.env
+ENV CONTAINER_ENV=${STAGING_DIR}/.env
 
 #-- Path where the remote server profile is checked out or cloned before
 #-- being staged prior to being applied on the runtime
-ONBUILD ENV SERVER_PROFILE_DIR=/tmp/server-profile
+ENV SERVER_PROFILE_DIR=/tmp/server-profile
 #-- A valid git HTTPS URL (not ssh)
-ONBUILD ENV SERVER_PROFILE_URL=""
-ONBUILD ENV SERVER_PROFILE_URL_REDACT=true
+ENV SERVER_PROFILE_URL=""
+ENV SERVER_PROFILE_URL_REDACT=true
 #-- A valid git branch (optional)
-ONBUILD ENV SERVER_PROFILE_BRANCH=""
+ENV SERVER_PROFILE_BRANCH=""
 #-- The subdirectory in the git repo
-ONBUILD ENV SERVER_PROFILE_PATH=""
+ENV SERVER_PROFILE_PATH=""
 #-- Whether to update the server profile upon container restart
-ONBUILD ENV SERVER_PROFILE_UPDATE="false"
+ENV SERVER_PROFILE_UPDATE="false"
 #-- Path from which the runtime executes
-ONBUILD ENV SERVER_ROOT_DIR=${OUT_DIR}/instance
+ENV SERVER_ROOT_DIR=${OUT_DIR}/instance
 
 #-- Requires strict checks on security
-ONBUILD ENV SECURITY_CHECKS_STRICT=false
+ENV SECURITY_CHECKS_STRICT=false
 #-- Perform a check for filenames that may violate security (i.e. secret material)
-ONBUILD ENV SECURITY_CHECKS_FILENAME="*.jwk *.pin"
+ENV SECURITY_CHECKS_FILENAME="*.jwk *.pin"
 
 #-- If this is set to true, then the container will provide a hard warning and continue.
-ONBUILD ENV UNSAFE_CONTINUE_ON_ERROR=""
+ENV UNSAFE_CONTINUE_ON_ERROR=""
 
 #-- License directory and filename
-ONBUILD ENV LICENSE_DIR="${SERVER_ROOT_DIR}"
+ENV LICENSE_DIR="${SERVER_ROOT_DIR}"
 #-- The command that the entrypoint will execute in the foreground to
 #-- instantiate the container
-ONBUILD ENV STARTUP_COMMAND=""
+ENV STARTUP_COMMAND=""
 #-- The command-line options to provide to the the startup command when
 #-- the container starts with the server in the foreground. This is the
 #-- normal start flow for the container
-ONBUILD ENV STARTUP_FOREGROUND_OPTS=""
+ENV STARTUP_FOREGROUND_OPTS=""
 #-- The command-line options to provide to the the startup command when
 #-- the container starts with the server in the background. This is the
 #-- debug start flow for the container
-ONBUILD ENV STARTUP_BACKGROUND_OPTS=""
+ENV STARTUP_BACKGROUND_OPTS=""
 
-ONBUILD ENV PING_IDENTITY_DEVOPS_KEY_REDACT=true
+ENV PING_IDENTITY_DEVOPS_KEY_REDACT=true
 
 #-- A whitespace separated list of log files to tail to the container
 #-- standard output - DO NOT USE WILDCARDS like /path/to/logs/*.log
-ONBUILD ENV TAIL_LOG_FILES=""
+ENV TAIL_LOG_FILES=""
 
 #-- Set to true to use parallel for the invocation of the tail utility
-ONBUILD ENV TAIL_LOG_PARALLEL=""
+ENV TAIL_LOG_PARALLEL=""
 
 #-- If 'true', the output logs will be colorized with GREENs and REDs,
 #-- otherwise, no colorization will be done.  This is good for tools
 #-- that monitor logs and colorization gets in the way.
-ONBUILD ENV COLORIZE_LOGS=true
+ENV COLORIZE_LOGS=true
 
 #-- Location default value
-ONBUILD ENV LOCATION=Docker
-ONBUILD ENV LOCATION_VALIDATION="true|Any string denoting a logical/physical location|Must be a string"
+ENV LOCATION=Docker
+ENV LOCATION_VALIDATION="true|Any string denoting a logical/physical location|Must be a string"
 
 #-- Heap size (for java products)
-ONBUILD ENV MAX_HEAP_SIZE=384m
+ENV MAX_HEAP_SIZE=384m
 
-ONBUILD ENV JVM_TUNING="AGGRESSIVE"
+ENV JVM_TUNING="AGGRESSIVE"
 
 #-- Triggers verbose messages in scripts using the set -x option.
-ONBUILD ENV VERBOSE=false
+ENV VERBOSE=false
 
 #-- Set the server in debug mode, with increased output
-ONBUILD ENV PING_DEBUG=false
+ENV PING_DEBUG=false
 
 #-- The name of Ping product.  Should be overridden by child images.
-ONBUILD ENV PING_PRODUCT=""
-ONBUILD ENV PING_PRODUCT_VALIDATION="true|i.e. PingFederate,PingDirectory|Must be a valid Ping prouduct type"
+ENV PING_PRODUCT=""
+ENV PING_PRODUCT_VALIDATION="true|i.e. PingFederate,PingDirectory|Must be a valid Ping prouduct type"
 
 #-- List of setup arguments passed to Ping Data setup-arguments.txt file
-ONBUILD ENV ADDITIONAL_SETUP_ARGS=""
+ENV ADDITIONAL_SETUP_ARGS=""
 
 #-- Port over which to communicate for LDAP
-ONBUILD ENV LDAP_PORT=389
+ENV LDAP_PORT=1389
 #-- Port over which to communicate for LDAPS
-ONBUILD ENV LDAPS_PORT=636
+ENV LDAPS_PORT=1636
 #-- Port over which to communicate for HTTPS
-ONBUILD ENV HTTPS_PORT=443
+ENV HTTPS_PORT=1443
 #-- Port for monitoring over JMX protocol
-ONBUILD ENV JMX_PORT=689
+ENV JMX_PORT=1689
 
 #-- The type of orchestration tool used to run the container, normally
 #-- set in the deployment (.yaml) file.  Expected values include:
@@ -148,91 +137,79 @@ ONBUILD ENV JMX_PORT=689
 #-- - swarm
 #-- - kubernetes
 #-- Defaults to blank (i.e. No type is set)
-ONBUILD ENV ORCHESTRATION_TYPE=""
+ENV ORCHESTRATION_TYPE=""
 
-ONBUILD ENV USER_BASE_DN=dc=example,dc=com
-ONBUILD ENV DOLLAR='$'
+ENV USER_BASE_DN=dc=example,dc=com
+ENV DOLLAR='$'
 #-- PD (PingDirectory) public hostname that may be used in redirects
-ONBUILD ENV PD_ENGINE_PUBLIC_HOSTNAME="localhost"
+ENV PD_ENGINE_PUBLIC_HOSTNAME="localhost"
 #-- PD (PingDirectory) private hostname
-ONBUILD ENV PD_ENGINE_PRIVATE_HOSTNAME="pingdirectory"
+ENV PD_ENGINE_PRIVATE_HOSTNAME="pingdirectory"
 #-- PDP (PingDirectoryProxy) public hostname that may be used in redirects
-ONBUILD ENV PDP_ENGINE_PUBLIC_HOSTNAME="localhost"
+ENV PDP_ENGINE_PUBLIC_HOSTNAME="localhost"
 #-- PDP (PingDirectoryProxy) private hostname
-ONBUILD ENV PDP_ENGINE_PRIVATE_HOSTNAME="pingdirectoryproxy"
+ENV PDP_ENGINE_PRIVATE_HOSTNAME="pingdirectoryproxy"
 #-- PDS (PingDataSync) public hostname that may be used in redirects
-ONBUILD ENV PDS_ENGINE_PUBLIC_HOSTNAME="localhost"
+ENV PDS_ENGINE_PUBLIC_HOSTNAME="localhost"
 #-- PDS (PingDataSync) private hostname
-ONBUILD ENV PDS_ENGINE_PRIVATE_HOSTNAME="pingdatasync"
+ENV PDS_ENGINE_PRIVATE_HOSTNAME="pingdatasync"
 #-- PDG (PingDataGovernance) public hostname that may be used in redirects
-ONBUILD ENV PDG_ENGINE_PUBLIC_HOSTNAME="localhost"
+ENV PDG_ENGINE_PUBLIC_HOSTNAME="localhost"
 #-- PDG (PingDataGovernance) private hostname
-ONBUILD ENV PDG_ENGINE_PRIVATE_HOSTNAME="pingdatagovernance"
+ENV PDG_ENGINE_PRIVATE_HOSTNAME="pingdatagovernance"
 #-- PDGP (PingDataGovernance-PAP) public hostname that may be used in redirects
-ONBUILD ENV PDGP_ENGINE_PUBLIC_HOSTNAME="localhost"
+ENV PDGP_ENGINE_PUBLIC_HOSTNAME="localhost"
 #-- PDGP (PingDataGovernance-PAP) private hostname
-ONBUILD ENV PDGP_ENGINE_PRIVATE_HOSTNAME="pingdatagovernancepap"
+ENV PDGP_ENGINE_PRIVATE_HOSTNAME="pingdatagovernancepap"
 #-- PF (PingFederate) engine public hostname that may be used in redirects
-ONBUILD ENV PF_ENGINE_PUBLIC_HOSTNAME="localhost"
+ENV PF_ENGINE_PUBLIC_HOSTNAME="localhost"
 #-- PF (PingFederate) engine private hostname
-ONBUILD ENV PF_ENGINE_PRIVATE_HOSTNAME="pingfederate"
+ENV PF_ENGINE_PRIVATE_HOSTNAME="pingfederate"
 #-- PF (PingFederate) admin public hostname that may be used in redirects
-ONBUILD ENV PF_ADMIN_PUBLIC_HOSTNAME="localhost"
+ENV PF_ADMIN_PUBLIC_HOSTNAME="localhost"
 #-- PF (PingFederate) admin private hostname
-ONBUILD ENV PF_ADMIN_PRIVATE_HOSTNAME="pingfederate-admin"
+ENV PF_ADMIN_PRIVATE_HOSTNAME="pingfederate-admin"
 #-- PA (PingAccess) engine prublic hostname that may be used in redirects
-ONBUILD ENV PA_ENGINE_PUBLIC_HOSTNAME="localhost"
+ENV PA_ENGINE_PUBLIC_HOSTNAME="localhost"
 #-- PA (PingAccess) engine private hostname
-ONBUILD ENV PA_ENGINE_PRIVATE_HOSTNAME="pingaccess"
+ENV PA_ENGINE_PRIVATE_HOSTNAME="pingaccess"
 #-- PA (PingAccess) admin public hostname that may be used in redirects
-ONBUILD ENV PA_ADMIN_PUBLIC_HOSTNAME="localhost"
+ENV PA_ADMIN_PUBLIC_HOSTNAME="localhost"
 #-- PA (PingAccess) admin private hostname
-ONBUILD ENV PA_ADMIN_PRIVATE_HOSTNAME="pingaccess-admin"
+ENV PA_ADMIN_PRIVATE_HOSTNAME="pingaccess-admin"
 
 #-- the default administrative user for PingData
-ONBUILD ENV ROOT_USER="administrator"
-ONBUILD ENV ROOT_USER_DN="cn=${ROOT_USER}"
+ENV ROOT_USER="administrator"
+ENV ROOT_USER_DN="cn=${ROOT_USER}"
 
 
-ONBUILD ENV ENV="${BASE}/.profile"
+ENV ENV="${BASE}/.profile"
 
 #-- Instructs the image to pull the MOTD json from the followig URL.
 #-- If this MOTD_URL variable is empty, then no motd will be downloaded.
 #-- The format of this MOTD file must match the example provided in the
 #-- url: https://raw.githubusercontent.com/pingidentity/pingidentity-devops-getting-started/master/motd/motd.json
-ONBUILD ENV MOTD_URL="https://raw.githubusercontent.com/pingidentity/pingidentity-devops-getting-started/master/motd/motd.json"
+ENV MOTD_URL="https://raw.githubusercontent.com/pingidentity/pingidentity-devops-getting-started/master/motd/motd.json"
 
 #-- Default shell prompt (i.e. productName:hostname:workingDir)
-ONBUILD ENV PS1="\${PING_PRODUCT}:\h:\w\n> "
+ENV PS1="\${PING_PRODUCT}:\h:\w\n> "
 
 # the method by which the framework can assess whether the container is viable or not
-ONBUILD HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
+HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
 
-# ONBUILD VOLUME [ "${BAK_DIR}" "${IN_DIR}" "${OUT_DIR}" "${LOGS_DIR}" ]
-ONBUILD WORKDIR ${BASE}
+# VOLUME [ "${BAK_DIR}" "${IN_DIR}" "${OUT_DIR}" "${LOGS_DIR}" ]
+WORKDIR ${BASE}
 
-#-- Whether to run the process as Root or not
-#-- if set to false, user spec can be left to default (uid:9031, gid:9999)
-#-- or a custom uid can be passed with PING_CONTAINER_UID
-#-- and PING_CONTAINER_GID
-ONBUILD ENV PING_CONTAINER_PRIVILEGED="true"
+ENV JAVA_HOME=/opt/java
 
-#-- The user ID the product will use if PING_CONTAINER_PRIVILEGED is set to false
-ONBUILD ENV PING_CONTAINER_UID=9031
-#-- The group ID the product will use if PING_CONTAINER_PRIVILEGED is set to false
-ONBUILD ENV PING_CONTAINER_GID=9999
-#-- The user name the product will use if PING_CONTAINER_PRIVILEGED is set to false and a user with that ID does not exist already
-ONBUILD ENV PING_CONTAINER_UNAME=ping
-#-- The group name the product will use if PING_CONTAINER_PRIVILEGED is set to false and a group with that ID does not exist already
-ONBUILD ENV PING_CONTAINER_GNAME=identity
+ENV PATH="${JAVA_HOME}/bin:${BASE}:${SERVER_ROOT_DIR}/bin:${PATH}"
 
-ONBUILD ENV JAVA_HOME=/opt/java
-
-ONBUILD ENV PATH="${JAVA_HOME}/bin:${BASE}:${SERVER_ROOT_DIR}/bin:${PATH}"
+# Switch to the default non-root user created in build.sh
+USER 9031:9999
 
 ### WARNING THE ENTRYPOINT WILL NEED TO BE UPDATED MANUALLY IF THE BASE IS CHANGED
 ### IT DOES NOT EXPAND VARIABLES -- REAL BUMMER
 ### HOWEVER, AS LONG AS ENTRYPOINT IS NOT REFERENCED WITH AN ABSOLUTE PATH
 ### REBASING WILL WORK AS EXPECTED
-ONBUILD ENTRYPOINT [ "./bootstrap.sh" ]
-ONBUILD CMD [ "start-server" ]
+ENTRYPOINT [ "./bootstrap.sh" ]
+CMD [ "start-server" ]

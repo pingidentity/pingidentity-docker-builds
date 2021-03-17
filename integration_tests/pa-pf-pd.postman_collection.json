@@ -96,9 +96,16 @@
 						"id": "2e201328-2edd-4e10-9892-73a24f3296b7",
 						"exec": [
 							"var _retries = pm.environment.get(\"_retries\");",
-							"",
-							"// Checks to see if the server actually responded",
-							"if (pm.response.code == 200) {",
+							"// Checks to see if the server actually responded and is valid JSON",
+							"var isResponseBodyJson = false;",
+							"try {",
+							"  JSON.parse(responseBody);",
+							"  isResponseBodyJson = true;",
+							"} catch (e) {",
+							"  console.log(\"Invalid: \" + responseBody);",
+							"  // try again",
+							"}",
+							"if (pm.response.code == 200 && isResponseBodyJson) {",
 							"    pm.environment.unset(\"_retries\");",
 							"    console.log(\"connection successful\");",
 							"",
@@ -2096,19 +2103,19 @@
 		{
 			"id": "60719c16-927f-4adb-ab10-3c8b8ac3401e",
 			"key": "pd_port_https",
-			"value": "443",
+			"value": "1443",
 			"type": "string"
 		},
 		{
 			"id": "dce6655f-0c3b-436a-8717-2c7657d4b06b",
 			"key": "pd_port_ldaps",
-			"value": "636",
+			"value": "1636",
 			"type": "string"
 		},
 		{
 			"id": "260d7dde-fde4-4952-9bd7-a077b68f1b38",
 			"key": "pd_port_ldap",
-			"value": "389",
+			"value": "1389",
 			"type": "string"
 		},
 		{

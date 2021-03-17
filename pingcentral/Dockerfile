@@ -46,6 +46,15 @@ RUN ["/opt/build.sh"]
 # The final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
+#-- Image version and git revision, set by build process of the docker build
+ARG IMAGE_VERSION="undefined"
+ENV IMAGE_VERSION=${IMAGE_VERSION}
+ARG IMAGE_GIT_REV=""
+ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+
+LABEL image-version="${IMAGE_VERSION}" \
+      image-git-rev="${IMAGE_GIT_REV}"
+
 ARG LICENSE_VERSION
 ENV PING_CENTRAL_SERVER_PORT=9022
 ENV PING_PRODUCT="PingCentral"

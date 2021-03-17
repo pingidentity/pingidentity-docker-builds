@@ -13,7 +13,7 @@ services:
       # run_integration.sh creates /tmp/integration_tests.properties at runtime.
       - /tmp/integration_tests.properties
     ports:
-      - "1443:443"
+      - "1443:1443"
     ulimits:
       nproc:
         soft: 16384
@@ -30,13 +30,13 @@ services:
     image: ${REGISTRY}/pingdatagovernance:${PINGDATAGOVERNANCE_LATEST}-alpine-az11-${GIT_TAG}
     # for local testing
     # image: pingidentity/pingdatagovernance:8.0.0.1-alpine-az11-re-pa-cluster-d4eb
-    command: wait-for pingdirectory:389 -t 900 -- entrypoint.sh start-server
+    command: wait-for pingdirectory:1389 -t 900 -- entrypoint.sh start-server
     environment:
       - SERVER_PROFILE_PATH=baseline/pingdatagovernance
     env_file:
       - /tmp/integration_tests.properties
     ports:
-      - "7443:443"
+      - "7443:1443"
     ulimits:
       nproc:
         soft: 16384
@@ -53,7 +53,7 @@ services:
   sut:
     image: ${DEPS}postman/newman
     entrypoint: ["/usr/bin/env"]
-    command: sh -c "/tmp/wait-for pingdatagovernance:443 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
+    command: sh -c "/tmp/wait-for pingdatagovernance:1443 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
     volumes:
       - ./pdg-pd.postman_collection.json:/tmp/collection.json
       - ./wait-for:/tmp/wait-for

@@ -41,6 +41,15 @@ COPY ["/opt","/opt"]
 RUN ["/opt/build.sh"]
 
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
+#-- Image version and git revision, set by build process of the docker build
+ARG IMAGE_VERSION="undefined"
+ENV IMAGE_VERSION=${IMAGE_VERSION}
+ARG IMAGE_GIT_REV=""
+ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+
+LABEL image-version="${IMAGE_VERSION}" \
+      image-git-rev="${IMAGE_GIT_REV}"
+
 #-- PingIdentity license version
 ARG LICENSE_VERSION
 #-- Ping product name
@@ -117,8 +126,8 @@ COPY --from=final-staging ["/","/"]
 #- ```
 #-   docker run \
 #-            --name pingdirectory \
-#-            --publish 1389:389 \
-#-            --publish 8443:443 \
+#-            --publish 1389:1389 \
+#-            --publish 8443:1443 \
 #-            --detach \
 #-            --env SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git \
 #-            --env SERVER_PROFILE_PATH=getting-started/pingdirectory \
@@ -156,7 +165,7 @@ COPY --from=final-staging ["/","/"]
 #-
 #- |                 |                                   |
 #- | --------------: | --------------------------------- |
-#- | LDAP Port       | 1389 (mapped to 389)              |
+#- | LDAP Port       | 1389                              |
 #- | LDAP Base DN    | dc=example,dc=com                 |
 #- | Root Username   | cn=administrator                  |
 #- | Root Password   | 2FederateM0re                     |

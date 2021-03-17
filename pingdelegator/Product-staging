@@ -26,4 +26,5 @@ RUN /get-bits.sh --product delegator \
  
 
 FROM scratch
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=staging ["/opt/server","/opt/server"]

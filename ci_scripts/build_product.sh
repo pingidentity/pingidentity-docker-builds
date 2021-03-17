@@ -35,7 +35,7 @@ END_USAGE
 }
 
 # export PING_IDENTITY_SNAPSHOT=--snapshot to trigger snapshot build
-DOCKER_BUILDKIT=${DOCKER_BUILDKIT:-1}
+DOCKER_BUILDKIT=1
 noCache=${DOCKER_BUILD_CACHE}
 while ! test -z "${1}"
 do
@@ -59,9 +59,6 @@ do
             shift
             test -z "${1}" && usage "You must provide a version to build"
             versionsToBuild="${versionsToBuild:+${versionsToBuild} }${1}"
-            ;;
-        --no-build-kit)
-            DOCKER_BUILDKIT=0
             ;;
         --no-cache)
             noCache="--no-cache"

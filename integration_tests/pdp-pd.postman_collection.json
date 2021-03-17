@@ -2585,19 +2585,19 @@
 		{
 			"id": "f085cf8e-df14-4b4c-8427-3104bc39cca4",
 			"key": "pd_port_https",
-			"value": "443",
+			"value": "1443",
 			"type": "string"
 		},
 		{
 			"id": "b4cc6519-62ce-4e1a-bfba-4fb691a70ecc",
 			"key": "pd_port_ldaps",
-			"value": "636",
+			"value": "1636",
 			"type": "string"
 		},
 		{
 			"id": "215f8a68-2ea3-4e46-88c9-a002592ae1a5",
 			"key": "pd_port_ldap",
-			"value": "389",
+			"value": "1389",
 			"type": "string"
 		},
 		{
@@ -2650,7 +2650,7 @@
 		{
 			"id": "e95c1106-6cf4-4b57-931d-3c0c5f0fb3de",
 			"key": "pa_engine_port",
-			"value": "443",
+			"value": "1443",
 			"type": "string",
 			"disabled": true
 		},
@@ -2677,19 +2677,19 @@
 		{
 			"id": "d43cf02f-8fb2-4056-b146-6186cb567a81",
 			"key": "pdp_port_https",
-			"value": "443",
+			"value": "1443",
 			"type": "string"
 		},
 		{
 			"id": "3fc6c112-da23-4113-9f79-f04411198b98",
 			"key": "pdp_port_ldap",
-			"value": "389",
+			"value": "1389",
 			"type": "string"
 		},
 		{
 			"id": "70455eae-6f47-4e70-a14f-01c2d39b94d0",
 			"key": "pdp_port_ldaps",
-			"value": "636",
+			"value": "1636",
 			"type": "string"
 		}
 	],

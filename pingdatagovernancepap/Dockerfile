@@ -44,6 +44,15 @@ RUN ["/opt/build.sh"]
 
 
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
+#-- Image version and git revision, set by build process of the docker build
+ARG IMAGE_VERSION="undefined"
+ENV IMAGE_VERSION=${IMAGE_VERSION}
+ARG IMAGE_GIT_REV=""
+ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+
+LABEL image-version="${IMAGE_VERSION}" \
+      image-git-rev="${IMAGE_GIT_REV}"
+
 #-- PingIdentity license version
 ARG LICENSE_VERSION
 #-- Ping product name
@@ -98,7 +107,7 @@ COPY --from=final-staging ["/","/"]
 #-   docker run \
 #-            --name pingdatagovernancepap \
 #-            --env PING_EXTERNAL_BASE_URL=my-pap-hostname:8443 \
-#-            --publish 8443:443 \
+#-            --publish 8443:1443 \
 #-            --detach \
 #-            --env PING_IDENTITY_ACCEPT_EULA=YES \
 #-            --env PING_IDENTITY_DEVOPS_USER \
@@ -122,7 +131,7 @@ COPY --from=final-staging ["/","/"]
 #-            --env PING_EXTERNAL_BASE_URL=my-pap-hostname:8443 \
 #-            --env PING_OIDC_CONFIGURATION_ENDPOINT=https://my-oidc-provider/.well-known/openid-configuration \
 #-            --env PING_CLIENT_ID=b1929abc-e108-4b4f-83d467059fa1 \
-#-            --publish 8443:443 \
+#-            --publish 8443:1443 \
 #-            --detach \
 #-            --env PING_IDENTITY_ACCEPT_EULA=YES \
 #-            --env PING_IDENTITY_DEVOPS_USER \
@@ -166,7 +175,7 @@ COPY --from=final-staging ["/","/"]
 #-   docker run \
 #-            --name pingdatagovernancepap \
 #-            --env PING_EXTERNAL_BASE_URL=my-pap-hostname:8443 \
-#-            --publish 8443:443 \
+#-            --publish 8443:1443 \
 #-            --detach \
 #-            --env PING_IDENTITY_ACCEPT_EULA=YES \
 #-            --env PING_IDENTITY_DEVOPS_USER \
@@ -196,7 +205,7 @@ COPY --from=final-staging ["/","/"]
 #-            --env PING_EXTERNAL_BASE_URL=my-pap-hostname:8443 \
 #-            --env PING_BACKUP_SCHEDULE="0 0 12 * * ?" \
 #-            --env PING_H2_BACKUP_DIR=/opt/out/backup \
-#-            --publish 8443:443 \
+#-            --publish 8443:1443 \
 #-            --detach \
 #-            pingidentity/pingdatagovernancepap:edge
 #- ```

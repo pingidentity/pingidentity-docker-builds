@@ -2,13 +2,17 @@ version: "2.4"
 
 services:
   sut:
-    image: ${REGISTRY}/pingdatagovernance:${TAG}
+    image: ${REGISTRY}/pingdirectory:${TAG}
+    # Run with the root user
+    user: 0:0
     environment:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
       - PING_IDENTITY_ACCEPT_EULA=YES
       - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
-      - SERVER_PROFILE_PATH=getting-started/pingdatagovernance
+      - SERVER_PROFILE_PATH=getting-started/pingdirectory
+      - MAX_HEAP_SIZE=768m
+      - MAKELDIF_USERS=1000
     ulimits:
       nproc:
         soft: 16384
@@ -19,5 +23,8 @@ services:
     mem_limit: ${KUBERNETES_MEMORY_LIMIT:-2000000000}b
     memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-2000000000}b
     mem_swappiness: 0
+    volumes:
+      - ./test-expected-user.sh:/tmp/test.sh
     tmpfs: /run/secrets
-    command: start-server /opt/wait-for localhost:1443 -t 300 -- /opt/liveness.sh
+    # Expect the root user and group IDs
+    command: start-server /opt/wait-for localhost:1389 -t 300 -- /tmp/test.sh 0 0
