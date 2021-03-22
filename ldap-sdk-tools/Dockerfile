@@ -21,7 +21,6 @@ FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
-ENV SHIM=${SHIM}
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
@@ -44,11 +43,13 @@ RUN ["/opt/build.sh"]
 # the final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
-#-- Image version and git revision, set by build process of the docker build
+# Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
-ENV IMAGE_VERSION=${IMAGE_VERSION}
 ARG IMAGE_GIT_REV=""
-ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+ENV SHIM=${SHIM} \
+    IMAGE_VERSION=${IMAGE_VERSION} \
+    IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    PATH=/opt/tools:${PATH}
 
 LABEL   image-version="${IMAGE_VERSION}" \
         image-git-rev="${IMAGE_GIT_REV}" \
@@ -56,7 +57,6 @@ LABEL   image-version="${IMAGE_VERSION}" \
 		license="Apache License v2.0, GPLv2, LGPLv2.1, Ping Identity UnboundID LDAP SDK Free Use" \
 		vendor="Ping Identity Corp." \
 		name="Ping Identity LDAP SDK Tools (Alpine/OpenJDK8) Image"
-ENV PATH=/opt/tools:${PATH}
 VOLUME ["/opt/out"]
 COPY --from=final-staging ["/","/"]
 

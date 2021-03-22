@@ -11,7 +11,6 @@ FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${SHIM} as final-staging
-ENV SHIM=${SHIM}
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
@@ -36,11 +35,15 @@ RUN ["/opt/build.sh"]
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
 #-- Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
-ENV IMAGE_VERSION=${IMAGE_VERSION}
 ARG IMAGE_GIT_REV=""
-ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+
+ENV SHIM=${SHIM} \
+    IMAGE_VERSION=${IMAGE_VERSION}  \
+    IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+#-- The command that the entrypoint will execute in the foreground to
+#-- instantiate the container
+    STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
 
 LABEL image-version="${IMAGE_VERSION}" \
       image-git-rev="${IMAGE_GIT_REV}"
 COPY --from=final-staging ["/","/"]
-ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"

@@ -24,7 +24,6 @@ FROM ${REGISTRY}/pingdatacommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
-ENV SHIM=${SHIM}
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
 # get Ping-wide common scripts
@@ -41,79 +40,81 @@ COPY ["/opt","/opt"]
 RUN ["/opt/build.sh"]
 
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
-#-- Image version and git revision, set by build process of the docker build
+# Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
-ENV IMAGE_VERSION=${IMAGE_VERSION}
 ARG IMAGE_GIT_REV=""
-ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
-
-LABEL image-version="${IMAGE_VERSION}" \
-      image-git-rev="${IMAGE_GIT_REV}"
-
-#-- PingIdentity license version
+# PingIdentity license version
 ARG LICENSE_VERSION
+
+ENV SHIM=${SHIM} \
+    IMAGE_VERSION=${IMAGE_VERSION} \
+    IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+
 #-- Ping product name
-ENV PING_PRODUCT=PingDirectory
-#-- Name of License File
-ENV LICENSE_FILE_NAME=PingDirectory.lic
+    PING_PRODUCT=PingDirectory \
+#-- Name of license File
+    LICENSE_FILE_NAME=PingDirectory.lic \
 #-- Short name used when retrieving license from License Server
-ENV LICENSE_SHORT_NAME=PD
+    LICENSE_SHORT_NAME=PD \
 #-- Version used when retrieving license from License Server
-ENV LICENSE_VERSION=${LICENSE_VERSION}
+    LICENSE_VERSION=${LICENSE_VERSION} \
 
 #-- Default PingDirectory Replication Port
-ENV REPLICATION_PORT=8989
+    REPLICATION_PORT=8989 \
 #-- Replication administrative user
-ENV ADMIN_USER_NAME=admin
+    ADMIN_USER_NAME=admin \
 
-ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
+#-- The command that the entrypoint will execute in the foreground to
+#-- instantiate the container
+    STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server" \
 
 #-- Public hostname of the DA app
-ENV PD_DELEGATOR_PUBLIC_HOSTNAME=localhost
+    PD_DELEGATOR_PUBLIC_HOSTNAME=localhost \
 
-#-- Adding lockdown mode so non administrative connections be made until server
-#-- has been started with replication enabled
-ENV STARTUP_FOREGROUND_OPTS="--nodetach"
+#-- The command-line options to provide to the the startup command when
+#-- the container starts with the server in the foreground. This is the
+#-- normal start flow for the container
+    STARTUP_FOREGROUND_OPTS="--nodetach" \
 
-#-- Adding lockdown mode so non administrative connections be made until server
-#-- has been started with replication enabled
-ENV STARTUP_BACKGROUND_OPTS=""
+#-- The command-line options to provide to the the startup command when
+#-- the container starts with the server in the background. This is the
+#-- debug start flow for the container
+    STARTUP_BACKGROUND_OPTS="" \
 
 #-- Location of file with the root user password (i.e. cn=directory manager).
-#-- Defaults to the /SECRETS_DIR/root-user-password
-ENV ROOT_USER_PASSWORD_FILE=
+#-- Defaults to /SECRETS_DIR/root-user-password
+    ROOT_USER_PASSWORD_FILE= \
 
 #-- Location of file with the admin password, used as the password replication admin
-#-- Defaults to the /SECRETS_DIR/admin-user-password
-ENV ADMIN_USER_PASSWORD_FILE=
+#-- Defaults to /SECRETS_DIR/admin-user-password
+    ADMIN_USER_PASSWORD_FILE= \
 
 #-- Location of file with the passphrase for setting up encryption
-#-- Defaults to the /SECRETS_DIR/encryption-password
-ENV ENCRYPTION_PASSWORD_FILE=
+#-- Defaults to /SECRETS_DIR/encryption-password
+    ENCRYPTION_PASSWORD_FILE= \
 
 #-- Files tailed once container has started
-ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access \
-    ${SERVER_ROOT_DIR}/logs/errors \
-    ${SERVER_ROOT_DIR}/logs/failed-ops \
-    ${SERVER_ROOT_DIR}/logs/config-audit.log \
-    ${SERVER_ROOT_DIR}/logs/tools/*.log* \
-    ${SERVER_BITS_DIR}/logs/tools/*.log*"
+    TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access ${SERVER_ROOT_DIR}/logs/errors ${SERVER_ROOT_DIR}/logs/failed-ops ${SERVER_ROOT_DIR}/logs/config-audit.log ${SERVER_ROOT_DIR}/logs/tools/*.log* ${SERVER_BITS_DIR}/logs/tools/*.log*" \
 #-- Number of users to auto-populate using make-ldif templates
-ENV MAKELDIF_USERS=0
+    MAKELDIF_USERS=0 \
 
 #-- The default retry timeout in seconds for dsreplication and
 #-- remove-defunct-server
-ENV RETRY_TIMEOUT_SECONDS=180
+    RETRY_TIMEOUT_SECONDS=180 \
 
 #-- Flag to disable schema replication. In a DevOps environment, schema
 #-- comes from configuration. So it does not need to be replicated.
-ENV DISABLE_SCHEMA_REPLICATION=false
+    DISABLE_SCHEMA_REPLICATION=false \
 
-ENV PD_PROFILE="${STAGING_DIR}/pd.profile"
+#-- Directory for the profile used by the PingData manage-profile tool
+    PD_PROFILE="${STAGING_DIR}/pd.profile" \
 
 #-- Force a rebuild (replace-profile) of a PingDirectoy on restart.
 #-- Used when changes are made outside of the PD_PROFILE
-ENV PD_REBUILD_ON_RESTART=false
+    PD_REBUILD_ON_RESTART=false
+
+LABEL image-version="${IMAGE_VERSION}" \
+      image-git-rev="${IMAGE_GIT_REV}"
 
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT} 5005
 

@@ -23,7 +23,6 @@ FROM ${REGISTRY}/pingdatacommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
-ENV SHIM=${SHIM}
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
@@ -44,51 +43,50 @@ RUN ["/opt/build.sh"]
 
 
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
-#-- Image version and git revision, set by build process of the docker build
+# Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
-ENV IMAGE_VERSION=${IMAGE_VERSION}
 ARG IMAGE_GIT_REV=""
-ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+# PingIdentity license version
+ARG LICENSE_VERSION
+
+ENV SHIM=${SHIM} \
+    IMAGE_VERSION=${IMAGE_VERSION} \
+    IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+#-- Ping product name
+    PING_PRODUCT=PingDataGovernance-PAP \
+#-- Name of license File
+    LICENSE_FILE_NAME=PingDataGovernance.lic \
+#-- Short name used when retrieving license from License Server
+    LICENSE_SHORT_NAME=PG \
+#-- Version used when retrieving license from License Server
+    LICENSE_VERSION=${LICENSE_VERSION} \
+#-- Minimal Heap size required for Ping DataGovernance PAP
+    MAX_HEAP_SIZE=384m \
+#-- The command that the entrypoint will execute in the foreground to
+#-- instantiate the container
+    STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server" \
+#-- The command-line options to provide to the the startup command when
+#-- the container starts with the server in the foreground. This is the
+#-- normal start flow for the container
+    STARTUP_FOREGROUND_OPTS="--nodetach" \
+#-- The command-line options to provide to the the startup command when
+#-- the container starts with the server in the background. This is the
+#-- debug start flow for the container
+    STARTUP_BACKGROUND_OPTS="" \
+#-- Set to true to use parallel for the invocation of the tail utility
+#-- when tailing log files to standard output
+    TAIL_LOG_PARALLEL="true" \
+#-- Files tailed once container has started
+    TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/datagovernance-pap.log ${SERVER_ROOT_DIR}/logs/setup.log ${SERVER_ROOT_DIR}/logs/start-server.log ${SERVER_ROOT_DIR}/logs/stop-server.log" \
+
+#-- Hostname used for the REST API (deprecated, use `PING_EXTERNAL_BASE_URL` instead)
+    REST_API_HOSTNAME="localhost" \
+
+#-- Define shared secret between PDG and PAP
+    DECISION_POINT_SHARED_SECRET="2FederateM0re"
 
 LABEL image-version="${IMAGE_VERSION}" \
       image-git-rev="${IMAGE_GIT_REV}"
-
-#-- PingIdentity license version
-ARG LICENSE_VERSION
-#-- Ping product name
-ENV PING_PRODUCT=PingDataGovernance-PAP
-#-- Name of License File
-ENV LICENSE_FILE_NAME=PingDataGovernance.lic
-#-- Short name used when retrieving license from License Server
-ENV LICENSE_SHORT_NAME=PG
-#-- Version used when retrieving license from License Server
-ENV LICENSE_VERSION=${LICENSE_VERSION}
-
-#-- Minimal Heap size required for Ping DataGovernance PAP
-ENV MAX_HEAP_SIZE=384m
-
-ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
-
-#-- Adding lockdown mode so non administrative connections be made until server
-#-- has been started with replication enabled
-ENV STARTUP_FOREGROUND_OPTS="--nodetach"
-
-#-- Adding lockdown mode so non administrative connections be made until server
-#-- has been started with replication enabled
-ENV STARTUP_BACKGROUND_OPTS=""
-
-ENV TAIL_LOG_PARALLEL="y"
-#-- Files tailed once container has started
-ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/datagovernance-pap.log \
-  ${SERVER_ROOT_DIR}/logs/setup.log \
-  ${SERVER_ROOT_DIR}/logs/start-server.log \
-  ${SERVER_ROOT_DIR}/logs/stop-server.log"
-
-#-- Hostname used for the REST API (deprecated, use `PING_EXTERNAL_BASE_URL` instead)
-ENV REST_API_HOSTNAME="localhost"
-
-#-- Define shared secret between PDG and PAP
-ENV DECISION_POINT_SHARED_SECRET="2FederateM0re"
 
 EXPOSE ${HTTPS_PORT}
 
