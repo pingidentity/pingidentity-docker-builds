@@ -29,6 +29,7 @@ FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
+ENV SHIM=${SHIM}
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
@@ -52,107 +53,98 @@ RUN ["/opt/build.sh"]
 # The final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
-# Image version and git revision, set by build process of the docker build
+#-- Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
+ENV IMAGE_VERSION=${IMAGE_VERSION}
 ARG IMAGE_GIT_REV=""
-ARG LICENSE_VERSION
+ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
 
-ENV SHIM=${SHIM} \
-    IMAGE_VERSION=${IMAGE_VERSION} \
-    IMAGE_GIT_REV=${IMAGE_GIT_REV} \
-#-- Ping product name
-    PING_PRODUCT="PingFederate" \
-#-- License directory
-    LICENSE_DIR="${SERVER_ROOT_DIR}/server/default/conf" \
-#-- Name of license file
-    LICENSE_FILE_NAME="pingfederate.lic" \
-#-- Short name used when retrieving license from License Server
-    LICENSE_SHORT_NAME="PF" \
-#-- Version used when retrieving license from License Server
-    LICENSE_VERSION=${LICENSE_VERSION} \
-#-- The command that the entrypoint will execute in the foreground to
-#-- instantiate the container
-    STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh" \
-#-- Files tailed once container has started
-    TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/server.log \
+LABEL image-version="${IMAGE_VERSION}" \
+      image-git-rev="${IMAGE_GIT_REV}"
+
+ARG LICENSE_VERSION
+ENV PING_PRODUCT="PingFederate"
+ENV LICENSE_DIR="${SERVER_ROOT_DIR}/server/default/conf"
+ENV LICENSE_FILE_NAME="pingfederate.lic"
+ENV LICENSE_SHORT_NAME="PF"
+ENV LICENSE_VERSION=${LICENSE_VERSION}
+ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
+ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/server.log
 
 #-- Defines the log file size max for ALL appenders
-    PF_LOG_SIZE_MAX="10000 KB" \
+ENV PF_LOG_SIZE_MAX="10000 KB"
 
 #-- Defines the maximum of log files to retain upon rotation
-    PF_LOG_NUMBER=2 \
+ENV PF_LOG_NUMBER=2
 
 #-- Defines the port on which the PingFederate administrative
 #-- console and API runs.
-    PF_ADMIN_PORT=9999 \
+ENV PF_ADMIN_PORT=9999
 
 #-- Defines the port on which PingFederate listens for
 #-- encrypted HTTPS (SSL/TLS) traffic.
-    PF_ENGINE_PORT=9031 \
+ENV PF_ENGINE_PORT=9031
 
 #-- Flag to turn on PingFederate Engine debugging
 #-- Used in run.sh
-    PF_ENGINE_DEBUG=false \
+ENV PF_ENGINE_DEBUG=false
 
 #-- Flag to turn on PingFederate Admin debugging
 #-- Used in run.sh
-    PF_ADMIN_DEBUG=false \
+ENV PF_ADMIN_DEBUG=false
 
 #-- Defines the port on which PingFederate opens up a java debugging port.
 #-- Used in run.sh
-    PF_DEBUG_PORT=9030 \
+ENV PF_DEBUG_PORT=9030
 
 #-- Operational Mode
 #-- Indicates the operational mode of the runtime server in run.properties
 #-- Options include STANDALONE, CLUSTERED_CONSOLE, CLUSTERED_ENGINE.
-    OPERATIONAL_MODE="STANDALONE" \
+ENV OPERATIONAL_MODE="STANDALONE"
 
 #-- Defines mechanism for console authentication in run.properties.
 #-- Options include none, native, LDAP, cert, RADIUS, OIDC.
 #-- If not set, default is native.
-    PF_CONSOLE_AUTHENTICATION= \
+ENV PF_CONSOLE_AUTHENTICATION=
 
 #-- Defines mechanism for admin api authentication in run.properties.
 #-- Options include none, native, LDAP, cert, RADIUS, OIDC.
 #-- If not set, default is native.
-    PF_ADMIN_API_AUTHENTICATION= \
+ENV PF_ADMIN_API_AUTHENTICATION=
 
 #-- Hardware Security Module Mode in run.properties
 #-- Options include OFF, AWSCLOUDHSM, NCIPHER, LUNA, BCFIPS.
-    HSM_MODE="OFF" \
+ENV HSM_MODE="OFF"
 
 #-- This is the username for an account within the LDAP Directory Server
 #-- that can be used to perform user lookups for authentication and other
 #-- user level search operations.  Set if PF_CONSOLE_AUTHENTICATION or
 #-- PF_ADMIN_API_AUTHENTICATION=LDAP
-    PF_LDAP_USERNAME="cn=pingfederate" \
+ENV PF_LDAP_USERNAME="cn=pingfederate"
 
 #-- This is the password for the Username specified above.
 #-- This property should be obfuscated using the 'obfuscate.sh' utility.
 #-- Set if PF_CONSOLE_AUTHENTICATION or PF_ADMIN_API_AUTHENTICATION=LDAP
-    PF_LDAP_PASSWORD="OBF:JWE:eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2Iiwia2lkIjoiRW1JY1UxOVdueSIsInZlcnNpb24iOiI5LjIuMS4xIn0..euBO0bawJz3XC_plAjxECg.yF7BpnCTPZlpZUo21WQ5IQ.YlLtlJTxXhrp3LsxyQDo5g" \
+ENV PF_LDAP_PASSWORD="OBF:JWE:eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2Iiwia2lkIjoiRW1JY1UxOVdueSIsInZlcnNpb24iOiI5LjIuMS4xIn0..euBO0bawJz3XC_plAjxECg.yF7BpnCTPZlpZUo21WQ5IQ.YlLtlJTxXhrp3LsxyQDo5g"
 
 #-- IP address for cluster communication.  Set to NON_LOOPBACK to
 #-- allow the system to choose an available non-loopback IP address.
-    CLUSTER_BIND_ADDRESS="NON_LOOPBACK" \
+ENV CLUSTER_BIND_ADDRESS="NON_LOOPBACK"
 
 #-- Provisioner Mode in run.properties
 #-- Options include OFF, STANDALONE, FAILOVER.
-    PF_PROVISIONER_MODE=OFF \
+ENV PF_PROVISIONER_MODE=OFF
 
 #-- Provisioner Node ID in run.properties
 #-- Initial active provisioning server node ID is 1
-    PF_PROVISIONER_NODE_ID=1 \
+ENV PF_PROVISIONER_NODE_ID=1
 
 #-- Provisioner Failover Grace Period in run.properties
 #-- Grace period, in seconds. Default 600 seconds
-    PF_PROVISIONER_GRACE_PERIOD=600 \
+ENV PF_PROVISIONER_GRACE_PERIOD=600
 
-    BULK_CONFIG_DIR="${OUT_DIR}/instance/bulk-config" \
-    BULK_CONFIG_FILE=data.json
-
-LABEL image-version="${IMAGE_VERSION}" \
-      image-git-rev="${IMAGE_GIT_REV}"
+ENV BULK_CONFIG_DIR="${OUT_DIR}/instance/bulk-config"
+ENV BULK_CONFIG_FILE=data.json
 
 EXPOSE 9031 9999
 

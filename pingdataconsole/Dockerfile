@@ -22,6 +22,7 @@ FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
+ENV SHIM=${SHIM}
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
@@ -44,33 +45,21 @@ RUN ["/opt/build.sh"]
 # the final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
-# Image version and git revision, set by build process of the docker build
+#-- Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
+ENV IMAGE_VERSION=${IMAGE_VERSION}
 ARG IMAGE_GIT_REV=""
-
-ENV SHIM=${SHIM} \
-    IMAGE_VERSION=${IMAGE_VERSION} \
-    IMAGE_GIT_REV=${IMAGE_GIT_REV} \
-#-- PingDataConsole HTTP listen port
-    HTTP_PORT=8080 \
-#-- PingDataConsole HTTPS listen port
-    HTTPS_PORT=8443 \
-#-- The command that the entrypoint will execute in the foreground to
-#-- instantiate the container
-    STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/catalina.sh" \
-#-- The command-line options to provide to the the startup command when
-#-- the container starts with the server in the foreground. This is the
-#-- normal start flow for the container
-    STARTUP_FOREGROUND_OPTS="run" \
-#-- The command-line options to provide to the the startup command when
-#-- the container starts with the server in the background. This is the
-#-- debug start flow for the container
-    STARTUP_BACKGROUND_OPTS="start"
+ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
 
 LABEL image-version="${IMAGE_VERSION}" \
       image-git-rev="${IMAGE_GIT_REV}"
 
 COPY --from=final-staging ["/","/"]
+ENV HTTP_PORT=8080
+ENV HTTPS_PORT=8443
+ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/catalina.sh"
+ENV STARTUP_FOREGROUND_OPTS="run"
+ENV STARTUP_BACKGROUND_OPTS="start"
 
 #- ## Run
 #- To run a PingDataConsole container:
