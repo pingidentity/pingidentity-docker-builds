@@ -25,6 +25,7 @@ FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
+ENV SHIM=${SHIM}
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
@@ -47,42 +48,32 @@ RUN ["/opt/build.sh"]
 # the final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
-# Image version and git revision, set by build process of the docker build
+#-- Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
+ENV IMAGE_VERSION=${IMAGE_VERSION}
 ARG IMAGE_GIT_REV=""
-ARG LICENSE_VERSION
-
-ENV SHIM=${SHIM} \
-    IMAGE_VERSION=${IMAGE_VERSION} \
-    IMAGE_GIT_REV=${IMAGE_GIT_REV} \
-#-- Ping product name
-    PING_PRODUCT="PingAccess" \
-#-- License directory
-    LICENSE_DIR="${SERVER_ROOT_DIR}/conf" \
-#-- Name of license file
-    LICENSE_FILE_NAME=pingaccess.lic \
-#-- Short name used when retrieving license from License Server
-    LICENSE_SHORT_NAME=PA \
-#-- Version used when retrieving license from License Server
-    LICENSE_VERSION=${LICENSE_VERSION} \
-    PA_ADMIN_PASSWORD=${INITIAL_ADMIN_PASSWORD} \
-    OPERATIONAL_MODE="STANDALONE" \
-#-- Change **non-default** password at startup by including this and PING_IDENTITY_PASSWORD
-    PA_ADMIN_PASSWORD_INITIAL="2Access" \
-#-- The command that the entrypoint will execute in the foreground to
-#-- instantiate the container
-    STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh" \
-#-- Files tailed once container has started
-    TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/pingaccess.log \
-    PA_ADMIN_PORT=9000 \
-# pingaccess comes ootb listening on 3000 but it is more natural for https traffic to be listened for on 443
-    PA_ENGINE_PORT=3000
-#-- Specify a password for administrator user for interaction with admin API
-ENV PING_IDENTITY_PASSWORD=${PA_ADMIN_PASSWORD}
+ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
 
 LABEL image-version="${IMAGE_VERSION}" \
       image-git-rev="${IMAGE_GIT_REV}"
 
+ARG LICENSE_VERSION
+# pingaccess comes ootb listening on 3000 but it is more natural for https traffic to be listened for on 443
+ENV PING_PRODUCT="PingAccess"
+ENV LICENSE_DIR="${SERVER_ROOT_DIR}/conf"
+ENV LICENSE_FILE_NAME=pingaccess.lic
+ENV LICENSE_SHORT_NAME=PA
+ENV LICENSE_VERSION=${LICENSE_VERSION}
+ENV PA_ADMIN_PASSWORD=${INITIAL_ADMIN_PASSWORD}
+#-- Specify a password for administrator user for interaction with admin API
+ENV PING_IDENTITY_PASSWORD=${PA_ADMIN_PASSWORD}
+ENV OPERATIONAL_MODE="STANDALONE"
+#-- Change **non-default** password at startup by including this and PING_IDENTITY_PASSWORD
+ENV PA_ADMIN_PASSWORD_INITIAL="2Access"
+ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
+ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/pingaccess.log
+ENV PA_ADMIN_PORT=9000
+ENV PA_ENGINE_PORT=3000
 
 EXPOSE ${PA_ADMIN_PORT} ${PA_ENGINE_PORT} ${HTTPS_PORT}
 COPY --from=final-staging ["/","/"]

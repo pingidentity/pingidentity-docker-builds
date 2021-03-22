@@ -222,12 +222,10 @@ parse_dockerfile ()
 
     while read -r line
     do
+
         #
         # Parse the ENV Description
-        #   Example: #-- This is the description
-        # 
-        # Each line starting with #-- will be concatenated onto the
-        # description until an ENV variable line is found
+        #   Example: $-- This is the description
         #
         if [ "$(echo "${line}" | cut -c-3)" = "#--" ]
         then
@@ -236,45 +234,14 @@ parse_dockerfile ()
         fi
 
         #
-        # Parse the ENV variable name and value
-        #   Example: ENV VARIABLE_ONE=value1 \
-        #                VARIABLE_TWO=value2
-        #
-        # Also supports line continuations with \, so multiple ENV vars can be set in one command
-        # Typically ENV lines should use continuations rather than separate ENV statements, to
-        # reduce layers in our images, though ENV variables dependent on other variables will need
-        # to be defined in separate statements.
-        #
-        # This logic is unable to handle when the variables values themselves are split onto multiple
-        # lines, since it can only check for the \ at the end of the line, so variable values should
-        # be kept to a single line to ensure the documentation is valid.
+        # Parse the ENV Description
+        #   Example: ENV VARIABLE=value
         #
         if [ "$(echo "${line}" | cut -c-4)" = "ENV " ] ||
-           [ "$(echo "${line}" | cut -c-12)" = "ONBUILD ENV " ] ||
-           [ "${_envContinuation}" = "true" ] && [ "${line}" ] && [ ! "$(echo "${line}" | cut -c-1)" = "#" ]
+           [ "$(echo "${line}" | cut -c-12)" = "ONBUILD ENV " ]
         then
-            # Read the variable name before the '='
-            if [ "${_envContinuation}" = "true" ]
-            then
-                # Don't expect "ENV" or "ONBUILD ENV"
-                ENV_VARIABLE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^\(.*\)x=x.*/\1/')
-            else
-                # Expect "ENV" or "ONBUILD ENV"
-                ENV_VARIABLE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*ENV[[:space:]]\(.*\)x=x.*/\1/')
-            fi
-            
-            # Read the variable value after the '=', and trim off the ' \' at the end if present
-            ENV_VALUE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*x=x\(.*\)/\1/' -e 's/[[:space:]]\{1,\}\\$//' -e 's/^"\(.*\)"$/\1/')
-
-            # If ENV line ends in slash, the next command will also be an ENV var
-            # This isn't able to handle when the variable values themselves are multiline.
-            # It assumes that any line continuation is the end of the previous variable.
-            if [ "$(echo "${line}" | grep "[[:space:]]\\\\$" )" ]
-            then
-                _envContinuation="true"
-            else
-                _envContinuation="false"
-            fi
+            ENV_VARIABLE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*ENV \(.*\)x=x.*/\1/')
+            ENV_VALUE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*x=x\(.*\)/\1/' -e 's/^"\(.*\)"$/\1/')
 
             append_env_table_header
 
@@ -294,7 +261,6 @@ parse_dockerfile ()
             # shellcheck disable=SC2001
             EXPOSE_PORTS=$(echo "${line}" | sed 's/^.*EXPOSE \(.*\)$/\1/')
 
-            append_header
             append_expose_ports "${EXPOSE_PORTS}"
 
             continue
@@ -302,8 +268,6 @@ parse_dockerfile ()
 
         #
         # Parse the remaining lines for "#-"
-        #
-        # Lines starting with '#-' (only one dash) will be added to the doc page outside of the ENV table
         #
         if [ "$(echo "${line}" | cut -c-2)" = "#-" ]
         then
@@ -317,7 +281,6 @@ parse_dockerfile ()
         fi
     done < "${_dockerFile}"
 
-    append_header
     append_doc "## Docker Container Hook Scripts"
     append_doc "Please go [here](https://github.com/pingidentity/pingidentity-devops-getting-started/tree/master/docs/docker-images/${_dockerImage}/hooks/README.md) for details on all ${_dockerImage} hook scripts"
     append_footer "${_dockerImage}/Dockerfile"
