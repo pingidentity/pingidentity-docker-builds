@@ -23,7 +23,6 @@ FROM ${REGISTRY}/pingdatacommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
-ENV SHIM=${SHIM}
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
@@ -46,39 +45,52 @@ RUN ["/opt/build.sh"]
 # The final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
-#-- Image version and git revision, set by build process of the docker build
+# Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
-ENV IMAGE_VERSION=${IMAGE_VERSION}
 ARG IMAGE_GIT_REV=""
-ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
-
-LABEL image-version="${IMAGE_VERSION}" \
-      image-git-rev="${IMAGE_GIT_REV}"
-
-#-- PingIdentity license version
+# PingIdentity license version
 ARG LICENSE_VERSION
 
-ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/sync"
-ENV LICENSE_FILE_NAME="PingDirectory.lic"
-ENV LICENSE_SHORT_NAME=PD
-ENV LICENSE_VERSION=${LICENSE_VERSION}
-ENV PING_PRODUCT=PingDataSync
-ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
-ENV STARTUP_FOREGROUND_OPTS="--nodetach"
+ENV SHIM=${SHIM} \
+    IMAGE_VERSION=${IMAGE_VERSION} \
+    IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+#-- Files tailed once container has started
+    TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/sync" \
+#-- Name of license file
+    LICENSE_FILE_NAME="PingDirectory.lic" \
+#-- Short name used when retrieving license from License Server
+    LICENSE_SHORT_NAME=PD \
+#-- Version used when retrieving license from License Server
+    LICENSE_VERSION=${LICENSE_VERSION} \
+#-- Ping product name
+    PING_PRODUCT=PingDataSync \
+#-- The command that the entrypoint will execute in the foreground to
+#-- instantiate the container
+    STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server" \
+#-- The command-line options to provide to the the startup command when
+#-- the container starts with the server in the foreground. This is the
+#-- normal start flow for the container
+    STARTUP_FOREGROUND_OPTS="--nodetach" \
 
 #-- The default retry timeout in seconds for manage-topology and
 #-- remove-defunct-server
-ENV RETRY_TIMEOUT_SECONDS=180
+    RETRY_TIMEOUT_SECONDS=180 \
 
 #-- Failover administrative user
-ENV ADMIN_USER_NAME=admin
+    ADMIN_USER_NAME=admin \
 
 #-- Location of file with the root user password (i.e. cn=directory manager).
-#-- Defaults to the /SECRETS_DIR/root-user-password
-ENV ROOT_USER_PASSWORD_FILE=
-ENV ADMIN_USER_PASSWORD_FILE=
+#-- Defaults to /SECRETS_DIR/root-user-password
+    ROOT_USER_PASSWORD_FILE= \
+#-- Location of file with the admin password, used as the password replication admin
+#-- Defaults to /SECRETS_DIR/admin-user-password
+    ADMIN_USER_PASSWORD_FILE= \
 
-ENV PD_PROFILE="${STAGING_DIR}/pd.profile"
+#-- Directory for the profile used by the PingData manage-profile tool
+    PD_PROFILE="${STAGING_DIR}/pd.profile"
+
+LABEL image-version="${IMAGE_VERSION}" \
+      image-git-rev="${IMAGE_GIT_REV}"
 
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT}
 
