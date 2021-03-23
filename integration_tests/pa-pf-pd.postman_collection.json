@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "10a8bc30-e598-4905-8a27-08588042f340",
+		"_postman_id": "4aa82ef9-c880-4029-a12a-d72073682290",
 		"name": "pa-pf-pd",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -11,7 +11,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "adafbc14-7f93-4d4a-8c15-fd40194fa45d",
 						"exec": [
 							"var _retries=pm.variables.has(\"_retries\")?pm.variables.get(\"_retries\"):pm.variables.get(\"request_retry_count\");",
 							"",
@@ -53,7 +52,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "c8aaf5f9-0114-4b33-9bd1-df1115aa4e7f",
 						"exec": [
 							"// we wait 30 seconds or we may beat PA config import time",
 							"setTimeout(function () { console.log(\"Delaying request by 30 seconds\"); }, 30000);",
@@ -93,7 +91,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "2e201328-2edd-4e10-9892-73a24f3296b7",
 						"exec": [
 							"var _retries = pm.environment.get(\"_retries\");",
 							"// Checks to see if the server actually responded and is valid JSON",
@@ -123,15 +120,8 @@
 							"",
 							"    var jsonData = JSON.parse(responseBody);",
 							"",
-							"    pm.test(\"items key is present\", function () {",
-							"        pm.expect(jsonData[\"items\"]).to.exist;",
-							"    });",
 							"    pm.test(\"cpu.load key is present\", function () {",
-							"        pm.expect(jsonData[\"items\"][0][\"cpu.load\"]).to.exist;",
-							"    });",
-							"    pm.test(\"cpu less than 100\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.items[0][\"cpu.load\"]).to.be.below(100);",
+							"        pm.expect(jsonData.hasOwnProperty(\"cpu.load\")).to.be.true;",
 							"    });",
 							"",
 							"    var schema = pm.response.json();",
@@ -167,7 +157,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "1dc0ac72-19c4-4f32-9ba3-88e1c14ab087",
 						"exec": [
 							"var _host = pm.variables.get(\"pf_engine_hostname\");",
 							"var _port = pm.variables.get(\"pf_engine_port\");",
@@ -205,7 +194,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a5388062-73ef-4ca9-8e29-84b71fd4a465",
 						"exec": [
 							"var _retries = pm.environment.get(\"_retries\");",
 							"",
@@ -245,7 +233,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "952b4221-7e2a-4e09-ac75-9abb9a7423c8",
 						"exec": [
 							"var _host = pm.variables.get(\"pf_admin_hostname\");",
 							"var _port = pm.variables.get(\"pf_admin_port\");",
@@ -295,7 +282,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "a2991d78-2eab-4bc3-832c-7bf9b9eeb242",
 						"exec": [
 							"var _host = pm.variables.get(\"pa_engine_hostname\");",
 							"var _port = pm.variables.get(\"pa_engine_port\");",
@@ -307,7 +293,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "025a4303-0d26-4734-897b-d039c0c7e8f2",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -323,11 +308,8 @@
 							"",
 							"var jsonData = JSON.parse(responseBody);",
 							"",
-							"pm.test(\"items key is present\", function () {",
-							"    pm.expect(jsonData[\"items\"]).to.exist;",
-							"});",
 							"pm.test(\"cpu.load key is present\", function () {",
-							"    pm.expect(jsonData[\"items\"][0][\"cpu.load\"]).to.exist;",
+							"    pm.expect(jsonData.hasOwnProperty(\"cpu.load\")).to.be.true;",
 							"});",
 							""
 						],
@@ -359,7 +341,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "4c8d18f6-3c73-49fe-ad9d-97a0026af63b",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -400,7 +381,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "2bf585fb-5b00-4b92-9734-d31f91f9d00b",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -441,7 +421,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "f36240f4-7d0e-423d-a84d-422a86283b81",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -483,7 +462,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "21630b7c-a164-490f-b24c-a24d8b33714b",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -537,7 +515,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "5fead724-a4c6-4643-9fc7-9d74297958bc",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -591,7 +568,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "4a35593e-e540-4c6a-aebc-edd87a4c6545",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -647,7 +623,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "e5ee8139-d986-4b40-b4df-12370749b9a9",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -702,7 +677,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "207b835d-205d-4f63-8ae7-5bfd83975a24",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -753,7 +727,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "6deae5db-cb2c-4d0d-ad48-abaadc14c97e",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -810,7 +783,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "3ef7f180-1a9b-44fd-8d7a-83f3b8b42b68",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -860,7 +832,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "6e41317c-50c0-46a8-b820-a05c4f68539d",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -937,7 +908,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "934a23f3-dfa3-438d-b55f-164ddc0a2623",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -999,7 +969,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "07a52d12-9d8e-4517-a955-46a1f3a48288",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -1053,7 +1022,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "6f848b63-42c0-4c7c-8cf7-244540ef560c",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -1112,7 +1080,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "3f9128a8-b4d5-4272-ae9f-490d04e14a31",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(201);",
@@ -1171,7 +1138,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "ab812dde-b85e-4503-bdae-620f2648efa2",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -1230,7 +1196,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a9285c7c-2a0f-49d0-9cae-c2c55d8e4506",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(201);",
@@ -1289,7 +1254,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "2ba91cce-5858-49d2-9834-1bfc2cd6c4e7",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    // 201 means means the creation worked",
@@ -1352,7 +1316,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "05ba4b2e-5ffe-4932-b771-fdcf14c9f7cc",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -1405,7 +1368,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "9a1716ae-d1f6-4458-ba90-483af2abac50",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    // 201 means means the creation worked",
@@ -1468,7 +1430,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "d83609da-931e-4348-905b-f17f210e3a12",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
@@ -1521,7 +1482,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "4d4be61a-c557-49c2-9028-c677d9421581",
 						"exec": [
 							"// Checks to see if the server actually responded",
 							"console.log(\"connection successful\");",
@@ -1555,7 +1515,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "bd75b98e-139c-4a7d-92c4-291b08d4482e",
 						"exec": [
 							"var _host = pm.variables.get(\"pf_admin_hostname\");",
 							"var _port = pm.variables.get(\"pf_admin_port\");",
@@ -1615,7 +1574,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "f2178a88-1823-4183-a812-defc4b229fc1",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(302);",
@@ -1701,7 +1659,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "23cb1213-4f9d-4fff-a743-7d72a8e4d7f8",
 						"exec": [
 							"function parseJwt (token) {",
 							"            var base64Url = token.split('.')[1];",
@@ -1787,7 +1744,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "b57a6c17-3682-4005-917b-8d03f8c0bae0",
 						"exec": [
 							"var _runId = Math.floor(Math.random()*100000);",
 							"pm.variables.set(\"_runId\",_runId);"
@@ -1798,7 +1754,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "81068847-1569-4e29-8d2a-6632b6e60921",
 						"exec": [
 							"    pm.test(\"response is ok\", function(){",
 							"        pm.response.to.have.status(200);",
@@ -1854,7 +1809,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "11abd847-409d-44d8-9ae1-46295ef9738a",
 						"exec": [
 							"var _runId = Math.floor(Math.random()*100000);",
 							"pm.variables.set(\"_runId\",_runId);"
@@ -1865,7 +1819,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a573605b-fe5e-4368-b31b-64490862bd8d",
 						"exec": [
 							"    pm.test(\"response is ok\", function(){",
 							"        pm.response.to.have.status(200);",
@@ -1925,7 +1878,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "7b77cffa-8f90-4326-8434-21607915ed47",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(204);",
@@ -1972,7 +1924,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a940e912-dbec-4b05-bbf8-78d0ada04caa",
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(204);",
@@ -2033,7 +1984,6 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "ef461ad3-8f79-43b4-9136-c3e1c2dbe175",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -2043,7 +1993,6 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "f7c37984-940c-45c7-9eab-0f23f3459ac8",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -2053,131 +2002,109 @@
 	],
 	"variable": [
 		{
-			"id": "632410ba-c738-46ee-b398-6632518e8cf2",
 			"key": "request_retry_count",
 			"value": "10",
 			"type": "string"
 		},
 		{
-			"id": "049188c9-beeb-4167-86fc-cce40ab7dc71",
 			"key": "request_retry_delay_max_ms",
 			"value": "15000",
 			"type": "string"
 		},
 		{
-			"id": "0b9fec68-dcc7-4faa-9112-b8f374d0b279",
 			"key": "request_retry_delay_min_ms",
 			"value": "1000",
 			"type": "string"
 		},
 		{
-			"id": "f89333a0-039e-4d2f-967b-ba065cbd7f10",
 			"key": "admin_user",
 			"value": "administrator",
 			"type": "string"
 		},
 		{
-			"id": "bdb6177f-05ad-44df-8771-0b30200f8f0c",
 			"key": "admin_pwd",
 			"value": "2FederateM0re",
 			"type": "string"
 		},
 		{
-			"id": "89f7f7fa-6d94-4e6e-a28b-bae0c98db0e6",
 			"key": "pd_admin_user",
 			"value": "cn={{admin_user}}",
 			"type": "string"
 		},
 		{
-			"id": "3ad227a7-a964-41e2-b349-6202b2fc601a",
 			"key": "pd_admin_pwd",
 			"value": "{{admin_pwd}}",
 			"type": "string"
 		},
 		{
-			"id": "f5cd1f70-42b6-4903-b04e-4958c26cf665",
 			"key": "pd_hostname",
 			"value": "pingdirectory",
 			"type": "string"
 		},
 		{
-			"id": "60719c16-927f-4adb-ab10-3c8b8ac3401e",
 			"key": "pd_port_https",
 			"value": "1443",
 			"type": "string"
 		},
 		{
-			"id": "dce6655f-0c3b-436a-8717-2c7657d4b06b",
 			"key": "pd_port_ldaps",
 			"value": "1636",
 			"type": "string"
 		},
 		{
-			"id": "260d7dde-fde4-4952-9bd7-a077b68f1b38",
 			"key": "pd_port_ldap",
 			"value": "1389",
 			"type": "string"
 		},
 		{
-			"id": "c5847244-21ea-41fe-9344-a141280a11e3",
 			"key": "pf_engine_hostname",
 			"value": "pingfederate",
 			"type": "string"
 		},
 		{
-			"id": "35469de6-9976-44cc-808f-46e996cbb643",
 			"key": "pf_engine_port",
 			"value": "9031",
 			"type": "string"
 		},
 		{
-			"id": "4c15baea-7ed6-41fc-aa1c-a0702ab50df8",
 			"key": "pf_admin_hostname",
 			"value": "pingfederate",
 			"type": "string"
 		},
 		{
-			"id": "9fe72770-fdcc-4496-81ad-31e1937493a4",
 			"key": "pf_admin_port",
 			"value": "9999",
 			"type": "string"
 		},
 		{
-			"id": "ce03ea3e-6c03-40d0-80af-8c8efeea00d8",
 			"key": "regular_user",
 			"value": "postman.user.0",
 			"type": "string"
 		},
 		{
-			"id": "2c1a0c31-eaa1-423d-9b62-ab18c63027c1",
 			"key": "regular_pwd",
 			"value": "{{admin_pwd}}",
 			"type": "string"
 		},
 		{
-			"id": "fa45dcc9-4286-4439-9385-5b917eb27fd6",
 			"key": "pa_engine_hostname",
 			"value": "pingaccess",
 			"type": "string"
 		},
 		{
-			"id": "15c2a684-8b43-47eb-bda5-eb89d5208bf7",
 			"key": "pa_engine_port",
 			"value": "3000",
 			"type": "string"
 		},
 		{
-			"id": "a547a721-38b8-4153-af32-88e254a12aeb",
 			"key": "pa_admin_hostname",
 			"value": "pingaccess",
 			"type": "string"
 		},
 		{
-			"id": "68843b6e-efe0-4009-ba7d-ed624a0f7cd3",
 			"key": "pa_admin_port",
 			"value": "9000",
 			"type": "string"
 		}
-	],
-	"protocolProfileBehavior": {}
+	]
 }

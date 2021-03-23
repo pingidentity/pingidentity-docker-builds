@@ -1,5 +1,4 @@
-#if($heartbeatSystemMonitoring)
-#set( $Content-Type = "application/json" )
+$monitor.setContentType('application/json')
 #macro( safeNumberT $prm )
 #if ( "$!{prm}" eq "" or $prm eq "N/A" )
 null #else
@@ -8,23 +7,6 @@ null #else
 $prm #end
 #end
 #end
-#set( $resultKeysNumbers = [
-    "atm.*.token.map.size",
-    "idp.session.registry.session.map.size",
-    "response.concurrency.statistics.*.percentile",
-    "response.concurrency.statistics.max",
-    "response.concurrency.statistics.min",
-    "response.statistics.count",
-    "response.statistics.window.seconds",
-    "response.time.statistics.*.percentile",
-    "response.time.statistics.max",
-    "response.time.statistics.min",
-    "session.state.attribute.map.size",
-    "sp.session.registry.session.map.size",
-    "total.failed.transactions",
-    "total.transactions",
-    "response.concurrency.statistics.mean",
-    "response.time.statistics.mean"])
 {
     "template.version": "0.1.T",
 ##    "test.null": #safeNumberT(  ),
@@ -39,7 +21,7 @@ $prm #end
 ##    "test.doubleString": #safeNumberT( "9.1" ),
 ##  doubleStringString renders to 9.1 in PA 6.2.0 and null in PF 10.2.2
 ##    "test.doubleStringStrict": #safeNumberT( "9.1" "strict" ),
-    "cpu.load": #safeNumberT( $monitor.getCpuLoad('####.#') ),
+    "cpu.load": #safeNumberT( $monitor.getCpuLoad('###.##') ),
     "total.jvm.memory": #safeNumberT( $monitor.getTotalJvmMemory() ),
     "free.jvm.memory": #safeNumberT( $monitor.getFreeJvmMemory() ),
     "used.jvm.memory": #safeNumberT( $monitor.getUsedJvmMemory() ),
@@ -47,18 +29,9 @@ $prm #end
     "total.free.physical.system.memory": #safeNumberT( $monitor.getTotalFreePhysicalSystemMemory() ),
     "total.used.physical.system.memory": #safeNumberT( $monitor.getTotalUsedPhysicalSystemMemory() ),
     "number.of.cpus": #safeNumberT( $monitor.getNumberOfCpus() ),
-#set ( $map = $monitor.getResults($resultKeysNumbers) )
-#set ( $size = $map.size() )
-#set ( $count = 0)
-#foreach( $key in $map.keySet() )
-#set ( $count =  $count + 1)
-#set ( $value = $map.get($key) )
-    "${key}": #safeNumberT( $value ) #if( $count < $size ),
-#end
-#end
-
+    "hostname": "$monitor.getHostname()",
+    "open.client.connections": #safeNumberT( $monitor.getOpenClientConnections() ),
+    "number.of.applications": #safeNumberT( $monitor.getNumberOfApplications() ),
+    "number.of.virtual.hosts": #safeNumberT( $monitor.getNumberOfVirtualHosts() ),
+    "last.refresh.time": "$monitor.getLastRefreshTime()"
 }
-#else
-    #set( $Content-Type = "text/html" )
-OK
-#end
