@@ -33,19 +33,29 @@ buildPasswordFileOptions ()
         echo "         Consider moving to a more secure vault secret." &&
         ENCRYPTION_PASSWORD_FILE="${_legacySecretLocation}/encryption-password"
 
+    # If no SECRETS_DIR (/run/secrets) exists, then create a /tmp/secrets directory to be
+    # used for now if password files need to be created.
+    _passwordFilesDir="${SECRETS_DIR}"
+    if test ! -d "${SECRETS_DIR}"; then
+        echo_yellow "WARNING: Important that the orchestration environment create a tmpfs for '${SECRETS_DIR}'"
+        echo_yellow "         Using 'tmp/secrets' for now."
+        _passwordFilesDir="/tmp/secrets"
+        mkdir -p "${_passwordFilesDir}"
+    fi
+
     #
     # Set the default password files if not set at this point
     #
     test -z "${ROOT_USER_PASSWORD_FILE}" &&
-        ROOT_USER_PASSWORD_FILE="${SECRETS_DIR}/root-user-password" &&
+        ROOT_USER_PASSWORD_FILE="${_passwordFilesDir}/root-user-password" &&
         echo "Using ROOT_USER_PASSWORD_FILE '${ROOT_USER_PASSWORD_FILE}'"
 
     test -z "${ADMIN_USER_PASSWORD_FILE}" &&
-        ADMIN_USER_PASSWORD_FILE="${SECRETS_DIR}/admin-user-password" &&
+        ADMIN_USER_PASSWORD_FILE="${_passwordFilesDir}/admin-user-password" &&
         echo "Using ADMIN_USER_PASSWORD_FILE '${ADMIN_USER_PASSWORD_FILE}'"
 
     test -z "${ENCRYPTION_PASSWORD_FILE}" &&
-        ENCRYPTION_PASSWORD_FILE="${SECRETS_DIR}/encryption-password" &&
+        ENCRYPTION_PASSWORD_FILE="${_passwordFilesDir}/encryption-password" &&
         echo "Using ENCRYPTION_PASSWORD_FILE '${ENCRYPTION_PASSWORD_FILE}'"
 
 
