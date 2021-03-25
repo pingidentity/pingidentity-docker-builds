@@ -23,7 +23,6 @@ FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
-ENV SHIM=${SHIM}
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
@@ -46,27 +45,36 @@ RUN ["/opt/build.sh"]
 # The final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
-#-- Image version and git revision, set by build process of the docker build
+# Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
-ENV IMAGE_VERSION=${IMAGE_VERSION}
 ARG IMAGE_GIT_REV=""
-ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+ARG LICENSE_VERSION
+
+ENV SHIM=${SHIM} \
+    IMAGE_VERSION=${IMAGE_VERSION} \
+    IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    PING_CENTRAL_SERVER_PORT=9022 \
+#-- Ping product name
+    PING_PRODUCT="PingCentral" \
+#-- License directory
+    LICENSE_DIR="${SERVER_ROOT_DIR}/conf" \
+#-- Name of license file
+    LICENSE_FILE_NAME="pingcentral.lic" \
+#-- Short name used when retrieving license from License Server
+    LICENSE_SHORT_NAME="PC" \
+#-- Version used when retrieving license from License Server
+    LICENSE_VERSION=${LICENSE_VERSION} \
+#-- The command that the entrypoint will execute in the foreground to
+#-- instantiate the container
+    STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh" \
+#-- Files tailed once container has started
+    TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/application.log \
+    PING_CENTRAL_LOG_LEVEL="INFO" \
+    PING_CENTRAL_BLIND_TRUST=false \
+    PING_CENTRAL_VERIFY_HOSTNAME=true
 
 LABEL image-version="${IMAGE_VERSION}" \
       image-git-rev="${IMAGE_GIT_REV}"
-
-ARG LICENSE_VERSION
-ENV PING_CENTRAL_SERVER_PORT=9022
-ENV PING_PRODUCT="PingCentral"
-ENV LICENSE_DIR="${SERVER_ROOT_DIR}/conf"
-ENV LICENSE_FILE_NAME="pingcentral.lic"
-ENV LICENSE_SHORT_NAME="PC"
-ENV LICENSE_VERSION=${LICENSE_VERSION}
-ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
-ENV TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/application.log
-ENV PING_CENTRAL_LOG_LEVEL="INFO"
-ENV PING_CENTRAL_BLIND_TRUST=false
-ENV PING_CENTRAL_VERIFY_HOSTNAME=true
 
 EXPOSE 9022
 COPY --from=final-staging ["/","/"]

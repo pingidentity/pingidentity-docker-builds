@@ -23,7 +23,6 @@ FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
-ENV SHIM=${SHIM}
 
 # get Ping-wide common scripts
 #   this needs to happen after the bits have been laid down
@@ -43,16 +42,24 @@ RUN ["/opt/build.sh"]
 # The final image
 #
 FROM ${REGISTRY}/pingbase:${GIT_TAG}
-#-- Image version and git revision, set by build process of the docker build
+# Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
-ENV IMAGE_VERSION=${IMAGE_VERSION}
 ARG IMAGE_GIT_REV=""
-ENV IMAGE_GIT_REV=${IMAGE_GIT_REV}
+
+ENV SHIM=${SHIM} \
+    IMAGE_VERSION=${IMAGE_VERSION} \
+    IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+#-- Ping product name
+    PING_PRODUCT="PingToolkit" \
+#-- The command that the entrypoint will execute in the foreground to
+#-- instantiate the container
+    STARTUP_COMMAND="tail" \
+#-- The command-line options to provide to the the startup command when
+#-- the container starts with the server in the foreground. This is the
+#-- normal start flow for the container
+    STARTUP_FOREGROUND_OPTS="-f /dev/null"
 
 LABEL image-version="${IMAGE_VERSION}" \
       image-git-rev="${IMAGE_GIT_REV}"
 
-ENV PING_PRODUCT="PingToolkit"
-ENV STARTUP_COMMAND="tail"
-ENV STARTUP_FOREGROUND_OPTS="-f /dev/null"
 COPY --from=final-staging ["/","/"]
