@@ -281,10 +281,10 @@ _getLatestSnapshotVersionForProduct ()
         pingdatasync)
             _product="sync"
             ;;
-        pingdatagovernance)
+        pingdatagovernance|pingauthorize)
             _product="broker"
             ;;
-        pingdatagovernancepap)
+        pingdatagovernancepap|pingauthorizepap)
             _product="symphonic-pap-packaged"
             _basePath="com/pingidentity/pd/governance"
             ;;
@@ -292,7 +292,7 @@ _getLatestSnapshotVersionForProduct ()
             ;;
     esac
     case "${1}" in
-        pingdatagovernance|pingdatagovernancepap|pingdatasync|pingdirectory|pingdirectoryproxy)
+        pingdatagovernance|pingdatagovernancepap|pingdatasync|pingdirectory|pingdirectoryproxy|pingauthorize|pingauthorizepap)
             _curl "${_baseURL}/${_basePath}/${_product}/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/latest)' -
             ;;
         pingdelegator)

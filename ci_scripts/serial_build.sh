@@ -107,7 +107,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 "${CI_SCRIPTS_DIR}/build_downloader.sh"
 "${CI_SCRIPTS_DIR}/build_foundation.sh"
 
-test -z "${_products}" && _products="apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingdirectoryproxy pingdelegator pingfederate pingtoolkit"
+test -z "${_products}" && _products="apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingdirectoryproxy pingdelegator pingfederate pingtoolkit pingauthorize pingauthorizepap"
 
 for p in ${_products}
 do

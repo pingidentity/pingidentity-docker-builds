@@ -390,6 +390,7 @@ b.pingdirectory:
       - pingdirectory/**/*
       - pingfederate/**/*
       - pingdatagovernance/**/*
+      - pingauthorize/**/*
       - integration_tests/**/*
       - ci_scripts/*
       - pingjvm/*
@@ -825,6 +826,81 @@ d.pingdatagovernance:
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
 
 ################################################
+#                  PINGAUTHORIZE 
+################################################
+b.pingauthorize:
+  stage: products
+  script:
+    - ci_scripts/build_product.sh --product pingauthorize
+  only:
+    changes:
+      - pingauthorize/**/*
+      - pingdirectory/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - integration_tests/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorize(?:$|,)/i
+
+t.pingauthorize:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_smoke.sh --product pingauthorize
+  only:
+    changes:
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - pingauthorize/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorize(?:$|,)/i
+
+d.pingauthorize:
+  stage: deploy
+  script:
+    - ci_scripts/deploy_product_to_registry.sh --product pingauthorize
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - pingauthorize/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorize(?:$|,)/i
+
+################################################
 # PING DATA GOVERNANCE POLICY ADMINISTRATION POINT
 ################################################
 b.pingdatagovernancepap:
@@ -897,6 +973,79 @@ d.pingdatagovernancepap:
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernancepap(?:$|,)/i
+
+################################################
+# PINGAUTHORIZE POLICY EDITOR
+################################################
+b.pingauthorizepap:
+  stage: products
+  script:
+    - ci_scripts/build_product.sh --product pingauthorizepap
+  only:
+    changes:
+      - pingauthorizepap/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorizepap(?:$|,)/i
+
+t.pingauthorizepap:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_smoke.sh --product pingauthorizepap
+  only:
+    changes:
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - pingauthorizepap/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorizepap(?:$|,)/i
+
+d.pingauthorizepap:
+  stage: deploy
+  script:
+    - ci_scripts/deploy_product_to_registry.sh --product pingauthorizepap
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - pingauthorizepap/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorizepap(?:$|,)/i
 
 ################################################
 #                  PING FEDERATE
@@ -1261,6 +1410,36 @@ pdg-pd.latest:
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
+
+paz-pd.latest:
+  stage: test.integration
+  script:
+    - ci_scripts/run_integration.sh paz-pd.latest
+  only:
+    changes:
+      - integration_tests/**/pdg-pd*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingdirectory/**/*
+      - pingauthorize/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  variables:
+    KUBERNETES_CPU_REQUEST: 2
+    KUBERNETES_CPU_LIMIT: 2
+    KUBERNETES_MEMORY_REQUEST: 4000000000
+    KUBERNETES_MEMORY_LIMIT: 4000000000
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingauthorize(?:$|,)/i
 
 pi-basic.latest:
   stage: test.integration

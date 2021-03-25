@@ -172,6 +172,14 @@ ENV IN_DIR=${BASE}/in \
     PDGP_ENGINE_PUBLIC_HOSTNAME="localhost" \
 #-- PDGP (PingDataGovernance-PAP) private hostname
     PDGP_ENGINE_PRIVATE_HOSTNAME="pingdatagovernancepap" \
+#-- PAZ (PingAuthorize) public hostname that may be used in redirects
+    PAZ_ENGINE_PUBLIC_HOSTNAME="localhost" \
+#-- PAZ (PingAuthorize) private hostname
+    PAZ_ENGINE_PRIVATE_HOSTNAME="pingauthorize" \
+#-- PAZP (PingAuthorize-PAP) public hostname that may be used in redirects
+    PAZP_ENGINE_PUBLIC_HOSTNAME="localhost" \
+#-- PAZP (PingAuthorize-PAP) private hostname
+    PAZP_ENGINE_PRIVATE_HOSTNAME="pingauthorizepap" \
 #-- PF (PingFederate) engine public hostname that may be used in redirects
     PF_ENGINE_PUBLIC_HOSTNAME="localhost" \
 #-- PF (PingFederate) engine private hostname

@@ -1,0 +1,22 @@
+{
+    "latest":"8.3.0.0-EA-RC1",
+    "versions":[
+        {
+            "version": "8.3.0.0-EA-RC1",
+            "preferredShim": "alpine",
+            "shims":[
+                {
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": false
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

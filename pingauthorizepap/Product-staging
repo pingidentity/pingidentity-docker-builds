@@ -1,0 +1,35 @@
+ARG REGISTRY
+ARG GIT_TAG
+
+FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
+ARG PRODUCT=pingauthorizepap
+ARG VERSION
+ARG DEVOPS_USER
+ARG DEVOPS_KEY
+ARG VERBOSE
+ARG PING_IDENTITY_SNAPSHOT
+ARG SNAPSHOT_NEXUS_URL
+
+COPY tmp /tmp
+
+ENV SNAPSHOT_NEXUS_URL=${SNAPSHOT_NEXUS_URL}
+# copy your product zip file into the staging image
+RUN /get-bits.sh --product ${PRODUCT} \
+        --version ${VERSION} \
+        --devops-user ${DEVOPS_USER} \
+        --devops-key ${DEVOPS_KEY} \
+        --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
+        ${PING_IDENTITY_SNAPSHOT} \
+        --verify-gpg-signature \
+    && unzip /tmp/product.zip -d /tmp/ \
+        -x *.bat \
+        -x *.dll \
+        -x *.exe \
+        -x */start-ds \
+        -x */stop-ds \
+        -x */docs/* \
+        -x */uninstall \
+        -x */webapps/* \
+        -x */resource/*.zip \
+        -x */_script-util.sh \
+	&& mv /tmp/PingAuthorize-PAP /opt/server 

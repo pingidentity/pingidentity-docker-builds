@@ -447,8 +447,14 @@ then
         pingdatagovernance)
            productShortName="PG"
            ;;
+        pingauthorize)
+           productShortName="PingAuthorize"
+           ;;
         pingdatagovernancepap)
            productShortName="PG"
+           ;;
+        pingauthorizepap)
+           productShortName="PingAuthorize"
            ;;
         pingfederate)
            productShortName="PF"

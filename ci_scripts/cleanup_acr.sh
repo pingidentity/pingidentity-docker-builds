@@ -17,7 +17,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 
 while read -r _registry
 do
-    for _product in apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingdirectoryproxy pingdownloader pingfederate pingtoolkit
+    for _product in apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingdirectoryproxy pingdownloader pingfederate pingtoolkit pingauthorize pingauthorizepap
     do
         while read -r _sha
         do
