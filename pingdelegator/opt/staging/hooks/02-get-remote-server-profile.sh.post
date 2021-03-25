@@ -16,8 +16,8 @@ _legacyCertificateFile="${STAGING_DIR}/.sec/nginx.crt"
 _legacyCertificateKeyFile="${STAGING_DIR}/.sec/nginx.key"
 
 if test ! -d "${SECRETS_DIR}"; then
-    echo "WARNING: Important that the orchestration environment create a tmpfs for '${SECRETS_DIR}'"
-    echo "         Using 'tmp/secrets' for now."
+    echo_yellow "WARNING: Important that the orchestration environment create a tmpfs for '${SECRETS_DIR}'"
+    echo_yellow "         Using 'tmp/secrets' for now."
     SECRETS_DIR="/tmp/secrets"
     mkdir -p "${SECRETS_DIR}"
 fi

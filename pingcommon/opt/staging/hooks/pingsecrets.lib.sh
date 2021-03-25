@@ -151,7 +151,7 @@ process_secrets_env_json()
 #
 # process all files ending in .json
 #
-# Keys in each .json will be written to a file with the value in it's contents
+# Keys in each .json will be written to a file with the value in its contents
 ###############################################################################
 process_secrets_json()
 {

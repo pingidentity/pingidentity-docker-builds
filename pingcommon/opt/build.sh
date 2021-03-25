@@ -4,25 +4,19 @@ set -e
 
 test -f "/opt/build.sh.pre" && sh /opt/build.sh.pre
 
-# Update file permissions for the BASE and SECRETS_DIR for the default container user,
+# Update file permissions for the BASE for the default container user,
 # and update the /var/lib/nginx owner if necessary.
 fixPermissions ()
 {
     touch /etc/motd
-    # Environment variables like BASE and SECRETS_DIR aren't available here.
+    # Environment variables for BASE isn't available here.
     BASE=/opt
-    SECRETS_DIR=/run/secrets
 
     find "${BASE}" -mindepth 1 -maxdepth 1 -not -name in| while read -r directory
     do
         chown -Rf 9031:9999 /etc/motd "${directory}"
         chmod -Rf go-rwx "${directory}"
     done
-
-    # If there is a SECRETS_DIR, chmod to 777 for rwx to non-privileged user
-    if test -d "${SECRETS_DIR}"; then
-        chmod ugo+rwx "${SECRETS_DIR}"
-    fi
 
     if test -d /var/lib/nginx; then
         chown -R "ping:identity" /var/lib/nginx
