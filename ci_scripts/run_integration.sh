@@ -35,7 +35,7 @@ _reportPattern='%-57s| %10s| %10s'
 # Createa variables of format PINGDIRECTORY_LATEST=n.n.n.n that will be exported and used by
 # integration test docker-compose variables
 #
-for _productName in pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdelegator pingdirectory pingdirectoryproxy pingfederate pingintelligence pingtoolkit
+for _productName in pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdelegator pingdirectory pingdirectoryproxy pingfederate pingintelligence pingtoolkit pingauthorize pingauthorizepap
 do
     _latestVar=$( echo -n "${_productName}_LATEST"|tr '[:lower:]' '[:upper:]' )
 

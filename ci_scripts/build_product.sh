@@ -109,7 +109,7 @@ then
         exit 96
     fi
     case "${productToBuild}" in
-        pingdirectory|pingdirectoryproxy|pingdatasync|pingdatagovernance|pingdatagovernancepap|pingdelegator|pingfederate|pingcentral|pingaccess)
+        pingdirectory|pingdirectoryproxy|pingdatasync|pingdatagovernance|pingdatagovernancepap|pingdelegator|pingfederate|pingcentral|pingaccess|pingauthorize|pingauthorizepap)
             ;;
         *)
             echo "Snapshot not supported"

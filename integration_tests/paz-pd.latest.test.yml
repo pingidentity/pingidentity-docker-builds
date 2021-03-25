@@ -1,0 +1,60 @@
+version: "2.4"
+
+services:
+  pingdirectory:
+    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-alpine-az11-${GIT_TAG}
+    #  for local testing
+    # image: pingidentity/pingdirectory:8.0.0.1-alpine-az11-re-pa-cluster-d4eb
+    environment:
+      - SERVER_PROFILE_PATH=baseline/pingdirectory
+      - MAX_HEAP_SIZE=768m
+    env_file:
+      # Property file below provides common environment variables for all integration_tests.
+      # run_integration.sh creates /tmp/integration_tests.properties at runtime.
+      - /tmp/integration_tests.properties
+    ports:
+      - "1443:1443"
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-4000000000}b
+    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-4000000000}b
+    mem_swappiness: 0
+    tmpfs: /run/secrets
+
+  pingauthorize:
+    image: ${REGISTRY}/pingauthorize:${PINGAUTHORIZE_LATEST}-alpine-az11-${GIT_TAG}
+    # for local testing
+    # image: pingidentity/pingauthorize:8.3.0.0-alpine-az11-re-pa-cluster-d4eb
+    command: wait-for pingdirectory:1389 -t 900 -- entrypoint.sh start-server
+    environment:
+      - SERVER_PROFILE_PATH=baseline/pingauthorize
+    env_file:
+      - /tmp/integration_tests.properties
+    ports:
+      - "7443:1443"
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-1000000000}b
+    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-1000000000}b
+    mem_swappiness: 0
+    tmpfs: /run/secrets
+    depends_on: ["pingdirectory"]
+
+  sut:
+    image: ${DEPS}postman/newman
+    entrypoint: ["/usr/bin/env"]
+    command: sh -c "/tmp/wait-for pingauthorize:1443 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
+    volumes:
+      - ./paz-pd.postman_collection.json:/tmp/collection.json
+      - ./wait-for:/tmp/wait-for
+    depends_on: ["pingauthorize"]

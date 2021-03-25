@@ -324,7 +324,7 @@ generateSetupArguments ()
 {
     # Create product specfic setup arguments and manage-profile setup arguments
     case "${PING_PRODUCT}" in
-        PingDataSync|PingDataGovernance|PingDirectoryProxy)
+        PingDataSync|PingDataGovernance|PingDirectoryProxy|PingAuthorize)
             _pingDataSetupArguments=""
             _pingDataManageProfileSetupArgs=""
             ;;
