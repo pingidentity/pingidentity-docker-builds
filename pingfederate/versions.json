@@ -2,6 +2,23 @@
     "latest": "10.2.2",
     "versions": [
         {
+            "version": "10.3.0-Beta",
+            "preferredShim": "alpine",
+            "shims": [
+                {
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "version": "10.2.2",
             "preferredShim": "alpine",
             "shims": [
