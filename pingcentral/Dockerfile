@@ -73,6 +73,9 @@ ENV SHIM=${SHIM} \
     PING_CENTRAL_BLIND_TRUST=false \
     PING_CENTRAL_VERIFY_HOSTNAME=true
 
+# the method by which the framework can assess whether the container is viable or not
+HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
+
 LABEL image-version="${IMAGE_VERSION}" \
       image-git-rev="${IMAGE_GIT_REV}"
 

@@ -80,6 +80,9 @@ ENV SHIM=${SHIM} \
 #-- Specify a password for administrator user for interaction with admin API
 ENV PING_IDENTITY_PASSWORD=${PA_ADMIN_PASSWORD}
 
+# the method by which the framework can assess whether the container is viable or not
+HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
+
 LABEL image-version="${IMAGE_VERSION}" \
       image-git-rev="${IMAGE_GIT_REV}"
 

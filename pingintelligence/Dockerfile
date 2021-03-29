@@ -186,6 +186,9 @@ ENV SHIM=${SHIM} \
 #-- Files tailed once container has started
     TAIL_LOG_FILES=""
 
+# the method by which the framework can assess whether the container is viable or not
+HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
+
 LABEL image-version="${IMAGE_VERSION}" \
       image-git-rev="${IMAGE_GIT_REV}"
 

@@ -113,6 +113,9 @@ ENV SHIM=${SHIM} \
 #-- Used when changes are made outside of the PD_PROFILE
     PD_REBUILD_ON_RESTART=false
 
+# the method by which the framework can assess whether the container is viable or not
+HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
+
 LABEL image-version="${IMAGE_VERSION}" \
       image-git-rev="${IMAGE_GIT_REV}"
 
