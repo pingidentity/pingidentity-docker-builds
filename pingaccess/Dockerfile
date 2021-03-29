@@ -5,11 +5,11 @@
 #- Engine nodes.
 #-
 #- ## Related Docker Images
+#-
 #- - `pingidentity/pingbase` - Parent Image
-#- 	>**This image inherits, and can use, Environment Variables from [pingidentity/pingbase](https://devops.pingidentity.com/docker-images/pingbase/)**
+#- > This image inherits, and can use, Environment Variables from [pingidentity/pingbase](https://devops.pingidentity.com/docker-images/pingbase/)
 #- - `pingidentity/pingcommon` - Common Ping files (i.e. hook scripts)
 #- - `pingidentity/pingdownloader` - Used to download product bits
-#-
 # Default to Alpine
 ARG PRODUCT
 ARG SHIM
@@ -91,6 +91,7 @@ EXPOSE ${PA_ADMIN_PORT} ${PA_ENGINE_PORT} ${HTTPS_PORT}
 COPY --from=final-staging ["/","/"]
 
 #- ## Running a PingAccess container
+#-
 #- To run a PingAccess container:
 #-
 #- ```shell
@@ -108,7 +109,6 @@ COPY --from=final-staging ["/","/"]
 #-            pingidentity/pingaccess:edge
 #- ```
 #-
-#-
 #- Follow Docker logs with:
 #-
 #- ```
@@ -116,6 +116,7 @@ COPY --from=final-staging ["/","/"]
 #- ```
 #-
 #- If using the command above with the embedded [server profile](https://devops.pingidentity.com/reference/config/), log in with:
-#- * https://localhost:9000
-#-   * Username: Administrator
-#-   * Password: 2FederateM0re
+#-
+#- - https://localhost:9000
+#-   - Username: Administrator
+#-   - Password: 2FederateM0re

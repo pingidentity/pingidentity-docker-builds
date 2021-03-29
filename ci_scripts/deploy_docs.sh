@@ -81,6 +81,7 @@ append_env_table_header ()
             then
                 ENV_TABLE_ACTIVE="true"
 
+                append_doc ""
                 append_doc "## Environment Variables"
                 append_doc "In addition to environment variables inherited from **[pingidentity/pingbase](https://devops.pingidentity.com/docker-images/pingbase/)**,"
                 append_doc "the following environment \`ENV\` variables can be used with"
@@ -128,8 +129,10 @@ append_expose_ports ()
     exposePorts="${1}"
 
     append_doc "## Ports Exposed"
+    append_doc ""
     append_doc "The following ports are exposed from the container.  If a variable is"
     append_doc "used, then it may come from a parent container"
+    append_doc ""
 
     for port in ${exposePorts}
     do
@@ -225,7 +228,7 @@ parse_dockerfile ()
         #
         # Parse the ENV Description
         #   Example: #-- This is the description
-        # 
+        #
         # Each line starting with #-- will be concatenated onto the
         # description until an ENV variable line is found
         #
@@ -262,7 +265,7 @@ parse_dockerfile ()
                 # Expect "ENV" or "ONBUILD ENV"
                 ENV_VARIABLE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*ENV[[:space:]]\(.*\)x=x.*/\1/')
             fi
-            
+
             # Read the variable value after the '=', and trim off the ' \' at the end if present
             ENV_VALUE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*x=x\(.*\)/\1/' -e 's/[[:space:]]\{1,\}\\$//' -e 's/^"\(.*\)"$/\1/')
 
@@ -329,6 +332,7 @@ parse_dockerfile ()
 
     append_header
     append_doc "## Docker Container Hook Scripts"
+    append_doc ""
     append_doc "Please go [here](https://github.com/pingidentity/pingidentity-devops-getting-started/tree/master/docs/docker-images/${_dockerImage}/hooks/README.md) for details on all ${_dockerImage} hook scripts"
     append_footer "${_dockerImage}/Dockerfile"
 }
