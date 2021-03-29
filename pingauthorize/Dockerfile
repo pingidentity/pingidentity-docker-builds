@@ -86,7 +86,7 @@ ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access"
 
 ENV PD_PROFILE="${STAGING_DIR}/pd.profile"
 
-EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT} 5005
+EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT}
 
 COPY --from=final-staging ["/","/"]
 

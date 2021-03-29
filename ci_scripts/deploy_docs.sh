@@ -294,7 +294,12 @@ parse_dockerfile ()
             # shellcheck disable=SC2001
             EXPOSE_PORTS=$(echo "${line}" | sed 's/^.*EXPOSE \(.*\)$/\1/')
 
-            append_header
+            # Add an empty line after the ENV table
+            if [ "${ENV_TABLE_ACTIVE}" = "true" ]
+            then
+                append_header
+                ENV_TABLE_ACTIVE="false"
+            fi
             append_expose_ports "${EXPOSE_PORTS}"
 
             continue
@@ -307,7 +312,12 @@ parse_dockerfile ()
         #
         if [ "$(echo "${line}" | cut -c-2)" = "#-" ]
         then
-            ENV_TABLE_ACTIVE="false"
+            # Add an empty line after the ENV table
+            if [ "${ENV_TABLE_ACTIVE}" = "true" ]
+            then
+                append_header
+                ENV_TABLE_ACTIVE="false"
+            fi
 
             md=$(echo "$line" | sed \
              -e 's/^\#- //' \
