@@ -212,9 +212,6 @@ ENV IN_DIR=${BASE}/in \
 #-- PATH used by the container
     PATH="${JAVA_HOME}/bin:${BASE}:${SERVER_ROOT_DIR}/bin:${PATH}"
 
-# the method by which the framework can assess whether the container is viable or not
-HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
-
 # VOLUME [ "${BAK_DIR}" "${IN_DIR}" "${OUT_DIR}" "${LOGS_DIR}" ]
 WORKDIR ${BASE}
 

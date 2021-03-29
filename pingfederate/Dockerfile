@@ -151,6 +151,9 @@ ENV SHIM=${SHIM} \
     BULK_CONFIG_DIR="${OUT_DIR}/instance/bulk-config" \
     BULK_CONFIG_FILE=data.json
 
+# the method by which the framework can assess whether the container is viable or not
+HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
+
 LABEL image-version="${IMAGE_VERSION}" \
       image-git-rev="${IMAGE_GIT_REV}"
 
