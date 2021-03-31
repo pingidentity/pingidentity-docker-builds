@@ -1214,6 +1214,32 @@ prepareToJoinTopology ()
         return 1
     fi
 
+    #Change the seed build out for pingDirectory-0 server that has been restarted and it's pvc lost
+    if test "${_podInstanceName}" = "${_seedInstanceName}" &&
+      test "${PD_STATE}" = "SETUP" && test "${ORCHESTRATION_TYPE}" = "KUBERNETES"
+    then
+      if test -z "${K8S_CLUSTERS}" &&
+        test -z "${K8S_CLUSTER}" &&
+        test -z "${K8S_SEED_CLUSTER}"
+      then
+        _IPList=$( getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}" )
+      else
+        _IPList=$( getIPsForDomain "${K8S_CLUSTER}" )
+      fi
+
+      for ip in ${_IPList}
+      do
+        if test "$(getIP "${_podHostname}")" != "${ip}"
+        then
+          _seedHostname=${ip}
+          _seedInstanceName=${ip}
+          waitUntilLdapUp "${_seedHostname}" "${_seedLdapsPort}" "" 2>&1 > /dev/null
+          echo_yellow "This seed server is out of sync with the topology. Using alternative seed server: ${_seedHostname}:${_seedLdapsPort}"
+          export_container_env _seedInstanceName _seedHostname
+        fi
+      done
+    fi
+
     #
     #- * Ensure the Seed Server is accepting queries
     #
@@ -1423,7 +1449,7 @@ set_server_unavailable ()
 
     if test "$( isImageVersionGtEq 8.2.0 )" -eq 0
     then
-        _jsonMsg="{ \"status\":\"${_status}\", \"source\":\"${0}\", \"udpated\":\"$(date)\" }"
+        _jsonMsg="{ \"status\":\"${_status}\", \"source\":\"${0}\", \"updated\":\"$(date)\" }"
 
         _dsconfigOptions=$(get_dsconfig_options "$2")
         _batchFile=$(mktemp)
