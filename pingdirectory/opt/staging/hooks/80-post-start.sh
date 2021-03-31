@@ -15,6 +15,32 @@ ${VERBOSE} && set -x
 # shellcheck source=pingdirectory.lib.sh
 test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib.sh"
 
+#Change the seed build out for pingDirectory-0 server that has been restarted and it's pvc lost
+if test "${_podInstanceName}" = "${_seedInstanceName}" &&
+  test "${PD_STATE}" = "SETUP"
+then
+  if test -z "${K8S_CLUSTERS}" &&
+    test -z "${K8S_CLUSTER}" &&
+    test -z "${K8S_SEED_CLUSTER}"
+  then
+    _IPList=$( getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}" )
+  else
+    _IPList=$( getIPsForDomain "${K8S_CLUSTER}" )
+  fi
+
+  for ip in ${_IPList}
+  do
+    if test "$(getIP "${_podHostname}")" != "${ip}"
+    then
+      _seedHostname=${ip}
+      _seedInstanceName=${ip}
+      waitUntilLdapUp "${_seedHostname}" "${_seedLdapsPort}" "" 2>&1 > /dev/null
+      echo "Using alternative seed Hostname and Port"
+      export_container_env _seedInstanceName _seedHostname
+    fi
+  done
+fi
+
 # Check availability and set variables necessary for enabling replication
 # If this method returns a non-zero exit code, then we shouldn't try
 # to enable replication
