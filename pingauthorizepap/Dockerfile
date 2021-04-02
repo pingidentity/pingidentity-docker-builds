@@ -73,7 +73,6 @@ ENV STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server"
 ENV STARTUP_FOREGROUND_OPTS="--nodetach"
 ENV STARTUP_BACKGROUND_OPTS=""
 
-ENV TAIL_LOG_PARALLEL="y"
 #-- Files tailed once container has started
 ENV TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/pingauthorize-pap.log \
   ${SERVER_ROOT_DIR}/logs/setup.log \
