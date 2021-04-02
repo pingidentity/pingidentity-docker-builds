@@ -77,7 +77,10 @@ then
         -validity 30 \
         -keysize 2048 \
         -noprompt \
-        -dname "CN=ephemeral, OU=Docker, O=PingIdentity Corp., L=Denver, ST=CO, C=US"
+        -dname "CN=ephemeral, OU=Docker, O=PingIdentity Corp., L=Denver, ST=CO, C=US" \
+        -ext KeyUsage=digitalSignature,keyEncipherment \
+        -ext ExtendedkeyUsage=clientAuth,serverAuth \
+        -ext san=dns:localhost
 fi
 
 if test -z "${KEYSTORE_PIN}"
