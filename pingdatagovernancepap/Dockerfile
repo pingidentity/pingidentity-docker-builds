@@ -73,9 +73,6 @@ ENV SHIM=${SHIM} \
 #-- the container starts with the server in the background. This is the
 #-- debug start flow for the container
     STARTUP_BACKGROUND_OPTS="" \
-#-- Set to true to use parallel for the invocation of the tail utility
-#-- when tailing log files to standard output
-    TAIL_LOG_PARALLEL="true" \
 #-- Files tailed once container has started
     TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/datagovernance-pap.log ${SERVER_ROOT_DIR}/logs/setup.log ${SERVER_ROOT_DIR}/logs/start-server.log ${SERVER_ROOT_DIR}/logs/stop-server.log" \
 

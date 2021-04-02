@@ -47,7 +47,7 @@ _osID=$( awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </
 
 case "${_osID}" in
     alpine)
-        apk --no-cache --update add git git-lfs curl ca-certificates zip libintl openssh-client inotify-tools parallel
+        apk --no-cache --update add git git-lfs curl ca-certificates zip libintl openssh-client inotify-tools
         # install package dependency for variable substitution
         apk --no-cache --update add gettext
         # extract just the binary we need
@@ -70,6 +70,8 @@ case "${_osID}" in
         rm /lib/apk/db/installed
 
         # rm -rf /sbin/apk /etc/apk /lib/apk /usr/share/apk /var/lib/apk
+
+        apk --no-cache --update add fontconfig ttf-dejavu
 
         # Create user and group
         addgroup --gid 9999 identity

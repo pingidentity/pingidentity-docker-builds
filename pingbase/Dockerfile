@@ -100,10 +100,6 @@ ENV IN_DIR=${BASE}/in \
 #-- standard output - DO NOT USE WILDCARDS like /path/to/logs/*.log
     TAIL_LOG_FILES="" \
 
-#-- Set to true to use parallel for the invocation of the tail utility
-#-- when tailing log files to standard output
-    TAIL_LOG_PARALLEL="" \
-
 #-- If 'true', the output logs will be colorized with GREENs and REDs,
 #-- otherwise, no colorization will be done.  This is good for tools
 #-- that monitor logs and colorization gets in the way.
