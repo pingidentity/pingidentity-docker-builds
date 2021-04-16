@@ -65,7 +65,9 @@ ENV SHIM=${SHIM} \
 #-- The command-line options to provide to the the startup command when
 #-- the container starts with the server in the background. This is the
 #-- debug start flow for the container
-    STARTUP_BACKGROUND_OPTS="start"
+    STARTUP_BACKGROUND_OPTS="start" \
+#-- Files tailed once container has started
+    TAIL_LOG_FILES=${SERVER_ROOT_DIR}/logs/console.log
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
