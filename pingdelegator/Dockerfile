@@ -110,7 +110,7 @@ LABEL image-version="${IMAGE_VERSION}" \
       image-git-rev="${IMAGE_GIT_REV}"
 
 #- ## Run
-#- To run a PingDelegator container with HTTPS_PORT=6443 (6443 is simply a convetion for
+#- To run a PingDelegator container with HTTPS_PORT=6443 (6443 is simply a convention for
 #- PingDelegator so conflicts are reduced with other container HTTPS ports):
 #-
 #- ```shell
