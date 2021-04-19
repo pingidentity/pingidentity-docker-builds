@@ -184,7 +184,7 @@ ENV IN_DIR=${BASE}/in \
     PF_ADMIN_PUBLIC_HOSTNAME="localhost" \
 #-- PF (PingFederate) admin private hostname
     PF_ADMIN_PRIVATE_HOSTNAME="pingfederate-admin" \
-#-- PA (PingAccess) engine prublic hostname that may be used in redirects
+#-- PA (PingAccess) engine public hostname that may be used in redirects
     PA_ENGINE_PUBLIC_HOSTNAME="localhost" \
 #-- PA (PingAccess) engine private hostname
     PA_ENGINE_PRIVATE_HOSTNAME="pingaccess" \
@@ -196,7 +196,7 @@ ENV IN_DIR=${BASE}/in \
     ROOT_USER_DN="cn=${ROOT_USER}" \
     ENV="${BASE}/.profile" \
 
-#-- Instructs the image to pull the MOTD json from the followig URL.
+#-- Instructs the image to pull the MOTD json from the following URL.
 #-- If this MOTD_URL variable is empty, then no motd will be downloaded.
 #-- The format of this MOTD file must match the example provided in the
 #-- url: https://raw.githubusercontent.com/pingidentity/pingidentity-devops-getting-started/master/motd/motd.json
