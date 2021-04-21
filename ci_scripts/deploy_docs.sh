@@ -142,6 +142,14 @@ append_expose_ports ()
     append_doc ""
 }
 
+append_page_meta_title ()
+{
+    title=${1}
+    append_doc "---"
+    append_doc "title: $title"
+    append_doc "---"
+}
+
 #
 # parse all the hooks in a product's /opt/staging/hooks
 #
@@ -168,6 +176,7 @@ parse_hooks ()
         _docFile="${OUTPUT_DIR}/docker-images/${_dockerImage}/hooks/${_hookFile}.md"
         rm -f "${_docFile}"
         echo "  parsing hook ${_hookFile}"
+        append_page_meta_title "Ping Identity DevOps \`${_dockerImage}\` Hook - \`${_hookFile}\`"
         append_header
         append_doc "# Ping Identity DevOps \`${_dockerImage}\` Hook - \`${_hookFile}\`"
         awk '$0~/^#-/ && $0!~/^#-$/ {gsub(/^#-/,"");print;}' "${_hookFilePath}" >> "${_docFile}"
@@ -221,6 +230,7 @@ parse_dockerfile ()
 
     echo "Parsing Dockerfile ${_dockerImage}..."
 
+    append_page_meta_title "Ping Identity DevOps Docker Image - \`${_dockerImage}\`"
     append_header
 
     while read -r line
