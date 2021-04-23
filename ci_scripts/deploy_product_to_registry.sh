@@ -2,7 +2,7 @@
 #
 # Ping Identity DevOps - CI scripts
 #
-# This script deploys products to registries based on the registries.json
+# This script deploys products to registries based on the registries listed in the product's version.json file
 #
 test -n "${VERBOSE}" && set -x
 
@@ -17,11 +17,11 @@ Usage: ${0} {options}
 
     -r, --registry
         The registry to deploy new image tags to (may be specified multiple times)
-        May also set variable DEPLOY_REGISTRY
+        If not provided, registry destination will be specified per product versions.json
     -l, --registry-file
-        The file with the list of registries to deploy to (must be provided if --registry is omitted)
-        May also set variable DEPLOY_REGISTRY_FILE
-    * -p, --product
+        The file with the list of registries to deploy to
+        If not provided, registry destinations will be specified per product versions.json
+    -p, --product
         The name of the product for which to build a docker image
     -v, --version
         the version of the product for which to build a docker image
@@ -63,15 +63,28 @@ tag_and_push ()
     #
     # Special case for pingdownloader since it only has a tag for the branch and short sha
     #
+
+    case "${targetRegistry}" in
+        "Artifactory")
+            _targetRegistryURL="${ARTIFACTORY_REGISTRY}"
+            ;;
+        "DockerHub")
+            _targetRegistryURL="${DOCKER_HUB_REGISTRY}"
+            ;;
+        *)
+            _targetRegistryURL="${targetRegistry}"
+            ;;
+    esac
+
     if test "${productToDeploy}" = "pingdownloader"
     then
         _target_tag="latest"
         _source="${FOUNDATION_REGISTRY}/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
-        _target="${targetRegistry}/pingdownloader:${_target_tag}"
+        _target="${_targetRegistryURL}/pingdownloader:${_target_tag}"
     else
         _target_tag="${1}"
         _source="${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
-        _target="${targetRegistry}/${productToDeploy}:${_target_tag}"
+        _target="${_targetRegistryURL}/${productToDeploy}:${_target_tag}"
     fi
 
     test -z "${dryRun}" \
@@ -79,10 +92,15 @@ tag_and_push ()
     if test -z "${isLocalBuild}"
     then
         echo "Pushing ${_target}"
-        #DOCKER_HUB_REGISTRY and ARTIFACTORY_REGISTRY are pipeline vars
         #Use Docker Content Trust to Sign and push images to a specified registry
         case "${targetRegistry}" in
-            $DOCKER_HUB_REGISTRY)
+            "Artifactory")
+                export DOCKER_CONTENT_TRUST_SERVER="https://notaryserver:4443"
+                docker --config "${_docker_config_artifactory_dir}" trust revoke --yes "${_target}"
+                docker --config "${_docker_config_artifactory_dir}" trust sign "${_target}"
+                unset DOCKER_CONTENT_TRUST_SERVER
+                ;;
+            "DockerHub")
                 #Check to see if signature data already exists for tag
                 #If it does, remove the signature data
                 _tag_index=$(jq ". | index(\"${_target_tag}\")" <<< "${_signed_tags}")
@@ -92,15 +110,9 @@ tag_and_push ()
                 fi
                 docker --config "${_docker_config_hub_dir}" trust sign "${_target}"
                 ;;
-            $ARTIFACTORY_REGISTRY)
-                export DOCKER_CONTENT_TRUST_SERVER="https://notaryserver:4443"
-                docker --config "${_docker_config_artifactory_dir}" trust revoke --yes "${_target}"
-                docker --config "${_docker_config_artifactory_dir}" trust sign "${_target}"
-                unset DOCKER_CONTENT_TRUST_SERVER
-                ;;
             *)
-                echo_red "ERROR: Registry to Deploy To Not Recognized For: ${targetRegistry}"
-                echo_red " -- Defaulting to unsigned docker push"
+                #target registry not recognized, default to simple docker push.
+                echo_yellow "Non-default registry ${targetRegistry} -- Defaulting to unsigned docker push"
                 docker push "${_target}"
         esac
 
@@ -110,8 +122,6 @@ tag_and_push ()
     fi
 }
 
-_registryList="${DEPLOY_REGISTRY}"
-_registryListFile="${DEPLOY_REGISTRY_FILE}"
 while test -n "${1}"
 do
     case "${1}" in
@@ -123,7 +133,6 @@ do
         -r|--registry)
             shift
             test -z "${1}" && usage "You must provide a registry"
-            # targetRegistry=${1}
             _registryList="${_registryList:+${_registryList} }${1}"
             ;;
         -l|--registry-file)
@@ -170,9 +179,7 @@ do
     shift
 done
 
-#
 # read in the lines from the passed registry file
-#
 if test -f "${_registryListFile}" ; then
     while read -r _registry
     do
@@ -183,16 +190,6 @@ if test -f "${_registryListFile}" ; then
     done < "${_registryListFile}"
 fi
 
-# _commitHasTags=$( git tag --points-at "${CI_COMMIT_SHA}" )
-# _commitBranch=$( git branch --contains "${CI_COMMIT_SHA}" )
-# test -z "${dryRun}" \
-#     && test -z "${_commitHasTags}" \
-#     && test "${_commitBranch}" != "* master" \
-#     && echo "ERROR: are you sure this script should be running??" \
-#     && exit 1
-
-test -z "${_registryList}" \
-    && usage "Specifying a registry to deploy to is required (You may set variables DEPLOY_REGISTRY or DEPLOY_REGISTRY_FILE)"
 test -z "${productToDeploy}" \
     && usage "Specifying a product to deploy is required"
 
@@ -204,8 +201,6 @@ fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
-
-banner "Deploying to registry(s) '${_registryListFile}'"
 
 if test -z "${versionsToDeploy}"
 then
@@ -219,7 +214,6 @@ latestVersion=$( _getLatestVersionForProduct "${productToDeploy}" )
 #
 for tag in $( git tag --points-at "$gitRevLong" )
 do
-    # if test -z "$( echo ${tag} | sed 's/^[0-9]\{4\}$//' )"
     if test -z "${tag##2[0-9][0-9][0-9]*}"
     then
         sprint="${tag}"
@@ -235,7 +229,6 @@ _docker_config_artifactory_dir="/root/.docker-artifactory"
 #Pull down Docker Trust JSON on signature data
 _signed_tags=$( docker trust inspect "${DOCKER_HUB_REGISTRY}/${productToDeploy}" | jq "[.[0].SignedTags[].SignedTag]" )
 
-# _dateStamp=$( date '%y%m%d')
 banner "Deploying ${productToDeploy}"
 
 #
@@ -245,10 +238,10 @@ if test "${productToDeploy}" = "pingdownloader"
 then
     test -z "${dryRun}" \
                 && docker --config "${_docker_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/pingdownloader:${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
-    for targetRegistry in ${_registryList}
-    do
-        tag_and_push ""
-    done
+    targetRegistry="DockerHub"
+    tag_and_push ""
+    targetRegistry="Artifactory"
+    tag_and_push ""
     exit 0
 fi
 
@@ -286,13 +279,19 @@ do
 
         for _jvm in ${_jvmsToBuild}
         do
-            banner "Processing ${productToDeploy} ${_shim} ${_jvm} ${_version}"
+            #Get the target registries for the specified product, version, shim, and jvm
+            if test -z "${_registryList}"
+            then
+                _registryList=$( _getTargetRegistriesForProductVersionShimJVM "${productToDeploy}" "${_version}" "${_shim}" "${_jvm}")
+            fi
+
             fullTag="${_version}-${_shimLongTag}-${_jvm}-${ciTag}"
             test -z "${dryRun}" \
                 && docker --config "${_docker_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
             # _jvmVersion=$( _getJVMVersionForID "${_jvm}" )
             for targetRegistry in ${_registryList}
             do
+                banner "Publishing ${productToDeploy} ${_shim} ${_jvm} ${_version} to ${targetRegistry}"
                 # tag_and_push "${_version}-${_shimLongTag}-java${_jvmVersion}-edge"
                 if test -n "${sprint}"
                 then

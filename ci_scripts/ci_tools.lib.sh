@@ -81,6 +81,13 @@ _getPreferredJVMForProductVersionShim ()
     jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.preferredJVM' "${_file}"
 }
 
+# get the target image registries for a product, version, shim, and jvm
+_getTargetRegistriesForProductVersionShimJVM ()
+{
+    _file="${CI_PROJECT_DIR}/${1}/versions.json"
+    jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.jvms[]|select(.jvm=="'${4}'")|.registries[]' "${_file}"
+}
+
 # get the jvm versions (from versions.json) for an ID
 _getJVMVersionForID ()
 {

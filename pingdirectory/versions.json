@@ -12,7 +12,11 @@
                         {
                             "jvm": "az11",
                             "build": true,
-                            "deploy": true
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub",
+                                "Artifactory"
+                            ]
                         }
                     ]
                 }
@@ -29,75 +33,11 @@
                         {
                             "jvm": "az11",
                             "build": true,
-                            "deploy": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "version": "8.2.0.2",
-            "preferredShim": "alpine",
-            "shims":[
-                {
-                    "shim": "alpine",
-                    "preferredJVM": "az11",
-                    "jvms": [
-                        {
-                            "jvm": "az11",
-                            "build": false,
-                            "deploy": false
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "version": "8.2.0.1",
-            "preferredShim": "alpine",
-            "shims":[
-                {
-                    "shim": "alpine",
-                    "preferredJVM": "az11",
-                    "jvms": [
-                        {
-                            "jvm": "az11",
-                            "build": false,
-                            "deploy": false
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "version": "8.2.0.0",
-            "preferredShim": "alpine",
-            "shims":[
-                {
-                    "shim": "alpine",
-                    "preferredJVM": "az11",
-                    "jvms": [
-                        {
-                            "jvm": "az11",
-                            "build": false,
-                            "deploy": false
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "version": "8.2.0.0-EA",
-            "preferredShim": "alpine",
-            "shims":[
-                {
-                    "shim": "alpine",
-                    "preferredJVM": "az11",
-                    "jvms": [
-                        {
-                            "jvm": "az11",
-                            "build": false,
-                            "deploy": false
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub",
+                                "Artifactory"
+                            ]
                         }
                     ]
                 }
@@ -114,75 +54,11 @@
                         {
                             "jvm": "az11",
                             "build": true,
-                            "deploy": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "version": "8.1.0.2",
-            "preferredShim": "alpine",
-            "shims":[
-                {
-                    "shim": "alpine",
-                    "preferredJVM": "az11",
-                    "jvms": [
-                        {
-                            "jvm": "az11",
-                            "build": false,
-                            "deploy": false
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "version": "8.1.0.0-EA",
-            "preferredShim": "alpine",
-            "shims":[
-                {
-                    "shim": "alpine",
-                    "preferredJVM": "az11",
-                    "jvms": [
-                        {
-                            "jvm": "az11",
-                            "build": false,
-                            "deploy": false
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "version": "8.0.0.1",
-            "preferredShim": "alpine",
-            "shims":[
-                {
-                    "shim": "alpine",
-                    "preferredJVM": "az11",
-                    "jvms": [
-                        {
-                            "jvm": "az11",
-                            "build": false,
-                            "deploy": false
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "version": "7.3.0.7",
-            "preferredShim": "alpine",
-            "shims":[
-                {
-                    "shim": "alpine",
-                    "preferredJVM": "az11",
-                    "jvms": [
-                        {
-                            "jvm": "az11",
-                            "build": false,
-                            "deploy": false
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub",
+                                "Artifactory"
+                            ]
                         }
                     ]
                 }
