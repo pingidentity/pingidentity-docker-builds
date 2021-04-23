@@ -163,7 +163,7 @@ fi
 RUN="exec"
 BG=""
 
-if ! test -z "${DRY_RUN}"
+if test -z "${DRY_RUN}"
 then
   # The server will have the same PID as this script.
   echo $$ > "${PID_FILE}"
