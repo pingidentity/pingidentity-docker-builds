@@ -1323,7 +1323,6 @@ prepareToJoinTopology ()
         else
             echo "We are the SEED Server: ${_seedInstanceName} --> No need to enable failover"
         fi
-        echo "TODO: We need to check for other servers"
         return 1
     fi
 
