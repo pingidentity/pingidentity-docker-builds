@@ -2,55 +2,46 @@
     "latest": "1.7.0",
     "versions": [
         {
-          "version": "1.5.0",
-          "preferredShim": "alpine",
-          "shims": [
-            {
-              "shim": "alpine",
-              "preferredJVM": "az11",
-              "jvms": [
+            "version": "1.7.0",
+            "preferredShim": "alpine",
+            "shims": [
                 {
-                  "jvm": "az11",
-                  "build": false,
-                  "deploy": false
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub",
+                                "Artifactory"
+                            ]
+                        }
+                    ]
                 }
-              ]
-            }
-          ]
+            ]
         },
         {
-          "version": "1.6.0",
-          "preferredShim": "alpine",
-          "shims": [
-            {
-              "shim": "alpine",
-              "preferredJVM": "az11",
-              "jvms": [
+            "version": "1.6.0",
+            "preferredShim": "alpine",
+            "shims": [
                 {
-                  "jvm": "az11",
-                  "build": true,
-                  "deploy": true
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub",
+                                "Artifactory"
+                            ]
+                        }
+                    ]
                 }
-              ]
-            }
-          ]
-        },
-        {
-          "version": "1.7.0",
-          "preferredShim": "alpine",
-          "shims": [
-            {
-              "shim": "alpine",
-              "preferredJVM": "az11",
-              "jvms": [
-                {
-                  "jvm": "az11",
-                  "build": true,
-                  "deploy": true
-                }
-              ]
-            }
-          ]
+            ]
         }
     ]
 }

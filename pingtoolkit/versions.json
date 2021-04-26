@@ -12,7 +12,11 @@
                         {
                             "jvm": "az11",
                             "build": true,
-                            "deploy": true
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub",
+                                "Artifactory"
+                            ]
                         }
                     ]
                 }
