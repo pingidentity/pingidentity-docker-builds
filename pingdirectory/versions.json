@@ -23,6 +23,26 @@
             ]
         },
         {
+            "version": "8.2.0.4",
+            "preferredShim": "alpine",
+            "shims":[
+                {
+                    "shim": "alpine",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "Artifactory"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "version": "8.2.0.3",
             "preferredShim": "alpine",
             "shims":[
