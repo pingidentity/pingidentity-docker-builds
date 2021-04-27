@@ -133,7 +133,7 @@ do
         -r|--registry)
             shift
             test -z "${1}" && usage "You must provide a registry"
-            _registryList="${_registryList:+${_registryList} }${1}"
+            _registryListManual="${_registryListManual:+${_registryListManual} }${1}"
             ;;
         -l|--registry-file)
             shift
@@ -185,7 +185,7 @@ if test -f "${_registryListFile}" ; then
     do
         if test -n "${_registry}"
         then
-            _registryList="${_registryList:+${_registryList} }${_registry}"
+            _registryListManual="${_registryListManual:+${_registryListManual} }${_registry}"
         fi
     done < "${_registryListFile}"
 fi
@@ -280,8 +280,10 @@ do
         for _jvm in ${_jvmsToBuild}
         do
             #Get the target registries for the specified product, version, shim, and jvm
-            if test -z "${_registryList}"
+            if test -n "${_registryListManual}"
             then
+                _registryList="${_registryListManual}"
+            else
                 _registryList=$( _getTargetRegistriesForProductVersionShimJVM "${productToDeploy}" "${_version}" "${_shim}" "${_jvm}")
             fi
 
