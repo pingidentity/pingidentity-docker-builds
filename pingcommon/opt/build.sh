@@ -8,19 +8,25 @@ test -f "/opt/build.sh.pre" && sh /opt/build.sh.pre
 # and update the /var/lib/nginx owner if necessary.
 fixPermissions ()
 {
-    touch /etc/motd
+    test -f /etc/motd || touch /etc/motd
+    chmod go+w /etc/motd
+    chown -Rf 9031:9999 /etc/motd
     # Environment variables for BASE isn't available here.
     BASE=/opt
 
-    find "${BASE}" -mindepth 1 -maxdepth 1 -not -name in| while read -r directory
-    do
-        chown -Rf 9031:9999 /etc/motd "${directory}"
-        chmod -Rf go-rwx "${directory}"
-    done
+    # find "${BASE}" -mindepth 1 -maxdepth 1 -not -name in| while read -r directory
+    # do
+    #     chown -Rf 9031:9999 "${directory}"
+    #     chmod -Rf go-rwx "${directory}"
+    # done
+    chown -Rf 9031:9999 "${BASE}"
+    chmod -Rf go-rwx "${BASE}"
 
-    if test -d /var/lib/nginx; then
-        chown -R "ping:identity" /var/lib/nginx
-    fi
+    # make shell scripts executable for the user
+    # this is safe to do "blind" as it only affects files with the .sh extension
+    # for the user defined in the image
+    find "${BASE}" -type f -iname \*.sh -exec chmod u+x '{}' \+
+    test ! -d /var/lib/nginx || chown -R 9031:9999 /var/lib/nginx
 }
 
 removePackageManager_alpine ()
@@ -77,9 +83,6 @@ case "${_osID}" in
         addgroup --gid 9999 identity
         adduser --uid 9031 --ingroup identity --disabled-password --shell /bin/false ping
 
-        # Update permissions under /opt
-        fixPermissions
-
         removePackageManager_alpine
     ;;
     centos)
@@ -105,9 +108,6 @@ case "${_osID}" in
         groupadd --gid 9999 identity
         useradd --uid 9031 --gid identity --shell /bin/false ping
 
-        # Update permissions under /opt
-        fixPermissions
-
         #TODO this causes issues because yum is a dependency of other yum-related packages.
         #removePackageManager_centos
     ;;
@@ -128,18 +128,25 @@ case "${_osID}" in
         addgroup --gid 9999 identity
         adduser --uid 9031 --ingroup identity --disabled-password --shell /bin/false ping
 
-        # Update permissions under /opt
-        fixPermissions
-
         removePackageManager_ubuntu
     ;;
 esac
 
-chmod -Rf a+rwx /opt
+# create stubs for volume mounts
+for dir in "backup" "in" "logs" "out"
+do
+    mkdir "/opt/${dir}"
+done
+
+# Do we need this ?
+# chmod -Rf a+rwx /opt
 
 test -f "/opt/build.sh.post" && sh /opt/build.sh.post
 
+# generate the staging manifest
 find "/opt/staging" > "/opt/staging-manifest.txt"
+
+fixPermissions
 
 # delete self
 rm -f "${0}"

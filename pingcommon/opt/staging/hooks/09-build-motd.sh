@@ -53,6 +53,7 @@ else
 
         jq -r "select (.devops != null) | .devops | ${_jqExpr}" "${_motdJsonFile}" >> "${_motdFile}"
         jq -r "select (.${_imageName} != null) | .${_imageName} | ${_jqExpr}" "${_motdJsonFile}" >> "${_motdFile}"
+        echo >> "${_motdFile}"
     else
         echo_red "Unable to download MOTD from ${MOTD_URL}"
     fi
