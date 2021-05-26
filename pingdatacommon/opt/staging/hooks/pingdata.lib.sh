@@ -1427,7 +1427,7 @@ get_dsconfig_options ()
 
     if test "${_isOnline}" = "true"
     then
-        echo "--no-prompt --quiet --noPropertiesFile --hostname ${HOSTNAME} --port ${LDAPS_PORT} --bindDN ${ROOT_USER_DN} --bindPasswordFile ${ROOT_USER_PASSWORD_FILE} --useSSL --trustAll"
+        echo "--no-prompt --quiet --noPropertiesFile --hostname ${HOSTNAME} --port ${LDAPS_PORT} --bindDN \"${ROOT_USER_DN}\" --bindPasswordFile \"${ROOT_USER_PASSWORD_FILE}\" --useSSL --trustAll"
     else
         echo "--no-prompt --quiet --offline --noPropertiesFile"
     fi
@@ -1466,7 +1466,7 @@ set_server_unavailable ()
             --set 'additional-response-contents:${_jsonMsg}'" > "${_batchFile}"
 
         # shellcheck disable=SC2086
-        dsconfig ${_dsconfigOptions} --batch-file "${_batchFile}"
+        eval "dsconfig ${_dsconfigOptions} --batch-file \"${_batchFile}\""
         rm "${_batchFile}"
     fi
 }
@@ -1497,7 +1497,7 @@ set_server_available ()
             --reset additional-response-contents" > "${_batchFile}"
 
         # shellcheck disable=SC2086
-        dsconfig ${_dsconfigOptions} --batch-file "${_batchFile}"
+        eval "dsconfig ${_dsconfigOptions} --batch-file \"${_batchFile}\""
         rm "${_batchFile}"
     fi
 }
