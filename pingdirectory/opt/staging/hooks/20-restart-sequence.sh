@@ -80,6 +80,8 @@ if test ! -f "${_pdProfileLicense}" ; then
     echo "  Copying in license from existing install."
     echo "    ${_currentLicense} ==> "
     echo "      ${_pdProfileLicense}"
+    # Create the pre-setup directory if it doesn't already exist
+    mkdir -p "${PD_PROFILE}/server-root/pre-setup"
     cp -f "${_currentLicense}" "${_pdProfileLicense}"
 else
     echo "Using new license from ${_pdProfileLicense}"
