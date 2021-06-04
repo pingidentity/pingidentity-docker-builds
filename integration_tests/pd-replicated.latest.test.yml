@@ -2,7 +2,7 @@ version: "2.4"
 
 services:
   pingdirectory:
-    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-alpine-${JVM}-${GIT_TAG}-${ARCH}
     scale: 2
     environment:
       - SERVER_PROFILE_PATH=baseline/pingdirectory
@@ -29,7 +29,7 @@ services:
       - pingnet-internal
 
   sut:
-    image: ${DEPS}postman/newman
+    image: ${DEPS}arnaudlacour/newman
     entrypoint: ["/usr/bin/env"]
     command: sh -c "/tmp/wait-for integration_tests_pingdirectory_1:1443 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
     volumes:

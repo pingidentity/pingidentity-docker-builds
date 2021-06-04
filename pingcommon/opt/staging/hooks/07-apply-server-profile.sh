@@ -22,7 +22,7 @@
 #- is passed.
 
 #
-${VERBOSE} && set -x
+test "${VERBOSE}" = "true" && set -x
 
 # shellcheck source=pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"

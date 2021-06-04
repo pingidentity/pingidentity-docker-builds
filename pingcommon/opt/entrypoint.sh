@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-${VERBOSE} && set -x
+test "${VERBOSE}" = "true" && set -x
 
 # shellcheck source=staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
@@ -17,8 +17,8 @@ process_secrets
 # Capture environment variables and secrets state info
 add_state_info "environment_variables"
 
-HOSTNAME=$(hostname -f)
-DOMAINNAME=$(hostname -d)
+HOSTNAME=$( hostname -f )
+DOMAINNAME=$( hostname -d )
 
 export HOSTNAME DOMAINNAME
 
@@ -83,7 +83,7 @@ then
     fi
 
     # If there is no startup command provided, provide error message and exit.
-    if test -z "${STARTUP_COMMAND}" ;
+    if test -z "${STARTUP_COMMAND}"
     then
         echo_red "*** NO CONTAINER STARTUP COMMAND PROVIDED ***"
         echo_red "*** Please set the environment variable STARTUP_COMMAND with a command to run"
@@ -100,7 +100,7 @@ then
     #   run docker .... start-server           # Starts server in foreground (same as previous)
     #   run docker .... start-server /bin/sh   # Starts server in background and runs shell
     #   run docker .... /bin/sh                # Doesn't start the server but drops into a shell
-    if test -z "${*}" ;
+    if test -z "${*}"
     then
         # replace the shell with foreground server
         echo_green "Starting server in foreground: (${STARTUP_COMMAND} ${STARTUP_FOREGROUND_OPTS})"

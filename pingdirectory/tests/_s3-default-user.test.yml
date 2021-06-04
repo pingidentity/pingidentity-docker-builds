@@ -11,6 +11,7 @@ services:
       - SERVER_PROFILE_PATH=getting-started/pingdirectory
       - MAX_HEAP_SIZE=768m
       - MAKELDIF_USERS=1000
+      - KEEP_CUSTOM_JAVA_PROPS=true
     ulimits:
       nproc:
         soft: 16384

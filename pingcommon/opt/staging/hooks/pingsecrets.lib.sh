@@ -229,4 +229,3 @@ process_secrets ()
 
     process_secrets_json
 }
-

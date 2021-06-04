@@ -3,10 +3,10 @@
     "versions": [
         {
             "version": "6.3.0-Beta",
-            "preferredShim": "alpine",
+            "preferredShim": "alpine:3.13",
             "shims": [
                 {
-                    "shim": "alpine",
+                    "shim": "alpine:3.13",
                     "preferredJVM": "az11",
                     "jvms": [
                         {
@@ -15,6 +15,14 @@
                             "deploy": true,
                             "registries": [
                                 "DockerHub",
+                                "Artifactory"
+                            ]
+                        },
+                        {
+                            "jvm": "al11",
+                            "build": true,
+                            "deploy": false,
+                            "registries": [
                                 "Artifactory"
                             ]
                         }
@@ -38,7 +46,16 @@
                                 "DockerHub",
                                 "Artifactory"
                             ]
+                        },
+                        {
+                            "jvm": "al11",
+                            "build": true,
+                            "deploy": false,
+                            "registries": [
+                                "Artifactory"
+                            ]
                         }
+
                     ]
                 }
             ]

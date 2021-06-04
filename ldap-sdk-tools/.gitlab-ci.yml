@@ -1,0 +1,118 @@
+################################################
+#                  BUILD
+################################################
+
+intel.b.ldap-sdk-tools:
+  stage: products
+  script:
+    - ci_scripts/build_product.sh --product ldap-sdk-tools
+  only:
+    changes:
+      - pingdownloader/**/*
+      - ldap-sdk-tools/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)ldap-sdk-tools(?:$|,)/i
+
+arm.b.ldap-sdk-tools:
+  stage: products
+  tags:
+    - platform=aarch64
+  script:
+    - ci_scripts/build_product.sh --product ldap-sdk-tools
+  only:
+    # variables:
+    changes:
+      - pingdownloader/**/*
+      - ldap-sdk-tools/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)ldap-sdk-tools(?:$|,)/i
+
+################################################
+#                  SMOKE TESTS
+################################################
+
+intel.t.ldap-sdk-tools:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_smoke.sh --product ldap-sdk-tools
+  only:
+    changes:
+      - pingdownloader/**/*
+      - ldap-sdk-tools/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)ldap-sdk-tools(?:$|,)/i
+
+arm.t.ldap-sdk-tools:
+  stage: test.smoke
+  tags:
+    - platform=aarch64
+  script:
+    - ci_scripts/run_smoke.sh --product ldap-sdk-tools
+  only:
+    changes:
+      - pingdownloader/**/*
+      - ldap-sdk-tools/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)ldap-sdk-tools(?:$|,)/i
+
+################################################
+#                  DEPLOY
+################################################
+
+d.ldap-sdk-tools:
+  stage: deploy
+  script:
+    - VERBOSE=true ci_scripts/deploy_product_to_registry.sh --product ldap-sdk-tools
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - ldap-sdk-tools/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)ldap-sdk-tools(?:$|,)/i

@@ -7,6 +7,7 @@ services:
       - PING_IDENTITY_DEVOPS_USER=${PING_IDENTITY_DEVOPS_USER}
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
       - PING_IDENTITY_ACCEPT_EULA=YES
+      - MAX_HEAP_SIZE=3g
     ulimits:
       nproc:
         soft: 16384
@@ -14,8 +15,8 @@ services:
       nofile:
         soft: 65535
         hard: 65535
-    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-2000000000}b
-    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-2000000000}b
+    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-3000000000}b
+    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-3000000000}b
     mem_swappiness: 0
     tmpfs: /run/secrets
     command: start-server /opt/wait-for localhost:1443 -t 300 -- /opt/liveness.sh

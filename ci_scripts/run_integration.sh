@@ -4,7 +4,7 @@
 #
 # Runs integration tests located in integration_tests directory
 #
-test -n "${VERBOSE}" && set -x
+test "${VERBOSE}" = "true" && set -x
 
 if test -z "${CI_COMMIT_REF_NAME}"
 then
@@ -53,7 +53,7 @@ do
     export GIT_TAG="${ciTag}"
     export REGISTRY="${FOUNDATION_REGISTRY}"
     export DEPS="${DEPS_REGISTRY}"
-
+    export JVM="${2:-az11}"
     # `docker pull` has less package dependencies than `docker-compose pull`
     # use docker pull to pull images before running `docker-compose up`
     if test -z "${isLocalBuild}"

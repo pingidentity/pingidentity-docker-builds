@@ -4,7 +4,7 @@
 #
 # This script will cleanup a docker environment
 #
-test -n "${VERBOSE}" && set -x
+test "${VERBOSE}" = "true" && set -x
 
 if test -z "${CI_COMMIT_REF_NAME}"
 then

@@ -2,7 +2,7 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-test -n "${VERBOSE}" && set -x
+test "${VERBOSE}" = "true" && set -x
 cd "$( dirname "${0}" )" || exit 97
 
 ##########################################################################################
@@ -74,9 +74,10 @@ END_USAGE2
 	exit 77
 }
 
-FONT_RED='\033[0;31m'
-FONT_GREEN='\033[0;32m'
-FONT_NORMAL='\033[0m'
+test -t 1 && _colorSupport=true
+FONT_RED=${_colorSupport:+'\033[0;31m'}
+FONT_GREEN=${_colorSupport:+'\033[0;32m'}
+FONT_NORMAL=${_colorSupport:+'\033[0m'}
 # CHAR_CHECKMARK='\xE2\x9C\x94'
 # CHAR_CROSSMARK='\xE2\x9D\x8C'
 
@@ -85,8 +86,9 @@ FONT_NORMAL='\033[0m'
 ################################################################################
 echo_red ()
 {
-    test "$( uname )" = "Darwin" && _echoOpts="-e"
-    echo ${_echoOpts} "${FONT_RED}$*${FONT_NORMAL}"
+    # test "$( uname )" = "Darwin" && _echoOpts="-e"
+    # echo ${_echoOpts} "${FONT_RED}$*${FONT_NORMAL}"
+    printf "%s%s%s\n" "${FONT_RED}" "${*}" "${FONT_NORMAL}"
 }
 
 ################################################################################
@@ -94,8 +96,9 @@ echo_red ()
 ################################################################################
 echo_green ()
 {
-    test "$( uname )" = "Darwin" && _echoOpts="-e"
-    echo ${_echoOpts} "${FONT_GREEN}$*${FONT_NORMAL}"
+    # test "$( uname )" = "Darwin" && _echoOpts="-e"
+    # echo ${_echoOpts} "${FONT_GREEN}$*${FONT_NORMAL}"
+    printf "%s%s%s\n" "${FONT_GREEN}" "${*}" "${FONT_NORMAL}"
 }
 
 ##########################################################################################
@@ -118,7 +121,16 @@ getProps ()
     _tmpApp=${devopsApp}
     devopsApp="pingdownloader"
 
-	if ! _curl -H "devops-purpose: get-metadata" "${repositoryURL}${metadataFile}" -o "${outputProps}"
+    _returnCode=99
+    _retries=4
+    while test ${_retries} -gt 0
+    do
+        _retries=$(( _retries - 1 ))
+        _curl -H "devops-purpose: get-metadata" "${repositoryURL}${metadataFile}" -o "${outputProps}"
+        _returnCode=${?}
+        test ${_returnCode} -eq 0 && break
+    done
+    if test ${_returnCode} -ne 0
     then
         usage "Unable to get bits metadata. Network Issue?"
     fi
@@ -159,7 +171,7 @@ getProductVersion ()
 getProductFile ()
 {
 	prodFile=$( jq -r ".products[] | select(.name==\"${product}\").mapping" "${outputProps}" )
-	prodFile=$(eval echo "$prodFile")
+	prodFile=$( eval echo "$prodFile" )
     test "${prodFile}" = "null" && usage "Unable to determine download file for ${product}"
 }
 
@@ -190,7 +202,7 @@ getProductLicenseFile ()
     then
         licenseFile=""
     fi
-	licenseFile=$(eval echo "${licenseFile}")
+	licenseFile=$( eval echo "${licenseFile}" )
     # test "${licenseFile}" = "null" && usage "Unable to determine license file for ${product}"
 }
 
@@ -245,7 +257,7 @@ _curl ()
 
 download_and_verify ()
 {
-	GNUPGHOME="$(mktemp -d)"
+	GNUPGHOME="$( mktemp -d )"
     export GNUPGHOME
     TMP_VS="$( mktemp -d )"
     PAYLOAD="${TMP_VS}/payload"
@@ -258,13 +270,32 @@ download_and_verify ()
     echo "disable-ipv6" >> "${GNUPGHOME}/dirmngr.conf"
 
 
-    if ! _curl --header "devops-purpose: signature" --output "${SIGNATURE}" "${OBJECT}.asc"
+    _returnCode=99
+    _retries=4
+    while test ${_retries} -gt 0
+    do
+        _retries=$(( _retries - 1 ))
+        _curl --header "devops-purpose: signature" --output "${SIGNATURE}" "${OBJECT}.asc"
+        _returnCode=${?}
+        test ${_returnCode} -eq 0 && break
+    done
+    if test ${_returnCode} -ne 0
     then
-        echo_red "Downloading the payload signature failed"
+        echo_red "Downloading the payload signature failed after 4 attempts"
         return 1
     fi
 
-    if ! _curl --header "devops-purpose: payload-signed" --output "${PAYLOAD}" "${OBJECT}"
+
+    _returnCode=99
+    _retries=4
+    while test ${_retries} -gt 0
+    do
+        _retries=$(( _retries - 1 ))
+        _curl --header "devops-purpose: payload-signed" --output "${PAYLOAD}" "${OBJECT}"
+        _returnCode=${?}
+        test ${_returnCode} -eq 0 && break
+    done
+    if test ${_returnCode} -ne 0
     then
         echo_red "Downloading the payload failed"
         return 2
@@ -274,10 +305,18 @@ download_and_verify ()
     # manually implement retries to fetch the signature from the
     # GPG public key server
     #
+    # pass "file" as the key argument to have this function download the file instead
     if test "${KEY_ID}" = "file"
     then
-        # pass "file" as the key argument to have this function download the file instead
-        if _curl --header "devops-purpose: signature-key" --output "${KEY}" "${KEY_SERVER}"
+        _retries=4
+        while test ${_retries} -gt 0
+        do
+            _retries=$(( _retries - 1 ))
+            _curl --header "devops-purpose: signature-key" --output "${KEY}" "${KEY_SERVER}" 
+            _returnCode=${?}
+            test ${_returnCode} -eq 0 && break
+        done
+        if test ${_returnCode} -eq 0
         then
             gpg --import "${KEY}" >/dev/null 2>/dev/null
             _returnCode=${?}
@@ -286,21 +325,17 @@ download_and_verify ()
                 echo_red "The PGP key file could not be imported"
             fi
         else
-            echo_red "The PGP key file could not be downloaded from ${KEY_SERVER}"
+            echo_red "The PGP key file could not be downloaded from ${KEY_SERVER} after 4 attempts"
             _returnCode=1
         fi
     else
         _retries=4
         while test ${_retries} -gt 0
         do
+            _retries=$(( _retries - 1 ))
             gpg --batch --keyserver "${KEY_SERVER}" --recv-keys "${KEY_ID}" >/dev/null 2>/dev/null
             _returnCode=${?}
-            if test ${_returnCode} -eq 0
-            then
-                _retries=${_returnCode}
-            else
-                _retries=$(( _retries - 1 ))
-            fi
+            test ${_returnCode} -eq 0 && break
         done
     fi
 

@@ -7,10 +7,10 @@
             "shims":[
                 {
                     "shim": "centos:7.6.1810",
-                    "preferredJVM": "nojvm",
+                    "preferredJVM": "conoj",
                     "jvms": [
                         {
-                            "jvm": "nojvm",
+                            "jvm": "conoj",
                             "build": true,
                             "deploy": true,
                             "registries": [

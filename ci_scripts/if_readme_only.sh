@@ -4,7 +4,7 @@
 #
 # Check if the changes only includes markdown (.md) files
 #
-test -n "${VERBOSE}" && set -x
+test "${VERBOSE}" = "true" && set -x
 
 #for local, uncomment:
 # CHANGED_FILES=$(git diff --name-only master HEAD)

@@ -7,7 +7,7 @@
 #- - `alpine` - Parent Image
 #-
 ARG DEPS
-FROM ${DEPS}alpine:3.12.1
+FROM ${DEPS}alpine:3.13
 LABEL	maintainer=devops_program@pingidentity.com \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp." \

@@ -4,7 +4,7 @@
 #
 # Common functions used throughout Docker Image Hooks
 #
-${VERBOSE} && set -x
+test "${VERBOSE}" = "true" && set -x
 
 # capture the calling hook so it can be echo'd later on
 CALLING_HOOK=${0}
@@ -12,15 +12,6 @@ CALLING_HOOK=${0}
 # check for devops file in docker secrets location
 # shellcheck disable=SC1090
 test -f "/run/secrets/${PING_IDENTITY_DEVOPS_FILE}" && . "/run/secrets/${PING_IDENTITY_DEVOPS_FILE}"
-
-# echo colorization options
-if test "${COLORIZE_LOGS}" = "true"
-then
-    RED_COLOR='\033[0;31m'
-    GREEN_COLOR='\033[0;32m'
-    YELLOW_COLOR='\033[0;33m'
-    NORMAL_COLOR='\033[0m'
-fi
 
 #
 #
@@ -140,6 +131,24 @@ isImageVersionGtEq() {
   echo 0
 }
 
+echo_color ()
+{
+    _color="$( toLower "${1}" )"
+    shift
+    case "${_color}" in
+        red) _colorCode='\033[0;31m' ;;
+        green) _colorCode='\033[0;32m' ;;
+        yellow) _colorCode='\033[0;33m' ;;
+    esac
+    _endColor='\033[0m'
+    if test "${COLORIZE_LOGS}" = "true"
+    then
+        printf "%b%s%b\n" "${_colorCode}" "${*}" "${_endColor}"
+    else
+        printf "%s\n" "${*}"
+    fi
+}
+
 ###############################################################################
 # echo_red (message)
 #
@@ -147,13 +156,7 @@ isImageVersionGtEq() {
 ###############################################################################
 echo_red ()
 {
-    echoEscape="-e"
-    if isOS ubuntu || test "${COLORIZE_LOGS}" != "true"
-    then
-        echoEscape=""
-    fi
-    # shellcheck disable=SC2086
-    echo ${echoEscape} "${RED_COLOR}$*${NORMAL_COLOR}"
+    echo_color red "${*}"
 }
 
 ###############################################################################
@@ -163,13 +166,7 @@ echo_red ()
 ###############################################################################
 echo_green ()
 {
-    echoEscape="-e"
-    if isOS ubuntu || test "${COLORIZE_LOGS}" != "true"
-    then
-        echoEscape=""
-    fi
-    # shellcheck disable=SC2086
-    echo ${echoEscape} "${GREEN_COLOR}$*${NORMAL_COLOR}"
+    echo_color green "${*}"
 }
 
 ###############################################################################
@@ -179,13 +176,7 @@ echo_green ()
 ###############################################################################
 echo_yellow ()
 {
-    echoEscape="-e"
-    if isOS ubuntu || test "${COLORIZE_LOGS}" != "true"
-    then
-        echoEscape=""
-    fi
-    # shellcheck disable=SC2086
-    echo ${echoEscape} "${YELLOW_COLOR}$*${NORMAL_COLOR}"
+    echo_color yellow "${*}"
 }
 
 ###############################################################################
@@ -195,7 +186,7 @@ echo_yellow ()
 ###############################################################################
 echo_bar ()
 {
-    printf "################################################################################\n"
+    printf "################################################################################\n"    
 }
 
 ###############################################################################

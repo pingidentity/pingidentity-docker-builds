@@ -10,7 +10,7 @@
 #  TODO - Should probably add more mechanisms to pull from other
 #         locations (i.e. vaults/secrets)
 #
-${VERBOSE} && set -x
+test "${VERBOSE}" = "true" && set -x
 
 # shellcheck source=pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
@@ -21,7 +21,7 @@ _checkLicenceAPI="https://license.pingidentity.com/devops/check-license"
 
 if test -f "${LICENSE_FILE}"
 then
-    _licenseID=$(awk 'BEGIN{FS="="}$1~/^ID/{print $2}' "${LICENSE_FILE}")
+    _licenseID=$( awk 'BEGIN{FS="="}$1~/^ID/{print $2}' "${LICENSE_FILE}" )
 
     case "${MUTE_LICENSE_VERIFICATION}" in
         TRUE|true|YES|yes|Y|y)
@@ -55,21 +55,29 @@ else
             echo "   Prod License: ${LICENSE_SHORT_NAME} - v${LICENSE_VERSION}"
             echo "    DevOps User: ${PING_IDENTITY_DEVOPS_USER}..."
 
-            _curl \
-                --header "product: ${LICENSE_SHORT_NAME}" \
-                --header "version: ${LICENSE_VERSION}" \
-                --header "devops-user: ${PING_IDENTITY_DEVOPS_USER}" \
-                --header "devops-key: ${PING_IDENTITY_DEVOPS_KEY}" \
-                --header "devops-app: ${IMAGE_VERSION}" \
-                --header "devops-purpose: get-license" \
-                "${_licenseAPI}" \
-                --output "${LICENSE_FILE}"
+            _resultCode=99
+            _retries=4
+            while test ${_retries} -gt 0
+            do
+                _retries=$(( _retries - 1 ))
+                _curl \
+                    --header "product: ${LICENSE_SHORT_NAME}" \
+                    --header "version: ${LICENSE_VERSION}" \
+                    --header "devops-user: ${PING_IDENTITY_DEVOPS_USER}" \
+                    --header "devops-key: ${PING_IDENTITY_DEVOPS_KEY}" \
+                    --header "devops-app: ${IMAGE_VERSION}" \
+                    --header "devops-purpose: get-license" \
+                    "${_licenseAPI}" \
+                    --output "${LICENSE_FILE}"
+                _resultCode=${?}
+                test ${_resultCode} -eq 0 && break
+            done
             #
             # Just testing the http code isn't sufficient, curl will return http 200 if it
             # can retrieve the file even if it can't actually write the file to disk. We
             # also need to capture & test the curl return code.
             #
-            rc=${?}
+            rc=${_resultCode}
             if test ${rc} -eq 0
             then
                 echo ""
@@ -77,7 +85,7 @@ else
                 test "${PING_DEBUG}" = "true" && cat_indent "${LICENSE_FILE}"
                 echo ""
 
-                case $(toLower "${PING_IDENTITY_ACCEPT_EULA}") in
+                case $( toLower "${PING_IDENTITY_ACCEPT_EULA}" ) in
                     yes|y)
                         ;;
                     *)

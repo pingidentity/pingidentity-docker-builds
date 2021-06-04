@@ -9,11 +9,9 @@
 #-
 ARG REGISTRY
 ARG GIT_TAG
-FROM ${REGISTRY}/pingcommon:${GIT_TAG}
-# COPY [ "_script-util.sh", "/opt/server/lib/"  ]
-# COPY [ "hooks/", "/opt/staging/hooks/" ]
+ARG ARCH
+FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH}
 COPY [ "/opt/","/opt/"]
-# VOLUME [ "/opt" ]
 
 #-- Flag to force a run of dsjavaproperties --initialize. When this is false,
 #-- the java.properties file will only be regenerated on a restart when there

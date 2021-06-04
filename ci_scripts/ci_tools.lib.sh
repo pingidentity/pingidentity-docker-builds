@@ -4,7 +4,7 @@
 #
 # Utilities used across all CI scripts
 #
-test -n "${VERBOSE}" && set -x
+test "${VERBOSE}" = "true" && set -x
 
 HISTFILE=~/.bash_history
 set -o history
@@ -14,15 +14,17 @@ export HISTTIMEFORMAT
 # get all versions (from versions.json) for a product to build
 _getAllVersionsToBuildForProduct ()
 {
+    _jvmFilter=$( _getJVMFilterArray )
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.build==true)|$v.version]|unique|.[]' "${_file}"
+    test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.build==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|$v.version]|unique|.[]' "${_file}"
 }
 
 # get all versions (from versions.json) for a product to deploy
 _getAllVersionsToDeployForProduct ()
 {
+    _jvmFilter=$( _getJVMFilterArray )
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.deploy==true)|$v.version]|unique|.[]' "${_file}"
+    test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.deploy==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|$v.version]|unique|.[]' "${_file}"
 }
 
 # get the latest (from versions.json) version of a product to build
@@ -36,70 +38,139 @@ _getLatestVersionForProduct ()
 _getDefaultShimForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    jq -r '.|.versions[]| select(.version == "'${2}'") | .preferredShim' "${_file}"
+    # shellcheck disable=SC2086
+    test -f "${_file}" && jq -r '.|.versions[]| select(.version == "'${2}'") | .preferredShim' "${_file}"
 }
 
 # get all the shims (from versions.json) for a product version
 _getShimsToBuildForProductVersion ()
 {
+    _jvmFilter=$( _getJVMFilterArray )
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    jq -r '[.|.versions[]| select(.version == "'${2}'")|.shims[]|. as $v|.jvms[]|select(.build==true)|$v.shim]|unique|.[]' "${_file}"
+    # shellcheck disable=SC2086
+    test -f "${_file}" && jq -r '[.|.versions[]| select(.version == "'${2}'")|.shims[]|. as $v|.jvms[]|select(.build==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|$v.shim]|unique|.[]' "${_file}"
+}
+
+# get all shims for JVM
+_getShimsToBuildForJVM ()
+{
+    _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+    # shellcheck disable=SC2086
+    test -f "${_file}" && jq -r '[.|.versions[]|select(.id=="'${1}'")|.shims[]]|unique|.[]' "${_file}"
 }
 
 # get all the shims (from versions.json) for a product version
 _getShimsToDeployForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    jq -r '[.|.versions[]| select(.version == "'${2}'")|.shims[]|. as $v|.jvms[]|select(.deploy==true)|$v.shim]|unique|.[]' "${_file}"
+    # shellcheck disable=SC2086
+    test -f "${_file}" && jq -r '[.|.versions[]| select(.version == "'${2}'")|.shims[]|. as $v|.jvms[]|select(.deploy==true)|$v.shim]|unique|.[]' "${_file}"
 }
 
 # get all the shims (from versions.json) for a product
 _getAllShimsForProduct ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    jq -r '[.|.versions[]|.shims[]|.shim]|unique|.[]' "${_file}"
+    test -f "${_file}" && jq -r '[.|.versions[]|.shims[]|.shim]|unique|.[]' "${_file}"
 }
 
 # get all the jvms (from versions.json) for a product to build
 _getJVMsToBuildForProductVersionShim ()
 {
+    _jvmFilter=$( _getJVMFilterArray )
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.jvms[]|select(.build==true)|.jvm' "${_file}"
+    # shellcheck disable=SC2086
+    test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.jvms[]|select(.build==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|.jvm' "${_file}"
+}
+
+_getJVMsForArch ()
+{
+    # treat as a singleton
+    if test -z "${_JVMS}"
+    then
+        _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+        _JVMS=$( jq -r '[.versions[]|select(.archs[]|contains("'"${ARCH}"'"))|.id]|.[]' "${_file}" )
+        export _JVMS
+    fi
+    printf "%s" "${_JVMS}"
+}
+
+_getAllArchsForJVM ()
+{
+    _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+    test -f "${_file}" && jq -r '.versions[]|select(.id == "'"${1}"'")|.archs|.[]' "${_file}"
+}
+
+_isJVMMultiArch ()
+{
+    _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+    if test -f "${_file}"
+    then
+        _numArchs=$( jq -r '.versions[]|select(.id == "'"${1}"'")|.archs|length' "${_file}" )
+        test "${_numArchs}" -gt 1 && return 0
+    fi
+    return 1
+}
+
+_getJVMFilterArray ()
+{
+    # treat as a singleton
+    if test -z "${_JVM_FILTER_ARRAY}"
+    then
+        for _j in $( _getJVMsForArch )
+        do
+            # shellcheck disable=SC2089
+            _v=${_v}${_v:+,}'"'${_j}'"'
+        done
+        _JVM_FILTER_ARRAY="[${_v}]"
+        # shellcheck disable=SC2090
+        export _JVM_FILTER_ARRAY
+    fi
+    printf "%s" "${_JVM_FILTER_ARRAY}"
+}
+
+_filterJVMForArch ()
+{
+    _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+    test -f "${_file}" && jq -r '[.versions[]|select(.id=="'"${1}"'")|select(.archs[]|contains("'"${ARCH}"'"))|.id]|.[]' "${_file}"
 }
 
 # get all the jvms (from versions.json) for a product to deploy
 _getJVMsToDeployForProductVersionShim ()
 {
+    _jvmFilter=$( _getJVMFilterArray )
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.jvms[]|select(.deploy==true)|.jvm' "${_file}"
+    test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'"${2}"'").shims[]|select(.shim=="'"${3}"'")|.jvms[]|select(.deploy==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|.jvm' "${_file}"
 }
 
 # get the preferred (from versions.json) for a product, version and shim
 _getPreferredJVMForProductVersionShim ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.preferredJVM' "${_file}"
+    test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'"${2}"'").shims[]|select(.shim=="'"${3}"'")|.preferredJVM' "${_file}"
 }
 
 # get the target image registries for a product, version, shim, and jvm
 _getTargetRegistriesForProductVersionShimJVM ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.jvms[]|select(.jvm=="'${4}'")|.registries[]' "${_file}"
+    test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.jvms[]|select(.jvm=="'${4}'")|.registries[]' "${_file}"
 }
 
 # get the jvm versions (from versions.json) for an ID
 _getJVMVersionForID ()
 {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    jq -r '.|.versions[]|select(.id=="'${1}'")|.version' "${_file}"
+    # shellcheck disable=SC2086
+    test -f "${_file}" && jq -r '.|.versions[]|select(.id=="'${1}'")|.version' "${_file}"
 }
 
 # get the jvm IDs (from versions.json) for a shim
 _getAllJVMIDsForShim ()
 {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    jq -r '[.versions[]|select(.shims[]|contains("'${1}'"))|.id]|unique|.[]' ${_file}
+    # shellcheck disable=SC2086
+    test -f "${_file}" && jq -r '[.versions[]|select(.archs[]|contains("'${ARCH}'"))|select(.shims[]|contains("'${1}'"))|.id]|unique|.[]' "${_file}"
 }
 
 # get the jvms (from versions.json) to build for a shim
@@ -107,7 +178,11 @@ _getAllJVMsToBuildForShim ()
 {
     # _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
     # jq -r '[.versions[]|select(.shims[]|contains("'${1}'"))|.id]|unique|.[]' ${_file}
-    find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|select(.shim=="'${1}'")|.jvms[]|select(.build==true)|.jvm' {} + 2>/dev/null| sort | uniq
+    # shellcheck disable=SC2086
+    for _jvm in $( find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|select(.shim=="'${1}'")|.jvms[]|select(.build==true)|.jvm' {} + 2>/dev/null| sort | uniq )
+    do
+        _filterJVMForArch "${_jvm}"
+    done
 }
 
 # get the jvms (from versions.json) to build
@@ -120,14 +195,16 @@ _getAllJVMsToBuild ()
 _getJVMImageForShimID ()
 {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    jq -r '[.versions[]|select(.shims[]|contains("'${1}'"))| select(.id=="'${2}'")|.from]|unique|.[]' ${_file}
+    # shellcheck disable=SC2086
+    test -f "${_file}" && jq -r '[.versions[]|select(.shims[]|contains("'${1}'"))| select(.id=="'${2}'")|.from]|unique|.[]' "${_file}"
 }
 
 # get the dependencies (from versions.json) for product version
 _getDependenciesForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    jq -jr '.versions[]|select( .version == "'${2}'" )|if (.dependencies) then .dependencies[]|.product," ",.version,"\n" else "" end' "${_file}" | awk 'BEGIN{i=0} {print "--build-arg DEPENDENCY_"i"_PRODUCT="$1" --build-arg DEPENDENCY_"i"_VERSION="$2; i++}'
+    # shellcheck disable=SC2086
+    test -f "${_file}" && jq -jr '.versions[]|select( .version == "'${2}'" )|if (.dependencies) then .dependencies[]|.product," ",.version,"\n" else "" end' "${_file}" | awk 'BEGIN{i=0} {print "--build-arg DEPENDENCY_"i"_PRODUCT="$1" --build-arg DEPENDENCY_"i"_VERSION="$2; i++}'
 }
 
 # get the long tag
@@ -153,7 +230,7 @@ _getAllShims ()
 # Example: 8.1.0.1 --> 8.1
 _getLicenseVersion ()
 {
-    echo ${1}| cut -d. -f1,2
+    echo "${1}"| cut -d. -f1,2
 }
 
 ###############################################################################
@@ -325,7 +402,8 @@ requirePipelineFile ()
 {
     _pipelineFile="$(get_value "${1}")"
 
-    if test ! -f "${_pipelineFile}" ; then
+    if test ! -f "${_pipelineFile}" 
+    then
         echo_red "${_pipelineFile} file missing. Needs to be defined/created (i.e. ci/cd pipeline file)"
         exit 1
     fi
@@ -338,7 +416,8 @@ requirePipelineVar ()
 {
     _pipelineVar="${1}"
 
-    if test -z "${_pipelineVar}" ; then
+    if test -z "${_pipelineVar}"
+    then
         echo_red "${_pipelineVar} variable missing. Needs to be defined/created (i.e. ci/cd pipeline variable)"
         exit 1
     fi
@@ -496,6 +575,8 @@ else
     gitRevLong=$( git rev-parse HEAD)
     ciTag="${gitBranch}-${gitRevShort}"
 fi
+ARCH="$( uname -m )"
+export ARCH
 export FOUNDATION_REGISTRY
 export DEPS_REGISTRY
 export gitRevShort

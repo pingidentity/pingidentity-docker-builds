@@ -29,7 +29,7 @@
 #- If other source maintenance repositories are used (i.e. bitbucket, s3, ...)
 #- then this hook could be overridden by a different hook
 #
-${VERBOSE} && set -x
+test "${VERBOSE}" = "true" && set -x
 
 # shellcheck source=pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
