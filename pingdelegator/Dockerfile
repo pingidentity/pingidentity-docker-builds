@@ -17,9 +17,10 @@ ARG VERSION
 ARG REGISTRY
 ARG DEPS
 ARG GIT_TAG
+ARG ARCH
 
 FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
-FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
+FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} as common
 
 FROM ${DEPS}${SHIM} as final-staging
 
@@ -41,7 +42,7 @@ RUN ["/opt/build.sh"]
 #
 # the final image
 #
-FROM ${REGISTRY}/pingbase:${GIT_TAG}
+FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 COPY --from=final-staging ["/","/"]
 
 # Image version and git revision, set by build process of the docker build

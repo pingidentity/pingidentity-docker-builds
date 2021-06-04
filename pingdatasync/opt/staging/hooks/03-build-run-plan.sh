@@ -11,6 +11,6 @@
 # shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
 . "${HOOKS_DIR}/pingdata.lib.sh"
 
-${VERBOSE} && set -x
+test "${VERBOSE}" = "true" && set -x
 
 buildRunPlan

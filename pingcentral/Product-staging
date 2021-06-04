@@ -1,6 +1,8 @@
 ARG REGISTRY
 ARG GIT_TAG
-FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
+ARG ARCH
+
+FROM ${REGISTRY}/pingdownloader:1.0-alpine-alnoj-${GIT_TAG}-${ARCH} as staging
 ARG PRODUCT=pingcentral
 ARG VERSION=1.2.0
 ARG PING_IDENTITY_SNAPSHOT

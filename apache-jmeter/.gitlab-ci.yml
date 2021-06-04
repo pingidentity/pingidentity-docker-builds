@@ -1,0 +1,117 @@
+################################################
+#                  BUILD
+################################################
+
+intel.b.apache-jmeter:
+  stage: products
+  script:
+    - ci_scripts/build_product.sh --product apache-jmeter
+  only:
+    changes:
+      - pingdownloader/**/*
+      - apache-jmeter/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)apache-jmeter(?:$|,)/i
+
+arm.b.apache-jmeter:
+  stage: products
+  tags:
+    - platform=aarch64
+  script:
+    - ci_scripts/build_product.sh --product apache-jmeter
+  only:
+    changes:
+      - pingdownloader/**/*
+      - apache-jmeter/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)apache-jmeter(?:$|,)/i
+
+################################################
+#                  SMOKE TESTS
+################################################
+
+intel.t.apache-jmeter:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_smoke.sh --product apache-jmeter
+  only:
+    changes:
+      - pingdownloader/**/*
+      - apache-jmeter/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)apache-jmeter(?:$|,)/i
+
+arm.t.apache-jmeter:
+  stage: test.smoke
+  tags:
+    - platform=aarch64
+  script:
+    - ci_scripts/run_smoke.sh --product apache-jmeter
+  only:
+    changes:
+      - pingdownloader/**/*
+      - apache-jmeter/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)apache-jmeter(?:$|,)/i
+
+################################################
+#                  DEPLOY
+################################################
+
+d.apache-jmeter:
+  stage: deploy
+  script:
+    - ci_scripts/deploy_product_to_registry.sh --product apache-jmeter
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - apache-jmeter/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)apache-jmeter(?:$|,)/i

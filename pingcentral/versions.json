@@ -17,6 +17,14 @@
                                 "DockerHub",
                                 "Artifactory"
                             ]
+                        },
+                        {
+                            "jvm": "al11",
+                            "build": true,
+                            "deploy": false,
+                            "registries": [
+                                "Artifactory"
+                            ]
                         }
                     ]
                 }

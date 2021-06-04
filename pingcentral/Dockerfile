@@ -17,10 +17,11 @@ ARG JVM
 ARG REGISTRY
 ARG DEPS
 ARG GIT_TAG
+ARG ARCH
 
 FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
-FROM ${REGISTRY}/pingcommon:${GIT_TAG} as common
-FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG} as jvm
+FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} as common
+FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
 
@@ -44,7 +45,7 @@ RUN ["/opt/build.sh"]
 #
 # The final image
 #
-FROM ${REGISTRY}/pingbase:${GIT_TAG}
+FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""

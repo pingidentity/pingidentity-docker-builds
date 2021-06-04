@@ -1,0 +1,140 @@
+################################################
+#                  BUILD 
+################################################
+
+intel.b.pingauthorizepap:
+  stage: products
+  script:
+    - ci_scripts/build_product.sh --product pingauthorizepap
+  only:
+    changes:
+      - pingauthorizepap/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorizepap(?:$|,)/i
+
+arm.b.pingauthorizepap:
+  stage: products
+  tags:
+    - platform=aarch64
+  script:
+    - ci_scripts/build_product.sh --product pingauthorizepap
+  only:
+    changes:
+      - pingauthorizepap/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorizepap(?:$|,)/i
+
+################################################
+#                  SMOKE TESTS
+################################################
+
+intel.t.pingauthorizepap:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_smoke.sh --product pingauthorizepap
+  only:
+    changes:
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - pingauthorizepap/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  variables:
+    KUBERNETES_CPU_REQUEST: 2850m
+    KUBERNETES_CPU_LIMIT: 2850m
+    KUBERNETES_MEMORY_REQUEST: 2940000000
+    KUBERNETES_MEMORY_LIMIT: 2940000000
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorizepap(?:$|,)/i
+
+arm.t.pingauthorizepap:
+  stage: test.smoke
+  tags:
+    - platform=aarch64
+  script:
+    - ci_scripts/run_smoke.sh --product pingauthorizepap
+  only:
+    changes:
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - pingauthorizepap/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  variables:
+    KUBERNETES_CPU_REQUEST: 2850m
+    KUBERNETES_CPU_LIMIT: 2850m
+    KUBERNETES_MEMORY_REQUEST: 2940000000
+    KUBERNETES_MEMORY_LIMIT: 2940000000
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorizepap(?:$|,)/i
+
+################################################
+#                  DEPLOY
+################################################
+
+d.pingauthorizepap:
+  stage: deploy
+  script:
+    - ci_scripts/deploy_product_to_registry.sh --product pingauthorizepap
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - pingauthorizepap/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingbase/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorizepap(?:$|,)/i

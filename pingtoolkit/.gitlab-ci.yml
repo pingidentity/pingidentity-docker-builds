@@ -1,0 +1,127 @@
+################################################
+#                  BUILD 
+################################################
+
+intel.b.pingtoolkit:
+  stage: products
+  script:
+    - ci_scripts/build_product.sh --product pingtoolkit
+  only:
+    changes:
+      - pingtoolkit/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingtoolkit(?:$|,)/i
+
+arm.b.pingtoolkit:
+  stage: products
+  tags:
+    - platform=aarch64
+  script:
+    - ci_scripts/build_product.sh --product pingtoolkit
+  only:
+    changes:
+      - pingtoolkit/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingtoolkit(?:$|,)/i
+
+################################################
+#                  SMOKE TESTS
+################################################
+
+intel.t.pingtoolkit:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_smoke.sh --product pingtoolkit
+  only:
+    changes:
+      - pingtoolkit/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingtoolkit(?:$|,)/i
+
+arm.t.pingtoolkit:
+  stage: test.smoke
+  tags:
+    - platform=aarch64
+  script:
+    - ci_scripts/run_smoke.sh --product pingtoolkit
+  only:
+    changes:
+      - pingtoolkit/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingtoolkit(?:$|,)/i
+
+################################################
+#                  DEPLOY
+################################################
+
+d.pingtoolkit:
+  stage: deploy
+  script:
+    - ci_scripts/deploy_product_to_registry.sh --product pingtoolkit
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - pingtoolkit/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingtoolkit(?:$|,)/i

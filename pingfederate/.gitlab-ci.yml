@@ -1,0 +1,133 @@
+################################################
+#                  BUILD 
+################################################
+
+intel.b.pingfederate:
+  stage: products
+  script:
+    - ci_scripts/build_product.sh --product pingfederate
+  only:
+    changes:
+      - pingfederate/**/*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingaccess/**/*
+      - pingdirectory/**/*
+      - pingdownloader/**/*
+      - integration_tests/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i
+
+arm.b.pingfederate:
+  stage: products
+  tags:
+    - platform=aarch64
+  script:
+    - ci_scripts/build_product.sh --product pingfederate
+  only:
+    changes:
+      - pingfederate/**/*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingaccess/**/*
+      - pingdirectory/**/*
+      - pingdownloader/**/*
+      - integration_tests/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i
+
+################################################
+#                  SMOKE TESTS
+################################################
+
+intel.t.pingfederate:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_smoke.sh --product pingfederate
+  only:
+    changes:
+      - pingfederate/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i
+
+arm.t.pingfederate:
+  stage: test.smoke
+  tags:
+    - platform=aarch64
+  script:
+    - ci_scripts/run_smoke.sh --product pingfederate
+  only:
+    changes:
+      - pingfederate/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i
+
+################################################
+#                  DEPLOY
+################################################
+
+d.pingfederate:
+  stage: deploy
+  script:
+    - ci_scripts/deploy_product_to_registry.sh --product pingfederate
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - pingfederate/**/*
+      - pingcommon/**/*
+      - pingbase/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i

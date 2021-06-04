@@ -1,6 +1,8 @@
 ARG REGISTRY
 ARG GIT_TAG
-FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
+ARG ARCH
+
+FROM ${REGISTRY}/pingdownloader:1.0-alpine-alnoj-${GIT_TAG}-${ARCH} as staging
 # place the software being delivered in a conspicuous, unix-correct location
 ARG PRODUCT
 ARG VERSION

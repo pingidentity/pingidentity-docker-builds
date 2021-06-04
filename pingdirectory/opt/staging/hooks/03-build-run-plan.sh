@@ -14,6 +14,6 @@
 # shellcheck source=pingdirectory.lib.sh
 . "${HOOKS_DIR}/pingdirectory.lib.sh"
 
-${VERBOSE} && set -x
+test "${VERBOSE}" = "true" && set -x
 
 buildRunPlan

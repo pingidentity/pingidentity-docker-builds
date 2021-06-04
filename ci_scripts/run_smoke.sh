@@ -4,7 +4,7 @@
 #
 # Run smoke tests against product images
 #
-test -n "${VERBOSE}" && set -x
+test "${VERBOSE}" = "true" && set -x
 
 #
 # Usage printing function
@@ -30,6 +30,16 @@ Usage: ${0} {options}
         Display general usage information
 END_USAGE
     exit 99
+}
+
+listContainsValue ()
+{
+    test -z "${1}" && exit 2
+    test -z "${2}" && exit 3
+    _list="${1}"
+    _value="${2}"
+    echo "${_list}"| grep -qw "${_value}"
+    return ${?}
 }
 
 if test -z "${CI_COMMIT_REF_NAME}"
@@ -91,6 +101,8 @@ then
     versions=$( _getAllVersionsToBuildForProduct "${product}" )
 fi
 
+# isLocalBuild is assigned when we source ci_tools.lib.sh
+# shellcheck disable=SC2154
 if test -n "${isLocalBuild}"
 then
     set -a
@@ -122,15 +134,14 @@ do
         # test this version of this product
         _shimTag=$( _getLongTag "${_shim}" )
 
-        if test -z "${jvmList}"
-        then
-            _jvms=$( _getJVMsToBuildForProductVersionShim "${product}" "${_version}" "${_shim}" )
-        else
-            _jvms=${jvmList}
-        fi
+        _jvms=$( _getJVMsToBuildForProductVersionShim "${product}" "${_version}" "${_shim}" )
 
         for _jvm in ${_jvms}
         do
+            if test -n "${jvmList}"
+            then
+                listContainsValue "${jvmList}" "${_jvm}" || continue
+            fi
             test "${_jvm}" = "none" && _jvm=""
 
             if test -n "${_jvm}"
@@ -141,8 +152,11 @@ do
             _tag="${_version}"
             test -n "${_shimTag}" && _tag="${_tag:+${_tag}-}${_shimTag}"
             test -n "${_jvm}" && _tag="${_tag:+${_tag}-}${_jvm}"
+            # ciTag is assigned when we source ci_tools.lib.sh
+            # shellcheck disable=SC2154
             test -n "${ciTag}" && _tag="${_tag:+${_tag}-}${ciTag}"
-
+            _tag="${_tag}-${ARCH}"
+            
             if test -z "${isLocalBuild}"
             then
                 docker pull "${FOUNDATION_REGISTRY}/${product}:${_tag}"
@@ -151,7 +165,7 @@ do
             # this is the loop where the actual test is run
             for _test in "${CI_PROJECT_DIR}/${product}"/tests/*.test.y*ml
             do
-                banner "Running test $( basename "${_test}" ) on ${product}${_version:+ ${version}}${_shim:+ on ${shim}}${_jvm:+ with Java ${_jvmVersion}(${_jvm})}"
+                banner "Running test $( basename "${_test}" ) for ${product}${_version:+ ${_version}}${_shim:+ on ${_shim}}${_jvm:+ with Java ${_jvmVersion}(${_jvm})}"
                 # sut = system under test
                 _start=$( date '+%s' )
                 env GIT_TAG="${ciTag}" TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f "${_test}" up --exit-code-from sut --abort-on-container-exit
@@ -162,13 +176,14 @@ do
                 if test ${_returnCode} -ne 0
                 then
                     _result="FAIL"
+                    # shellcheck disable=SC2086 
                     test -n "${fastFail}" && exit ${returnCode}
                 else
                     _result="PASS"
                 fi
                 # if all tests succeed, will add up to zero in the end
                 returnCode=$(( returnCode + _returnCode ))
-                append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${product}" "${_version:-none}" "${_shim:-none}" "${_jvm:-none}" "$( basename ${_test} )" "${_duration}" "${_result}"
+                append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${product}" "${_version:-none}" "${_shim:-none}" "${_jvm:-none}" "$( basename "${_test}" )" "${_duration}" "${_result}"
             done
         done
     done

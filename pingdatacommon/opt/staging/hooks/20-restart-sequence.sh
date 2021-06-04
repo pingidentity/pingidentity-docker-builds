@@ -5,7 +5,7 @@
 #- This hook is called when the container has been built in a prior startup
 #- and a configuration has been found.
 #
-${VERBOSE} && set -x
+test "${VERBOSE}" = "true" && set -x
 
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"

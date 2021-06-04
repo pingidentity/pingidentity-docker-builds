@@ -9,7 +9,7 @@
         {
             "name": "delegator",
             "mapping": "pingdirectory-delegator-${version}.zip",
-            "latestVersion": "4.5.0"
+            "latestVersion": "4.4.1"
         },
         {
             "name": "ldapsdk",
@@ -91,12 +91,12 @@
         {
             "name": "apache-tomcat",
             "mapping": "apache-tomcat-${version}.zip",
-            "latestVersion": "9.0.44"
+            "latestVersion": "9.0.46"
         },
         {
             "name": "apache-jmeter",
             "mapping": "apache-jmeter-${version}.zip",
-            "latestVersion": "5.4"
+            "latestVersion": "5.4.1"
         },
         {
             "name": "pingintelligence",

@@ -9,7 +9,7 @@
 #     build_foundation.sh - Build the foundation images (pingbase, pingcommon, ...)
 #     build_product.sh    - Build the product image itself
 #
-test -n "${VERBOSE}" && set -x
+test "${VERBOSE}" = "true" && set -x
 #
 # Usage printing function
 #
@@ -40,6 +40,10 @@ END_USAGE
     exit 99
 }
 
+jvmsToBuild=""
+buildOptions=""
+shimsToBuild=""
+versionsToBuild=""
 PING_IDENTITY_SNAPSHOT=""
 export PING_IDENTITY_SNAPSHOT
 while ! test -z "${1}"
@@ -54,7 +58,8 @@ do
         -j|--jvm)
             shift
             test -z "${1}" && usage "You must provide a JVM id"
-            buildOptions="${buildOptions:+${buildOptions} }--jvm ${1}"
+            jvmsToBuild="${jvmsToBuild:+${jvmsToBuild} }--jvm ${1}"
+            # buildOptions="${buildOptions:+${buildOptions} }--jvm ${1}"
             ;;
         --no-cache)
             buildOptions="${buildOptions:+${buildOptions} }--no-cache"
@@ -67,7 +72,7 @@ do
         -s|--shim)
             shift
             test -z "${1}" && usage "You must provide an OS Shim"
-            buildOptions="${buildOptions:+${buildOptions} }--shim ${1}"
+            shimsToBuild="${shimsToBuild:+${shimsToBuild} }--shim ${1}"
             ;;
         --snapshot)
             export PING_IDENTITY_SNAPSHOT="--snapshot"
@@ -78,8 +83,7 @@ do
         -v|--version)
             shift
             test -z "${1}" && usage "You must provide a version to build"
-            buildOptions="${buildOptions:+${buildOptions} }--version ${1}"
-            smokeOptions="${smokeOptions:+${smokeOptions} }--version ${1}"
+            versionsToBuild="${versionsToBuild:+${versionsToBuild} }--version ${1}"
             ;;
         --with-tests)
             _smokeTests=true
@@ -104,21 +108,21 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
 "${CI_SCRIPTS_DIR}/cleanup_docker.sh" full
-"${CI_SCRIPTS_DIR}/build_downloader.sh"
-"${CI_SCRIPTS_DIR}/build_foundation.sh"
+"${CI_SCRIPTS_DIR}/build_product.sh" -p pingdownloader
+"${CI_SCRIPTS_DIR}/build_foundation.sh" "${jvmsToBuild}" "${shimsToBuild}"
 
 test -z "${_products}" && _products="apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingdirectoryproxy pingdelegator pingfederate pingtoolkit pingauthorize pingauthorizepap"
 
 for p in ${_products}
 do
     # shellcheck disable=SC2086
-    "${CI_SCRIPTS_DIR}/build_product.sh" -p "${p}" ${buildOptions}
+    "${CI_SCRIPTS_DIR}/build_product.sh" -p "${p}" ${buildOptions} ${versionsToBuild} ${jvmsToBuild} ${shimsToBuild}
     test ${?} -ne 0 && failed=true && break
 
     if test -n "${_smokeTests}"
     then
         # shellcheck disable=SC2086
-        "${CI_SCRIPTS_DIR}/run_smoke.sh" -p "${p}" ${smokeOptions}
+        "${CI_SCRIPTS_DIR}/run_smoke.sh" -p "${p}" ${versionsToBuild} ${jvmsToBuild} ${shimsToBuild}
         test ${?} -ne 0 && failed=true && break
     fi
 done

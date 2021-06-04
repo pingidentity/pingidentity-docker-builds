@@ -1,7 +1,8 @@
 ARG REGISTRY
 ARG GIT_TAG
+ARG ARCH
 
-FROM ${REGISTRY}/pingdownloader:${GIT_TAG} as staging
+FROM ${REGISTRY}/pingdownloader:1.0-alpine-alnoj-${GIT_TAG}-${ARCH} as staging
 ARG PRODUCT=pingauthorize
 ARG VERSION
 ARG DEVOPS_USER

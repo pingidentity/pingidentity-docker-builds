@@ -5,7 +5,7 @@
 # Called when it has been determined that this is the first time the conainer has
 # been run.
 #
-${VERBOSE} && set -x
+test "${VERBOSE}" = "true" && set -x
 
 # shellcheck source=pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"

@@ -9,9 +9,6 @@ DIRNAME=$(dirname "${0}")
 PROGNAME=$(basename "${0}")
 GREP="grep"
 
-# Use the maximum available, or set MAX_FD != -1 to use that
-MAX_FD="maximum"
-
 #
 # Helper to complain.
 #
@@ -54,18 +51,12 @@ then
 fi
 
 # Setup PF_HOME
-if test -z "${PF_HOME}"
-then
-    # get the full path (without any relative bits)
-    PF_HOME=$( cd "${DIRNAME}/.."||exit 99; pwd )
-fi
-export PF_HOME
+PF_HOME=$( cd "${DIRNAME}/.."||exit 99; pwd )
 PF_BIN="${PF_HOME}/bin"
 PF_SERVER_HOME="${PF_HOME}/server/default"
 PF_SERVER_LIB="${PF_SERVER_HOME}/lib"
 
 # Set PF_HOME_ESC - this is PF_HOME but with spaces that are replaced with %20
-# PF_HOME_ESC=${PF_HOME// /%20}
 PF_HOME_ESC=$( echo "${PF_HOME}" | awk '{gsub(/ /,"%20");print;}' )
 
 # Check for currently running instance of PingFederate
@@ -76,51 +67,19 @@ then
   chmod 664 "${RUNFILE}"
 fi
 
-CURRENT_PID=$(cat "${RUNFILE}")
+CURRENT_PID=$( cat "${RUNFILE}" )
 if test -n "${CURRENT_PID}"
 then
     kill -0 "${CURRENT_PID}" 2>/dev/null
-    if test ${?} -eq 0 ; then
-      /bin/echo "Another PingFederate instance with pid ${CURRENT_PID} is already running. Exiting."
-      exit 1
-    fi
-fi
-
-MAX_FD_LIMIT=$(ulimit -H -n)
-if test ${?} -eq 0
-then
-    if test "${MAX_FD}" = "maximum" -o "${MAX_FD}" = "max"
+    if test ${?} -eq 0
     then
-        # use the system max
-        MAX_FD="${MAX_FD_LIMIT}"
+        printf "Another PingFederate instance with pid ${CURRENT_PID} is already running. Exiting.\n"
+        exit 1
     fi
-
-    ulimit -n ${MAX_FD}
-    if test ${?} -ne 0
-    then
-            warn "Could not set maximum file descriptor limit: ${MAX_FD}"
-    fi
-else
-    warn "Could not query system maximum file descriptor limit: ${MAX_FD_LIMIT}"
 fi
 
 # Setup the JVM
-if test -z "${JAVA}"
-then
-    if test -n "${JAVA_HOME}"
-    then
-        if test -z "${JAVA_HOME}" || ! test -x "${JAVA_HOME}/bin/java"
-        then
-            echo "No executable java found in JAVA_HOME, please correct and start PingFederate again. Exiting."
-            exit 1
-        fi
-        JAVA="${JAVA_HOME}/bin/java"
-    else
-        JAVA="java"
-        warn "JAVA_HOME is not set.  Unexpected results may occur."
-        warn "Set JAVA_HOME to the directory of your local JDK or JRE to avoid this message."
-    fi
-fi
+JAVA="${JAVA_HOME}/bin/java"
 
 JAVA_MAJOR_VERSION=$( "${JAVA}" -version 2>&1 | awk '$0~ /version/ {gsub(/"/,"",$3);gsub(/\..*/,"",$3);print $3;}' )
 
@@ -172,7 +131,7 @@ JAVA_OPTS="${JAVA_OPTS} -Dcom.ncipher.provider.announcemode=on"
 # JAVA_OPTS="-Djetty51.encode.cookies=CookieName1,CookieName2 $JAVA_OPTS"
 
 # Debugger arguments
-if test "${PF_ENGINE_DEBUG}" = "true" || test "${PF_ADMIN_DEBUG}" = "true"
+if test "${PING_DEBUG}" = "true" || test "${PF_ENGINE_DEBUG}" = "true" || test "${PF_ADMIN_DEBUG}" = "true"
 then
     JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=${PF_DEBUG_PORT},server=y,suspend=n $JAVA_OPTS"
 fi
@@ -204,17 +163,20 @@ then
     runprops=""
 fi
 
-function getProperty {
-    if [ -f "${runprops}" ]; then
+getProperty () 
+{
+    if test -f "${runprops}"
+    then
         PROP_KEY=$1
-        PROP_VALUE=`cat "${runprops}" | grep "${PROP_KEY}" | cut -d'=' -f2`
-        echo ${PROP_VALUE}
+        PROP_VALUE=$( awk -F= '$1~/'${PROP_KEY}'/{print $2}' "${runprops}" )
+        printf "${PROP_VALUE}"
         return 0
     else
-        echo true
+        printf "true"
         return 0
     fi
 }
+
 APPROVED_ONLY=$( getProperty "org.bouncycastle.fips.approved_only" )
 
 # Only use FIPS approved methods if the Bouncy Castle FIPS module is used
@@ -247,7 +209,7 @@ do
         -classpath "${PF_CLASSPATH}" \
         org.pingidentity.RunPF "$@" &
    PID=${!}
-   /bin/echo ${PID} 2>/dev/null >"${RUNFILE}"
+   printf "${PID}\n" 2>/dev/null >"${RUNFILE}"
    wait ${PID}
    STATUS=${?}
 

@@ -2,7 +2,7 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-${VERBOSE} && set -x
+test "${VERBOSE}" = "true" && set -x
 
 # location of setup-arguments file used for PingData products
 _setupArgumentsFile="${PD_PROFILE}/setup-arguments.txt"

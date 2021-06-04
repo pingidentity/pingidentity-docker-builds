@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-test -n "${VERBOSE}" && set -x
+test "${VERBOSE}" = "true" && set -x
 
 CLI="${SERVER_ROOT_DIR}/bin/cli.sh"
 PING_INTELLIGENCE_DEFAULT_ADMIN_USER="admin"

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 #
 # CDDL HEADER START
 #
@@ -29,17 +29,17 @@
 #
 # function that sets the java home
 #
-test "${VERBOSE}" = "true" && set -x
-
-set_java_home_and_args ()
-{
+set_java_home_and_args() {
   PRIVATE_UNBOUNDID_JAVA_BIN=${UNBOUNDID_JAVA_BIN}
   PRIVATE_UNBOUNDID_JAVA_HOME=${UNBOUNDID_JAVA_HOME}
   PRIVATE_UNBOUNDID_JAVA_ARGS=${UNBOUNDID_JAVA_ARGS}
   export PRIVATE_UNBOUNDID_JAVA_BIN PRIVATE_UNBOUNDID_JAVA_HOME PRIVATE_UNBOUNDID_JAVA_ARGS
+  if test "$( uname -m )" = "aarch64"
+  then
+    PRIVATE_UNBOUNDID_JAVA_ARGS="${PRIVATE_UNBOUNDID_JAVA_ARGS} -Djdk.lang.Process.launchMechanism=POSIX_SPAWN"
+  fi
   if test -f "${INSTANCE_ROOT}/lib/set-java-home"
   then
-    # shellcheck disable=SC1090
     . "${INSTANCE_ROOT}/lib/set-java-home"
   fi
 
@@ -57,7 +57,7 @@ set_java_home_and_args ()
       then
         if test -z "${JAVA_HOME}"
         then
-          PRIVATE_UNBOUNDID_JAVA_BIN=$( which java 2> /dev/null )
+          PRIVATE_UNBOUNDID_JAVA_BIN=`which java 2> /dev/null`
           if test ${?} -eq 0
           then
             export PRIVATE_UNBOUNDID_JAVA_BIN
@@ -90,11 +90,10 @@ set_java_home_and_args ()
 }
 
 # Determine whether the detected Java environment is acceptable for use.
-test_java ()
-{
+test_java() {
   if test -z "${PRIVATE_UNBOUNDID_JAVA_ARGS}"
   then
-    OUTPUT=$( "${PRIVATE_UNBOUNDID_JAVA_BIN}" com.unboundid.directory.server.tools.InstallDS -t 2>&1 >/dev/null )
+    OUTPUT=`"${PRIVATE_UNBOUNDID_JAVA_BIN}" com.unboundid.directory.server.tools.InstallDS -t 2>&1 >/dev/null`
     RESULT_CODE=${?}
     if test ${RESULT_CODE} -eq 13
     then
@@ -122,7 +121,7 @@ test_java ()
       exit 1
     fi
   else
-    OUTPUT=$( "${PRIVATE_UNBOUNDID_JAVA_BIN}" ${PRIVATE_UNBOUNDID_JAVA_ARGS} com.unboundid.directory.server.tools.InstallDS -t 2>&1 >/dev/null )
+    OUTPUT=`"${PRIVATE_UNBOUNDID_JAVA_BIN}" ${PRIVATE_UNBOUNDID_JAVA_ARGS} com.unboundid.directory.server.tools.InstallDS -t 2>&1 >/dev/null`
     RESULT_CODE=${?}
     if test ${RESULT_CODE} -eq 13
     then
@@ -164,7 +163,7 @@ test_java ()
 
 # Explicitly set the PATH, LD_LIBRARY_PATH, LD_PRELOAD, and other important
 # system environment variables for security and compatibility reasons.
-set_environment_vars () {
+set_environment_vars() {
 
   # Always set the script name even if this function was previously called since
   # the script name may change within the same script.
@@ -175,7 +174,7 @@ set_environment_vars () {
   then
     UNBOUNDID_ENV_VARS_SET=1
 
-    if test -z "${UNBOUNDID_PATH_OVERRIDE}"
+    if test "${UNBOUNDID_PATH_OVERRIDE}" = ""
     then
       PATH=/bin:/usr/bin
     else
@@ -212,7 +211,6 @@ set_environment_vars () {
     then
       if test -s "${INSTANCE_ROOT}/config/num-file-descriptors"
       then
-        # shellcheck disable=SC1090
         . "${INSTANCE_ROOT}/config/num-file-descriptors"
       fi
 
@@ -222,124 +220,118 @@ set_environment_vars () {
       fi
     fi
 
-    if test "$(uname)" != "Darwin"
-    then
-      # shellcheck disable=SC2039
-      ulimit -n ${NUM_FILE_DESCRIPTORS} > "${INSTANCE_ROOT}/logs/ulimit-num-file-descriptors.out" 2>&1
-      # shellcheck disable=SC2039
-      ACTUAL_FDS=$( ulimit -n )
-      if test "${NUM_FILE_DESCRIPTORS}" -ne "${ACTUAL_FDS}"
-      then
-        echo >&2 "WARNING:  Unable to set the file descriptor limit to ${NUM_FILE_DESCRIPTORS}."
-        echo >&2 "          The number of available descriptors is ${ACTUAL_FDS}."
-        echo >&2 "          This may interfere with the operation of this process."
-        echo >&2 "          See the Administration Guide for information about"
-        echo >&2 "          configuring system file descriptor limits, and for"
-        echo >&2 "          configuring the number of file descriptors the server"
-        echo >&2 "          should attempt to use."
-        echo >&2
-      fi
-    else
-      # shellcheck disable=SC2039
-      ulimit -n ${NUM_FILE_DESCRIPTORS} > "${INSTANCE_ROOT}/logs/ulimit-num-file-descriptors.out" 2>&1
-      RETURN_CODE=$?
-      if test ${RETURN_CODE} -ne 0
-      then
-        echo >&2 "WARNING:  Unable to set the file descriptor limit to ${NUM_FILE_DESCRIPTORS}."
-        echo >&2 "          This may interfere with the operation of this process."
-        echo >&2 "          See the Administration Guide for information about"
-        echo >&2 "          configuring system file descriptor limits, and for"
-        echo >&2 "          configuring the number of file descriptors the server"
-        echo >&2 "          should attempt to use."
-        echo >&2
-      fi
-    fi
-
-    # Try to set the number of processes available to a single user. On Linux,
-    # a thread is considered a user process. If the file config/num-user-processes
-    # exists with a NUM_USER_PROCESSES environment variable (or that environment
-    # variable is set through some other form), then we'll use that value.
-    # Otherwise, on Linux only, we'll use a minimum of 16383, and on other
-    # platforms we will use the existing value.
-    _osID=$( test -f /etc/os-release && awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null || uname )
-    PROCESSES_OPTION=-u
-    ulimit ${PROCESSES_OPTION} >/dev/null 2>&1
-    if test ${?} -ne 0 &&  test "${_osID}" = "alpine"
-    then
-      # shellcheck disable=SC2039
-        ulimit -p >/dev/null 2>/dev/null
-        if test ${?} -eq 0
-        then
-            # The ulimit option for the number of processes is -p on Alpine.
-            PROCESSES_OPTION=-p
-            # we only fall back on this because there is confusion with -p being used for pipe size normally
-        fi
-    fi
-
-    if test -z "${NUM_USER_PROCESSES}"
-    then
-      if test -s "${INSTANCE_ROOT}/config/num-user-processes"
-      then
-        # shellcheck disable=SC1090
-        . "${INSTANCE_ROOT}/config/num-user-processes"
-      fi
-
-      if test "$(uname)" = "Linux" && test -z "${NUM_USER_PROCESSES}"
-      then
-        ACTUAL_PROCESSES=$( ulimit ${PROCESSES_OPTION} )
-        if test "${ACTUAL_PROCESSES}" -lt 16383 2>/dev/null
-        then
-          NUM_USER_PROCESSES="16383"
-        fi
-      fi
-    fi
-
-    rm -f "${INSTANCE_ROOT}/logs/ulimit-num-user-processes.out"
-    if test -n "${NUM_USER_PROCESSES}"
+    if test -z "${PING_PRODUCT}"
     then
       if test "$(uname)" != "Darwin"
       then
-        ulimit ${PROCESSES_OPTION} ${NUM_USER_PROCESSES} > "${INSTANCE_ROOT}/logs/ulimit-num-user-processes.out" 2>&1
-        ACTUAL_PROCESSES=$( ulimit ${PROCESSES_OPTION} )
-        if test "${NUM_USER_PROCESSES}" -ne "${ACTUAL_PROCESSES}"
+        ulimit -n ${NUM_FILE_DESCRIPTORS} > ${INSTANCE_ROOT}/logs/ulimit-num-file-descriptors.out 2>&1
+        ACTUAL_FDS=`ulimit -n`
+        if test "${NUM_FILE_DESCRIPTORS}" -ne "${ACTUAL_FDS}"
         then
-          echo "WARNING:  Unable to set the processes limit to ${NUM_USER_PROCESSES}."
-          echo "          The number of available processes is ${ACTUAL_PROCESSES}."
-          echo "          This may interfere with the operation of this process."
-          echo "          See the Administration Guide for information about"
-          echo "          configuring system limits for the number of user"
-          echo "          processes, and for configuring the number of processes"
-          echo "          the server should attempt to use."
-          echo
+          echo >&2 "WARNING:  Unable to set the file descriptor limit to ${NUM_FILE_DESCRIPTORS}."
+          echo >&2 "          The number of available descriptors is ${ACTUAL_FDS}."
+          echo >&2 "          This may interfere with the operation of this process."
+          echo >&2 "          See the Administration Guide for information about"
+          echo >&2 "          configuring system file descriptor limits, and for"
+          echo >&2 "          configuring the number of file descriptors the server"
+          echo >&2 "          should attempt to use."
+          echo >&2
         fi
       else
-        ulimit ${PROCESSES_OPTION} ${NUM_USER_PROCESSES} > "${INSTANCE_ROOT}/logs/ulimit-num-user-processes.out" 2>&1
-        RETURN_CODE=${?}
+        ulimit -n ${NUM_FILE_DESCRIPTORS} > ${INSTANCE_ROOT}/logs/ulimit-num-file-descriptors.out 2>&1
+        RETURN_CODE=$?
         if test ${RETURN_CODE} -ne 0
         then
-          echo "WARNING:  Unable to set the processes limit to ${NUM_USER_PROCESSES}."
-          echo "          This may interfere with the operation of this process."
-          echo "          See the Administration Guide for information about"
-          echo "          configuring system limits for the number of user"
-          echo "          processes, and for configuring the number of processes"
-          echo "          the server should attempt to use."
-          echo
+          echo >&2 "WARNING:  Unable to set the file descriptor limit to ${NUM_FILE_DESCRIPTORS}."
+          echo >&2 "          This may interfere with the operation of this process."
+          echo >&2 "          See the Administration Guide for information about"
+          echo >&2 "          configuring system file descriptor limits, and for"
+          echo >&2 "          configuring the number of file descriptors the server"
+          echo >&2 "          should attempt to use."
+          echo >&2
         fi
       fi
-    fi
-
-    # Do not delete the output file unless it is empty. The server
-    # will log a warning at start-up if it finds a non-empty output file.
-    for f in ulimit-num-file-descriptors.out ulimit-num-user-processes.out
-    do
-      if test -f "${INSTANCE_ROOT}/logs/${f}"
+    
+      # Try to set the number of processes available to a single user. On Linux,
+      # a thread is considered a user process. If the file config/num-user-processes
+      # exists with a NUM_USER_PROCESSES environment variable (or that environment
+      # variable is set through some other form), then we'll use that value.
+      # Otherwise, on Linux only, we'll use a minimum of 16383, and on other
+      # platforms we will use the existing value.
+  
+      # The ulimit option for the number of processes is -p on Ubuntu.
+      ulimit -u >/dev/null 2>&1
+      if test $? -eq 0 && ! test -f /etc/alpine-release
       then
-        if test ! -s "${INSTANCE_ROOT}/logs/${f}"
+        PROCESSES_OPTION=-u
+      else
+        PROCESSES_OPTION=-p
+      fi
+  
+      if test -z "${NUM_USER_PROCESSES}"
+      then
+        if test -s "${INSTANCE_ROOT}/config/num-user-processes"
         then
-          rm -f "${INSTANCE_ROOT}/logs/${f}"
+          . "${INSTANCE_ROOT}/config/num-user-processes"
+        fi
+  
+        if test "$(uname)" = "Linux" -a -z "${NUM_USER_PROCESSES}"
+        then
+          ACTUAL_PROCESSES=`ulimit ${PROCESSES_OPTION}`
+          if test "${ACTUAL_PROCESSES}" -lt 16383 2>/dev/null
+          then
+            NUM_USER_PROCESSES="16383"
+          fi
         fi
       fi
-    done
+  
+      rm -f "${INSTANCE_ROOT}/logs/ulimit-num-user-processes.out"
+      if test ! -z "${NUM_USER_PROCESSES}"
+      then
+        if test "$(uname)" != "Darwin"
+        then
+          ulimit ${PROCESSES_OPTION} ${NUM_USER_PROCESSES} > ${INSTANCE_ROOT}/logs/ulimit-num-user-processes.out 2>&1
+          ACTUAL_PROCESSES=`ulimit ${PROCESSES_OPTION}`
+          if test "${NUM_USER_PROCESSES}" -ne "${ACTUAL_PROCESSES}"
+          then
+            echo "WARNING:  Unable to set the processes limit to ${NUM_USER_PROCESSES}."
+            echo "          The number of available processes is ${ACTUAL_PROCESSES}."
+            echo "          This may interfere with the operation of this process."
+            echo "          See the Administration Guide for information about"
+            echo "          configuring system limits for the number of user"
+            echo "          processes, and for configuring the number of processes"
+            echo "          the server should attempt to use."
+            echo
+          fi
+        else
+          ulimit ${PROCESSES_OPTION} ${NUM_USER_PROCESSES} > ${INSTANCE_ROOT}/logs/ulimit-num-user-processes.out 2>&1
+          RETURN_CODE=$?
+          if test ${RETURN_CODE} -ne 0
+          then
+            echo "WARNING:  Unable to set the processes limit to ${NUM_USER_PROCESSES}."
+            echo "          This may interfere with the operation of this process."
+            echo "          See the Administration Guide for information about"
+            echo "          configuring system limits for the number of user"
+            echo "          processes, and for configuring the number of processes"
+            echo "          the server should attempt to use."
+            echo
+          fi
+        fi
+      fi
+  
+      # Do not delete the output file unless it is empty. The server
+      # will log a warning at start-up if it finds a non-empty output file.
+      for f in ulimit-num-file-descriptors.out ulimit-num-user-processes.out
+      do
+        if test -f "${INSTANCE_ROOT}/logs/${f}"
+        then
+          if test ! -s "${INSTANCE_ROOT}/logs/${f}"
+          then
+            rm -f "${INSTANCE_ROOT}/logs/${f}"
+          fi
+        fi
+      done
+    fi
 
     export PATH LD_LIBRARY_PATH LD_LIBRARY_PATH_32 LD_LIBRARY_PATH_64 \
          LD_PRELOAD LD_PRELOAD_32 LD_PRELOAD_64 UNBOUNDID_ENV_VARS_SET
@@ -350,25 +342,25 @@ set_environment_vars () {
 }
 
 # Configure the appropriate CLASSPATH.
-set_classpath () {
+set_classpath() {
   # This allows the jars and classes to be stored elsewhere.  Use it with
   # extreme caution.
-  if test -z "${UNBOUNDID_CLASSPATH_OVERRIDE}"
+  if test "${UNBOUNDID_CLASSPATH_OVERRIDE}" = ""
   then
     CLASSPATH=${INSTANCE_ROOT}/classes
     for JAR in "${INSTANCE_ROOT}"/lib/*.jar
     do
-      test -e "${JAR}" || break
+      [ -e "${JAR}" ] || break
       CLASSPATH=${CLASSPATH}:${JAR}
     done
     for JAR in "${INSTANCE_ROOT}"/lib/jetty/*.jar
     do
-      test -e "${JAR}" || break
+      [ -e "${JAR}" ] || break
       CLASSPATH=${CLASSPATH}:${JAR}
     done
     for JAR in "${INSTANCE_ROOT}"/lib/extensions/*.jar
     do
-      test -e "${JAR}" || break
+      [ -e "${JAR}" ] || break
       CLASSPATH=${CLASSPATH}:${JAR}
     done
   else
@@ -379,7 +371,7 @@ set_classpath () {
 }
 
 # Configure the appropriate Postgres environment.
-set_pg_env () {
+set_pg_env() {
   PG_BIN_DIR=
   PG_DB_CTRL=
   PG_BIN_TMP=${INSTANCE_ROOT}/pgsql-9.2.4
@@ -403,33 +395,44 @@ set_pg_env () {
 # default permissions
 if test -f "${INSTANCE_ROOT}/config/server.umask"
 then
-  # shellcheck disable=SC1090
   . "${INSTANCE_ROOT}/config/server.umask"
 fi
 
 # Attempt to determine the width and height of the user's terminal
 # specifying TERM if it is missing to avoid tput error messages.
-if type tput >/dev/null 2>/dev/null
+if [ -n "${TERM:+x}" ]
 then
-    if test -n "${TERM:+x}"
-    then
-        TPUT="/usr/bin/tput"
-    else
-        TPUT="/usr/bin/tput -T xterm"
-    fi
-    if test -f "/usr/bin/tput"
-    then
-        COLUMNS=$( ${TPUT} cols )
-        test -n "${COLUMNS}" && export COLUMNS
-        LINES=$( ${TPUT} lines )
-        test -n "${LINES}" && export LINES
-    fi
+  TPUT="/usr/bin/tput"
+else
+  TPUT="/usr/bin/tput -T xterm"
+fi
+if test -f "/usr/bin/tput"
+then
+  COLUMNS=`${TPUT} cols`
+  if test "${COLUMNS}" != ""
+  then
+    export COLUMNS
+  fi
+
+  LINES=`${TPUT} lines`
+  if test "${LINES}" != ""
+  then
+    export LINES
+  fi
 fi
 
-# Capture the location of this script and the server instance
-# root so that we can use them to create appropriate paths.
-test -z "${INSTANCE_ROOT}" && INSTANCE_ROOT=$( cd "$( dirname "${0}"/.. )"|| exit 99 ; pwd )
+if test "${INSTANCE_ROOT}" = ""
+then
+  # Capture the current working directory so that we can change to it later.
+  # Then capture the location of this script and the server instance
+  # root so that we can use them to create appropriate paths.
+  WORKING_DIR=`pwd`
 
+  cd "`dirname "${0}"`"
+  cd ..
+  INSTANCE_ROOT=`pwd`
+  cd "${WORKING_DIR}"
+fi
 
 if test "${SCRIPT_UTIL_CMD}" = "set-full-environment-and-test-java"
 then

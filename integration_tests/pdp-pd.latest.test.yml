@@ -2,7 +2,7 @@ version: "2.4"
 
 services:
   pingdirectory:
-    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-alpine-${JVM}-${GIT_TAG}-${ARCH}
     environment:
       - SERVER_PROFILE_PATH=baseline/pingdirectory
       - MAX_HEAP_SIZE=768m
@@ -21,7 +21,7 @@ services:
     tmpfs: /run/secrets
 
   pingdirectoryproxy:
-    image: ${REGISTRY}/pingdirectoryproxy:${PINGDIRECTORYPROXY_LATEST}-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingdirectoryproxy:${PINGDIRECTORYPROXY_LATEST}-alpine-${JVM}-${GIT_TAG}-${ARCH}
     command: wait-for pingdirectory:1389 -t 900 -- entrypoint.sh start-server
     environment:
       - SERVER_PROFILE_PATH=baseline/pingdirectoryproxy
@@ -44,7 +44,7 @@ services:
     depends_on: ["pingdirectory"]
 
   sut:
-    image: ${DEPS}postman/newman
+    image: ${DEPS}arnaudlacour/newman
     entrypoint: ["/usr/bin/env"]
     command: sh -c "/tmp/wait-for pingdirectoryproxy:1389 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
     volumes:

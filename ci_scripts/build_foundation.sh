@@ -8,7 +8,7 @@
 #   - pingdatacommon
 #   - pingjvm
 #
-test -n "${VERBOSE}" && set -x
+test "${VERBOSE}" = "true" && set -x
 
 usage ()
 {
@@ -100,13 +100,13 @@ then
     test -n "${_containersList}" && docker container stop ${_containersList}
 
     # get list of all stopped containers lingering
-    _containersList="$(docker container ls -aq | sort | uniq)"
+    _containersList="$( docker container ls -aq | sort | uniq )"
 
     # remove all containers
     # shellcheck disable=SC2046
-    test -n "${_containersList}" && docker container rm -f $(docker container ls -aq)
+    test -n "${_containersList}" && docker container rm -f $( docker container ls -aq )
     # get the list of all images in the local repo
-    _imagesList="$(docker image ls -q | sort | uniq)"
+    _imagesList="$( docker image ls -q | sort | uniq )"
 
     # shellcheck disable=SC2086
     test -n "${_imagesList}" && docker image rm -f ${_imagesList}
@@ -128,7 +128,7 @@ printf "${_headerPattern}" "IMAGE" "DURATION" "RESULT" > ${_resultsFile}
 #build foundation and push to gcr for use in subsequent jobs.
 banner Building PING COMMON
 _start=$( date '+%s' )
-_image="${FOUNDATION_REGISTRY}/pingcommon:${ciTag}"
+_image="${FOUNDATION_REGISTRY}/pingcommon:${ciTag}-${ARCH}"
 
 # shellcheck disable=SC2086
 DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
@@ -155,12 +155,13 @@ imagesToCleanup="${imagesToCleanup} ${_image}"
 
 banner Building PING DATA COMMON
 _start=$( date '+%s' )
-_image="${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}"
+_image="${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}-${ARCH}"
 # shellcheck disable=SC2086
 DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
     ${progress} ${noCache} \
     --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
     --build-arg GIT_TAG="${ciTag}" \
+    --build-arg ARCH="${ARCH}" \
     -t "${_image}" "${CI_PROJECT_DIR}/pingdatacommon"
 _returnCode=${?}
 _stop=$( date '+%s' )
@@ -193,7 +194,16 @@ else
             shims=$( _getAllShimsForProduct ${productToBuild} )
         fi
     else
-        shims=$( _getAllShims )
+        if test -n "${jvmsToBuild}"
+        then
+            for _jvm in ${jvmsToBuild}
+            do
+                _shims="${_shims:+${_shims} }$( _getShimsToBuildForJVM "${_jvm}" )"
+            done
+            shims=$( echo ${_shims}|tr ' ' '\n'|sort|uniq|tr '\n' ' ' )
+        else
+            shims=$( _getAllShims )
+        fi
     fi
 fi
 
@@ -212,13 +222,13 @@ do
 
     for _jvm in ${_jvms}
     do
-        if test "${_jvm}" = "nojvm"
+        if test "${_jvm}" = "conoj" || test "${_jvm}" = "alnoj"
         then
             continue
         fi
         banner "Building pingjvm for JDK ${_jvm} for ${_shim}"
         _start=$( date '+%s' )
-        _image="${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimTag}-${ciTag}"
+        _image="${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimTag}-${ciTag}-${ARCH}"
         _jvm_from=$( _getJVMImageForShimID "${_shim}" "${_jvm}" )
         # shellcheck disable=SC2086
         DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
@@ -248,7 +258,7 @@ done
 
 banner "Building pingbase"
 _start=$( date '+%s' )
-_image="${FOUNDATION_REGISTRY}/pingbase:${ciTag}"
+_image="${FOUNDATION_REGISTRY}/pingbase:${ciTag}-${ARCH}"
 # shellcheck disable=SC2086
 DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
     ${progress} ${noCache} \

@@ -2,7 +2,7 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-${VERBOSE} && set -x
+test "${VERBOSE}" = "true" && set -x
 
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
@@ -35,6 +35,23 @@ if test ${_returnCode} -ne 0 ; then
     container_failure 183 "Invalid encryption option"
 fi
 
+#
+# if a java.properties is delivered, we use it
+#
+_candidateProperties="${STAGING_DIR}/instance/config/java.properties"
+test -f "${_candidateProperties}" || _candidateProperties="${_candidateProperties}-$( uname -m )"
+if test -f "${_candidateProperties}"
+then
+    echo_green "Applying custom java properties from $( basename "${_candidateProperties}" )"
+    cp "${_candidateProperties}" "${SERVER_ROOT_DIR}/config/java.properties"
+    "${SERVER_ROOT_DIR}/bin/dsjavaproperties"
+    if test ${?} -eq 0
+    then
+        echo_green "Custom java properties successfully applied."
+    else
+        echo_red "There was an issue applying the provided java properties."
+    fi
+fi
 #
 # Build jvm options.
 #
@@ -82,12 +99,11 @@ fi
 # run manage-profile to setup the server
 echo "Running manage_profile setup ....."
 _manage_profile_cmd="${SERVER_ROOT_DIR}/bin/manage-profile setup \
-    --profile "${PD_PROFILE}" \
+    --profile ${PD_PROFILE} \
     --useEnvironmentVariables \
     --tempProfileDirectory /tmp \
     --doNotStart \
     ${_pingDataManageProfileSetupArgs}"
-
 echo "  ${_manage_profile_cmd}"
 
 ${_manage_profile_cmd}
@@ -106,6 +122,19 @@ if test ${_manageProfileRC} -ne 0 ; then
     echo_red "Log '${SERVER_ROOT_DIR}/logs/tools/install-ds.log'"
     cat "${SERVER_ROOT_DIR}/logs/tools/install-ds.log"
     exit 183
+fi
+
+if test "${KEEP_CUSTOM_JAVA_PROPS}" = "true" && test -f "${_candidateProperties}"
+then
+    echo_green "Applying custom java properties from $( basename "${_candidateProperties}" )"
+    cp "${_candidateProperties}" "${SERVER_ROOT_DIR}/config/java.properties"
+    "${SERVER_ROOT_DIR}/bin/dsjavaproperties"
+    if test ${?} -eq 0
+    then
+        echo_green "Custom java properties successfully applied after setup."
+    else
+        echo_red "There was an issue applying the provided java properties after setup."
+    fi
 fi
 
 # If the product is PingDirectory, set the server unavailable since there

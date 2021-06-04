@@ -4,7 +4,7 @@
 #
 # This script builds the product images
 #
-test -n "${VERBOSE}" && set -x
+test "${VERBOSE}" = "true" && set -x
 
 #
 # Usage printing function
@@ -191,6 +191,7 @@ do
             --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
             --build-arg DEPS="${DEPS_REGISTRY}" \
             --build-arg GIT_TAG="${ciTag}" \
+            --build-arg ARCH="${ARCH}" \
             --build-arg DEVOPS_USER="${PING_IDENTITY_DEVOPS_USER}" \
             --build-arg DEVOPS_KEY="${PING_IDENTITY_DEVOPS_KEY}" \
             --build-arg PRODUCT="${productToBuild}" \
@@ -240,10 +241,10 @@ do
         do
             if test -z "${isLocalBuild}" && test ${DOCKER_BUILDKIT} -eq 1
             then
-                docker pull "${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimLongTag}-${ciTag}"
+                docker pull "${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimLongTag}-${ciTag}-${ARCH}"
             fi
 
-            fullTag="${_buildVersion}-${_shimLongTag}-${_jvm}-${ciTag}"
+            fullTag="${_buildVersion}-${_shimLongTag}-${_jvm}-${ciTag}-${ARCH}"
             imageVersion="${productToBuild}-${_shimLongTag}-${_jvm}-${_buildVersion}-${_date}-${gitRevShort}"
             licenseVersion="$( _getLicenseVersion "${_version}" )"
 
@@ -257,6 +258,7 @@ do
                 --build-arg DEPS="${DEPS_REGISTRY}" \
                 --build-arg GIT_TAG="${ciTag}" \
                 --build-arg JVM="${_jvm}" \
+                --build-arg ARCH="${ARCH}" \
                 --build-arg SHIM="${_shim}" \
                 --build-arg SHIM_TAG="${_shimLongTag}" \
                 --build-arg VERSION="${_buildVersion}" \
@@ -303,7 +305,7 @@ done
 # leave the runner without clutter
 if test -z "${isLocalBuild}"
 then
-    imagesToClean=$( docker image ls -qf "reference=*/*/*${ciTag}" | sort | uniq )
+    imagesToClean=$( docker image ls -qf "reference=*/*/*${ciTag}*" | sort | uniq )
     # shellcheck disable=SC2086
     test -n "${imagesToClean}" && ${dryRun} docker image rm -f ${imagesToClean}
     imagesToClean=$( docker image ls -qf "dangling=true" )

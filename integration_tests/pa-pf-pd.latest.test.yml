@@ -2,7 +2,7 @@ version: "2.4"
 
 services:
   pingaccess:
-    image: ${REGISTRY}/pingaccess:${PINGACCESS_LATEST}-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingaccess:${PINGACCESS_LATEST}-alpine-${JVM}-${GIT_TAG}-${ARCH}
     command: wait-for pingfederate:9031 -t 900 -- entrypoint.sh start-server
     environment:
       - SERVER_PROFILE_PATH=baseline/pingaccess
@@ -30,7 +30,7 @@ services:
       - pingdirectory
 
   pingfederate:
-    image: ${REGISTRY}/pingfederate:${PINGFEDERATE_LATEST}-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingfederate:${PINGFEDERATE_LATEST}-alpine-${JVM}-${GIT_TAG}-${ARCH}
     command: wait-for pingdirectory:1389 -t 900 -- entrypoint.sh start-server
     environment:
       - SERVER_PROFILE_PATH=baseline/pingfederate
@@ -56,7 +56,7 @@ services:
       - pingdirectory
 
   pingdirectory:
-    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-alpine-az11-${GIT_TAG}
+    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-alpine-${JVM}-${GIT_TAG}-${ARCH}
     environment:
       - SERVER_PROFILE_PATH=baseline/pingdirectory
       - MAX_HEAP_SIZE=768m
@@ -79,7 +79,7 @@ services:
       - pingnet-internal
 
   httpbin:
-    image: ${DEPS}kennethreitz/httpbin
+    image: ${DEPS}arnaudlacour/httpbin
     ports:
       - "80:80"
     ulimits:
@@ -96,7 +96,7 @@ services:
       - pingnet-internal
 
   sut:
-    image: ${DEPS}postman/newman
+    image: ${DEPS}arnaudlacour/newman
     entrypoint: ["/usr/bin/env"]
     command: sh -c "/tmp/wait-for pingaccess:3000 -t 900 -- newman run /tmp/collection.json --insecure --ignore-redirects"
     volumes:
