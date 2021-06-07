@@ -109,7 +109,11 @@ then
         exit 96
     fi
     case "${productToBuild}" in
-        pingdirectory|pingdirectoryproxy|pingdatasync|pingdatagovernance|pingdatagovernancepap|pingdelegator|pingfederate|pingcentral|pingaccess|pingauthorize|pingauthorizepap)
+        pingaccess|pingauthorize|pingauthorizepap|pingcentral|pingdatasync|pingdatagovernance|pingdatagovernancepap|pingdirectory|pingdirectoryproxy|pingdelegator|pingfederate)
+            ;;
+        pingdownloader)
+            #Build pingdownloader normally in a snapshot pipeline as there is no "snapshot bits" for downloader.
+            unset PING_IDENTITY_SNAPSHOT
             ;;
         *)
             echo "Snapshot not supported"
@@ -124,7 +128,16 @@ then
     then
         versionsToBuild=$( _getLatestSnapshotVersionForProduct "${productToBuild}" )
         shimsToBuild="alpine"
-        jvmsToBuild="az11"
+        case "${ARCH}" in
+            x86_64)
+                jvmsToBuild="az11"
+                ;;
+            aarch64)
+                jvmsToBuild="al11"
+                ;;
+            *)
+                ;;
+        esac
     else
         versionsToBuild=$( _getAllVersionsToBuildForProduct "${productToBuild}" )
     fi
