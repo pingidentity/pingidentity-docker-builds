@@ -39,7 +39,9 @@ Options include:
 For product downloads:
     -c, --conserve-name              Use this option to conserve the original
                                      file name by default, the downloader will
-                                     rename the file product.zip
+                                     rename the file product.zip or the file name
+                                     provided
+    -f, --file-name                  file name to use for the product zip file
     -n, --dry-run:                   This will cause the URL to be displayed
                                      but the the bits not to be downloaded
     --verify-gpg-signature           Verify the GPG signature. The bits are removed in
@@ -374,6 +376,7 @@ licenseURL="https://license.pingidentity.com/devops/v2/license"
 metadataFile="gte-bits-repo.json"
 # default app name
 devopsApp=""
+output="product.zip"
 while test -n "${1}"
 do
     case "${1}" in
@@ -391,6 +394,11 @@ do
 			# lowercase the argument value (the product name )
 			product=$( echo "${1}" | tr '[:upper:]' '[:lower:]' )
 			;;
+        -f|--file-name)
+            shift
+            test -z "${1}" && usage "Missing file name"
+            output="${1%.zip}.zip"
+            ;;
 		-k|--devops-key)
 			shift
 			test -z "${1}" && usage "Ping DevOps Key missing"
@@ -437,7 +445,6 @@ do
 done
 outputProps="/tmp/${metadataFile}"
 
-output="/tmp/product.zip"
 if test -f "${output}" && test ! ${pullLicense}
 then
     echo_green "Using existing file at ${output} without verification."
@@ -459,6 +466,7 @@ do
     if test "${product}" = "${prodName}"
     then
         foundProduct=true
+        break
     fi
 done
 # If we didn't find the product in the property file, then error
@@ -511,12 +519,13 @@ then
 
     test -z "${devopsApp}" && devopsApp="pingdownloader-license-${product}"
 else
+    if test "${version%-fsoverride}" != "${version}"
+    then
+        echo_green "FS Override. Short-circuiting download."
+        exit 0
+    fi
     # Construct the url used to pull the product down
     url="${prodURL}${prodFile}"
-
-    # If we should conserve the name of the download, set the output to the
-    # productFile name
-    output="product.zip"
 
     test ${conserveName} && output=${prodFile}
     test -z "${devopsApp}" && devopsApp="pingdownloader-download-${prodFile}"
