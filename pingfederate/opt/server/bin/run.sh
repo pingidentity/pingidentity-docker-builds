@@ -73,7 +73,7 @@ then
     kill -0 "${CURRENT_PID}" 2>/dev/null
     if test ${?} -eq 0
     then
-        printf "Another PingFederate instance with pid ${CURRENT_PID} is already running. Exiting.\n"
+        printf "Another PingFederate instance with pid %s is already running. Exiting.\n" "${CURRENT_PID}"
         exit 1
     fi
 fi
@@ -92,7 +92,7 @@ pfxml="${PF_SERVER_LIB}/pf-xml.jar"
 PF_BOOT_CLASSPATH=""
 for requiredFile in ${runjar} ${pfrunjar} ${jettystartjar} ${xmlbeans} ${pfxml}
 do
-    require ${requiredFile}
+    require "${requiredFile}"
     PF_BOOT_CLASSPATH="${PF_BOOT_CLASSPATH}${PF_BOOT_CLASSPATH:+:}${requiredFile}"
 done
 
@@ -113,7 +113,7 @@ then
 fi
 
 jvmmemoryopts="${PF_BIN}/jvm-memory.options"
-require ${jvmmemoryopts}
+require "${jvmmemoryopts}"
 JVM_MEMORY_OPTS=$( awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print OPTS}' <"${jvmmemoryopts}" )
 
 JAVA_OPTS="${JAVA_OPTS} ${JVM_MEMORY_OPTS}"
@@ -163,24 +163,8 @@ then
     runprops=""
 fi
 
-getProperty () 
-{
-    if test -f "${runprops}"
-    then
-        PROP_KEY=$1
-        PROP_VALUE=$( awk -F= '$1~/'${PROP_KEY}'/{print $2}' "${runprops}" )
-        printf "${PROP_VALUE}"
-        return 0
-    else
-        printf "true"
-        return 0
-    fi
-}
-
-APPROVED_ONLY=$( getProperty "org.bouncycastle.fips.approved_only" )
-
 # Only use FIPS approved methods if the Bouncy Castle FIPS module is used
-JAVA_OPTS="${JAVA_OPTS} -Dorg.bouncycastle.fips.approved_only=${APPROVED_ONLY}"
+JAVA_OPTS="${JAVA_OPTS} -Dorg.bouncycastle.fips.approved_only=${PF_BC_FIPS_APPROVED_ONLY}"
 
 trap 'kill ${PID}; wait ${PID}; cat </dev/null 2>/dev/null >${RUNFILE}' 1 2 3 6
 trap 'kill -9 ${PID}; cat </dev/null >${RUNFILE} 2>/dev/null' 15
@@ -209,7 +193,7 @@ do
         -classpath "${PF_CLASSPATH}" \
         org.pingidentity.RunPF "$@" &
    PID=${!}
-   printf "${PID}\n" 2>/dev/null >"${RUNFILE}"
+   printf "%s\n" "${PID}" 2>/dev/null >"${RUNFILE}"
    wait ${PID}
    STATUS=${?}
 

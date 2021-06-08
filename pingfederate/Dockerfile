@@ -79,6 +79,9 @@ ENV SHIM=${SHIM} \
 #-- Defines the log file size max for ALL appenders
     PF_LOG_SIZE_MAX="10000 KB" \
 
+#-- Defines a variable that allows instantiating non-FIPS crypto/random
+    PF_BC_FIPS_APPROVED_ONLY=false \
+
 #-- Defines the maximum of log files to retain upon rotation
     PF_LOG_NUMBER=2 \
 
