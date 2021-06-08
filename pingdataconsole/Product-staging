@@ -22,7 +22,8 @@ RUN /get-bits.sh \
         --devops-key ${DEVOPS_KEY} \
         --devops-app "pipeline-build-${DEPENDENCY_0_PRODUCT}-${DEPENDENCY_0_VERSION}" \
         --verify-gpg-signature \
-	&& unzip  /tmp/product.zip \
+        --file-name appserver.zip \
+	&& unzip  /tmp/appserver.zip \
         -d /tmp \
         -x *.bat \
         -x *.dll \
@@ -43,7 +44,7 @@ RUN /get-bits.sh \
         -x */conf/server.xml \
         -x */conf/tomcat-users.xml \
 	&& mv /tmp/${DEPENDENCY_0_PRODUCT}-${DEPENDENCY_0_VERSION} /opt/server \
-    && rm -f /tmp/product.zip \
+    && rm -f /tmp/appserver.zip \
     && /get-bits.sh \
         --product pingdirectory \
         --version ${VERSION} \
