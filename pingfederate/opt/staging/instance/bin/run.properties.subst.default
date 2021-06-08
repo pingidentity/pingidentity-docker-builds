@@ -315,7 +315,7 @@ pf.hsm.mode=${HSM_MODE}
 pf.hsm.hybrid=false
 
 # Bouncy Castle FIPS Approved Only Mode
-org.bouncycastle.fips.approved_only=true
+org.bouncycastle.fips.approved_only=${PF_BC_FIPS_APPROVED_ONLY}
 
 #   Outbound Provisioner Properties
 #   ---------------------------
