@@ -15,9 +15,10 @@
 _legacyCertificateFile="${STAGING_DIR}/.sec/nginx.crt"
 _legacyCertificateKeyFile="${STAGING_DIR}/.sec/nginx.key"
 
-if test ! -d "${SECRETS_DIR}"; then
+if test ! -r "${SECRETS_DIR}"
+then
     echo_yellow "WARNING: Important that the orchestration environment create a tmpfs for '${SECRETS_DIR}'"
-    echo_yellow "         Using 'tmp/secrets' for now."
+    echo_yellow "         Using '/tmp/secrets' for now."
     SECRETS_DIR="/tmp/secrets"
     mkdir -p "${SECRETS_DIR}"
 fi
@@ -32,11 +33,17 @@ then
         _nginxCrt="${CERTIFICATE_FILE}"
     fi
 else
-    if test -f "${_legacyCertificateFile}" ; then
+    if test -f "${_legacyCertificateFile}" 
+    then
         echo "WARNING: Using a legacy location for certificate '${_legacyCertificateFile}'"
         echo "         Consider moving to a vault secret location"
         _nginxCrt="${_legacyCertificateFile}"
     else
+        if ! test -w "${SECRETS_DIR}"
+        then
+            SECRETS_DIR="/tmp/secrets"
+            mkdir -p "${SECRETS_DIR}"
+        fi
         _nginxCrt="${SECRETS_DIR}/nginx.crt"
     fi
 fi
@@ -50,7 +57,8 @@ then
         _nginxKey="${CERTIFICATE_KEY_FILE}"
     fi
 else
-    if test -f "${_legacyCertificateKeyFile}" ; then
+    if test -f "${_legacyCertificateKeyFile}"
+    then
         echo "WARNING: Using a legacy location for certificate key file '${_legacyCertificateKeyFile}'"
         echo "         Consider moving to a vault secret location"
         _nginxKey="${_legacyCertificateKeyFile}"
@@ -59,22 +67,23 @@ else
     fi
 fi
 
-if ! test -f "${_nginxCrt}" ;
+if ! test -f "${_nginxCrt}"
 then
-    if ! test -f "${_nginxKey}" ;
+    _sans="DNS:localhost, IP:127.0.0.1"
+    _lcHostname=$( toLower "${PD_DELEGATOR_PUBLIC_HOSTNAME}" )
+    if test -n "${PD_DELEGATOR_PUBLIC_HOSTNAME}" && test  "${_lcHostname}" != "localhost"
     then
-        head -c 1024 /dev/urandom | tr -dc 'a-zA-Z0-9-' | cut -c 1-64 > "${_nginxKey}"
+        _sans="DNS: ${PD_DELEGATOR_PUBLIC_HOSTNAME}, ${_sans}"
     fi
-
     openssl req \
         -x509 \
         -nodes \
         -days 365 \
         -subj "/C=us/ST=co/O=pingidentity/OU=docker/CN=dev" \
-        -addext "subjectAltName=DNS:${PD_DELEGATOR_PUBLIC_HOSTNAME}, DNS:localhost, IP:127.0.0.1" \
+        -addext "subjectAltName=${_sans}" \
         -newkey rsa:2048 \
         -keyout "${_nginxKey}" \
-        -out ${_nginxCrt};
+        -out ${_nginxCrt}
 fi
 
 CERTIFICATE_FILE="${_nginxCrt}"
