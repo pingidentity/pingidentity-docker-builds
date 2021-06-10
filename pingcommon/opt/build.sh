@@ -26,7 +26,13 @@ fixPermissions ()
     # this is safe to do "blind" as it only affects files with the .sh extension
     # for the user defined in the image
     find "${BASE}" -type f -iname \*.sh -exec chmod u+x '{}' \+
-    test ! -d /var/lib/nginx || chown -R 9031:9999 /var/lib/nginx
+
+    if grep ^nginx: /etc/passwd >/dev/null 
+    then
+        # rebase ownerships for nginx to ping user
+        find / -user nginx -exec chown 9031 {} +
+        find / -group nginx -exec chgrp 9999 {} +
+    fi
 }
 
 removePackageManager_alpine ()

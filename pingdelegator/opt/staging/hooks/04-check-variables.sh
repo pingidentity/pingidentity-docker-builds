@@ -3,7 +3,7 @@
 #
 # Prints out variables and startup information when the server is started.
 #
-# shellcheck source=pingcommon.lib.sh
+# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 

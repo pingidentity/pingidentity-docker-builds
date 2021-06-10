@@ -92,6 +92,10 @@ ENV SHIM=${SHIM} \
 #-- PingFederate and you wish to use it to show the current user's name in the navigation.
     PD_DELEGATOR_PROFILE_SCOPE_ENABLED=false \
 
+#-- The number of NginX worker processes -- Default: auto
+    NGINX_WORKER_PROCESSES="auto" \
+#-- The number of NginX worker connections -- Default: 1024
+    NGINX_WORKER_CONNECTIONS="1024" \
 #-- The command that the entrypoint will execute in the foreground to
 #-- instantiate the container
     STARTUP_COMMAND="nginx" \
