@@ -1,36 +1,44 @@
 #!/usr/bin/env sh
 test "${VERBOSE}" = "true" && set -x
 
-# shellcheck source=staging/hooks/pingcommon.lib.sh
-. "${HOOKS_DIR}/pingcommon.lib.sh"
-
-# shellcheck source=staging/hooks/pingstate.lib.sh
-. "${HOOKS_DIR}/pingstate.lib.sh"
-# shellcheck source=staging/hooks/pingsecrets.lib.sh
-. "${HOOKS_DIR}/pingsecrets.lib.sh"
-
-echo_green "Command: ${*}"
-
-# Process secrets
-process_secrets
-
-# Capture environment variables and secrets state info
-add_state_info "environment_variables"
-
-HOSTNAME=$( hostname -f )
-DOMAINNAME=$( hostname -d )
-
-export HOSTNAME DOMAINNAME
-
-echo_header "Ping Identity DevOps Docker Image" \
-    " IMAGE_VERSION: ${IMAGE_VERSION}" \
-    " IMAGE_GIT_REV: ${IMAGE_GIT_REV}" \
-    "       STARTED: $(date)" \
-    "      HOSTNAME: ${HOSTNAME}" \
-    "    DOMAINNAME: ${DOMAINNAME}"
-
 if test -z "${1}" -o "$1" = "start-server" ;
 then
+    # shellcheck source=staging/hooks/pingcommon.lib.sh
+    . "${HOOKS_DIR}/pingcommon.lib.sh"
+
+    # shellcheck source=staging/hooks/pingstate.lib.sh
+    . "${HOOKS_DIR}/pingstate.lib.sh"
+    # shellcheck source=staging/hooks/pingsecrets.lib.sh
+    . "${HOOKS_DIR}/pingsecrets.lib.sh"
+
+    echo_green "Command: ${*}"
+
+    # Process secrets
+    process_secrets
+
+    # Capture environment variables and secrets state info
+    add_state_info "environment_variables"
+
+    HOSTNAME=$( hostname -f )
+    DOMAINNAME=$( hostname -d )
+
+    export HOSTNAME DOMAINNAME
+
+    echo_header "Ping Identity DevOps Docker Image" \
+        " IMAGE_VERSION: ${IMAGE_VERSION}" \
+        " IMAGE_GIT_REV: ${IMAGE_GIT_REV}" \
+        "       STARTED: $(date)" \
+        "      HOSTNAME: ${HOSTNAME}" \
+        "    DOMAINNAME: ${DOMAINNAME}"
+    # If there is no startup command provided, provide error message and exit.
+    if test -z "${STARTUP_COMMAND}"
+    then
+        echo_red "*** NO CONTAINER STARTUP COMMAND PROVIDED ***"
+        echo_red "*** Please set the environment variable STARTUP_COMMAND with a command to run"
+        echo_red "*** Example: STARTUP_COMMAND=/opt/out/instance/bin/start-server"
+        exit 90
+    fi
+
     test -n "${1}" && shift
     # First ensure the STAGING_DIR is clean, before copying in
     # or pulling the server profile. This method will remove any
@@ -73,23 +81,18 @@ then
     # before the service is actually started.  The post start SHOULD
     # poll the service (i.e. curl commands or ldapsearch or ...) to verify it
     # is running before performing the actual post start tasks.
-    run_hook "80-post-start.sh" &
+    if test -f "${HOOKS_DIR}/80-post-start.sh"
+    then
+        run_hook "80-post-start.sh" &
+    fi
 
     if test -n "${TAIL_LOG_FILES}" ;
     then
         echo "Tailing log files (${TAIL_LOG_FILES})"
         # shellcheck disable=SC2086
-        tail -F ${TAIL_LOG_FILES} 2>/dev/null &
+        exec tail -F ${TAIL_LOG_FILES} 2>/dev/null &
     fi
 
-    # If there is no startup command provided, provide error message and exit.
-    if test -z "${STARTUP_COMMAND}"
-    then
-        echo_red "*** NO CONTAINER STARTUP COMMAND PROVIDED ***"
-        echo_red "*** Please set the environment variable STARTUP_COMMAND with a command to run"
-        echo_red "*** Example: STARTUP_COMMAND=/opt/out/instance/bin/start-server"
-        exit 90
-    fi
 
     # If a command is provided after the "start-server" on the container start, then
     # startup the server in the background and then run that command.  A good example

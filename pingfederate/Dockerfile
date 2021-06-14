@@ -85,6 +85,10 @@ ENV SHIM=${SHIM} \
 #-- Defines the maximum of log files to retain upon rotation
     PF_LOG_NUMBER=2 \
 
+#-- General log level -- provide custom log4j2.xml in profile for more detailed control
+#-- valid values are OFF, ERROR, WARN, INFO, DEBUG
+    PF_LOG_LEVEL="INFO" \
+
 #-- Defines the port on which the PingFederate administrative
 #-- console and API runs.
     PF_ADMIN_PORT=9999 \
@@ -150,6 +154,11 @@ ENV SHIM=${SHIM} \
 #-- Provisioner Failover Grace Period in run.properties
 #-- Grace period, in seconds. Default 600 seconds
     PF_PROVISIONER_GRACE_PERIOD=600 \
+
+#-- Percentage of the container memory to allocate to PingFederate JVM
+#-- DO NOT set to 100% or your JVM will exit with OutOfMemory errors and the container will terminate
+    JAVA_RAM_PERCENTAGE=75.0 \
+    
 
     BULK_CONFIG_DIR="${OUT_DIR}/instance/bulk-config" \
     BULK_CONFIG_FILE=data.json

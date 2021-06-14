@@ -8,7 +8,7 @@
 _password="$(get_value PING_IDENTITY_PASSWORD true)"
 if test -z "${_password}"; then
   echo_yellow "No PING_IDENTITY_PASSWORD found. Using default password"
-  _password=2Federate
+  _password="2Federate"
 fi
 
 _importBulkConfig=$(
