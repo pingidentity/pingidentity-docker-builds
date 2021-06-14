@@ -12,7 +12,7 @@ if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" -o "${OPERATIONAL_MODE}" = "
 then
     echo "INFO: waiting for healthy admin before post-start.."
 
-    # using 127.0.0.1 (rather than localhost) until nc (part ob busybox) supports ipv4/ipv6
+    # using 127.0.0.1 (rather than localhost) until nc (part of busybox) supports ipv4/ipv6
     wait-for "127.0.0.1:${PF_ADMIN_PORT}" -t 200
     test ${?} -ne 0 && kill 1
     "${HOOKS_DIR}/81-after-start-process.sh"
@@ -20,6 +20,5 @@ then
 
     # everything was successful, pf is ready.
     touch /tmp/ready
-else
-  exit 0
 fi
+exit 0
