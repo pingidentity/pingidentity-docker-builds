@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 test "${VERBOSE}" = "true" && set -x
-set -x
+
 _osID=$( awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null )
 _osArch=$( uname -m )
 
@@ -134,48 +134,6 @@ else
 fi
 
 /opt/java/bin/java -version 2>&1 | tee > /opt/java/_version
-_java_security_path=/opt/java/conf/security
-
-# ensure the java.security file exists
-if test -f ${_java_security_path}/java.security ;
-then
-# search the file to add the "security.provider.4=org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider"
-# after the listed JSSE provider.
-# Renumber the supported security providers.
-    awk '{
-        for(i=1;i<=NF;i++)
-        {
-            if($i~/security.provider.([1-9]|[1][1-9])=/)
-            {
-                if($i~/SunJSSE/)
-                {
-                    b=1
-                    print"security.provider.4=org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider"
-                    sub(/[1-9]/, substr($i, index($i,"=")-1)+1)
-                    print
-                    next
-                }
-
-                if(b>0)
-                {
-                    sub(/[1-9]|[1-9][0-9]/, substr($i, length("security.provider.")+1)+1)
-                    b++
-                }
-            }
-        }
-    } 1' ${_java_security_path}/java.security > ${_java_security_path}/java.security.bcfips
-    mv ${_java_security_path}/java.security.bcfips ${_java_security_path}/java.security
-
-    if test -f ${_java_security_path}/openjsse.security ;
-    then
-        _index=$( awk '/security.provider.([1-9]|[1][1-9])=SunJSSE/{
-            print substr($1, length("security.provider.")+1, index($1,"=") - length("security.provider.")-1)
-            }' ${_java_security_path}/java.security )
-        # shellcheck disable=SC2086
-        awk '/=org.openjsse.net.ssl.OpenJSSE/{ gsub(/[1-9]|[1-9][0-9]/, "'${_index}'") } 1' ${_java_security_path}/openjsse.security > ${_java_security_path}/openjsse.security.bcfips
-        mv ${_java_security_path}/openjsse.security.bcfips ${_java_security_path}/openjsse.security
-    fi
-fi
 
 rm "${0}"
 exit 0
