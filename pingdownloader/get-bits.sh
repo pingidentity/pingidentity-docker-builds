@@ -55,7 +55,8 @@ For license downloads:
 Where {product-name} is one of:
 END_USAGE1
 
-	for prodName in ${availableProducts}; do
+	for prodName in ${availableProducts}
+	do
 	    echo "   ${prodName}"
 	done
 
@@ -76,12 +77,11 @@ END_USAGE2
 	exit 77
 }
 
-test -t 1 && _colorSupport=true
-FONT_RED=${_colorSupport:+'\033[0;31m'}
-FONT_GREEN=${_colorSupport:+'\033[0;32m'}
-FONT_NORMAL=${_colorSupport:+'\033[0m'}
-# CHAR_CHECKMARK='\xE2\x9C\x94'
-# CHAR_CROSSMARK='\xE2\x9D\x8C'
+FONT_RED="$( printf '\033[0;31m' )"
+FONT_GREEN="$( printf '\033[0;32m' )"
+FONT_NORMAL="$( printf '\033[0m' )"
+#CHAR_CHECKMARK="$( printf '\xE2\x9C\x94' )"
+#CHAR_CROSSMARK="$( printf '\xE2\x9D\x8C' )"
 
 ################################################################################
 # Echo message in red color
@@ -178,7 +178,7 @@ getProductFile ()
 }
 
 ##########################################################################################
-# Based on the productURL variale, evaluate the URL from the
+# Based on the productURL variable, evaluate the URL from the
 # properties file  Note that there needs to be 2 consecutive evals
 # since there may be a variable encoding in the variable
 # Example: ...URL=https://.../${version}/
@@ -191,7 +191,7 @@ getProductURL ()
 
 	prodURL=$( eval echo "$prodURL" )
 
-	# If a produtURL wasn't provide, we should use the defaultDownloadURL
+	# If a productURL wasn't provide, we should use the defaultDownloadURL
 	test "${prodURL}" = "null" && prodURL=${defaultURL}
 
 	test "${prodURL}" = "null" && usage "Unable to determine download URL for ${product}"

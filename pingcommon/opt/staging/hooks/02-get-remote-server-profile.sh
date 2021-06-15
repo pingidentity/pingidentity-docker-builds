@@ -31,10 +31,10 @@
 #
 test "${VERBOSE}" = "true" && set -x
 
-# shellcheck source=pingcommon.lib.sh
+# shellcheck source=./pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-# shellcheck source=pingstate.lib.sh
+# shellcheck source=./pingstate.lib.sh
 . "${HOOKS_DIR}/pingstate.lib.sh"
 
 
@@ -105,7 +105,7 @@ getProfile ()
         #
         # Perform Security Checks on the Server Profile cloned
         #
-        # note: this will also search paths ouside of the SERVER_PROFILE_PATH.
+        # note: this will also search paths outside of the SERVER_PROFILE_PATH.
         #       future enhancement may want to limit the directory checked.
         #       i.e. ${SERVER_PROFILE_DIR}/${serverProfilePath}
         #
@@ -116,20 +116,19 @@ getProfile ()
             security_filename_check "${SERVER_PROFILE_DIR}" "${_scPatternCheck}"
         done
 
-        if test ${_totalSecurityViolations} -gt 0
+        if test "${TOTAL_SECURITY_VIOLATIONS}" -gt 0
         then
             if test "${SECURITY_CHECKS_STRICT}" = "true"
             then
-                container_failure 2 "Security Violations Found! (total=${_totalSecurityViolations})"
+                container_failure 2 "Security Violations Found! (total=${TOTAL_SECURITY_VIOLATIONS})"
             else
-                echo_green "Security Violations Allowed! (total=${_totalSecurityViolations}) SECURITY_CHECKS_STRICT=${SECURITY_CHECKS_STRICT}"
+                echo_green "Security Violations Allowed! (total=${TOTAL_SECURITY_VIOLATIONS}) SECURITY_CHECKS_STRICT=${SECURITY_CHECKS_STRICT}"
             fi
         else
             echo "   PASSED"
         fi
 
-        # shellcheck disable=SC2086
-        cp -Rf ${SERVER_PROFILE_DIR}/${serverProfilePath}/. "${STAGING_DIR}"
+        cp -Rf "${SERVER_PROFILE_DIR}/${serverProfilePath}/." "${STAGING_DIR}"
         die_on_error 142 "Copy to staging failure"  || exit ${?}
     else
         echo_yellow "INFO: ${1}_URL not set, skipping"

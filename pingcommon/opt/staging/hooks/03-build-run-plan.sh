@@ -7,14 +7,14 @@
 #-
 #- RUN_PLAN (Initially set to UNKNOWN)
 #-          START   - Instructs the container to start from scratch.  This is primarily
-#-                    because a SERVER_ROOT_DIR (i.e. /opt/out/instance) isn't preseent.
+#-                    because a SERVER_ROOT_DIR (i.e. /opt/out/instance) isn't present.
 #-          RESTART - Instructs the container to restart.  This is primarily because the
-#-                    SERVER_ROOT_DIR (i.e. /opt/out/instance) is prsent.
+#-                    SERVER_ROOT_DIR (i.e. /opt/out/instance) is present.
 #-
 #- > NOTE: It will be common for products to override this hook to provide
 #- > RUN_PLAN directions based on product specifics.
 
-# shellcheck source=pingcommon.lib.sh
+# shellcheck source=./pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 #

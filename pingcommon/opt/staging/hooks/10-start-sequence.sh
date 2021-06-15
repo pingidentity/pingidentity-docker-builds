@@ -2,12 +2,12 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-# Called when it has been determined that this is the first time the conainer has
+# Called when it has been determined that this is the first time the container has
 # been run.
 #
 test "${VERBOSE}" = "true" && set -x
 
-# shellcheck source=pingcommon.lib.sh
+# shellcheck source=./pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 echo "Initializing server for the first time"

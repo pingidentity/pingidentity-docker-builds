@@ -4,7 +4,6 @@ test "${VERBOSE}" = "true" && set -x
 # shellcheck source=/dev/null
 test -f "${CONTAINER_ENV}" && . "${CONTAINER_ENV}"
 
-# shellcheck disable=SC2086
 ldapsearch \
     --dontWrap \
     --terse \

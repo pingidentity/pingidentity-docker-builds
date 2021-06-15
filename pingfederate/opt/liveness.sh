@@ -1,13 +1,15 @@
 #!/usr/bin/env sh
 URL="https://localhost:${PF_ENGINE_PORT}/pf/heartbeat.ping"
-if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" -o "${OPERATIONAL_MODE}" = "STANDALONE" ; then
-  if ! test -f /tmp/ready ; then
+if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" -o "${OPERATIONAL_MODE}" = "STANDALONE"
+then
+  if ! test -f /tmp/ready
+  then
     exit 1
   fi
   test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" && URL="https://localhost:${PF_ADMIN_PORT}/pingfederate/app"
 fi
 curl -sSk -o /dev/null "${URL}"
-if test ${?} -ne 0 ; 
+if test ${?} -ne 0
 then
     # the health check must return 0 for healthy, 1 otherwise
     # but not any other code so we catch the curl return code and

@@ -81,7 +81,7 @@ tag_and_push ()
     _target="${_targetRegistryURL}/${productToDeploy}:${_target_tag}"
 
     test -z "${dryRun}" && docker tag "${_source}" "${_target}"
-    if test -z "${isLocalBuild}"
+    if test -z "${IS_LOCAL_BUILD}"
     then
         echo "Pushing ${_target}"
         #Use Docker Content Trust to Sign and push images to a specified registry
@@ -97,7 +97,7 @@ tag_and_push ()
                 "DockerHub")
                     #Check to see if signature data already exists for tag
                     #If it does, remove the signature data
-                    _tag_index=$(jq ". | index(\"${_target_tag}\")" <<< "${_signed_tags}")
+                    _tag_index=$( jq ". | index(\"${_target_tag}\")" <<< "${_signed_tags}" )
                     if test "${_tag_index}" != "null"
                     then
                         docker --config "${_docker_config_hub_dir}" trust revoke --yes "${_target}"
@@ -207,7 +207,7 @@ latestVersion=$( _getLatestVersionForProduct "${productToDeploy}" )
 # Determine whether the commit is associated with a sprint tag
 #   a print tag ends with 4 digits, YYMM
 #
-for tag in $( git tag --points-at "${gitRevLong}" )
+for tag in $( git tag --points-at "${GIT_REV_LONG}" )
 do
     if test -z "${tag##2[0-9][0-9][0-9]*}"
     then
@@ -276,7 +276,7 @@ do
                 then
                     _archSuffix="-${_arch}"
                 fi
-                fullTag="${_version}-${_shimLongTag}-${_jvm}-${ciTag}${_archSuffix}"
+                fullTag="${_version}-${_shimLongTag}-${_jvm}-${CI_TAG}${_archSuffix}"
                 test -z "${dryRun}" \
                     && docker --config "${_docker_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
                 for targetRegistry in ${_registryList}

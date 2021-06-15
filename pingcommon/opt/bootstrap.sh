@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 test "${VERBOSE}" = "true" && set -x
-# shellcheck source=staging/hooks/pingcommon.lib.sh
+# shellcheck source=./staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 

@@ -12,7 +12,7 @@ test "${VERBOSE}" = "true" && set -x
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-# shellcheck source=pingdirectory.lib.sh
+# shellcheck source=./pingdirectory.lib.sh
 test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib.sh"
 
 removeDefunctServer

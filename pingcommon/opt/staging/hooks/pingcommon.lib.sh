@@ -6,7 +6,7 @@
 #
 test "${VERBOSE}" = "true" && set -x
 
-# capture the calling hook so it can be echo'd later on
+# capture the calling hook so it can be echoed later on
 CALLING_HOOK=${0}
 
 # check for devops file in docker secrets location
@@ -25,12 +25,12 @@ toLower ()
 
 toLowerVar ()
 {
-    toLower "$(eval printf "%s" \$"${1}")"
+    toLower "$( eval printf "%s" \$"${1}" )"
 }
 
 lowerVar()
 {
-    eval "${1}=$(toLowerVar "${1}")"
+    eval "${1}=$( toLowerVar "${1}" )"
 }
 
 toUpper ()
@@ -40,25 +40,23 @@ toUpper ()
 
 toUpperVar ()
 {
-    toUpper "$(eval printf "%s" \$"${1}")"
+    toUpper "$( eval printf "%s" \$"${1}" )"
 }
 
 upperVar()
 {
-    eval "${1}=$(toUpperVar "${1}")"
+    eval "${1}=$( toUpperVar "${1}" )"
 }
 
 #
 # Common wrapper for curl to make reliable calls
+# NOTICE: This function expects --output to be passed in as function arguments,
+# otherwise the test and return will fail, as HTTP_RESULT_CODE with contain the curl output
 #
 _curl ()
 {
-    extras="--retry-connrefused"
-    # CentOS curl does not support the retry on connection rerfused option
-    isOS "centos" && extras=""
-    _httpResultCode=$(
-        curl \
-            --get \
+    #Build curl options in $@
+    set -- --get \
             --silent \
             --show-error \
             --write-out '%{http_code}' \
@@ -66,11 +64,14 @@ _curl ()
             --connect-timeout 2 \
             --retry 6 \
             --retry-max-time 30 \
-            ${extras} \
             --retry-delay 3 \
             "${@}"
-    )
-    test "${_httpResultCode}" = "200"
+
+    # CentOS curl does not support the retry on connection refused option
+    isOS "centos" || set -- --retry-connrefused "${@}"
+
+    HTTP_RESULT_CODE=$( curl "${@}" )
+    test "${HTTP_RESULT_CODE}" = "200"
     return ${?}
 }
 
@@ -102,27 +103,27 @@ getOSName ()
 isOS ()
 {
     _targetOS="${1}"
-    _currentOS="$(getOSID)"
+    _currentOS="$( getOSID )"
     test -n "${_targetOS}" && test "${_targetOS}" = "${_currentOS}"
     return ${?}
 }
 
 getSemanticImageVersion() {
-  version=$(echo "${IMAGE_VERSION}" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]")
-  major=$(echo "${version}" | awk -F"." '{ print $1 }')
-  minor=$(echo "${version}" | awk -F"." '{ print $2 }')
-  patch=$(echo "${version}" | awk -F"." '{ print $3 }')
+  version=$( echo "${IMAGE_VERSION}" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]" )
+  major=$( echo "${version}" | awk -F"." '{ print $1 }' )
+  minor=$( echo "${version}" | awk -F"." '{ print $2 }' )
+  patch=$( echo "${version}" | awk -F"." '{ print $3 }' )
 }
 
 # send desired semantic version to be compared to image version.
 #   example: IMAGE_VERSION=10.1.0
-#   test $(isImageVersionGtEq 10.0.0) -eq 0 && echo "current image is greater or equal"
+#   test $( isImageVersionGtEq 10.0.0 ) -eq 0 && echo "current image is greater or equal"
 isImageVersionGtEq() {
   getSemanticImageVersion
   aVersion=${1}
-  aMajor=$(echo "${aVersion}" | awk -F"." '{ print $1 }')
-  aMinor=$(echo "${aVersion}" | awk -F"." '{ print $2 }')
-  aPatch=$(echo "${aVersion}" | awk -F"." '{ print $3 }')
+  aMajor=$( echo "${aVersion}" | awk -F"." '{ print $1 }' )
+  aMinor=$( echo "${aVersion}" | awk -F"." '{ print $2 }' )
+  aPatch=$( echo "${aVersion}" | awk -F"." '{ print $3 }' )
 
   test "${aMajor}" -gt "${major}" && echo 1 && return
   test "${aMajor}" -eq "${major}" && test "${aMinor}" -gt "${minor}" && echo 1 && return
@@ -239,7 +240,8 @@ container_failure ()
 {
     _exitCode=${1} && shift
 
-    if test "$(toLower "${UNSAFE_CONTINUE_ON_ERROR}")" = "true"; then
+    if test "$( toLower "${UNSAFE_CONTINUE_ON_ERROR}" )" = "true"
+    then
         echo_red "################################################################################"
         echo_red "################################### WARNING ####################################"
         echo_red "################################################################################"
@@ -317,7 +319,6 @@ apply_local_server_profile()
     if test -n "${IN_DIR}" && test -n "$( ls -A "${IN_DIR}" 2>/dev/null )"
     then
         echo "copying local IN_DIR files (${IN_DIR}) to STAGING_DIR (${STAGING_DIR})"
-        # shellcheck disable=SC2086
         copy_files "${IN_DIR}" "${STAGING_DIR}"
     else
         echo "no local IN_DIR files (${IN_DIR}) found."
@@ -363,7 +364,7 @@ security_filename_check()
     _scPath="${1}"
     _patternToCheck="${2}"
 
-    test -z "${_totalSecurityViolations}" && _totalSecurityViolations=0
+    test -z "${TOTAL_SECURITY_VIOLATIONS}" && TOTAL_SECURITY_VIOLATIONS=0
 
     _tmpSC="/tmp/.securityCheck"
     # Check for *.jwk files
@@ -386,10 +387,10 @@ security_filename_check()
 
         cat_indent ${_tmpSC}
 
-        _totalSecurityViolations=$(( _totalSecurityViolations + _numViolations ))
+        TOTAL_SECURITY_VIOLATIONS=$(( TOTAL_SECURITY_VIOLATIONS + _numViolations ))
     fi
 
-    export _totalSecurityViolations
+    export TOTAL_SECURITY_VIOLATIONS
 }
 
 ###############################################################################
@@ -402,10 +403,9 @@ sleep_at_most ()
 {
     _max=$1
     _modulus=$(( _max - 1 ))
-    # RANDOM tested on Alpine
-    # shellcheck disable=SC2039
-    _result=$(( RANDOM % _modulus ))
-    _duration=$(( _result + 1))
+    _random_num=$(awk 'BEGIN { srand(); print int(rand()*32768) }' /dev/null)
+    _result=$(( _random_num % _modulus ))
+    _duration=$(( _result + 1 ))
 
     echo "Sleeping ${_duration} seconds (max: ${_max})..."
 
@@ -427,13 +427,15 @@ get_value ()
 {
     # the following will preserve spaces in the printf
     IFS="%%"
-    value="$(eval printf '%s' "\${${1}}")"
-    checkFile="$(toLower ${2})"
-    if test -z "${value}" && test "${checkFile}" = "true"; then
+    value="$( eval printf '%s' "\${${1}}" )"
+    checkFile="$( toLower "${2}" )"
+    if test -z "${value}" && test "${checkFile}" = "true"
+    then
         fileVar="${1}_FILE"
-        file="$(eval printf '%s' "\${${fileVar}}")"
-        if test -n "${file}"; then
-            value="$(cat "${file}")"
+        file="$( eval printf '%s' "\${${fileVar}}" )"
+        if test -n "${file}"
+        then
+            value="$( cat "${file}" )"
         fi
     fi
     printf '%s' "${value}"
@@ -464,7 +466,7 @@ echo_header ()
 #
 # Check for the requirement, values of a variable and
 # Echo a formatted list of variables and their value.  If the variable is
-# empty, then, a sring of '---- empty ----' will be echoed
+# empty, then, a string of '---- empty ----' will be echoed
 ###############################################################################
 echo_req_vars ()
 {
@@ -545,9 +547,10 @@ echo_vars ()
 warn_unsafe_variables ()
 {
 
-    _unsafeValues="$(env | grep "^UNSAFE_" | awk -F'=' '{ print $2 }')"
+    _unsafeValues="$( env | grep "^UNSAFE_" | awk -F'=' '{ print $2 }' )"
 
-    if test -n "${_unsafeValues}"; then
+    if test -n "${_unsafeValues}"
+    then
         echo_red "################################################################################"
         echo_red "######################### WARNING - UNSAFE_ VARIABLES ##########################"
         echo_red "################################################################################"
@@ -555,7 +558,8 @@ warn_unsafe_variables ()
         echo_red "#  as it is considered unsafe to continue, especially in production deployments."
         echo_red ""
 
-        for _unsafeVar in $(env | grep "^UNSAFE_" | sort | awk -F'=' '{ print $1 }') ; do
+        for _unsafeVar in $( env | grep "^UNSAFE_" | sort | awk -F'=' '{ print $1 }' )
+        do
             _unsafeValue=$( get_value "${_unsafeVar}" )
 
             test -n "${_unsafeValue}" && echo_vars "${_unsafeVar}"
@@ -576,16 +580,20 @@ warn_deprecated_variables ()
 {
     # Add any new deprecated variables to this file in the pingcommon image.
     _deprecatedVarsJson="/opt/staging/deprecated-variables.json"
-    if ! test -f "${_deprecatedVarsJson}"; then
+    if ! test -f "${_deprecatedVarsJson}"
+    then
         return 0
     fi
 
     _deprecatedHeaderPrinted=false
     # Read variable names from the json file
-    for _deprecatedVar in $(jq -r '.[] | .name' "${_deprecatedVarsJson}"); do
+    for _deprecatedVar in $( jq -r '.[] | .name' "${_deprecatedVarsJson}" )
+    do
         _deprecatedValue=$( get_value "${_deprecatedVar}" )
-        if test -n "${_deprecatedValue}"; then
-            if test "${_deprecatedHeaderPrinted}" != "true"; then
+        if test -n "${_deprecatedValue}"
+        then
+            if test "${_deprecatedHeaderPrinted}" != "true"
+            then
                 echo_yellow "################################################################################"
                 echo_yellow "################################################################################"
                 echo_yellow "###################### WARNING - DEPRECATED VARIABLES ##########################"
@@ -595,21 +603,24 @@ warn_deprecated_variables ()
                 _deprecatedHeaderPrinted=true
             fi
             # Don't print values of sensitive variables
-            _sensitive=$(jq -r ".[] | select(.name==\"${_deprecatedVar}\") | .sensitive" "${_deprecatedVarsJson}")
-            if test "${_sensitive}" = "true"; then
+            _sensitive=$( jq -r ".[] | select(.name==\"${_deprecatedVar}\") | .sensitive" "${_deprecatedVarsJson}" )
+            if test "${_sensitive}" = "true"
+            then
                 _redactAll=true
             else
                 _redactAll=false
             fi
             echo_vars "${_deprecatedVar}"
             # Print a specific message for variables that have provided one
-            _deprecatedVarMessage=$(jq -r ".[] | select(.name==\"${_deprecatedVar}\") | .message" "${_deprecatedVarsJson}")
-            if test -n "${_deprecatedVarMessage}" && test "${_deprecatedVarMessage}" != "null"; then
+            _deprecatedVarMessage=$( jq -r ".[] | select(.name==\"${_deprecatedVar}\") | .message" "${_deprecatedVarsJson}" )
+            if test -n "${_deprecatedVarMessage}" && test "${_deprecatedVarMessage}" != "null"
+            then
                 echo_yellow "# ${_deprecatedVarMessage}"
             fi
         fi
     done
-    if test "${_deprecatedHeaderPrinted}" = "true"; then
+    if test "${_deprecatedHeaderPrinted}" = "true"
+    then
         echo_yellow ""
         echo_yellow "################################################################################"
         echo_yellow ""
@@ -717,8 +728,8 @@ contains ()
 ###############################################################################
 contains_ignore_case ()
 {
-    stringLower="$(toLower "$1")"
-    substringLower="$(toLower "$2")"
+    stringLower="$( toLower "$1" )"
+    substringLower="$( toLower "$2" )"
     contains "${stringLower}" "${substringLower}"
     return ${?}
 }
@@ -756,7 +767,7 @@ clean_staging_file ()
 ###############################################################################
 clean_staging_dir ()
 {
-    find "${STAGING_DIR}" | awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' | while read file; do clean_staging_file "${file}"; done
+    find "${STAGING_DIR}" | awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' | while read -r file; do clean_staging_file "${file}"; done
 }
 
 ###############################################################################

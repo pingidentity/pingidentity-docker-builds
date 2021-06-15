@@ -1,16 +1,16 @@
 #!/usr/bin/env sh
-FONT_RED='\033[0;31m'
-FONT_GREEN='\033[0;32m'
-FONT_NORMAL='\033[0m'
-CHAR_CHECKMARK='\xE2\x9C\x94'
-CHAR_CROSSMARK='\xE2\x9D\x8C'
+FONT_RED="$( printf '\033[0;31m' )"
+FONT_GREEN="$( printf '\033[0;32m' )"
+FONT_NORMAL="$( printf '\033[0m' )"
+#CHAR_CHECKMARK="$( printf '\xE2\x9C\x94' )"
+#CHAR_CROSSMARK="$( printf '\xE2\x9D\x8C' )"
 
 ################################################################################
 # Echo message in red color
 ################################################################################
 echo_red()
 {
-    echo -e "${FONT_RED}$*${FONT_NORMAL}"
+    echo "${FONT_RED}$*${FONT_NORMAL}"
 }
 
 ################################################################################
@@ -18,7 +18,7 @@ echo_red()
 ################################################################################
 echo_green()
 {
-    echo -e "${FONT_GREEN}$*${FONT_NORMAL}"
+    echo "${FONT_GREEN}$*${FONT_NORMAL}"
 }
 
 _curl ()
@@ -37,7 +37,7 @@ _curl ()
             --retry-delay 3 \
             "${@}"
     )
-    test ${_httpResultCode} -eq 200
+    test "${_httpResultCode}" -eq 200
     return ${?}
 }
 

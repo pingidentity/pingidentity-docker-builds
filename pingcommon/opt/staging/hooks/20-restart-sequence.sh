@@ -7,7 +7,7 @@
 #
 test "${VERBOSE}" = "true" && set -x
 
-# shellcheck source=pingcommon.lib.sh
+# shellcheck source=./pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 echo "Restarting container"

@@ -3,9 +3,9 @@ set -e
 DIRNAME=$( dirname "${0}" )
 
 # Setup the JVM
-if test "${JAVA}" = "" ;
+if test "${JAVA}" = ""
 then
-    if test "${JAVA_HOME}" != "" ; 
+    if test "${JAVA_HOME}" != ""
     then
         JAVA="${JAVA_HOME}/bin/java"
     else
@@ -16,10 +16,10 @@ then
 fi
 
 # Check for sufficient JVM version
-if test "${JVM_VERSION}" = "" ;
+if test "${JVM_VERSION}" = ""
 then
     JAVA_MAJOR_VERSION=$( "${JAVA}" -version 2>&1 | awk '$0~ /version/ {gsub(/"/,"",$3);gsub(/\..*/,"",$3);gsub(/-.*/,"",$3);print $3;}' )
-    if test "${JAVA_MAJOR_VERSION}" -lt "11" ;
+    if test "${JAVA_MAJOR_VERSION}" -lt "11"
     then
         echo "This utility must be run using Java 11 or higher. Exiting."
         exit 1

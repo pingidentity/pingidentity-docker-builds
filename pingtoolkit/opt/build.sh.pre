@@ -18,7 +18,7 @@ _curl ()
             --retry-delay 3 \
             "${@}"
     )
-    test ${_httpResultCode} -eq 200
+    test "${_httpResultCode}" -eq 200
     return ${?}
 }
 
@@ -37,17 +37,17 @@ case "${_osID}" in
 
         _kubectlVer=$( curl https://storage.googleapis.com/kubernetes-release/release/stable.txt )
         case "$( uname -m )" in
-            x86_64) _varnityArch="amd64" ;;
-            aarch64) _varnityArch="arm64" ;;
-            *) _varnityArch=$( uname -m ) ;;
+            x86_64) _vanityArch="amd64" ;;
+            aarch64) _vanityArch="arm64" ;;
+            *) _vanityArch=$( uname -m ) ;;
         esac
         _file=/opt/kubectl
-        _curl -o ${_file} https://storage.googleapis.com/kubernetes-release/release/${_kubectlVer}/bin/linux/${_varnityArch}/kubectl
+        _curl -o ${_file} "https://storage.googleapis.com/kubernetes-release/release/${_kubectlVer}/bin/linux/${_vanityArch}/kubectl"
         chmod +x ${_file}
 
         _file=/opt/kustomize
         _kustomizeVer=4.1.2
-        _curl -o ${_file}.tgz https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${_kustomizeVer}/kustomize_v${_kustomizeVer}_linux_${_varnityArch}.tar.gz
+        _curl -o ${_file}.tgz "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${_kustomizeVer}/kustomize_v${_kustomizeVer}_linux_${_vanityArch}.tar.gz"
         tar -C /opt -xzf ${_file}.tgz
         chmod +x ${_file}
         rm ${_file}.tgz

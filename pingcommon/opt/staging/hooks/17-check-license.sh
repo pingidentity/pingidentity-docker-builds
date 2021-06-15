@@ -7,12 +7,11 @@
 #- - If LICENSE_FILE not found and PING_IDENTITY_DEVOPS_USER and PING_IDENTITY_DEVOPS_KEY defined
 #-   make call to obtain a license from license server
 #
-#  TODO - Should probably add more mechanisms to pull from other
-#         locations (i.e. vaults/secrets)
+#  TODO - Should probably add more mechanisms to pull from other locations (i.e. vaults/secrets)
 #
 test "${VERBOSE}" = "true" && set -x
 
-# shellcheck source=pingcommon.lib.sh
+# shellcheck source=./pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 LICENSE_FILE="${LICENSE_DIR}/${LICENSE_FILE_NAME}"
@@ -25,7 +24,7 @@ then
 
     case "${MUTE_LICENSE_VERIFICATION}" in
         TRUE|true|YES|yes|Y|y)
-            echo "Opting out of license verfication due to MUTE_LICENSE_VERIFICATION=${MUTE_LICENSE_VERIFICATION}"
+            echo "Opting out of license verification due to MUTE_LICENSE_VERIFICATION=${MUTE_LICENSE_VERIFICATION}"
             ;;
         *)
             echo "Verifying license with a network query to https://license.pingidentity.com."
@@ -95,11 +94,11 @@ else
 
                 licenseFound="true"
             else
-                _licenseError=$( jq -r ".error" "${LICENSE_FILE}" 2> /dev/null)
+                _licenseError=$( jq -r ".error" "${LICENSE_FILE}" 2> /dev/null )
 
                 if test -z "${_licenseError}" || test "${_licenseError}" = "null"
                 then
-                    _licenseError="Error (${_httpResultCode}).  Please contact devops_program@pingidentity.com with this log."
+                    _licenseError="Error (${HTTP_RESULT_CODE}).  Please contact devops_program@pingidentity.com with this log."
                 fi
 
                 echo ""

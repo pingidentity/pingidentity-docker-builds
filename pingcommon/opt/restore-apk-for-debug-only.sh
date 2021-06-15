@@ -11,7 +11,7 @@ cat <<END_DISCLAIMER
 Ping Identity uninstalls the package manager to reduce the attack surface in 
 its docker images.
 Reinstalling the package manager is a distinctly bad practice and invites
-potential abuse from mailicous actors.
+potential abuse from malicious actors.
 We realize that in certain circumstances, this can mean the difference between
 being blocked and getting to the root cause of an issue so that is why we
 provide it here and it should be used with parsimony and only in circumstances
@@ -24,7 +24,7 @@ read -r userResponse
 test "${userResponse}" = "y" || exit 2
 
 cd / || exit 3
-_ver=$(awk -F= '$1~/VERSION_ID/{gsub(/"/,"",$2);gsub(/\.[0-9]+$/,"",$2);print $2;}' /etc/os-release)
+_ver=$( awk -F= '$1~/VERSION_ID/{gsub(/"/,"",$2);gsub(/\.[0-9]+$/,"",$2);print $2;}' /etc/os-release )
 _arch=$( uname -m )
 _url="http://dl-cdn.alpinelinux.org/alpine/v${_ver}/main/${_arch}/"
 _apk=$( curl -s "${_url}" | awk '$0~/apk-tools-static/ {sub(/.*href="/,"",$2);sub(/".*$/,"",$2);print $2}')

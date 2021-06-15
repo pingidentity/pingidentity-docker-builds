@@ -13,7 +13,8 @@ test "${VERBOSE}" = "true" && set -x
 . "${HOOKS_DIR}/pingdata.lib.sh"
 
 # Sync servers before 8.2.0.0-EA will not have failover configured.
-if ! is_version_ge "8.2.0.0-EA"; then
+if ! is_version_ge "8.2.0.0-EA"
+then
     exit 0
 fi
 

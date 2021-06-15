@@ -15,7 +15,7 @@ _pwCheck=$(
         --request GET \
         --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
         -H "X-Xsrf-Header: PingAccess" \
-        https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1 \
+        "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1" \
         2>/dev/null
     )
 

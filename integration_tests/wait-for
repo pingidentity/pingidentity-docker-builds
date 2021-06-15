@@ -25,8 +25,7 @@ USAGE
 }
 
 wait_for() {
-    # shellcheck disable=SC2034
-    for i in $( seq ${TIMEOUT} )
+    for _ in $( seq ${TIMEOUT} )
     do
         SERVER_FOUND=false
         FILE_FOUND=false

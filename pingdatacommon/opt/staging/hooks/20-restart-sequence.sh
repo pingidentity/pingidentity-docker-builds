@@ -30,7 +30,9 @@ if ! compare_and_save_jvm_settings "${jvmOptions}" || test "${REGENERATE_JAVA_PR
 then
     echo "JVM options and/or JVM version have changed. Re-generating java.properties for current JVM."
     # re-initialize the current java.properties.  a backup in same location will be created.
-    ${SERVER_ROOT_DIR}/bin/dsjavaproperties --initialize ${jvmOptions}
+    # Word-split is expected behavior for $jvmOptions. Disable shellcheck.
+    # shellcheck disable=SC2086
+    "${SERVER_ROOT_DIR}/bin/dsjavaproperties" --initialize ${jvmOptions}
 else
     echo "JVM options and version have not changed. Will not generate a new java.properties file."
 fi

@@ -35,7 +35,9 @@ if ! compare_and_save_jvm_settings "${jvmOptions}" || test "${REGENERATE_JAVA_PR
 then
     echo "JVM options and/or JVM version have changed. Re-generating java.properties for current JVM."
     # re-initialize the current java.properties.  a backup in same location will be created.
-    ${SERVER_ROOT_DIR}/bin/dsjavaproperties --initialize ${jvmOptions}
+    # Word-split is expected behavior for $jvmOptions. Disable shellcheck.
+    # shellcheck disable=SC2086
+    "${SERVER_ROOT_DIR}/bin/dsjavaproperties" --initialize ${jvmOptions}
 else
     echo "JVM options and version have not changed. Will not generate a new java.properties file."
 fi
@@ -55,7 +57,8 @@ buildPasswordFileOptions
 
 certificateOptions=$( getCertificateOptions )
 _returnCode=${?}
-if test ${_returnCode} -ne 0 ; then
+if test ${_returnCode} -ne 0
+then
     echo_red "${certificateOptions}"
     container_failure 183 "Invalid certificate options"
 fi
@@ -65,7 +68,8 @@ fi
 #
 encryptionOption=$( getEncryptionOption )
 _returnCode=${?}
-if test ${_returnCode} -ne 0 ; then
+if test ${_returnCode} -ne 0
+then
     echo_red "${encryptionOption}"
     container_failure 183 "Invalid encryption option"
 fi
@@ -76,7 +80,8 @@ echo "Checking license file..."
 _currentLicense="${LICENSE_DIR}/${LICENSE_FILE_NAME}"
 _pdProfileLicense="${PD_PROFILE}/server-root/pre-setup/${LICENSE_FILE_NAME}"
 
-if test ! -f "${_pdProfileLicense}" ; then
+if test ! -f "${_pdProfileLicense}"
+then
     echo "  Copying in license from existing install."
     echo "    ${_currentLicense} ==> "
     echo "      ${_pdProfileLicense}"
@@ -87,13 +92,15 @@ else
     echo "Using new license from ${_pdProfileLicense}"
 fi
 
-if test -f "${_pdProfileLicense}" ; then
+if test -f "${_pdProfileLicense}"
+then
     _licenseKeyFileArg="--licenseKeyFile ${_pdProfileLicense}"
 fi
 
 # If a setup-arguments.txt file isn't found, then generate
 _isSetupArgumentsGenerated=false
-if test ! -f "${_setupArgumentsFile}"; then
+if test ! -f "${SETUP_ARGUMENTS_FILE}"
+then
     generateSetupArguments
     _isSetupArgumentsGenerated=true
 fi
@@ -125,11 +132,13 @@ ${_manage_profile_cmd}
 _manageProfileRC=$?
 
 # Delete the generated setup-arguments.txt file from the profile
-if test "${_isSetupArgumentsGenerated}" = "true"; then
-    rm "${_setupArgumentsFile}"
+if test "${_isSetupArgumentsGenerated}" = "true"
+then
+    rm "${SETUP_ARGUMENTS_FILE}"
 fi
 
-if test ${_manageProfileRC} -ne 0 ; then
+if test ${_manageProfileRC} -ne 0
+then
     echo_red "*****"
     echo_red "An error occurred during mange-profile replace-profile."
     echo_red "${SERVER_ROOT_DIR}/logs/tools/manage-profile.log listed below."

@@ -17,7 +17,7 @@ test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib
 # If we are:
 #  - kubernetes
 #  - version 8.2 or greater
-#  - no IP is found for the $_podHostname
+#  - no IP is found for the $POD_HOSTNAME
 # then
 #  This implies that a headless service allowing for unready hosts isn't setup which is
 #  required to ensure that the pingdirectory service isn't available until after all the
@@ -25,12 +25,12 @@ test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib
 #  setup process here will fail.
 if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" &&
    test "$( isImageVersionGtEq 8.2.0 )" -eq 0 &&
-   test -z "$( getIP "${_podHostname}" )"
+   test -z "$( getIP "${POD_HOSTNAME}" )"
 then
     echo_red "Detected:"
     echo_red "  - Container running in Kubernetes"
     echo_red "  - Running version 8.2 or higher"
-    echo_red "  - The Kubernetes service providing IP for '${_podHostname}' isn't returning any value"
+    echo_red "  - The Kubernetes service providing IP for '${POD_HOSTNAME}' isn't returning any value"
     echo_red ""
     echo_red "This implies that the Kubernetes service isn't providing the annotations allowing for"
     echo_red "unready hosts to be discovered."
@@ -51,15 +51,15 @@ fi
 # If we are the GENESIS state, then process any templates if they are defined.
 #
 
-if test "${PD_STATE}" = "GENESIS" ;
+if test "${PD_STATE}" = "GENESIS"
 then
     echo "PD_STATE is GENESIS ==> Processing Templates"
 
     test -z "${MAKELDIF_USERS}" && MAKELDIF_USERS=0
 
-    find "${PD_PROFILE}/ldif" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | while read _ldifDir
+    find "${PD_PROFILE}/ldif" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | while read -r _ldifDir
         do
-        find "${_ldifDir}" -type f -iname \*.template 2>/dev/null | while read _template
+        find "${_ldifDir}" -type f -iname \*.template 2>/dev/null | while read -r _template
         do
             echo "Processing (${_template}) template with ${MAKELDIF_USERS} users..."
             _generatedLdifFilename="${_template%.*}.ldif"

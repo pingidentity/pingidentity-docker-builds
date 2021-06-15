@@ -5,7 +5,8 @@ QUIET=0
 
 echoerr ()
 {
-    if test "${QUIET}" -ne 1 ; then
+    if test "${QUIET}" -ne 1
+    then
         printf "%s\n" "${*}" 1>&2;
     fi
 }
@@ -29,7 +30,7 @@ USAGE
 }
 
 wait_for() {
-    for i in $( seq ${TIMEOUT} )
+    for _ in $( seq ${TIMEOUT} )
     do
         SERVER_FOUND=false
         FILE_FOUND=false
@@ -88,17 +89,17 @@ wait_for() {
     if ! ${SERVER_FOUND}
     then
         echoerr "Error: Timed out waiting for server ${HOST}:${PORT}"
-        exitcode=$(( ${exitcode} + 4 ))
+        exitcode=$(( exitcode + 4 ))
     fi
     if ! ${FILE_FOUND}
     then
         echoerr "Error: Timed out waiting for file ${FILE}"
-        exitcode=$(( ${exitcode} + 8 ))
+        exitcode=$(( exitcode + 8 ))
     fi
     if ! ${DIR_FOUND}
     then
         echoerr "Error: Timed out waiting for dir ${DIR}"
-        exitcode=$((${exitcode} + 16))
+        exitcode=$(( exitcode + 16 ))
     fi
 
     echo "Operation timed out" >&2

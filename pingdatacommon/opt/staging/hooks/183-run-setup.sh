@@ -20,7 +20,8 @@ buildPasswordFileOptions
 #
 certificateOptions=$( getCertificateOptions )
 _returnCode=${?}
-if test ${_returnCode} -ne 0 ; then
+if test ${_returnCode} -ne 0
+then
     echo_red "${certificateOptions}"
     container_failure 183 "Invalid certificate options"
 fi
@@ -30,7 +31,8 @@ fi
 #
 encryptionOption=$( getEncryptionOption )
 _returnCode=${?}
-if test ${_returnCode} -ne 0 ; then
+if test ${_returnCode} -ne 0
+then
     echo_red "${encryptionOption}"
     container_failure 183 "Invalid encryption option"
 fi
@@ -57,7 +59,8 @@ fi
 #
 jvmOptions=$( getJvmOptions )
 _returnCode=${?}
-if test ${_returnCode} -ne 0 ; then
+if test ${_returnCode} -ne 0
+then
     echo_red "${jvmOptions}"
     container_failure 183 "Invalid JVM options"
 fi
@@ -72,7 +75,8 @@ test -d "${PD_PROFILE}" || mkdir -p "${PD_PROFILE}"
 # If a dsconfig directory is found in the STAGING_DIR create some error text and fail the
 # container.
 
-if test -d "${STAGING_DIR}/dsconfig"; then
+if test -d "${STAGING_DIR}/dsconfig"
+then
     echo_red "*****"
     echo_red "A legacy server-profile with a top level 'dsconfig' directory was found."
     echo_red "Please remove or move these configurations into a 'pd.profile/dsconfig'"
@@ -83,14 +87,16 @@ fi
 
 # If the a setup-arguments.txt file isn't found, then generate
 _isSetupArgumentsGenerated=false
-if test ! -f "${_setupArgumentsFile}"; then
+if test ! -f "${SETUP_ARGUMENTS_FILE}"
+then
     generateSetupArguments
     _isSetupArgumentsGenerated=true
 fi
 
 # Copy the license into the server profile
 _pdProfileLicense="${PD_PROFILE}/server-root/pre-setup/${LICENSE_FILE_NAME}"
-if test ! -f "${_pdProfileLicense}" ; then
+if test ! -f "${_pdProfileLicense}"
+then
     echo "Adding license file to pd profile"
     mkdir -p "${PD_PROFILE}/server-root/pre-setup"
     cp "${LICENSE_DIR}/${LICENSE_FILE_NAME}" "${_pdProfileLicense}"
@@ -103,18 +109,20 @@ _manage_profile_cmd="${SERVER_ROOT_DIR}/bin/manage-profile setup \
     --useEnvironmentVariables \
     --tempProfileDirectory /tmp \
     --doNotStart \
-    ${_pingDataManageProfileSetupArgs}"
+    ${PING_DATA_MANAGE_PROFILE_SETUP_ARGS}"
 echo "  ${_manage_profile_cmd}"
 
 ${_manage_profile_cmd}
 _manageProfileRC=$?
 
 # Delete the generated setup-arguments.txt file from the profile
-if test "${_isSetupArgumentsGenerated}" = "true"; then
-    rm "${_setupArgumentsFile}"
+if test "${_isSetupArgumentsGenerated}" = "true"
+then
+    rm "${SETUP_ARGUMENTS_FILE}"
 fi
 
-if test ${_manageProfileRC} -ne 0 ; then
+if test ${_manageProfileRC} -ne 0
+then
     test -f /tmp/rejects.ldif && cat /tmp/rejects.ldif
     echo_red "Error during 'manage-profile setup'"
     echo_red "Log '${SERVER_ROOT_DIR}/logs/tools/manage-profile.log'"
@@ -143,6 +151,7 @@ fi
 #
 # It is important to set the server back available during the 80-post-start.sh
 # hook.
-if test "${PING_PRODUCT}" = "PingDirectory"; then
+if test "${PING_PRODUCT}" = "PingDirectory"
+then
     set_server_unavailable "Configuring server" offline
 fi

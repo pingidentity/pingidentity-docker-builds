@@ -11,7 +11,7 @@ case "${_osID}" in
             *) echo "Unsupported platform" && exit 99 ;;
         esac
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-        sudo echo "deb [arch=${_arch} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo echo "deb [arch=${_arch} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $( lsb_release -cs ) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
         sudo apt-get -y update
         sudo apt-get -y install apt-transport-https ca-certificates curl gnupg lsb-release git jq docker-ce=5:19.03.3~3-0~ubuntu-bionic docker-ce-cli containerd.io python3-pip unzip
         # DO NOT INSTALL docker-compose with apt-get, it is old and has issue with buildkit
@@ -24,20 +24,20 @@ case "${_osID}" in
         sudo service docker start
     ;;
 esac
-sudo usermod -a -G docker ${_user}
+sudo usermod -a -G docker "${_user}"
 case "${_osArch}" in
     aarch64)
         _vanityArch="arm64"
         _tmpDir=$( mktemp -d )
-        wget -O ${_tmpDir}/compose.tgz https://github.com/docker/compose/archive/1.29.0.tar.gz
-        tar -C ${_tmpDir} -xzf ${_tmpDir}/compose.tgz
+        wget -O "${_tmpDir}"/compose.tgz https://github.com/docker/compose/archive/1.29.0.tar.gz
+        tar -C "${_tmpDir}" -xzf "${_tmpDir}"/compose.tgz
         sudo python3 -m pip install -U pip
-        ( cd ${_tmpDir}/compose-* && python3 -m pip install -IU docker-compose )
-        test ${?} -eq 0 && rm -rf ${_tmpDir}
+        ( cd "${_tmpDir}"/compose-* && python3 -m pip install -IU docker-compose )
+        test ${?} -eq 0 && rm -rf "${_tmpDir}"
         ;;
     x86_64)
         _vanityArch="amd64"
-        sudo curl -L "https://github.com/docker/compose/releases/download/1.28.6/docker-compose-$(uname -s)-${_osArch}" -o /usr/local/bin/docker-compose
+        sudo curl -L "https://github.com/docker/compose/releases/download/1.28.6/docker-compose-$( uname -s )-${_osArch}" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
         ;;
 esac

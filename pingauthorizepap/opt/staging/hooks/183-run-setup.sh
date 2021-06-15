@@ -10,16 +10,16 @@ test "${VERBOSE}" = "true" && set -x
 # shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
 test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 
-# shellcheck source=pingauthorizepap.lib.sh
+# shellcheck source=./pingauthorizepap.lib.sh
 test -f "${HOOKS_DIR}/pingauthorizepap.lib.sh" && . "${HOOKS_DIR}/pingauthorizepap.lib.sh"
 
 # If the "delete-after-setup" file is present, setup has not yet been run.
 # We need to determine the version of pingauthorizepap, construct
 # the setup arguments accordingly, and select the version-appropriate start-server
 # script.
-if test -f "${SERVER_ROOT_DIR}"/delete-after-setup ;
+if test -f "${SERVER_ROOT_DIR}"/delete-after-setup
 then
-  _build_info_version=$(build_info_version <"${SERVER_ROOT_DIR}"/build-info.txt)
+  _build_info_version=$( build_info_version <"${SERVER_ROOT_DIR}"/build-info.txt )
   echo_green "Beginning setup for build info version ${_build_info_version}"
   echo
 
@@ -27,7 +27,7 @@ then
 
   check_external_url
 
-  if use_oidc_mode ;
+  if use_oidc_mode
   then
     echo_green "Setting up PingAuthorize Policy Editor in OpenID Connect mode..."
     echo

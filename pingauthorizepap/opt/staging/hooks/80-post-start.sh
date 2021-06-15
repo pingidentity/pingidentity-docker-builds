@@ -11,11 +11,12 @@
 # shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
 . "${HOOKS_DIR}/pingdata.lib.sh"
 
-# shellcheck source=pingauthorizepap.lib.sh
+# shellcheck source=./pingauthorizepap.lib.sh
 test -f "${HOOKS_DIR}/pingauthorizepap.lib.sh" && . "${HOOKS_DIR}/pingauthorizepap.lib.sh"
 
 # Do not load policies if the Policy Editor was set up in OIDC mode
-if use_oidc_mode ; then
+if use_oidc_mode
+then
   exit
 fi
 

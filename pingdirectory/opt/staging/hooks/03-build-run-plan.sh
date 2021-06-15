@@ -11,7 +11,7 @@
 # shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
 . "${HOOKS_DIR}/pingdata.lib.sh"
 
-# shellcheck source=pingdirectory.lib.sh
+# shellcheck source=./pingdirectory.lib.sh
 . "${HOOKS_DIR}/pingdirectory.lib.sh"
 
 test "${VERBOSE}" = "true" && set -x

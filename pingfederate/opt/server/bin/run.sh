@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 test "${VERBOSE}" = "true" && set -x
+
 ##  PingFederate Docker Bootstrap Script
 DIRNAME=$( dirname "${0}" )
 PROGNAME=$( basename "${0}" )
@@ -46,13 +47,13 @@ PF_HOME_ESC=$( echo "${PF_HOME}" | awk '{gsub(/ /,"%20");print;}' )
 JAVA="${JAVA_HOME}/bin/java"
 
 # Setup the classpath
-runjar="${PF_BIN}/run.jar"
-pfrunjar="${PF_BIN}/pf-startup.jar"
-jettystartjar="${PF_BIN}/jetty-start.jar"
+run_jar="${PF_BIN}/run.jar"
+pf_run_jar="${PF_BIN}/pf-startup.jar"
+jetty_starter_jar="${PF_BIN}/jetty-start.jar"
 xmlbeans="${PF_SERVER_LIB}/xmlbeans.jar"
-pfxml="${PF_SERVER_LIB}/pf-xml.jar"
+pf_xml="${PF_SERVER_LIB}/pf-xml.jar"
 PF_BOOT_CLASSPATH=""
-for requiredFile in ${runjar} ${pfrunjar} ${jettystartjar} ${xmlbeans} ${pfxml}
+for requiredFile in ${run_jar} ${pf_run_jar} ${jetty_starter_jar} ${xmlbeans} ${pf_xml}
 do
     require "${requiredFile}"
     PF_BOOT_CLASSPATH="${PF_BOOT_CLASSPATH}${PF_BOOT_CLASSPATH:+:}${requiredFile}"
@@ -62,15 +63,15 @@ pf_console_util="${PF_BIN}/pf-consoleutils.jar"
 pf_crypto_luna="${PF_SERVER_LIB}/pf-crypto-luna.jar"
 pf_fips="${PF_HOME}/lib/bc-fips-1.0.2.jar"
 
-PF_BOOT_CLASSPATH="${PF_BOOT_CLASSPATH}${PF_BOOT_CLASSPATH:+:}${pf_console_util}:${xmlbeans}:${pfxml}:${pf_crypto_luna}:${pf_fips}"
+PF_BOOT_CLASSPATH="${PF_BOOT_CLASSPATH}${PF_BOOT_CLASSPATH:+:}${pf_console_util}:${xmlbeans}:${pf_xml}:${pf_crypto_luna}:${pf_fips}"
 
 PF_CLASSPATH="${PF_CLASSPATH}${PF_CLASSPATH:+:}${PF_BOOT_CLASSPATH}"
 
 if test -z "${JAVA_OPTS}"
 then
-    jvmmemoryopts="${PF_BIN}/jvm-memory.options"
-    require "${jvmmemoryopts}"
-    JAVA_OPTS=$( awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print OPTS}' <"${jvmmemoryopts}" )
+    jvm_memory_opts="${PF_BIN}/jvm-memory.options"
+    require "${jvm_memory_opts}"
+    JAVA_OPTS=$( awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print OPTS}' <"${jvm_memory_opts}" )
 fi
 
 # Debugger arguments
@@ -80,13 +81,15 @@ then
 fi
 
 # Check for run.properties (used by PingFederate to configure ports, etc.)
-runprops="${PF_BIN}/run.properties"
-if ! test -r "${runprops}"
+run_props="${PF_BIN}/run.properties"
+if ! test -r "${run_props}"
 then
     warn "Missing run.properties; using defaults."
-    runprops=""
+    run_props=""
 fi
 
+# Word-split is expected behavior for $JAVA_OPTS and $JVM_OPTS. Disable Shellcheck
+# shellcheck disable=SC2086
 exec "${JAVA}" ${JAVA_OPTS} ${JVM_OPTS} \
     -Dprogram.name="${PROGNAME}" \
     -Djava.security.egd=file:/dev/./urandom \
@@ -99,14 +102,14 @@ exec "${JAVA}" ${JAVA_OPTS} ${JVM_OPTS} \
     -XX:HeapDumpPath="${PF_HOME_ESC}/log" \
     -XX:ErrorFile="${PF_HOME_ESC}/log/java_error%p.log" \
     -Dlog4j.configurationFile="${PF_HOME_ESC}/server/default/conf/log4j2.xml" \
-    -Drun.properties="${runprops}" \
+    -Drun.properties="${run_props}" \
     -Dpf.home="${PF_HOME}" \
     -Djetty.home="${PF_HOME}" \
     -Djetty.base="${PF_BIN}" \
     -Djetty.server=com.pingidentity.appserver.jetty.PingFederateInit \
     -Dpf.server.default.dir="${PF_SERVER_HOME}" \
     -Dpf.java="${JAVA}" \
-    -Dpf.java.opts="-Drun.properties=${runprops}" \
+    -Dpf.java.opts="-Drun.properties=${run_props}" \
     -Dpf.classpath="${PF_CLASSPATH}" \
     -classpath "${PF_CLASSPATH}" \
     org.pingidentity.RunPF "${@}"

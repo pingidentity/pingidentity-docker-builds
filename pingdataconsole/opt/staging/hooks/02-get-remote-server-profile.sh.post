@@ -12,7 +12,8 @@
 _legacyKeystoreFile="${STAGING_DIR}/keystore"
 _legacyKeystorePinFile="${STAGING_DIR}/.sec/.keystore.pin"
 
-if test ! -d "${SECRETS_DIR}"; then
+if test ! -d "${SECRETS_DIR}"
+then
     echo_yellow "WARNING: Important that the orchestration environment create a tmpfs for '${SECRETS_DIR}'"
     echo_yellow "         Using 'tmp/secrets' for now."
     SECRETS_DIR="/tmp/secrets"
@@ -29,7 +30,8 @@ then
         _keystoreFile="${KEYSTORE_FILE}"
     fi
 else
-    if test -f "${_legacyKeystoreFile}" ; then
+    if test -f "${_legacyKeystoreFile}"
+    then
         echo "WARNING: Using a legacy location for keystore '${_legacyKeystoreFile}'"
         echo "         Consider moving to a vault secret location"
         _keystoreFile="${_legacyKeystoreFile}"
@@ -47,7 +49,8 @@ then
         _keystorePinFile="${KEYSTORE_PIN_FILE}"
     fi
 else
-    if test -f "${_legacyKeystorePinFile}" ; then
+    if test -f "${_legacyKeystorePinFile}"
+    then
         echo "WARNING: Using a legacy location for keystore pin file '${_legacyKeystorePinFile}'"
         echo "         Consider moving to a vault secret location"
         _keystorePinFile="${_legacyKeystorePinFile}"

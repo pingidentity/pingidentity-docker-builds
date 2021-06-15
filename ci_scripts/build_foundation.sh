@@ -89,25 +89,26 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
-if test -z "${isLocalBuild}"
+if test -z "${IS_LOCAL_BUILD}"
 then
     banner "CI FOUNDATION BUILD"
     # get the list of running containers.
-    _containersList="$(docker container ls -q | sort | uniq)"
-
+    _containersList="$( docker container ls -q | sort | uniq )"
     # stop all running containers
+    # Word-split is expected behavior for $_containersList. Disable shellcheck.
     # shellcheck disable=SC2086
     test -n "${_containersList}" && docker container stop ${_containersList}
 
     # get list of all stopped containers lingering
     _containersList="$( docker container ls -aq | sort | uniq )"
-
     # remove all containers
-    # shellcheck disable=SC2046
-    test -n "${_containersList}" && docker container rm -f $( docker container ls -aq )
+    # Word-split is expected behavior for $_containersList. Disable shellcheck.
+    # shellcheck disable=SC2086
+    test -n "${_containersList}" && docker container rm -f ${_containersList}
+
     # get the list of all images in the local repo
     _imagesList="$( docker image ls -q | sort | uniq )"
-
+    # Word-split is expected behavior for $_imagesList. Disable shellcheck.
     # shellcheck disable=SC2086
     test -n "${_imagesList}" && docker image rm -f ${_imagesList}
 
@@ -120,16 +121,17 @@ fi
 
 # result table header
 _resultsFile="/tmp/$$.results"
-_headerPattern=' %-53s| %10s| %7s\n'
 _reportPattern='%-52s| %10s| %7s'
-# shellcheck disable=SC2059
-printf "${_headerPattern}" "IMAGE" "DURATION" "RESULT" > ${_resultsFile}
+
+# Add header to results file
+printf ' %-53s| %10s| %7s\n' "IMAGE" "DURATION" "RESULT" > ${_resultsFile}
 
 #build foundation and push to gcr for use in subsequent jobs.
 banner Building PING COMMON
 _start=$( date '+%s' )
-_image="${FOUNDATION_REGISTRY}/pingcommon:${ciTag}-${ARCH}"
+_image="${FOUNDATION_REGISTRY}/pingcommon:${CI_TAG}-${ARCH}"
 
+# Word-Split is expected behavior for $progress. Disable shellcheck.
 # shellcheck disable=SC2086
 DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
     ${progress} ${noCache} \
@@ -144,7 +146,7 @@ then
     _result="FAIL"
 else
     _result="PASS"
-    if test -z "${isLocalBuild}"
+    if test -z "${IS_LOCAL_BUILD}"
     then
         banner "Pushing ${_image}"
         docker push "${_image}"
@@ -155,12 +157,14 @@ imagesToCleanup="${imagesToCleanup} ${_image}"
 
 banner Building PING DATA COMMON
 _start=$( date '+%s' )
-_image="${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}-${ARCH}"
+_image="${FOUNDATION_REGISTRY}/pingdatacommon:${CI_TAG}-${ARCH}"
+
+# Word-Split is expected behavior for $progress. Disable shellcheck.
 # shellcheck disable=SC2086
 DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
     ${progress} ${noCache} \
     --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
-    --build-arg GIT_TAG="${ciTag}" \
+    --build-arg GIT_TAG="${CI_TAG}" \
     --build-arg ARCH="${ARCH}" \
     -t "${_image}" "${CI_PROJECT_DIR}/pingdatacommon"
 _returnCode=${?}
@@ -172,7 +176,7 @@ then
     _result="FAIL"
 else
     _result="PASS"
-    if test -z "${isLocalBuild}"
+    if test -z "${IS_LOCAL_BUILD}"
     then
         banner "Pushing ${_image}"
         docker push "${_image}"
@@ -189,9 +193,9 @@ else
     then
         if test -n "${versionToBuild}"
         then
-            shims=$( _getShimsToBuildForProductVersion ${productToBuild} ${versionToBuild} )
+            shims=$( _getShimsToBuildForProductVersion "${productToBuild}" "${versionToBuild}" )
         else
-            shims=$( _getAllShimsForProduct ${productToBuild} )
+            shims=$( _getAllShimsForProduct "${productToBuild}" )
         fi
     else
         if test -n "${jvmsToBuild}"
@@ -200,7 +204,7 @@ else
             do
                 _shims="${_shims:+${_shims} }$( _getShimsToBuildForJVM "${_jvm}" )"
             done
-            shims=$( echo ${_shims}|tr ' ' '\n'|sort|uniq|tr '\n' ' ' )
+            shims=$( echo "${_shims}" | tr ' ' '\n' | sort | uniq | tr '\n' ' ' )
         else
             shims=$( _getAllShims )
         fi
@@ -228,8 +232,10 @@ do
         fi
         banner "Building pingjvm for JDK ${_jvm} for ${_shim}"
         _start=$( date '+%s' )
-        _image="${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimTag}-${ciTag}-${ARCH}"
+        _image="${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimTag}-${CI_TAG}-${ARCH}"
         _jvm_from=$( _getJVMImageForShimID "${_shim}" "${_jvm}" )
+
+        # Word-Split is expected behavior for $progress. Disable shellcheck.
         # shellcheck disable=SC2086
         DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
             ${progress} ${noCache} \
@@ -245,7 +251,7 @@ do
             _result="FAIL"
         else
             _result="PASS"
-            if test -z "${isLocalBuild}"
+            if test -z "${IS_LOCAL_BUILD}"
             then
                 banner "Pushing ${_image}"
                 docker push "${_image}"
@@ -258,7 +264,9 @@ done
 
 banner "Building pingbase"
 _start=$( date '+%s' )
-_image="${FOUNDATION_REGISTRY}/pingbase:${ciTag}-${ARCH}"
+_image="${FOUNDATION_REGISTRY}/pingbase:${CI_TAG}-${ARCH}"
+
+# Word-Split is expected behavior for $progress. Disable shellcheck.
 # shellcheck disable=SC2086
 DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
     ${progress} ${noCache} \
@@ -272,7 +280,7 @@ then
     _result="FAIL"
 else
     _result="PASS"
-    if test -z "${isLocalBuild}"
+    if test -z "${IS_LOCAL_BUILD}"
     then
         banner "Pushing ${_image}"
         docker push "${_image}"
@@ -282,8 +290,9 @@ append_status "${_resultsFile}" "${_result}"  "${_reportPattern}" "pingbase" "${
 imagesToCleanup="${imagesToCleanup} ${_image}"
 
 # leave runner without clutter
+# Word-Split is expected behavior for $imagesToCleanup. Disable shellcheck.
 # shellcheck disable=SC2086
-test -z "${isLocalBuild}" && docker image rm -f ${imagesToCleanup}
+test -z "${IS_LOCAL_BUILD}" && docker image rm -f ${imagesToCleanup}
 
 cat ${_resultsFile}
 rm ${_resultsFile}

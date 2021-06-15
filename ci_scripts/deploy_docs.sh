@@ -8,7 +8,7 @@ test "${VERBOSE}" = "true" && set -x
 
 if test -z "${CI_COMMIT_REF_NAME}"
 then
-    CI_PROJECT_DIR="$( cd "$(dirname "${0}")/.." || exit 97 ; pwd )"
+    CI_PROJECT_DIR="$( cd "$( dirname "${0}" )/.." || exit 97 ; pwd )"
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
@@ -242,9 +242,9 @@ parse_dockerfile ()
         # Each line starting with #-- will be concatenated onto the
         # description until an ENV variable line is found
         #
-        if [ "$(echo "${line}" | cut -c-3)" = "#--" ]
+        if [ "$( echo "${line}" | cut -c-3 )" = "#--" ]
         then
-            ENV_DESCRIPTION="${ENV_DESCRIPTION}$(echo "${line}" | cut -c5-) "
+            ENV_DESCRIPTION="${ENV_DESCRIPTION}$( echo "${line}" | cut -c5- ) "
             continue
         fi
 
@@ -262,27 +262,27 @@ parse_dockerfile ()
         # lines, since it can only check for the \ at the end of the line, so variable values should
         # be kept to a single line to ensure the documentation is valid.
         #
-        if [ "$(echo "${line}" | cut -c-4)" = "ENV " ] ||
-           [ "$(echo "${line}" | cut -c-12)" = "ONBUILD ENV " ] ||
-           [ "${_envContinuation}" = "true" ] && [ "${line}" ] && [ ! "$(echo "${line}" | cut -c-1)" = "#" ]
+        if [ "$( echo "${line}" | cut -c-4 )" = "ENV " ] ||
+           [ "$( echo "${line}" | cut -c-12 )" = "ONBUILD ENV " ] ||
+           [ "${_envContinuation}" = "true" ] && [ "${line}" ] && [ ! "$( echo "${line}" | cut -c-1 )" = "#" ]
         then
             # Read the variable name before the '='
             if [ "${_envContinuation}" = "true" ]
             then
                 # Don't expect "ENV" or "ONBUILD ENV"
-                ENV_VARIABLE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^\(.*\)x=x.*/\1/')
+                ENV_VARIABLE=$( echo "${line}" | sed -e 's/=/x=x/' -e 's/^\(.*\)x=x.*/\1/' )
             else
                 # Expect "ENV" or "ONBUILD ENV"
-                ENV_VARIABLE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*ENV[[:space:]]\(.*\)x=x.*/\1/')
+                ENV_VARIABLE=$( echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*ENV[[:space:]]\(.*\)x=x.*/\1/' )
             fi
 
             # Read the variable value after the '=', and trim off the ' \' at the end if present
-            ENV_VALUE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*x=x\(.*\)/\1/' -e 's/[[:space:]]\{1,\}\\$//' -e 's/^"\(.*\)"$/\1/')
+            ENV_VALUE=$( echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*x=x\(.*\)/\1/' -e 's/[[:space:]]\{1,\}\\$//' -e 's/^"\(.*\)"$/\1/' )
 
             # If ENV line ends in slash, the next command will also be an ENV var
             # This isn't able to handle when the variable values themselves are multiline.
             # It assumes that any line continuation is the end of the previous variable.
-            if [ "$(echo "${line}" | grep "[[:space:]]\\\\$" )" ]
+            if echo "${line}" | grep -q "[[:space:]]\\\\$" > /dev/null 2>&1
             then
                 _envContinuation="true"
             else
@@ -301,11 +301,11 @@ parse_dockerfile ()
         # Parse the EXPOSE values
         #   Example: EXPOSE PORT1 PORT2
         #
-        if [ "$(echo "${line}" | cut -c-7)" = "EXPOSE " ] ||
-           [ "$(echo "${line}" | cut -c-15)" = "ONBUILD EXPOSE " ]
+        if [ "$( echo "${line}" | cut -c-7 )" = "EXPOSE " ] ||
+           [ "$( echo "${line}" | cut -c-15 )" = "ONBUILD EXPOSE " ]
         then
             # shellcheck disable=SC2001
-            EXPOSE_PORTS=$(echo "${line}" | sed 's/^.*EXPOSE \(.*\)$/\1/')
+            EXPOSE_PORTS=$( echo "${line}" | sed 's/^.*EXPOSE \(.*\)$/\1/' )
 
             # Add an empty line after the ENV table
             if [ "${ENV_TABLE_ACTIVE}" = "true" ]
@@ -323,7 +323,7 @@ parse_dockerfile ()
         #
         # Lines starting with '#-' (only one dash) will be added to the doc page outside of the ENV table
         #
-        if [ "$(echo "${line}" | cut -c-2)" = "#-" ]
+        if [ "$( echo "${line}" | cut -c-2 )" = "#-" ]
         then
             # Add an empty line after the ENV table
             if [ "${ENV_TABLE_ACTIVE}" = "true" ]
@@ -332,9 +332,9 @@ parse_dockerfile ()
                 ENV_TABLE_ACTIVE="false"
             fi
 
-            md=$(echo "$line" | sed \
+            md=$( echo "$line" | sed \
              -e 's/^\#- //' \
-             -e 's/^\#-$//')
+             -e 's/^\#-$//' )
 
             append_doc "$md"
         fi
