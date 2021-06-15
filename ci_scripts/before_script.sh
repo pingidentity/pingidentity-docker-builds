@@ -4,7 +4,7 @@ echo "hello from before script"
 
 pwd
 env | sort
-echo $USER
+echo "${USER}"
 type jq
 type python
 python --version

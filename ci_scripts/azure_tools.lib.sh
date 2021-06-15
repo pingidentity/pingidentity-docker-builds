@@ -2,7 +2,7 @@
 #
 # Ping Identity DevOps - CI scripts
 #
-# azure utilites
+# azure utilities
 #
 
 
@@ -32,7 +32,7 @@ _getUntaggedImageDigests ()
 }
 
 
-# delete digest fr an image
+# delete digest for an image
 _deleteImageDigest ()
 {
     echo "not implemented"

@@ -12,13 +12,14 @@ test "${VERBOSE}" = "true" && set -x
 # shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
 . "${HOOKS_DIR}/pingdata.lib.sh"
 
-# shellcheck source=pingdirectory.lib.sh
+# shellcheck source=./pingdirectory.lib.sh
 test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib.sh"
 
 # Check availability and set variables necessary for enabling replication
 # If this method returns a non-zero exit code, then we shouldn't try
 # to enable replication
-if ! prepareToJoinTopology; then
+if ! prepareToJoinTopology
+then
     echo "Replication will not be configured."
     set_server_available online
 
@@ -34,25 +35,25 @@ printf "
 #############################################
 # Enabling Replication
 #
-# Current Master Topology Instance: ${_masterTopologyInstance}
+# Current Master Topology Instance: ${MASTER_TOPOLOGY_INSTANCE}
 #
 #   %60s        %-60s
 #   %60s  <-->  %-60s
 #############################################
-" "Topology Master Server" "POD Server" "${_masterTopologyHostname}:${_masterTopologyReplicationPort}" "${_podHostname}:${_podReplicationPort:?}"
+" "Topology Master Server" "POD Server" "${MASTER_TOPOLOGY_HOSTNAME}:${MASTER_TOPOLOGY_LDAPS_PORT}" "${POD_HOSTNAME}:${_podReplicationPort:?}"
 
 dsreplication enable \
-    --retryTimeoutSeconds ${RETRY_TIMEOUT_SECONDS} \
+    --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
     --trustAll \
-    --host1 "${_masterTopologyHostname}" \
-    --port1 "${_masterTopologyLdapsPort}" \
+    --host1 "${MASTER_TOPOLOGY_HOSTNAME}" \
+    --port1 "${MASTER_TOPOLOGY_LDAPS_PORT}" \
     --useSSL1 \
-    --replicationPort1 "${_masterTopologyReplicationPort}" \
+    --replicationPort1 "${MASTER_TOPOLOGY_REPLICATION_PORT}" \
     --bindDN1 "${ROOT_USER_DN}" \
     --bindPasswordFile1 "${ROOT_USER_PASSWORD_FILE}" \
     \
-    --host2 "${_podHostname}" \
-    --port2 ${_podLdapsPort} \
+    --host2 "${POD_HOSTNAME}" \
+    --port2 "${POD_LDAPS_PORT}" \
     --useSSL2 \
     --replicationPort2 "${_podReplicationPort}" \
     --bindDN2 "${ROOT_USER_DN}" \
@@ -68,7 +69,8 @@ dsreplication enable \
 _replEnableResult=$?
 echo "Replication enable for POD Server result=${_replEnableResult}"
 
-if test ${_replEnableResult} -ne 0; then
+if test ${_replEnableResult} -ne 0
+then
     echo "Not running dsreplication initialize since enable failed with a non-successful return code"
     exit ${_replEnableResult}
 fi
@@ -79,8 +81,8 @@ fi
 echo "Getting Topology from SEED Server"
 rm -rf "${TOPOLOGY_FILE}"
 manage-topology export \
-    --hostname "${_seedHostname}" \
-    --port "${_seedLdapsPort}" \
+    --hostname "${SEED_HOSTNAME}" \
+    --port "${SEED_LDAPS_PORT}" \
     --exportFilePath "${TOPOLOGY_FILE}"
 
 cat "${TOPOLOGY_FILE}"
@@ -97,7 +99,7 @@ dsreplication initialize \
     \
     --topologyFilePath "${TOPOLOGY_FILE}" \
     \
-    --hostDestination "${_podHostname}" --portDestination "${_podLdapsPort}" --useSSLDestination \
+    --hostDestination "${POD_HOSTNAME}" --portDestination "${POD_LDAPS_PORT}" --useSSLDestination \
     \
     --baseDN "${USER_BASE_DN}" \
     --adminUID "${ADMIN_USER_NAME}" \

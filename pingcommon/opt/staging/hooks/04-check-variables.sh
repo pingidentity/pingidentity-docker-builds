@@ -7,7 +7,7 @@
 # This may be useful to "call home" or send a notification of startup to a command and control center
 #
 
-# shellcheck source=pingcommon.lib.sh
+# shellcheck source=./pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 #######################################################################################################
@@ -22,7 +22,7 @@ print_variable_warnings
 _validationFailed=false
 
 echo_header "Docker Image Information"
-echo_vars IMAGE_VERSION IMAGE_GIT_REV HOSTNAME DOMAINNAME
+echo_vars IMAGE_VERSION IMAGE_GIT_REV HOST_NAME DOMAIN_NAME
 
 echo_header "Directory Variables"
 echo_vars   BASE IN_DIR OUT_DIR SERVER_ROOT_DIR STAGING_DIR HOOKS_DIR SERVER_PROFILE_DIR BAK_DIR LOGS_DIR SECRETS_DIR LICENSE_DIR
@@ -36,7 +36,8 @@ echo_vars   SERVER_PROFILE_URL SERVER_PROFILE_BRANCH SERVER_PROFILE_PATH SERVER_
 echo_header "Security Checks"
 echo_vars   SECRUITY_CHECKS_STRICT SECURITY_CHECKS_FILENAME
 
-if test -n "${VAULT_TYPE}"; then
+if test -n "${VAULT_TYPE}"
+then
     echo_header "Vault/Secrets Management"
     echo_vars VAULT_TYPE VAULT_ADDR
 fi

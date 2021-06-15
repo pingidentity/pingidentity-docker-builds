@@ -7,12 +7,12 @@
 test "${VERBOSE}" = "true" && set -x
 
 #for local, uncomment:
-# CHANGED_FILES=$(git diff --name-only master HEAD)
+# CHANGED_FILES=$( git diff --name-only master HEAD )
 # echo "edited files: " $CHANGED_FILES
 
 # for gitlab:
 echo "${CI_COMMIT_BEFORE_SHA}"
-CHANGED_FILES=$(git diff --name-only "${CI_COMMIT_SHA}"  "${CI_COMMIT_BEFORE_SHA}")
+CHANGED_FILES=$( git diff --name-only "${CI_COMMIT_SHA}"  "${CI_COMMIT_BEFORE_SHA}" )
 echo "CHANGED_FILES: " "${CHANGED_FILES}"
 
 ONLY_READMES="True"

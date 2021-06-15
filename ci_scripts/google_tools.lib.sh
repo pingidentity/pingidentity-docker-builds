@@ -2,7 +2,7 @@
 #
 # Ping Identity DevOps - CI scripts
 #
-# gcloud utilites
+# gcloud utilities
 #
 
 
@@ -32,10 +32,10 @@ _getUntaggedImageDigests ()
 }
 
 
-# delete digest fr an image
+# delete digest for an image
 _deleteImageDigest ()
 {
-   gcloud container images delete ${1}@${2} --quiet
+   gcloud container images delete "${1}@${2}" --quiet
 }
 
 # use gcloud credentials/config if available

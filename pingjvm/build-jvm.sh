@@ -103,6 +103,7 @@ then
         JAVA_BUILD_DIR="/opt/java"
         "${JAVA_HOME}/bin/java" -version
         test ${?} -ne 0 && exit 97
+        # Word-split is expected behavior for $_modules. Disable shellcheck.
         # shellcheck disable=SC2086
         "${JAVA_HOME}/bin/jlink" \
             --compress=2 \
@@ -112,7 +113,7 @@ then
             --strip-debug \
             --module-path "${JAVA_HOME}/jmods" \
             --add-modules ${_modules} \
-            --output ${JAVA_BUILD_DIR}
+            --output "${JAVA_BUILD_DIR}"
         test ${?} -ne 0 && exit 99
         test -n "${_jdkDir}" && test -d "${_jdkDir}" && rm -rf "${_jdkDir}"
         ! test -d "${JAVA_BUILD_DIR}" && exit 98

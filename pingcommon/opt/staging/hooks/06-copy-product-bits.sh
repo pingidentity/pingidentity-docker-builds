@@ -6,7 +6,7 @@
 #- it is a new fresh container.
 #
 
-# shellcheck source=pingcommon.lib.sh
+# shellcheck source=./pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 # Applies the RAW Server Bits from the built images into SERVER_ROOT

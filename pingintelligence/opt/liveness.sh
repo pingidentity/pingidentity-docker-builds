@@ -7,10 +7,10 @@ test "${VERBOSE}" = "true" && set -x
 # shellcheck source=../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-# shellcheck source=staging/hooks/pingintelligence.lib.sh
+# shellcheck source=./staging/hooks/pingintelligence.lib.sh
 . "${HOOKS_DIR}/pingintelligence.lib.sh"
 
-# This liveness probe checks that everything configued is actually responding appropriately
+# This liveness probe checks that everything configured is actually responding appropriately
 # This includes, in this order:
 #   - the HTTPS listener
 #   - the HTTP listener

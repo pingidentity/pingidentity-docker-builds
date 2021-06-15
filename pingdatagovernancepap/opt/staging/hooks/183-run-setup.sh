@@ -10,7 +10,7 @@ test "${VERBOSE}" = "true" && set -x
 # shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
 test -f "${HOOKS_DIR}/pingdata.lib.sh" && . "${HOOKS_DIR}/pingdata.lib.sh"
 
-# shellcheck source=pingdatagovernancepap.lib.sh
+# shellcheck source=./pingdatagovernancepap.lib.sh
 test -f "${HOOKS_DIR}/pingdatagovernancepap.lib.sh" && . "${HOOKS_DIR}/pingdatagovernancepap.lib.sh"
 
 # Move license to current location
@@ -20,9 +20,9 @@ test -f "${HOOKS_DIR}/pingdatagovernancepap.lib.sh" && . "${HOOKS_DIR}/pingdatag
 # We need to determine the version of pingdatagovernancepap, construct
 # the setup arguments accordingly, and select the version-appropriate start-server
 # script.
-if test -f "${SERVER_ROOT_DIR}"/bin/start-server-pre-82 ;
+if test -f "${SERVER_ROOT_DIR}"/bin/start-server-pre-82
 then
-  _build_info_version=$(build_info_version <"${SERVER_ROOT_DIR}"/build-info.txt)
+  _build_info_version=$( build_info_version <"${SERVER_ROOT_DIR}"/build-info.txt )
   echo_green "Beginning setup for build info version ${_build_info_version}"
   echo
 
@@ -30,10 +30,10 @@ then
 
   check_external_url
 
-  if is_version_ge "8.2.0.0" ;
+  if is_version_ge "8.2.0.0"
   then
 
-    if use_oidc_mode ;
+    if use_oidc_mode
     then
       echo_green "Setting up PAP in OpenID Connect mode..."
       echo
@@ -65,7 +65,7 @@ EOF
 
     # Release 8.2.0.0-GA added an adminConnector for policy database backup
     # and healthcheck.
-    if is_version_ge "8.2.0.0-RC" ;
+    if is_version_ge "8.2.0.0-RC"
     then
       echo "--adminPort 8444" >>"${_setup_args_file}"
     fi
@@ -73,7 +73,7 @@ EOF
   # Release 8.1.0.x added the ability to specify the DB admin credentials, but
   # but not through environment variables, so a workaround was needed
   # to provide Docker users that capability
-  elif is_version_eq "8.1.0.0-GA" ;
+  elif is_version_eq "8.1.0.0-GA"
   then
       cat <<EOF >"${_setup_args_file}"
 demo
@@ -103,7 +103,7 @@ EOF
   rm -f "${_setup_args_file}"
 
   # Select the correct start-server based on the version
-  if is_version_ge "8.2.0.0-EA" ;
+  if is_version_ge "8.2.0.0-EA"
   then
     rm "${SERVER_ROOT_DIR}"/bin/start-server-pre-82
   else
@@ -112,7 +112,7 @@ EOF
   fi
 
   # Select the correct liveness check based on the build version
-  if is_version_ge "8.2.0.0-RC" ;
+  if is_version_ge "8.2.0.0-RC"
   then
     rm "${BASE}"/liveness.sh-pre-82ga
   else

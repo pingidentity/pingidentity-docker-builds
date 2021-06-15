@@ -120,7 +120,7 @@ ENV SHIM=${SHIM} \
 #-- Alert interval for teh decoy services
     PING_INTELLIGENCE_ASE_DECOY_ALERT_INTERVAL_MINUTES=180 \
 #-- Toggle X-Forwarded-For
-    PING_INTELLIGENCE_ASE_ENABLE_XFOWARDED_FOR="false" \
+    PING_INTELLIGENCE_ASE_ENABLE_XFORWARDED_FOR="false" \
 #-- Toggle ASE Firewall
     PING_INTELLIGENCE_ASE_ENABLE_FIREWALL="true" \
 #-- Enable connection keepalive for requests from gateway to ASE in sideband mode

@@ -143,18 +143,18 @@ then
     fi
 fi
 
-if test -z "${isLocalBuild}" && test ${DOCKER_BUILDKIT} -eq 1
+if test -z "${IS_LOCAL_BUILD}" && test ${DOCKER_BUILDKIT} -eq 1
 then
-    docker pull "${FOUNDATION_REGISTRY}/pingcommon:${ciTag}"
-    docker pull "${FOUNDATION_REGISTRY}/pingdatacommon:${ciTag}"
+    docker pull "${FOUNDATION_REGISTRY}/pingcommon:${CI_TAG}"
+    docker pull "${FOUNDATION_REGISTRY}/pingdatacommon:${CI_TAG}"
 fi
 
 # result table header
 _resultsFile="/tmp/$$.results"
-_headerPattern=' %-24s| %-20s| %-20s| %-10s| %10s| %7s\n'
 _reportPattern='%-23s| %-20s| %-20s| %-10s| %10s| %7s'
-# shellcheck disable=SC2059
-printf "${_headerPattern}" "PRODUCT" "VERSION" "SHIM" "JDK" "DURATION" "RESULT" > ${_resultsFile}
+
+# Add header to results file
+printf ' %-24s| %-20s| %-20s| %-10s| %10s| %7s\n' "PRODUCT" "VERSION" "SHIM" "JDK" "DURATION" "RESULT" > ${_resultsFile}
 _totalStart=$( date '+%s' )
 
 _date=$( date +"%y%m%d" )
@@ -162,15 +162,7 @@ _date=$( date +"%y%m%d" )
 returnCode=0
 for _version in ${versionsToBuild}
 do
-    # # if the default shim has been provided as an argument, get it from the versions file
-    # if test -z "${defaultShim}"
-    # then
-    #     _defaultShim=$( _getDefaultShimForProductVersion ${productToBuild} ${_version} )
-    # else
-    #     _defaultShim="${defaultShim}"
-    # fi
-
-    # if the list of shims was not provided as agruments, get the list from the versions file
+    # if the list of shims was not provided as arguments, get the list from the versions file
     if test -z "${shimsToBuild}"
     then
         _shimsToBuild=$( _getShimsToBuildForProductVersion "${productToBuild}" "${_version}" )
@@ -187,15 +179,16 @@ do
         # builds that use the pingdownloader. It is up to the product specific
         # Product-staging file to copy the product.zip into the build container.
         _overrideProductFile="${productToBuild}/tmp/product.zip"
-        if test -f "${_overrideProductFile}";
+        if test -f "${_overrideProductFile}"
         then
             banner "Using file system location ${_overrideProductFile}"
             _buildVersion="${_version}-fsoverride"
         fi
         _start=$( date '+%s' )
         _dependencies=$( _getDependenciesForProductVersion "${productToBuild}" "${_version}" )
-        _image="${FOUNDATION_REGISTRY}/${productToBuild}:staging-${_buildVersion}-${ciTag}"
+        _image="${FOUNDATION_REGISTRY}/${productToBuild}:staging-${_buildVersion}-${CI_TAG}"
         # build the staging for each product so we don't need to download and stage the product each time
+        # Word-split is expected behavior for $progress and $_dependencies. Disable shellcheck.
         # shellcheck disable=SC2086
         DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
             -f "${CI_PROJECT_DIR}/${productToBuild}/Product-staging" \
@@ -203,12 +196,12 @@ do
             ${progress} ${noCache} \
             --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
             --build-arg DEPS="${DEPS_REGISTRY}" \
-            --build-arg GIT_TAG="${ciTag}" \
+            --build-arg GIT_TAG="${CI_TAG}" \
             --build-arg ARCH="${ARCH}" \
             --build-arg DEVOPS_USER="${PING_IDENTITY_DEVOPS_USER}" \
             --build-arg DEVOPS_KEY="${PING_IDENTITY_DEVOPS_KEY}" \
             --build-arg PRODUCT="${productToBuild}" \
-            --build-arg VERSION=${_buildVersion} \
+            --build-arg VERSION="${_buildVersion}" \
             --build-arg SNAPSHOT_ARTIFACTORY_URL="${SNAPSHOT_ARTIFACTORY_URL}" \
             --build-arg SNAPSHOT_BLD_FED_URL="${SNAPSHOT_BLD_FED_URL}" \
             --build-arg SNAPSHOT_NEXUS_URL="${SNAPSHOT_NEXUS_URL}" \
@@ -252,16 +245,17 @@ do
 
         for _jvm in ${_jvmsToBuild}
         do
-            if test -z "${isLocalBuild}" && test ${DOCKER_BUILDKIT} -eq 1
+            if test -z "${IS_LOCAL_BUILD}" && test ${DOCKER_BUILDKIT} -eq 1
             then
-                docker pull "${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimLongTag}-${ciTag}-${ARCH}"
+                docker pull "${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimLongTag}-${CI_TAG}-${ARCH}"
             fi
 
-            fullTag="${_buildVersion}-${_shimLongTag}-${_jvm}-${ciTag}-${ARCH}"
-            imageVersion="${productToBuild}-${_shimLongTag}-${_jvm}-${_buildVersion}-${_date}-${gitRevShort}"
+            fullTag="${_buildVersion}-${_shimLongTag}-${_jvm}-${CI_TAG}-${ARCH}"
+            imageVersion="${productToBuild}-${_shimLongTag}-${_jvm}-${_buildVersion}-${_date}-${GIT_REV_SHORT}"
             licenseVersion="$( _getLicenseVersion "${_version}" )"
 
             _image="${FOUNDATION_REGISTRY}/${productToBuild}:${fullTag}"
+            # Word-split is expected behavior for $progress. Disable shellcheck.
             # shellcheck disable=SC2086
             DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
                 -t "${_image}" \
@@ -269,14 +263,14 @@ do
                 --build-arg PRODUCT="${productToBuild}" \
                 --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
                 --build-arg DEPS="${DEPS_REGISTRY}" \
-                --build-arg GIT_TAG="${ciTag}" \
+                --build-arg GIT_TAG="${CI_TAG}" \
                 --build-arg JVM="${_jvm}" \
                 --build-arg ARCH="${ARCH}" \
                 --build-arg SHIM="${_shim}" \
                 --build-arg SHIM_TAG="${_shimLongTag}" \
                 --build-arg VERSION="${_buildVersion}" \
                 --build-arg IMAGE_VERSION="${imageVersion}" \
-                --build-arg IMAGE_GIT_REV="${gitRevLong}" \
+                --build-arg IMAGE_GIT_REV="${GIT_REV_LONG}" \
                 --build-arg LICENSE_VERSION="${licenseVersion}" \
                 ${VERBOSE:+--build-arg VERBOSE="true"} \
                 "${CI_PROJECT_DIR}/${productToBuild}"
@@ -295,7 +289,7 @@ do
                 fi
             else
                 _result=PASS
-                if test -z "${isLocalBuild}"
+                if test -z "${IS_LOCAL_BUILD}"
                 then
                     ${dryRun} docker push "${_image}"
                     if test -n "${PING_IDENTITY_SNAPSHOT}"
@@ -316,12 +310,14 @@ do
 done
 
 # leave the runner without clutter
-if test -z "${isLocalBuild}"
+if test -z "${IS_LOCAL_BUILD}"
 then
-    imagesToClean=$( docker image ls -qf "reference=*/*/*${ciTag}*" | sort | uniq )
+    imagesToClean=$( docker image ls -qf "reference=*/*/*${CI_TAG}*" | sort | uniq )
+    # Word-split is expected behavior for $imagesToClean. Disable shellcheck.
     # shellcheck disable=SC2086
     test -n "${imagesToClean}" && ${dryRun} docker image rm -f ${imagesToClean}
     imagesToClean=$( docker image ls -qf "dangling=true" )
+    # Word-split is expected behavior for $imagesToClean. Disable shellcheck.
     # shellcheck disable=SC2086
     test -n "${imagesToClean}" && ${dryRun} docker image rm -f ${imagesToClean}
 fi

@@ -26,32 +26,32 @@ export PA_HOME
 export PA_CONF="${PA_HOME}/conf"
 PA_HOME_ESC=$( echo "${PA_HOME}" | awk '{gsub(/ /,"%20");print;}' )
 
-runprops="${PA_CONF}/run.properties"
-bootprops="${PA_CONF}/bootstrap.properties"
-jvmmemoryopts="${PA_CONF}/jvm-memory.options"
+run_props="${PA_CONF}/run.properties"
+boot_props="${PA_CONF}/bootstrap.properties"
+jvm_memory_opts="${PA_CONF}/jvm-memory.options"
 
 # Check for run.properties (used by PingAccess to configure ports, etc.)
-if test ! -f "${runprops}"
+if test ! -f "${run_props}"
 then
     warn "Missing run.properties; using defaults."
-    runprops=""
+    run_props=""
 fi
 
 # Check for bootstrap.properties (used by PingAccess to configure bootstrapping information for engines)
-if test ! -f "${bootprops}"
+if test ! -f "${boot_props}"
 then
     # warn "Missing bootstrap.properties;"
-    bootprops=""
+    boot_props=""
 fi
 
 # Check for jvm-memory.options (used by PingAccess to set JVM memory settings)
-if test ! -f "${jvmmemoryopts}" 
+if test ! -f "${jvm_memory_opts}" 
 then
-    die "Missing ${jvmmemoryopts}"
+    die "Missing ${jvm_memory_opts}"
 fi
 
 #Setup JVM Heap optimizations
-JVM_MEMORY_OPTS=$( awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print}' <"${jvmmemoryopts}" )
+JVM_MEMORY_OPTS=$( awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print}' <"${jvm_memory_opts}" )
 
 if test "${PING_DEBUG}" = "true"
 then
@@ -61,6 +61,8 @@ fi
 CLASSPATH="${PA_CONF}:${PA_HOME}/lib/*:${PA_HOME}/deploy/*"
 
 cd "${PA_HOME}" || exit 99
+# Word-split is expected behavior for $JAVA_OPTS, $JVM_MEMORY_OPTS, and $DEBUG. Disable shellcheck.
+# shellcheck disable=SC2086
 exec "${JAVA}" \
     -classpath "${CLASSPATH}" \
     ${JAVA_OPTS} ${JVM_MEMORY_OPTS} ${DEBUG} \
@@ -70,7 +72,7 @@ exec "${JAVA}" \
     --add-exports java.base/sun.security.util=ALL-UNNAMED \
     --add-exports java.base/sun.security.provider=ALL-UNNAMED \
     --add-exports java.base/sun.security.pkcs=ALL-UNNAMED \
-    -XX:ErrorFile=${PA_HOME_ESC}/log/java_error%p.log \
+    -XX:ErrorFile="${PA_HOME_ESC}/log/java_error%p.log" \
     -XX:+HeapDumpOnOutOfMemoryError \
     -XX:HeapDumpPath="${PA_HOME_ESC}/log" \
     -Djava.security.egd=file:/dev/./urandom \
@@ -87,7 +89,7 @@ exec "${JAVA}" \
     -Dlog4j2.enable.threadlocals=false \
     -Dlog4j2.DiscardThreshold=INFO \
     -Dhibernate.cache.ehcache.missing_cache_strategy=create \
-    -Drun.properties="${runprops}" \
-    -Dbootstrap.properties="${bootprops}" \
+    -Drun.properties="${run_props}" \
+    -Dbootstrap.properties="${boot_props}" \
     -Dpa.home="${PA_HOME}" \
     com.pingidentity.pa.cli.Starter "$@"

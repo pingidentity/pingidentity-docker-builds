@@ -17,7 +17,7 @@ log ()
 
 # very early check to see if the user limit is set high enough for us to even consider going further
 # we disable the warning about ulimit -n because it works on centos
-# shellcheck disable=SC2039
+# shellcheck disable=SC2039,SC3045
 CURRENT_ULIMIT=$( ulimit -n 2>/dev/null || echo 0 )
 # CURRENT_LIMIT is numerical
 # shellcheck disable=SC2086
@@ -35,7 +35,7 @@ CONTROLLER_LOG="${SERVER_ROOT_DIR}/logs/controller.log"
 CONTROLLER_CONFIG_DIR="${SERVER_ROOT_DIR}"
 
 export CONTROLLER_ROOT_DIR="${SERVER_ROOT_DIR}"
-# shellcheck disable=SC1090
+# shellcheck disable=SC1091
 . "${SERVER_ROOT_DIR}/bin/env_var.sh"
 
 test -d "${CONTROLLER_LOG_DIR}" || mkdir "${CONTROLLER_LOG_DIR}"
@@ -46,23 +46,6 @@ then
     echo "Could not create '${CONTROLLER_LOG_DIR}'"
     exit 1
 fi
-
-# CONTROLLER_START_ARGS="management start"
-# CONTROLLER_STATUS_ARGS="api portcheck"
-# # shellcheck disable=SC2086
-# res=$( ${CONTROLLER_BINARY} "${CONTROLLER_CONFIG_DIR}" ${CONTROLLER_STATUS_ARGS} )
-# CONTROLLER_ALIVE_STATUS=${?}
-# # shellcheck disable=SC2086
-# if test ${CONTROLLER_ALIVE_STATUS} -ne ${CONTROLLER_SUCCESS}
-# then
-# 	port_regex='^[0-9]+$'
-# 	if ! [[ ${res} =~ ${port_regex} ]] ; then
-#    		echo "${res}"
-# 	else
-# 		echo "Management port ${res} is in use, not starting API Security Enforcer"
-# 	fi
-# 	exit 1
-# fi
 
 res=$( "${CONTROLLER_BINARY}" "${CONTROLLER_CONFIG_DIR}" api ping )
 CONTROLLER_ALIVE_STATUS=${?}
@@ -75,8 +58,8 @@ fi
 # I'm not 100% certain this is advisable yet
 # TODO: make a definitive recommendation for relocating core dump pattern ( within container vs without )
 # I am fairly confident that it must be done from outside to preserve container confinement but it will be vetted
-# disabling the POSIX waring because EUID is set on centos
-# shellcheck disable=SC2039
+# disabling the POSIX warning because EUID is set on centos
+# shellcheck disable=SC2039,SC3028
 if test -n "${EUID}" && test ${EUID} -eq 0
 then
     ( echo "${SERVER_ROOT_DIR}/logs/core_dump/core_%e_%P_%t" > /proc/sys/kernel/core_pattern ) 2>/dev/null

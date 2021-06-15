@@ -10,7 +10,8 @@ test "${VERBOSE}" = "true" && set -x
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
- if test ! -f "${SERVER_ROOT_DIR}/config/server.uuid" ; then
+if test ! -f "${SERVER_ROOT_DIR}/config/server.uuid"
+then
 
     # install custom extension provided
     run_hook "181-install-extensions.sh"
@@ -27,4 +28,4 @@ test "${VERBOSE}" = "true" && set -x
 
     # apply custom configuration provided
     run_hook "188-apply-configuration.sh"
-  fi
+fi

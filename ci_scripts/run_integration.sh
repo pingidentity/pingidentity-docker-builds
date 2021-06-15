@@ -17,22 +17,20 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 
 _exitCode=""
 
-# shellcheck disable=SC2046
 cd "$( dirname "${0}" )" || exit 97
 export PING_IDENTITY_DEVOPS_USER
 export PING_IDENTITY_DEVOPS_KEY
 
-# create the integraton_tests.properties to be used by tests
+# create the integration_tests.properties to be used by tests
 _integrationTestProps=/tmp/integration_tests.properties
 envsubst < "${CI_PROJECT_DIR}/integration_tests/integration_tests.properties.subst" > ${_integrationTestProps}
 
 _totalStart=$( date '+%s' )
 _resultsFile="/tmp/$$.results"
-_headerPattern=' %-58s| %10s| %10s\n'
 _reportPattern='%-57s| %10s| %10s'
 
 #
-# Createa variables of format PINGDIRECTORY_LATEST=n.n.n.n that will be exported and used by
+# Create variables of format PINGDIRECTORY_LATEST=n.n.n.n that will be exported and used by
 # integration test docker-compose variables
 #
 for _productName in pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdelegator pingdirectory pingdirectoryproxy pingfederate pingintelligence pingtoolkit pingauthorize pingauthorizepap
@@ -43,23 +41,24 @@ do
 done
 env | sort
 
-# shellcheck disable=SC2059
-printf "${_headerPattern}" "TEST" "DURATION" "RESULT" > ${_resultsFile}
+# Add header to results file
+printf ' %-58s| %10s| %10s\n' "TEST" "DURATION" "RESULT" > ${_resultsFile}
 for _test in "${CI_PROJECT_DIR}/integration_tests/"${1:-*}.test.yml
 do
     banner "Running ${_test} integration test"
     _start=$( date '+%s' )
 
-    export GIT_TAG="${ciTag}"
+    export GIT_TAG="${CI_TAG}"
     export REGISTRY="${FOUNDATION_REGISTRY}"
     export DEPS="${DEPS_REGISTRY}"
     export JVM="${2:-az11}"
     # `docker pull` has less package dependencies than `docker-compose pull`
     # use docker pull to pull images before running `docker-compose up`
-    if test -z "${isLocalBuild}"
+    if test -z "${IS_LOCAL_BUILD}"
     then
-        _testImages="$(grep '^\s*image' ${_test} | sed 's/image://' | sort | uniq)"
-        for _pullImage in ${_testImages} ; do
+        _testImages="$( grep '^\s*image' "${_test}" | sed 's/image://' | sort | uniq )"
+        for _pullImage in ${_testImages}
+        do
             docker pull "$( eval echo "${_pullImage}" )"
         done
     fi

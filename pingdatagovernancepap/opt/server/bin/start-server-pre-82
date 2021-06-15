@@ -19,17 +19,17 @@ isProcessRunning ()
 {
     # the original ps -p does not work on Busybox
     ps -la
-    ps|awk 'BEGIN{x=1}$1~/^'${1}'$/{x=0}END{exit x}'
+    ps|awk 'BEGIN{x=1}$1~/^'"${1}"'$/{x=0}END{exit x}'
     return ${?}
 }
 
 PRG="${0}"
 # Need this for relative symlinks.
-while test -h "${PRG}" ;
+while test -h "${PRG}"
 do
     ls=$( ls -ld "${PRG}" )
     link=$( expr "$ls" : '.*-> \(.*\)$' )
-    if expr "${link}" : '/.*' > /dev/null ;
+    if expr "${link}" : '/.*' > /dev/null
     then
         PRG="${link}"
     else
@@ -46,25 +46,26 @@ APP_HOME=$( pwd -P )
 # shellcheck disable=SC1090
 . "${APP_HOME}/bin/_common-vars"
 
-if ! test -f "${CONFIG_FILE}" || ! test -s "${CONFIG_FILE}" ;
+if ! test -f "${CONFIG_FILE}" || ! test -s "${CONFIG_FILE}"
 then
     echo "No configuration file found. Please run setup first."
     exit 2
 fi
 
-if ! test -f "${DEFAULT_LICENSE}" && ! test -s "${DEFAULT_LICENSE}" ;
+if ! test -f "${DEFAULT_LICENSE}" && ! test -s "${DEFAULT_LICENSE}"
 then
-echo "Could not find a valid PingDataGovernance license file."
-exit 3
+    echo "Could not find a valid PingDataGovernance license file."
+    exit 3
 fi
 
 # Run remaining script from APP_HOME directory
 cd "$APP_HOME" >/dev/null || exit 1
 
 PAP_APP_NAME=admin-point-application
+# shellcheck disable=SC2034
 PAP_PID_FILE="${PAP_APP_NAME}/run/${PAP_APP_NAME}.pid"
 
-if test -n "${1}" && test "${1}" = "--nodetach" ;
+if test -n "${1}" && test "${1}" = "--nodetach"
 then
     # shellcheck disable=SC2153
     exec "${APP_HOME}/${PAP_APP_NAME}/bin/${PAP_APP_NAME}" server "${CONFIG_FILE}" >"${LOG_DIR}/${APP_NAME}.log" 2>&1
@@ -78,32 +79,25 @@ else
     echo "Please wait a few moments for the PingDataGovernance Policy Administration GUI to start..."
 
     timeout=20
-    while test ${timeout} -gt 0 ;
+    while test ${timeout} -gt 0
     do
-        # fgrep -iq -e "error" -e "exception:" -e "aborted" "${LOG_DIR}/${APP_NAME}.log" >/dev/null 2>&1
         awk 'IGNORECASE=1;BEGIN{f=1}/error/||/exception:/||/aborted/{f=0}END{exit f}' "${LOG_DIR}/${APP_NAME}.log"
-        if test ${?} -eq 0 ;
+        if test ${?} -eq 0
         then
             echo "An error occurred. Please see ${LOG_DIR}/${APP_NAME}.log for details."
             exit 6
         fi
 
-        if test -f "${PID_FILE}" ;
+        if test -f "${PID_FILE}"
         then
             PID=$( cat "${PID_FILE}" )
-            if isProcessRunning ${PID} ;
+            if isProcessRunning "${PID}"
             then
                 grep -Fiq "Server: Started" "${LOG_DIR}/${APP_NAME}.log"
-                if test ${?} -eq 0 ;
+                if test ${?} -eq 0
                 then
                     httpCode=$( curl -GkLSs -o /dev/null -w '%{http_code}' "${url}" )
-                        # substitute with curl built-in retry?
-                        # --connect-timeout 2 \
-                        # --retry 6 \
-                        # --retry-max-time 30 \
-                        # --retry-connrefused \
-                        # --retry-delay 3 \
-                    if test ${?} -eq 0 && test "${httpCode}" = "200" ;
+                    if test ${?} -eq 0 && test "${httpCode}" = "200"
                     then
                         echo "To access the Policy Administration GUI, open ${url} in your browser."
                         exit 0

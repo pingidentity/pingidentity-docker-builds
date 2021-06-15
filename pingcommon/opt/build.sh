@@ -95,11 +95,11 @@ case "${_osID}" in
         rm -rf /var/lib/rpm
         rpmdb -v --rebuilddb
         _versionID=$( awk '$0~/^VERSION_ID=/{split($1,version,"=");gsub(/"/,"",version[2]);print version[2];}' /etc/os-release )
-        yum -y update --releasever ${_versionID}
-        yum -y install --releasever ${_versionID} epel-release
+        yum -y update --releasever "${_versionID}"
+        yum -y install --releasever "${_versionID}" epel-release
         curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | bash
         # yum -y install java-11-openjdk-devel gettext bind-utils git git-lfs jq unzip openssh-clients nmap-ncat
-        yum -y install --releasever ${_versionID} gettext bind-utils git git-lfs jq unzip openssh-clients nmap-ncat inotify-tools
+        yum -y install --releasever "${_versionID}" gettext bind-utils git git-lfs jq unzip openssh-clients nmap-ncat inotify-tools
         yum -y install gcc make
         cd /tmp
         curl -sL https://github.com/ncopa/su-exec/archive/v0.2.tar.gz | tar xzf -

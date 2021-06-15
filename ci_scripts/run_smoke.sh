@@ -44,7 +44,7 @@ listContainsValue ()
 
 if test -z "${CI_COMMIT_REF_NAME}"
 then
-    CI_PROJECT_DIR="$( cd "$(dirname "${0}")/.." || exit 97 ; pwd )"
+    CI_PROJECT_DIR="$( cd "$( dirname "${0}" )/.." || exit 97 ; pwd )"
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
 
@@ -97,13 +97,11 @@ test -z "${product}" && usage "Providing a product is required"
 
 if test -z "${versions}" && test -f "${CI_PROJECT_DIR}/${product}"/versions.json
 then
-#   versions=$(grep -v "^#" "${product}"/versions)
     versions=$( _getAllVersionsToBuildForProduct "${product}" )
 fi
 
-# isLocalBuild is assigned when we source ci_tools.lib.sh
-# shellcheck disable=SC2154
-if test -n "${isLocalBuild}"
+# IS_LOCAL_BUILD is assigned when we source ci_tools.lib.sh
+if test -n "${IS_LOCAL_BUILD}"
 then
     set -a
     # shellcheck disable=SC1090
@@ -113,11 +111,10 @@ fi
 
 # result table header
 _resultsFile="/tmp/$$.results"
-_headerPattern=' %-25s| %-12s| %-20s| %-10s| %-38s| %10s| %7s\n'
 _reportPattern='%-24s| %-12s| %-20s| %-10s| %-38s| %10s| %7s'
 
-# shellcheck disable=SC2059
-printf "${_headerPattern}" "PRODUCT" "VERSION" "SHIM" "JVM" "TEST" "DURATION" "RESULT" > ${_resultsFile}
+# Add header to results file
+printf ' %-25s| %-12s| %-20s| %-10s| %-38s| %10s| %7s\n' "PRODUCT" "VERSION" "SHIM" "JVM" "TEST" "DURATION" "RESULT" > ${_resultsFile}
 _totalStart=$( date '+%s' )
 for _version in ${versions}
 do
@@ -152,12 +149,11 @@ do
             _tag="${_version}"
             test -n "${_shimTag}" && _tag="${_tag:+${_tag}-}${_shimTag}"
             test -n "${_jvm}" && _tag="${_tag:+${_tag}-}${_jvm}"
-            # ciTag is assigned when we source ci_tools.lib.sh
-            # shellcheck disable=SC2154
-            test -n "${ciTag}" && _tag="${_tag:+${_tag}-}${ciTag}"
+            # CI_TAG is assigned when we source ci_tools.lib.sh
+            test -n "${CI_TAG}" && _tag="${_tag:+${_tag}-}${CI_TAG}"
             _tag="${_tag}-${ARCH}"
             
-            if test -z "${isLocalBuild}"
+            if test -z "${IS_LOCAL_BUILD}"
             then
                 docker pull "${FOUNDATION_REGISTRY}/${product}:${_tag}"
             fi
@@ -168,16 +164,15 @@ do
                 banner "Running test $( basename "${_test}" ) for ${product}${_version:+ ${_version}}${_shim:+ on ${_shim}}${_jvm:+ with Java ${_jvmVersion}(${_jvm})}"
                 # sut = system under test
                 _start=$( date '+%s' )
-                env GIT_TAG="${ciTag}" TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f "${_test}" up --exit-code-from sut --abort-on-container-exit
+                env GIT_TAG="${CI_TAG}" TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f "${_test}" up --exit-code-from sut --abort-on-container-exit
                 _returnCode=${?}
                 _stop=$( date '+%s' )
                 _duration=$(( _stop - _start ))
-                env GIT_TAG="${ciTag}" TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f "${_test}" down
+                env GIT_TAG="${CI_TAG}" TAG="${_tag}" REGISTRY="${FOUNDATION_REGISTRY}" docker-compose -f "${_test}" down
                 if test ${_returnCode} -ne 0
                 then
                     _result="FAIL"
-                    # shellcheck disable=SC2086 
-                    test -n "${fastFail}" && exit ${returnCode}
+                    test -n "${fastFail}" && exit "${returnCode}"
                 else
                     _result="PASS"
                 fi
@@ -190,9 +185,10 @@ do
 done
 
 # leave the runner without clutter
-if test -z "${isLocalBuild}"
+if test -z "${IS_LOCAL_BUILD}"
 then
-    imagesToClean=$( docker image ls -qf "reference=*/*/*${ciTag}" | sort | uniq )
+    imagesToClean=$( docker image ls -qf "reference=*/*/*${CI_TAG}" | sort | uniq )
+    # Word-split is expected behavior for $imagesToClean. Disable shellcheck
     # shellcheck disable=SC2086
     test -n "${imagesToClean}" && docker image rm -f ${imagesToClean}
 fi

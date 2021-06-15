@@ -38,8 +38,7 @@ _getLatestVersionForProduct ()
 _getDefaultShimForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    # shellcheck disable=SC2086
-    test -f "${_file}" && jq -r '.|.versions[]| select(.version == "'${2}'") | .preferredShim' "${_file}"
+    test -f "${_file}" && jq -r '.|.versions[]| select(.version == "'"${2}"'") | .preferredShim' "${_file}"
 }
 
 # get all the shims (from versions.json) for a product version
@@ -47,24 +46,21 @@ _getShimsToBuildForProductVersion ()
 {
     _jvmFilter=$( _getJVMFilterArray )
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    # shellcheck disable=SC2086
-    test -f "${_file}" && jq -r '[.|.versions[]| select(.version == "'${2}'")|.shims[]|. as $v|.jvms[]|select(.build==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|$v.shim]|unique|.[]' "${_file}"
+    test -f "${_file}" && jq -r '[.|.versions[]| select(.version == "'"${2}"'")|.shims[]|. as $v|.jvms[]|select(.build==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|$v.shim]|unique|.[]' "${_file}"
 }
 
 # get all shims for JVM
 _getShimsToBuildForJVM ()
 {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    # shellcheck disable=SC2086
-    test -f "${_file}" && jq -r '[.|.versions[]|select(.id=="'${1}'")|.shims[]]|unique|.[]' "${_file}"
+    test -f "${_file}" && jq -r '[.|.versions[]|select(.id=="'"${1}"'")|.shims[]]|unique|.[]' "${_file}"
 }
 
 # get all the shims (from versions.json) for a product version
 _getShimsToDeployForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    # shellcheck disable=SC2086
-    test -f "${_file}" && jq -r '[.|.versions[]| select(.version == "'${2}'")|.shims[]|. as $v|.jvms[]|select(.deploy==true)|$v.shim]|unique|.[]' "${_file}"
+    test -f "${_file}" && jq -r '[.|.versions[]| select(.version == "'"${2}"'")|.shims[]|. as $v|.jvms[]|select(.deploy==true)|$v.shim]|unique|.[]' "${_file}"
 }
 
 # get all the shims (from versions.json) for a product
@@ -79,8 +75,7 @@ _getJVMsToBuildForProductVersionShim ()
 {
     _jvmFilter=$( _getJVMFilterArray )
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    # shellcheck disable=SC2086
-    test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.jvms[]|select(.build==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|.jvm' "${_file}"
+    test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'"${2}"'").shims[]|select(.shim=="'"${3}"'")|.jvms[]|select(.build==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|.jvm' "${_file}"
 }
 
 _getJVMsForArch ()
@@ -154,32 +149,27 @@ _getPreferredJVMForProductVersionShim ()
 _getTargetRegistriesForProductVersionShimJVM ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'${2}'").shims[]|select(.shim=="'${3}'")|.jvms[]|select(.jvm=="'${4}'")|.registries[]' "${_file}"
+    test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'"${2}"'").shims[]|select(.shim=="'"${3}"'")|.jvms[]|select(.jvm=="'"${4}"'")|.registries[]' "${_file}"
 }
 
 # get the jvm versions (from versions.json) for an ID
 _getJVMVersionForID ()
 {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    # shellcheck disable=SC2086
-    test -f "${_file}" && jq -r '.|.versions[]|select(.id=="'${1}'")|.version' "${_file}"
+    test -f "${_file}" && jq -r '.|.versions[]|select(.id=="'"${1}"'")|.version' "${_file}"
 }
 
 # get the jvm IDs (from versions.json) for a shim
 _getAllJVMIDsForShim ()
 {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    # shellcheck disable=SC2086
-    test -f "${_file}" && jq -r '[.versions[]|select(.archs[]|contains("'${ARCH}'"))|select(.shims[]|contains("'${1}'"))|.id]|unique|.[]' "${_file}"
+    test -f "${_file}" && jq -r '[.versions[]|select(.archs[]|contains("'"${ARCH}"'"))|select(.shims[]|contains("'"${1}"'"))|.id]|unique|.[]' "${_file}"
 }
 
 # get the jvms (from versions.json) to build for a shim
 _getAllJVMsToBuildForShim ()
 {
-    # _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    # jq -r '[.versions[]|select(.shims[]|contains("'${1}'"))|.id]|unique|.[]' ${_file}
-    # shellcheck disable=SC2086
-    for _jvm in $( find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|select(.shim=="'${1}'")|.jvms[]|select(.build==true)|.jvm' {} + 2>/dev/null| sort | uniq )
+    for _jvm in $( find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|select(.shim=="'"${1}"'")|.jvms[]|select(.build==true)|.jvm' {} + 2>/dev/null| sort | uniq )
     do
         _filterJVMForArch "${_jvm}"
     done
@@ -191,20 +181,18 @@ _getAllJVMsToBuild ()
     find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|.jvms[]|select(.build==true)|.jvm' {} + 2>/dev/null| sort | uniq
 }
 
-# get the jvm imags (from versions.json) for a shim ID
+# get the jvm images (from versions.json) for a shim ID
 _getJVMImageForShimID ()
 {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    # shellcheck disable=SC2086
-    test -f "${_file}" && jq -r '[.versions[]|select(.shims[]|contains("'${1}'"))| select(.id=="'${2}'")|.from]|unique|.[]' "${_file}"
+    test -f "${_file}" && jq -r '[.versions[]|select(.shims[]|contains("'"${1}"'"))| select(.id=="'"${2}"'")|.from]|unique|.[]' "${_file}"
 }
 
 # get the dependencies (from versions.json) for product version
 _getDependenciesForProductVersion ()
 {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    # shellcheck disable=SC2086
-    test -f "${_file}" && jq -jr '.versions[]|select( .version == "'${2}'" )|if (.dependencies) then .dependencies[]|.product," ",.version,"\n" else "" end' "${_file}" | awk 'BEGIN{i=0} {print "--build-arg DEPENDENCY_"i"_PRODUCT="$1" --build-arg DEPENDENCY_"i"_VERSION="$2; i++}'
+    test -f "${_file}" && jq -jr '.versions[]|select( .version == "'"${2}"'" )|if (.dependencies) then .dependencies[]|.product," ",.version,"\n" else "" end' "${_file}" | awk 'BEGIN{i=0} {print "--build-arg DEPENDENCY_"i"_PRODUCT="$1" --build-arg DEPENDENCY_"i"_VERSION="$2; i++}'
 }
 
 # get the long tag
@@ -267,12 +255,11 @@ banner_head ()
         _c=0
     else
         _a=$(( ( 78 - ${#_b} ) / 2 ))
-        _c=$(( 78 - ${_a} - ${#_b} ))
+        _c=$(( 78 - _a - ${#_b} ))
     fi
     printf "#"
     printf '%*.*s' 0 ${_a} "${banner_pad}"
-    # shellcheck disable=SC2059
-    printf "${_b}"
+    printf "%s" "${_b}"
     printf '%*.*s' 0 ${_c} "${banner_pad}"
     printf "#\n"
 }
@@ -285,11 +272,11 @@ banner ()
     banner_bar
 }
 
-FONT_RED='\033[0;31m'
-FONT_GREEN='\033[0;32m'
-FONT_NORMAL='\033[0m'
-CHAR_CHECKMARK='\xE2\x9C\x94'
-CHAR_CROSSMARK='\xE2\x9D\x8C'
+FONT_RED="$( printf '\033[0;31m' )"
+FONT_GREEN="$( printf '\033[0;32m' )"
+FONT_NORMAL="$( printf '\033[0m' )"
+CHAR_CHECKMARK="$( printf '\xE2\x9C\x94' )"
+CHAR_CROSSMARK="$( printf '\xE2\x9D\x8C' )"
 
 ################################################################################
 # Echo message in red color
@@ -318,12 +305,14 @@ append_status ()
     then
         _prefix="${FONT_GREEN}${CHAR_CHECKMARK} "
     else
-        _prefix="${FONT_RED}${CHAR_CROSSMARK}"
+        _prefix="${FONT_RED}${CHAR_CROSSMARK} "
     fi
     shift
     _pattern="${1}"
     shift
-    printf "${_prefix}${_pattern}${FONT_NORMAL}\n" "${@}" >> ${_output}
+    #As the _pattern and # of inputs is undefined here, it is not easy/reasonable to follow SC2059
+    # shellcheck disable=SC2059
+    printf "${_prefix}${_pattern}${FONT_NORMAL}\n" "${@}" >> "${_output}"
 
 }
 
@@ -400,7 +389,7 @@ _getLatestSnapshotVersionForProduct ()
 ################################################################################
 requirePipelineFile ()
 {
-    _pipelineFile="$(get_value "${1}")"
+    _pipelineFile="$( get_value "${1}" )"
 
     if test ! -f "${_pipelineFile}" 
     then
@@ -453,7 +442,7 @@ setupDockerConfigJson ()
     cp "${ECR_DOCKER_CONFIG_JSON}" "${_docker_config_ecr_dir}/config.json"
 
     # In order to initialize the docker login to ecr, a single docker pull needs
-    # to occur.  This basically primes the pump for docker builds with FROM's later on
+    # to occur.  This basically primes the pump for docker builds with FROMs later on
     docker --config "${_docker_config_ecr_dir}" pull "${PIPELINE_BUILD_REGISTRY}/ci-utils/hello:latest"
 
     # Ensure that the pipe-line provides the following variables/files
@@ -485,12 +474,9 @@ then
     #
     setupDockerConfigJson
 
-    # shellcheck disable=SC2155
-    gitRevShort=$( date '+%H%M')
-    # shellcheck disable=SC2155
-    gitRevLong=$( date '+%s' )
-    # shellcheck disable=SC2155
-    ciTag="$( date '+%Y%m%d' )"
+    GIT_REV_SHORT=$( date '+%H%M')
+    GIT_REV_LONG=$( date '+%s' )
+    CI_TAG="$( date '+%Y%m%d' )"
 elif test -n "${CI_COMMIT_REF_NAME}"
 then
     #we are in CI pipeline
@@ -556,31 +542,26 @@ then
     echo "Using notary server IP value'${ARTIFACTORY_NOTARY_SERVER_IP}'"
     echo "${ARTIFACTORY_NOTARY_SERVER_IP} notaryserver" >> /etc/hosts
 
-    # shellcheck disable=SC2155
-    gitRevShort=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
-    # shellcheck disable=SC2155
-    gitRevLong=$( git rev-parse "$CI_COMMIT_SHA" )
-    ciTag="${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
+    GIT_REV_SHORT=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
+    GIT_REV_LONG=$( git rev-parse "$CI_COMMIT_SHA" )
+    CI_TAG="${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
 else
     #we are on local
-    # shellcheck disable=SC2034
-    isLocalBuild=true
+    IS_LOCAL_BUILD=true
+    export IS_LOCAL_BUILD
     FOUNDATION_REGISTRY="pingidentity"
     DEPS_REGISTRY=""
-    # shellcheck disable=SC2155
-    gitBranch=$(git rev-parse --abbrev-ref HEAD)
-    # shellcheck disable=SC2155
-    gitRevShort=$( git rev-parse --short=4 HEAD)
-    # shellcheck disable=SC2155
-    gitRevLong=$( git rev-parse HEAD)
-    ciTag="${gitBranch}-${gitRevShort}"
+    gitBranch=$( git rev-parse --abbrev-ref HEAD )
+    GIT_REV_SHORT=$( git rev-parse --short=4 HEAD )
+    GIT_REV_LONG=$( git rev-parse HEAD )
+    CI_TAG="${gitBranch}-${GIT_REV_SHORT}"
 fi
 ARCH="$( uname -m )"
 export ARCH
 export FOUNDATION_REGISTRY
 export DEPS_REGISTRY
-export gitRevShort
-export gitRevLong
+export GIT_REV_SHORT
+export GIT_REV_LONG
 export gitBranch
-export ciTag
+export CI_TAG
 

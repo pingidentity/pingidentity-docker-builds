@@ -12,7 +12,7 @@ _pwCheckInitial=$(
         --request GET \
         --user "${ROOT_USER}:${PA_ADMIN_PASSWORD_INITIAL}" \
         --header "X-Xsrf-Header: PingAccess" \
-        https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1 \
+        "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1" \
         2>/dev/null
     )
 # echo "${_pwCheckInitial}"
@@ -33,7 +33,7 @@ _license_http_code=$(
         --output /tmp/license.acceptance \
         --header "X-Xsrf-Header: PingAccess" \
         --data '{ "email": null, "slaAccepted": true, "firstLogin": false, "showTutorial": false,"username": "'"${ROOT_USER}"'"}' \
-        https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1 \
+        "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1" \
         2>/dev/null
     )
 if test "${_license_http_code}" != "200" 
@@ -55,7 +55,7 @@ then
             --user "${ROOT_USER}:${PA_ADMIN_PASSWORD_INITIAL}" \
             --header "X-Xsrf-Header: PingAccess" \
             --data '{"currentPassword": "'"${PA_ADMIN_PASSWORD_INITIAL}"'","newPassword": "'"${PING_IDENTITY_PASSWORD}"'"}' \
-            https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1/password \
+            "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1/password" \
             2>/dev/null
         )
 

@@ -24,7 +24,7 @@
 #
 test "${VERBOSE}" = "true" && set -x
 
-# shellcheck source=pingcommon.lib.sh
+# shellcheck source=./pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 # Check to see if there there is an instance directory and files in it

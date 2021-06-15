@@ -11,11 +11,12 @@
 # shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdatacommon.lib.sh
 . "${HOOKS_DIR}/pingdata.lib.sh"
 
-# shellcheck source=pingdatagovernancepap.lib.sh
+# shellcheck source=./pingdatagovernancepap.lib.sh
 test -f "${HOOKS_DIR}/pingdatagovernancepap.lib.sh" && . "${HOOKS_DIR}/pingdatagovernancepap.lib.sh"
 
 # Do not load policies if the PAP was set up in OIDC mode
-if use_oidc_mode ; then
+if use_oidc_mode
+then
   exit
 fi
 
@@ -23,7 +24,7 @@ echo "INFO: waiting for PingDataGovernance-PAP to start before importing configu
 
 # The 8.2.0.0-GA release exposes a new healthcheck endpoint using a self-signed certificate,
 # which requires something other than wait-for to test. Try 5 times to request it.
-if is_version_ge "8.2.0.0-GA" ;
+if is_version_ge "8.2.0.0-GA"
 then
   _tries=5
   while test ${_tries} -gt 0 && \

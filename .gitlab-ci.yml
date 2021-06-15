@@ -33,7 +33,7 @@ default:
     - $PIPELINE_DEPS_REGISTRY/docker:18.09-dind
 variables:
   DOCKER_HOST: tcp://localhost:2375
-  # effectively, this is one full core scheuled 95% of the time
+  # effectively, this is one full core scheduled 95% of the time
   KUBERNETES_CPU_REQUEST: 950m
   # 4x the request
   KUBERNETES_CPU_LIMIT: 3800m
@@ -76,9 +76,7 @@ intel.i.unmerged:
 intel.i.shellcheck:
   stage: intialization
   script:
-    - curl -O https://gte-bits-repo.s3.amazonaws.com/shellcheck
-    - chmod +x shellcheck
-    - find . -type f -iname \*.sh -xdev -exec ci_scripts/lint_shell.sh {} \;
+    - ci_scripts/lint_shell.sh
   allow_failure: true
   except:
     variables:

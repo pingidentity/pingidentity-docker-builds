@@ -10,7 +10,7 @@
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-# shellcheck source=pingintelligence.lib.sh
+# shellcheck source=./pingintelligence.lib.sh
 . "${HOOKS_DIR}/pingintelligence.lib.sh"
 
 
@@ -28,11 +28,12 @@ test ${?} -ne 0 && echo_red "Error obfuscating keys" && exit 80
 if test -d "${STAGING_DIR}/apis/"
 then
     # this loop will fail with files having whitespaces in their name (or path for that matter)
-    # shellcheck disable=SC2044
-    for file in $( find "${STAGING_DIR}/apis/" -type f -iname \*.json )
+    find "${STAGING_DIR}/apis/" -type f -iname \*.json > tmp
+    while IFS= read -r file
     do
         pi_add_api "${file}"
         test ${?} -ne 0 && exit 80
-    done
+    done < tmp
+    rm tmp
 fi
 exit 0

@@ -25,7 +25,7 @@ die ()
 test "${1}" = "--help" && usage
 test -n "${1}" || usage "missing product"
 _product="${1}"
-test -n "${2}" || usage "missing souce tag"
+test -n "${2}" || usage "missing source tag"
 _srcTag="${2}"
 _dstRegion="${3:-us-east-1}"
 _dstTag="${4:-${2}}"

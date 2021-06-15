@@ -22,9 +22,10 @@ case "${_acceptLicenseAgreement}" in
     # is new pf, create admin user. 
     echo "INFO: new server found, must create admin"
     ## set script vars
-    _password="$(get_value PING_IDENTITY_PASSWORD true)"
+    _password="$( get_value PING_IDENTITY_PASSWORD true )"
     _password=${_password:=2Federate}
-    if test "$(isImageVersionGtEq 10.1.0)" -eq 0 ; then
+    if test "$( isImageVersionGtEq 10.1.0 )" -eq 0
+    then
       _adminRoles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR"]'
     else
       _adminRoles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR"]'
@@ -45,8 +46,9 @@ case "${_acceptLicenseAgreement}" in
         "https://localhost:${PF_ADMIN_PORT}/pf-admin-api/v1/administrativeAccounts" \
         2>/dev/null
     )
-    if test "${_createAdminUser}" != "200" ; then
-      echo_red "$(jq -r . /tmp/create.admin)"
+    if test "${_createAdminUser}" != "200"
+    then
+      echo_red "$( jq -r . /tmp/create.admin )"
       echo_red "error attempting to create admin"
       exit 83
     fi
@@ -55,7 +57,7 @@ case "${_acceptLicenseAgreement}" in
     echo "INFO: found existing admin"
     ;;
   *)
-    echo_red "$(jq -r . /tmp/license.acceptance)"
+    echo_red "$( jq -r . /tmp/license.acceptance )"
     echo_red "License Agreement Failed"
     exit 83
     ;;

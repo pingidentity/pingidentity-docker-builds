@@ -7,7 +7,7 @@ use_oidc_mode() {
 
 # Check if PING_EXTERNAL_BASE_URL is defined and warn if not
 check_external_url() {
-  if test -z "${PING_EXTERNAL_BASE_URL}" ;
+  if test -z "${PING_EXTERNAL_BASE_URL}"
   then
     echo_yellow "WARNING: PING_EXTERNAL_BASE_URL is undefined."
   fi
@@ -17,7 +17,7 @@ check_external_url() {
 # localhost, which is unlikely to be useful in OIDC mode
 check_external_url_oidc() {
   if ! test "${PING_EXTERNAL_BASE_URL}" = "${PING_EXTERNAL_BASE_URL#localhost}" \
-    || ! test "${PING_EXTERNAL_BASE_URL}" = "${PING_EXTERNAL_BASE_URL#127.0.0.1}" ;
+  || ! test "${PING_EXTERNAL_BASE_URL}" = "${PING_EXTERNAL_BASE_URL#127.0.0.1}"
   then
     echo_yellow "WARNING: PING_EXTERNAL_BASE_URL uses a hostname that may not be externally resolvable."
     echo_yellow "This may cause the PAP to generate an unusable OIDC redirect URI."

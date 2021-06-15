@@ -16,7 +16,8 @@ RUN_PLAN="UNKNOWN"
 
 SERVER_UUID_FILE="${SERVER_ROOT_DIR}/config/server.uuid"
 
-if  test -f "${SERVER_UUID_FILE}" ; then
+if  test -f "${SERVER_UUID_FILE}"
+then
     . "${SERVER_UUID_FILE}"
 
     RUN_PLAN="RESTART"

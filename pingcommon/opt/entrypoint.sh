@@ -3,12 +3,12 @@ test "${VERBOSE}" = "true" && set -x
 
 if test -z "${1}" -o "$1" = "start-server" ;
 then
-    # shellcheck source=staging/hooks/pingcommon.lib.sh
+    # shellcheck source=./staging/hooks/pingcommon.lib.sh
     . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-    # shellcheck source=staging/hooks/pingstate.lib.sh
+    # shellcheck source=./staging/hooks/pingstate.lib.sh
     . "${HOOKS_DIR}/pingstate.lib.sh"
-    # shellcheck source=staging/hooks/pingsecrets.lib.sh
+    # shellcheck source=./staging/hooks/pingsecrets.lib.sh
     . "${HOOKS_DIR}/pingsecrets.lib.sh"
 
     echo_green "Command: ${*}"
@@ -19,17 +19,17 @@ then
     # Capture environment variables and secrets state info
     add_state_info "environment_variables"
 
-    HOSTNAME=$( hostname -f )
-    DOMAINNAME=$( hostname -d )
+    HOST_NAME=$( hostname -f )
+    DOMAIN_NAME=$( hostname -d )
 
-    export HOSTNAME DOMAINNAME
+    export HOST_NAME DOMAIN_NAME
 
     echo_header "Ping Identity DevOps Docker Image" \
         " IMAGE_VERSION: ${IMAGE_VERSION}" \
         " IMAGE_GIT_REV: ${IMAGE_GIT_REV}" \
         "       STARTED: $(date)" \
-        "      HOSTNAME: ${HOSTNAME}" \
-        "    DOMAINNAME: ${DOMAINNAME}"
+        "      HOST_NAME: ${HOST_NAME}" \
+        "    DOMAIN_NAME: ${DOMAIN_NAME}"
     # If there is no startup command provided, provide error message and exit.
     if test -z "${STARTUP_COMMAND}"
     then
@@ -49,7 +49,7 @@ then
     fi
 
     # If there are local IN_DIR files, this will copy them to a STAGING_DIRECTORY
-    # overwriting any files that may alrady be in staging
+    # overwriting any files that may already be in staging
     apply_local_server_profile
 
     # if a git repo is provided, it has not yet been cloned
@@ -86,9 +86,10 @@ then
         run_hook "80-post-start.sh" &
     fi
 
-    if test -n "${TAIL_LOG_FILES}" ;
+    if test -n "${TAIL_LOG_FILES}"
     then
         echo "Tailing log files (${TAIL_LOG_FILES})"
+        # Word-split is expected behavior for $TAIL_LOG_FILES. Disable shellcheck.
         # shellcheck disable=SC2086
         exec tail -F ${TAIL_LOG_FILES} 2>/dev/null &
     fi
@@ -107,11 +108,13 @@ then
     then
         # replace the shell with foreground server
         echo_green "Starting server in foreground: (${STARTUP_COMMAND} ${STARTUP_FOREGROUND_OPTS})"
+        # Word-split is expected behavior for $STARTUP_FOREGROUND_OPTS. Disable shellcheck.
         # shellcheck disable=SC2086
         exec "${STARTUP_COMMAND}" ${STARTUP_FOREGROUND_OPTS}
     else
         # start server in the background and execute the provided command (useful for self-test)
         echo_green "Starting server in background: (${STARTUP_COMMAND} ${STARTUP_BACKGROUND_OPTS})"
+        # Word-split is expected behavior for $STARTUP_BACKGROUND_OPTS. Disable shellcheck.
         # shellcheck disable=SC2086
         "${STARTUP_COMMAND}" ${STARTUP_BACKGROUND_OPTS} &
         echo_green "Running command: ${*}"

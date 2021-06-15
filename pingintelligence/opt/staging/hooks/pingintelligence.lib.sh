@@ -10,7 +10,7 @@ pi_get_config ()
     test -z "${1}" && return 1
     conf_file="${SERVER_ROOT_DIR}/config/${1}.conf"
     test -f "${conf_file}" || return 2
-    awk -F= '$0~/^'${2}'=/{print $2}' "${conf_file}"
+    awk -F= '$0~/^'"${2}"'=/{print $2}' "${conf_file}"
     exit ${?}
 }
 
@@ -32,7 +32,7 @@ pi_add_api ()
 
 pi_update_password ()
 {
-    printf "${PING_INTELLIGENCE_DEFAULT_ADMIN_PASSWORD}"'\n'"${PING_INTELLIGENCE_ADMIN_PASSWORD}"'\n'"${PING_INTELLIGENCE_ADMIN_PASSWORD}"'\n' | "${CLI}" -u "${PING_INTELLIGENCE_ADMIN_USER}" update_password
+    printf "%s\n%s\n%s\n" "${PING_INTELLIGENCE_DEFAULT_ADMIN_PASSWORD}" "${PING_INTELLIGENCE_ADMIN_PASSWORD}" "${PING_INTELLIGENCE_ADMIN_PASSWORD}" | "${CLI}" -u "${PING_INTELLIGENCE_ADMIN_USER}" update_password
     return ${?}
 }
 

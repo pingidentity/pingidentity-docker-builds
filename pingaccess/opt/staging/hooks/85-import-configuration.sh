@@ -47,16 +47,16 @@ then
             --user "${ROOT_USER}:${_password}" \
             --header "Content-Type: application/json" \
             --header "X-Xsrf-Header: PingAccess" \
-            --data @${STAGING_DIR}/instance/data/data.json \
+            --data @"${STAGING_DIR}/instance/data/data.json" \
             --output ${_out} \
-            https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows \
+            "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows" \
             2>/dev/null
     )
 
     if ! test "${_import_http_code}" = "200"
     then
         echo_red "Import request error: ${_import_http_code}"
-        cat "${_out}" | jq
+        jq . "${_out}"
         exit 85
     fi
 
@@ -75,13 +75,13 @@ then
                 --header "Content-Type: application/json" \
                 --header "X-Xsrf-Header: PingAccess" \
                 --output ${_out} \
-                https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows \
+                "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows" \
                 2>/dev/null
         )
 
         if test "${_import_http_code}" = 200
         then
-            _import_status=$( jq -r '.items[]|select(.id=='${_import_id}')|.status' "${_out}" )
+            _import_status=$( jq -r '.items[]|select(.id=='"${_import_id}"')|.status' "${_out}" )
             case "${_import_status}" in
                 '' | 'In Progress')
                     echo "import in progress.."

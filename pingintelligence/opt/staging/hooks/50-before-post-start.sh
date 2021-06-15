@@ -6,7 +6,7 @@
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-# shellcheck source=pingintelligence.lib.sh
+# shellcheck source=./pingintelligence.lib.sh
 . "${HOOKS_DIR}/pingintelligence.lib.sh"
 
 pi_obfuscate_keys

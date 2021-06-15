@@ -100,7 +100,7 @@ done
 
 if test -z "${CI_COMMIT_REF_NAME}"
 then
-    CI_PROJECT_DIR="$( cd "$(dirname "${0}")/.." || exit 97 ; pwd )"
+    CI_PROJECT_DIR="$( cd "$( dirname "${0}" )/.." || exit 97 ; pwd )"
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
@@ -115,12 +115,14 @@ test -z "${_products}" && _products="apache-jmeter ldap-sdk-tools pingaccess pin
 
 for p in ${_products}
 do
+    # Word-split is expected behavior for $buildOptions, $versionsToBuild, $jvmsToBuild, and $shimsToBuild. Disable shellcheck.
     # shellcheck disable=SC2086
     "${CI_SCRIPTS_DIR}/build_product.sh" -p "${p}" ${buildOptions} ${versionsToBuild} ${jvmsToBuild} ${shimsToBuild}
     test ${?} -ne 0 && failed=true && break
 
     if test -n "${_smokeTests}"
     then
+        # Word-split is expected behavior for $versionsToBuild, $jvmsToBuild, and $shimsToBuild. Disable shellcheck.
         # shellcheck disable=SC2086
         "${CI_SCRIPTS_DIR}/run_smoke.sh" -p "${p}" ${versionsToBuild} ${jvmsToBuild} ${shimsToBuild}
         test ${?} -ne 0 && failed=true && break

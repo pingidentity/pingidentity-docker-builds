@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 URL="https://localhost:9022"
 curl -ssk -o /dev/null "${URL}"
-if test ${?} -ne 0 ; then
+if test ${?} -ne 0
+then
     # the health check must return 0 for healthy, 1 otherwise
     # but not any other code so we catch the curl return code and
     # change any non-zero code to 1

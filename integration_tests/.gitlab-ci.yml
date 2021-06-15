@@ -418,7 +418,7 @@ arm.pdp-pd.latest:
 
 ################################################
 # The purpose of the integration test below is
-# to verify PingDataGovernace and PingDirectory
+# to verify PingDataGovernance and PingDirectory
 # integrate together into an end to end test
 # for the azul JVM on the x86_64 runner 
 intel.pdg-pd.latest:
@@ -453,7 +453,7 @@ intel.pdg-pd.latest:
 
 ################################################
 # The purpose of the integration test below is
-# to verify PingDataGovernace and PingDirectory
+# to verify PingDataGovernance and PingDirectory
 # integrate together into an end to end test
 # for the liberica JVM on the x86_64 runner 
 intel.pdg-pd.liberica:
@@ -488,7 +488,7 @@ intel.pdg-pd.liberica:
 
 ################################################
 # The purpose of the integration test below is
-# to verify PingDataGovernace and PingDirectory
+# to verify PingDataGovernance and PingDirectory
 # integrate together into an end to end test
 # for the liberica JVM on the aarch64 runner 
 arm.pdg-pd.latest:
