@@ -114,6 +114,10 @@ ENV IN_DIR=${BASE}/in \
 
     JVM_TUNING="AGGRESSIVE" \
 
+#-- Percentage of the container memory to allocate to PingFederate JVM
+#-- DO NOT set to 100% or your JVM will exit with OutOfMemory errors and the container will terminate
+    JAVA_RAM_PERCENTAGE=75.0 \
+
 #-- Triggers verbose messages in scripts using the set -x option.
     VERBOSE=false \
 

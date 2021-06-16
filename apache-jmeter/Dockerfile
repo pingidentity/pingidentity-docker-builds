@@ -41,6 +41,11 @@ ARG IMAGE_GIT_REV=""
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION}  \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+
+#-- Percentage of the container memory to allocate to PingFederate JVM
+#-- DO NOT set to 100% or your JVM will exit with OutOfMemory errors and the container will terminate
+    JAVA_RAM_PERCENTAGE=90.0 \
+
 #-- The command that the entrypoint will execute in the foreground to
 #-- instantiate the container
     STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh"
