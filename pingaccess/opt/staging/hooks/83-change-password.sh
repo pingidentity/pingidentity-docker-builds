@@ -3,7 +3,7 @@
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 # attempt to authenticate with the expected initial administrator password
-_pwCheckInitial=$( 
+_pwCheckInitial=$(
     curl \
         --insecure \
         --silent \
@@ -13,17 +13,16 @@ _pwCheckInitial=$(
         --user "${ROOT_USER}:${PA_ADMIN_PASSWORD_INITIAL}" \
         --header "X-Xsrf-Header: PingAccess" \
         "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1" \
-        2>/dev/null
-    )
+        2> /dev/null
+)
 # echo "${_pwCheckInitial}"
-if test "${_pwCheckInitial}" != "200"
-then
+if test "${_pwCheckInitial}" != "200"; then
     die_on_error 83 "Bad password - check vars PING_IDENTITY_PASSWORD PA_ADMIN_PASSWORD_INITIAL" || exit ${?}
 fi
 
 # Quiesce the license acceptance screen
 # TODO: we should handle the returned HTTP code and display a useful error if the PUT returns a message
-_license_http_code=$( 
+_license_http_code=$(
     curl \
         --insecure \
         --silent \
@@ -34,16 +33,14 @@ _license_http_code=$(
         --header "X-Xsrf-Header: PingAccess" \
         --data '{ "email": null, "slaAccepted": true, "firstLogin": false, "showTutorial": false,"username": "'"${ROOT_USER}"'"}' \
         "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1" \
-        2>/dev/null
-    )
-if test "${_license_http_code}" != "200" 
-then
+        2> /dev/null
+)
+if test "${_license_http_code}" != "200"; then
     die_on_error 83 "Could not accept license" || exit ${?}
 fi
 
 #Only change password if PING_IDENTITY_PASSWORD is supplied
-if test -n "${PING_IDENTITY_PASSWORD}"
-then
+if test -n "${PING_IDENTITY_PASSWORD}"; then
     echo "INFO: changing admin password"
     _pwChange=$(
         curl \
@@ -56,11 +53,10 @@ then
             --header "X-Xsrf-Header: PingAccess" \
             --data '{"currentPassword": "'"${PA_ADMIN_PASSWORD_INITIAL}"'","newPassword": "'"${PING_IDENTITY_PASSWORD}"'"}' \
             "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/users/1/password" \
-            2>/dev/null
-        )
+            2> /dev/null
+    )
 
-    if test "${_pwChange}" != "200"
-    then
+    if test "${_pwChange}" != "200"; then
         die_on_error 83 "Password not accepted" || exit ${?}
     fi
 fi

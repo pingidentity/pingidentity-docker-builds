@@ -13,10 +13,9 @@ test "${VERBOSE}" = "true" && set -x
 #
 # Usage printing function
 #
-usage ()
-{
-        test -n "${*}" && echo "${*}"
-    cat <<END_USAGE
+usage() {
+    test -n "${*}" && echo "${*}"
+    cat << END_USAGE
 Usage: ${0} {options}
     where {options} include:
     -p, --product
@@ -46,8 +45,7 @@ shimsToBuild=""
 versionsToBuild=""
 PING_IDENTITY_SNAPSHOT=""
 export PING_IDENTITY_SNAPSHOT
-while ! test -z "${1}"
-do
+while ! test -z "${1}"; do
     case "${1}" in
         --dry-run)
             buildOptions="${buildOptions:+${buildOptions} }--dry-run"
@@ -55,7 +53,7 @@ do
         --fail-fast)
             buildOptions="${buildOptions:+${buildOptions} }--fail-fast"
             ;;
-        -j|--jvm)
+        -j | --jvm)
             shift
             test -z "${1}" && usage "You must provide a JVM id"
             jvmsToBuild="${jvmsToBuild:+${jvmsToBuild} }--jvm ${1}"
@@ -64,12 +62,12 @@ do
         --no-cache)
             buildOptions="${buildOptions:+${buildOptions} }--no-cache"
             ;;
-        -p|--product)
+        -p | --product)
             shift
             test -z "${1}" && usage "You must provide a product to build"
             _products="${_products:+${_products} }${1}"
             ;;
-        -s|--shim)
+        -s | --shim)
             shift
             test -z "${1}" && usage "You must provide an OS Shim"
             shimsToBuild="${shimsToBuild:+${shimsToBuild} }--shim ${1}"
@@ -80,7 +78,7 @@ do
         --verbose-build)
             buildOptions="${buildOptions:+${buildOptions} }--verbose-build"
             ;;
-        -v|--version)
+        -v | --version)
             shift
             test -z "${1}" && usage "You must provide a version to build"
             versionsToBuild="${versionsToBuild:+${versionsToBuild} }--version ${1}"
@@ -98,9 +96,11 @@ do
     shift
 done
 
-if test -z "${CI_COMMIT_REF_NAME}"
-then
-    CI_PROJECT_DIR="$( cd "$( dirname "${0}" )/.." || exit 97 ; pwd )"
+if test -z "${CI_COMMIT_REF_NAME}"; then
+    CI_PROJECT_DIR="$(
+        cd "$(dirname "${0}")/.." || exit 97
+        pwd
+    )"
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
@@ -113,15 +113,13 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 
 test -z "${_products}" && _products="apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingdirectoryproxy pingdelegator pingfederate pingtoolkit pingauthorize pingauthorizepap"
 
-for p in ${_products}
-do
+for p in ${_products}; do
     # Word-split is expected behavior for $buildOptions, $versionsToBuild, $jvmsToBuild, and $shimsToBuild. Disable shellcheck.
     # shellcheck disable=SC2086
     "${CI_SCRIPTS_DIR}/build_product.sh" -p "${p}" ${buildOptions} ${versionsToBuild} ${jvmsToBuild} ${shimsToBuild}
     test ${?} -ne 0 && failed=true && break
 
-    if test -n "${_smokeTests}"
-    then
+    if test -n "${_smokeTests}"; then
         # Word-split is expected behavior for $versionsToBuild, $jvmsToBuild, and $shimsToBuild. Disable shellcheck.
         # shellcheck disable=SC2086
         "${CI_SCRIPTS_DIR}/run_smoke.sh" -p "${p}" ${versionsToBuild} ${jvmsToBuild} ${shimsToBuild}

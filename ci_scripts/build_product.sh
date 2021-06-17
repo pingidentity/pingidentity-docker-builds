@@ -9,10 +9,9 @@ test "${VERBOSE}" = "true" && set -x
 #
 # Usage printing function
 #
-usage ()
-{
-        test -n "${*}" && echo "${*}"
-    cat <<END_USAGE
+usage() {
+    test -n "${*}" && echo "${*}"
+    cat << END_USAGE
 Usage: ${0} {options}
     where {options} include:
     -p, --product
@@ -37,25 +36,24 @@ END_USAGE
 # export PING_IDENTITY_SNAPSHOT=--snapshot to trigger snapshot build
 DOCKER_BUILDKIT=1
 noCache=${DOCKER_BUILD_CACHE}
-while ! test -z "${1}"
-do
+while ! test -z "${1}"; do
     case "${1}" in
-        -p|--product)
+        -p | --product)
             shift
             test -z "${1}" && usage "You must provide a product to build"
             productToBuild="${1}"
             ;;
-        -s|--shim)
+        -s | --shim)
             shift
             test -z "${1}" && usage "You must provide an OS Shim"
             shimsToBuild="${shimsToBuild:+${shimsToBuild} }${1}"
             ;;
-        -j|--jvm)
+        -j | --jvm)
             shift
             test -z "${1}" && usage "You must provide a JVM id"
             jvmsToBuild="${jvmsToBuild:+${jvmsToBuild} }${1}"
             ;;
-        -v|--version)
+        -v | --version)
             shift
             test -z "${1}" && usage "You must provide a version to build"
             versionsToBuild="${versionsToBuild:+${versionsToBuild} }${1}"
@@ -86,31 +84,30 @@ do
     shift
 done
 
-if test -z "${productToBuild}"
-then
+if test -z "${productToBuild}"; then
     echo "You must specify a product name to build, for example pingfederate or pingcentral"
     usage
 fi
 
-if test -z "${CI_COMMIT_REF_NAME}"
-then
-    CI_PROJECT_DIR="$( cd "$( dirname "${0}" )/.." || exit 97 ; pwd )"
+if test -z "${CI_COMMIT_REF_NAME}"; then
+    CI_PROJECT_DIR="$(
+        cd "$(dirname "${0}")/.." || exit 97
+        pwd
+    )"
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
-if test -n "${PING_IDENTITY_SNAPSHOT}"
-then
-    if test -z "${PING_IDENTITY_GITLAB_TOKEN}"
-    then
+if test -n "${PING_IDENTITY_SNAPSHOT}"; then
+    if test -z "${PING_IDENTITY_GITLAB_TOKEN}"; then
         echo "the PING_IDENTITY_GITLAB_TOKEN must be provided for snapshot"
         exit 96
     fi
     case "${productToBuild}" in
-        pingaccess|pingauthorize|pingauthorizepap|pingcentral|pingdatasync|pingdatagovernance|pingdatagovernancepap|pingdirectory|pingdirectoryproxy|pingdelegator|pingfederate)
-            ;;
+        pingaccess | pingauthorize | pingauthorizepap | pingcentral | pingdatasync | pingdatagovernance | pingdatagovernancepap | pingdirectory | pingdirectoryproxy | pingdelegator | pingfederate) ;;
+
         pingdownloader)
             #Build pingdownloader normally in a snapshot pipeline as there is no "snapshot bits" for downloader.
             unset PING_IDENTITY_SNAPSHOT
@@ -122,11 +119,9 @@ then
     esac
 fi
 
-if test -z "${versionsToBuild}"
-then
-    if test -n "${PING_IDENTITY_SNAPSHOT}"
-    then
-        versionsToBuild=$( _getLatestSnapshotVersionForProduct "${productToBuild}" )
+if test -z "${versionsToBuild}"; then
+    if test -n "${PING_IDENTITY_SNAPSHOT}"; then
+        versionsToBuild=$(_getLatestSnapshotVersionForProduct "${productToBuild}")
         shimsToBuild="alpine"
         case "${ARCH}" in
             x86_64)
@@ -135,16 +130,15 @@ then
             aarch64)
                 jvmsToBuild="al11"
                 ;;
-            *)
-                ;;
+            *) ;;
+
         esac
     else
-        versionsToBuild=$( _getAllVersionsToBuildForProduct "${productToBuild}" )
+        versionsToBuild=$(_getAllVersionsToBuildForProduct "${productToBuild}")
     fi
 fi
 
-if test -z "${IS_LOCAL_BUILD}" && test ${DOCKER_BUILDKIT} -eq 1
-then
+if test -z "${IS_LOCAL_BUILD}" && test ${DOCKER_BUILDKIT} -eq 1; then
     docker pull "${FOUNDATION_REGISTRY}/pingcommon:${CI_TAG}"
     docker pull "${FOUNDATION_REGISTRY}/pingdatacommon:${CI_TAG}"
 fi
@@ -155,37 +149,33 @@ _reportPattern='%-23s| %-20s| %-20s| %-10s| %10s| %7s'
 
 # Add header to results file
 printf ' %-24s| %-20s| %-20s| %-10s| %10s| %7s\n' "PRODUCT" "VERSION" "SHIM" "JDK" "DURATION" "RESULT" > ${_resultsFile}
-_totalStart=$( date '+%s' )
+_totalStart=$(date '+%s')
 
-_date=$( date +"%y%m%d" )
+_date=$(date +"%y%m%d")
 
 returnCode=0
-for _version in ${versionsToBuild}
-do
+for _version in ${versionsToBuild}; do
     # if the list of shims was not provided as arguments, get the list from the versions file
-    if test -z "${shimsToBuild}"
-    then
-        _shimsToBuild=$( _getShimsToBuildForProductVersion "${productToBuild}" "${_version}" )
+    if test -z "${shimsToBuild}"; then
+        _shimsToBuild=$(_getShimsToBuildForProductVersion "${productToBuild}" "${_version}")
     else
         _shimsToBuild=${shimsToBuild}
     fi
 
     _buildVersion="${_version}"
 
-    if test -f "${CI_PROJECT_DIR}/${productToBuild}/Product-staging"
-    then
+    if test -f "${CI_PROJECT_DIR}/${productToBuild}/Product-staging"; then
         # Check if a file named product.zip is present within the product directory.
         # If so, use a different buildVersion to differentiate the build from regular
         # builds that use the pingdownloader. It is up to the product specific
         # Product-staging file to copy the product.zip into the build container.
         _overrideProductFile="${productToBuild}/tmp/product.zip"
-        if test -f "${_overrideProductFile}"
-        then
+        if test -f "${_overrideProductFile}"; then
             banner "Using file system location ${_overrideProductFile}"
             _buildVersion="${_version}-fsoverride"
         fi
-        _start=$( date '+%s' )
-        _dependencies=$( _getDependenciesForProductVersion "${productToBuild}" "${_version}" )
+        _start=$(date '+%s')
+        _dependencies=$(_getDependenciesForProductVersion "${productToBuild}" "${_version}")
         _image="${FOUNDATION_REGISTRY}/${productToBuild}:staging-${_buildVersion}-${CI_TAG}"
         # build the staging for each product so we don't need to download and stage the product each time
         # Word-split is expected behavior for $progress and $_dependencies. Disable shellcheck.
@@ -213,14 +203,12 @@ do
             ${_dependencies} \
             "${CI_PROJECT_DIR}/${productToBuild}"
         _returnCode=${?}
-        _stop=$( date '+%s' )
-        _duration=$(( _stop - _start ))
-        if test ${_returnCode} -ne 0
-        then
+        _stop=$(date '+%s')
+        _duration=$((_stop - _start))
+        if test ${_returnCode} -ne 0; then
             returnCode=${_returnCode}
             _result=FAIL
-            if test -n "${failFast}"
-            then
+            if test -n "${failFast}"; then
                 banner "Build break for ${productToBuild} staging for version ${_buildVersion}"
                 exit ${_returnCode}
             fi
@@ -232,27 +220,23 @@ do
     fi
 
     # iterate over the shims (default to alpine)
-    for _shim in ${_shimsToBuild:-alpine}
-    do
-        _start=$( date '+%s' )
-        _shimLongTag=$( _getLongTag "${_shim}" )
-        if test -z "${jvmsToBuild}"
-        then
-            _jvmsToBuild=$( _getJVMsToBuildForProductVersionShim "${productToBuild}" "${_version}" "${_shim}" )
+    for _shim in ${_shimsToBuild:-alpine}; do
+        _start=$(date '+%s')
+        _shimLongTag=$(_getLongTag "${_shim}")
+        if test -z "${jvmsToBuild}"; then
+            _jvmsToBuild=$(_getJVMsToBuildForProductVersionShim "${productToBuild}" "${_version}" "${_shim}")
         else
             _jvmsToBuild=${jvmsToBuild}
         fi
 
-        for _jvm in ${_jvmsToBuild}
-        do
-            if test -z "${IS_LOCAL_BUILD}" && test ${DOCKER_BUILDKIT} -eq 1
-            then
+        for _jvm in ${_jvmsToBuild}; do
+            if test -z "${IS_LOCAL_BUILD}" && test ${DOCKER_BUILDKIT} -eq 1; then
                 docker pull "${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimLongTag}-${CI_TAG}-${ARCH}"
             fi
 
             fullTag="${_buildVersion}-${_shimLongTag}-${_jvm}-${CI_TAG}-${ARCH}"
             imageVersion="${productToBuild}-${_shimLongTag}-${_jvm}-${_buildVersion}-${_date}-${GIT_REV_SHORT}"
-            licenseVersion="$( _getLicenseVersion "${_version}" )"
+            licenseVersion="$(_getLicenseVersion "${_version}")"
 
             _image="${FOUNDATION_REGISTRY}/${productToBuild}:${fullTag}"
             # Word-split is expected behavior for $progress. Disable shellcheck.
@@ -276,24 +260,20 @@ do
                 "${CI_PROJECT_DIR}/${productToBuild}"
 
             _returnCode=${?}
-            _stop=$( date '+%s' )
-            _duration=$(( _stop - _start ))
-            if test ${_returnCode} -ne 0
-            then
+            _stop=$(date '+%s')
+            _duration=$((_stop - _start))
+            if test ${_returnCode} -ne 0; then
                 returnCode=${_returnCode}
                 _result=FAIL
-                if test -n "${failFast}"
-                then
+                if test -n "${failFast}"; then
                     banner "Build break for ${productToBuild} on ${_shim} for version ${_buildVersion}"
                     exit ${_returnCode}
                 fi
             else
                 _result=PASS
-                if test -z "${IS_LOCAL_BUILD}"
-                then
+                if test -z "${IS_LOCAL_BUILD}"; then
                     ${dryRun} docker push "${_image}"
-                    if test -n "${PING_IDENTITY_SNAPSHOT}"
-                    then
+                    if test -n "${PING_IDENTITY_SNAPSHOT}"; then
                         ${dryRun} docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
                         ${dryRun} docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
                         ${dryRun} docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
@@ -310,13 +290,12 @@ do
 done
 
 # leave the runner without clutter
-if test -z "${IS_LOCAL_BUILD}"
-then
-    imagesToClean=$( docker image ls -qf "reference=*/*/*${CI_TAG}*" | sort | uniq )
+if test -z "${IS_LOCAL_BUILD}"; then
+    imagesToClean=$(docker image ls -qf "reference=*/*/*${CI_TAG}*" | sort | uniq)
     # Word-split is expected behavior for $imagesToClean. Disable shellcheck.
     # shellcheck disable=SC2086
     test -n "${imagesToClean}" && ${dryRun} docker image rm -f ${imagesToClean}
-    imagesToClean=$( docker image ls -qf "dangling=true" )
+    imagesToClean=$(docker image ls -qf "dangling=true")
     # Word-split is expected behavior for $imagesToClean. Disable shellcheck.
     # shellcheck disable=SC2086
     test -n "${imagesToClean}" && ${dryRun} docker image rm -f ${imagesToClean}
@@ -324,7 +303,7 @@ fi
 
 cat ${_resultsFile}
 rm ${_resultsFile}
-_totalStop=$( date '+%s' )
-_totalDuration=$(( _totalStop - _totalStart ))
+_totalStop=$(date '+%s')
+_totalDuration=$((_totalStop - _totalStart))
 echo "Total duration: ${_totalDuration}s"
 exit ${returnCode}

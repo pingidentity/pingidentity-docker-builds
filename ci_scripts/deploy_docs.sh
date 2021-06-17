@@ -6,9 +6,11 @@
 #
 test "${VERBOSE}" = "true" && set -x
 
-if test -z "${CI_COMMIT_REF_NAME}"
-then
-    CI_PROJECT_DIR="$( cd "$( dirname "${0}" )/.." || exit 97 ; pwd )"
+if test -z "${CI_COMMIT_REF_NAME}"; then
+    CI_PROJECT_DIR="$(
+        cd "$(dirname "${0}")/.." || exit 97
+        pwd
+    )"
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
@@ -16,16 +18,18 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
 rm -rf /tmp/docker-images
-TOOL_NAME="$( basename "${0}" )"
+TOOL_NAME="$(basename "${0}")"
 OUTPUT_DIR=/tmp
-DOCKER_BUILD_DIR="$( cd "$( dirname "${0}" )"/.. || exit 97 ; pwd )"
+DOCKER_BUILD_DIR="$(
+    cd "$(dirname "${0}")"/.. || exit 97
+    pwd
+)"
 
 #
 # Usage printing function
 #
-usage ()
-{
-    cat <<END_USAGE
+usage() {
+    cat << END_USAGE
 Usage: ${TOOL_NAME} {options}
     where {options} include:
 
@@ -42,24 +46,21 @@ END_USAGE
 #
 # Append all arguments to the end of the current markdown document file
 #
-append_doc ()
-{
+append_doc() {
     echo "$*" >> "${_docFile}"
 }
 
 #
 # Append a header
 #
-append_header ()
-{
-   append_doc ""
+append_header() {
+    append_doc ""
 }
 
 #
 # Append a footer including a link to the source file
 #
-append_footer ()
-{
+append_footer() {
     _srcFile="${1}"
 
     append_doc ""
@@ -72,13 +73,11 @@ append_footer ()
 #
 # Start the section on environment variables
 #
-append_env_table_header ()
-{
+append_env_table_header() {
     # TODO: future if a 'from registry pingbase', automatically add this comment
     case "${dockerImage}" in
-        pingaccess|pingdirectory|pingdatasync|pingfederate|pingdatagovernance|pingdatagovernancepap|pingtoolkit|pingcentral|pingintelligence|pingdelegator|pingdataproxy|pingauthorize|pingauthorizepap)
-            if test "${ENV_TABLE_ACTIVE}" != "true"
-            then
+        pingaccess | pingdirectory | pingdatasync | pingfederate | pingdatagovernance | pingdatagovernancepap | pingtoolkit | pingcentral | pingintelligence | pingdelegator | pingdataproxy | pingauthorize | pingauthorizepap)
+            if test "${ENV_TABLE_ACTIVE}" != "true"; then
                 ENV_TABLE_ACTIVE="true"
 
                 append_doc ""
@@ -92,9 +91,8 @@ append_env_table_header ()
                 append_doc "| ------------: | ----------- | ---------------------------------"
             fi
             ;;
-        * )
-            if test "${ENV_TABLE_ACTIVE}" != "true"
-            then
+        *)
+            if test "${ENV_TABLE_ACTIVE}" != "true"; then
                 ENV_TABLE_ACTIVE="true"
 
                 append_doc "## Environment Variables"
@@ -112,8 +110,7 @@ append_env_table_header ()
 #
 # Append an environment variable, default value and description
 #
-append_env_variable ()
-{
+append_env_variable() {
     envVar="${1}" && shift
     envDesc="${1}" && shift
     envDef="${1}" && shift
@@ -124,8 +121,7 @@ append_env_variable ()
 #
 # append docs for exposed ports
 #
-append_expose_ports ()
-{
+append_expose_ports() {
     exposePorts="${1}"
 
     append_doc "## Ports Exposed"
@@ -134,16 +130,14 @@ append_expose_ports ()
     append_doc "used, then it may come from a parent container"
     append_doc ""
 
-    for port in ${exposePorts}
-    do
+    for port in ${exposePorts}; do
         append_doc "- $port"
     done
 
     append_doc ""
 }
 
-append_page_meta_title ()
-{
+append_page_meta_title() {
     title=${1}
     append_doc "---"
     append_doc "title: $title"
@@ -153,8 +147,7 @@ append_page_meta_title ()
 #
 # parse all the hooks in a product's /opt/staging/hooks
 #
-parse_hooks ()
-{
+parse_hooks() {
     _dockerImage="${1}"
     _hooksDir="${DOCKER_BUILD_DIR}/${_dockerImage}/opt/staging/hooks"
 
@@ -168,10 +161,9 @@ parse_hooks ()
     # The following creates a set of .../product/hooks/{hook-name}.md file for each hook
     # pulling in docs in that hook file.
     #
-    for _hookFilePath in "${_hooksDir}"/*
-    do
+    for _hookFilePath in "${_hooksDir}"/*; do
         test -f "${_hookFilePath}" || continue
-        _hookFile=$( basename "${_hookFilePath}" )
+        _hookFile=$(basename "${_hookFilePath}")
         _hookFiles="${_hookFiles:+${_hookFiles} }${_hookFile}"
         _docFile="${OUTPUT_DIR}/docker-images/${_dockerImage}/hooks/${_hookFile}.md"
         rm -f "${_docFile}"
@@ -196,8 +188,7 @@ parse_hooks ()
     append_header
     append_doc "# Ping Identity DevOps \`${_dockerImage}\` Hooks"
 
-    if test -z "${_hookFiles}"
-    then
+    if test -z "${_hookFiles}"; then
         append_doc "There are no default hooks defined for the \`${_dockerImage}\` image."
         append_doc ""
         append_doc "Hooks defined by parent images (i.e. pingcommon/pingdatacommon)"
@@ -205,8 +196,7 @@ parse_hooks ()
         append_footer ""
     else
         append_doc "List of available hooks:"
-        for _hookFile in ${_hookFiles}
-        do
+        for _hookFile in ${_hookFiles}; do
             append_doc "* [${_hookFile}](${_hookFile}.md)"
         done
         append_doc ""
@@ -218,8 +208,7 @@ parse_hooks ()
 #
 # parse the dockerfile for product
 #
-parse_dockerfile ()
-{
+parse_dockerfile() {
     _dockerImage="${1}"
     _dockerFile="${DOCKER_BUILD_DIR}/${_dockerImage}/Dockerfile"
 
@@ -233,8 +222,7 @@ parse_dockerfile ()
     append_page_meta_title "Ping Identity DevOps Docker Image - \`${_dockerImage}\`"
     append_header
 
-    while read -r line
-    do
+    while read -r line; do
         #
         # Parse the ENV Description
         #   Example: #-- This is the description
@@ -242,9 +230,8 @@ parse_dockerfile ()
         # Each line starting with #-- will be concatenated onto the
         # description until an ENV variable line is found
         #
-        if [ "$( echo "${line}" | cut -c-3 )" = "#--" ]
-        then
-            ENV_DESCRIPTION="${ENV_DESCRIPTION}$( echo "${line}" | cut -c5- ) "
+        if [ "$(echo "${line}" | cut -c-3)" = "#--" ]; then
+            ENV_DESCRIPTION="${ENV_DESCRIPTION}$(echo "${line}" | cut -c5-) "
             continue
         fi
 
@@ -262,28 +249,25 @@ parse_dockerfile ()
         # lines, since it can only check for the \ at the end of the line, so variable values should
         # be kept to a single line to ensure the documentation is valid.
         #
-        if [ "$( echo "${line}" | cut -c-4 )" = "ENV " ] ||
-           [ "$( echo "${line}" | cut -c-12 )" = "ONBUILD ENV " ] ||
-           [ "${_envContinuation}" = "true" ] && [ "${line}" ] && [ ! "$( echo "${line}" | cut -c-1 )" = "#" ]
-        then
+        if [ "$(echo "${line}" | cut -c-4)" = "ENV " ] ||
+            [ "$(echo "${line}" | cut -c-12)" = "ONBUILD ENV " ] ||
+            [ "${_envContinuation}" = "true" ] && [ "${line}" ] && [ ! "$(echo "${line}" | cut -c-1)" = "#" ]; then
             # Read the variable name before the '='
-            if [ "${_envContinuation}" = "true" ]
-            then
+            if [ "${_envContinuation}" = "true" ]; then
                 # Don't expect "ENV" or "ONBUILD ENV"
-                ENV_VARIABLE=$( echo "${line}" | sed -e 's/=/x=x/' -e 's/^\(.*\)x=x.*/\1/' )
+                ENV_VARIABLE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^\(.*\)x=x.*/\1/')
             else
                 # Expect "ENV" or "ONBUILD ENV"
-                ENV_VARIABLE=$( echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*ENV[[:space:]]\(.*\)x=x.*/\1/' )
+                ENV_VARIABLE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*ENV[[:space:]]\(.*\)x=x.*/\1/')
             fi
 
             # Read the variable value after the '=', and trim off the ' \' at the end if present
-            ENV_VALUE=$( echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*x=x\(.*\)/\1/' -e 's/[[:space:]]\{1,\}\\$//' -e 's/^"\(.*\)"$/\1/' )
+            ENV_VALUE=$(echo "${line}" | sed -e 's/=/x=x/' -e 's/^.*x=x\(.*\)/\1/' -e 's/[[:space:]]\{1,\}\\$//' -e 's/^"\(.*\)"$/\1/')
 
             # If ENV line ends in slash, the next command will also be an ENV var
             # This isn't able to handle when the variable values themselves are multiline.
             # It assumes that any line continuation is the end of the previous variable.
-            if echo "${line}" | grep -q "[[:space:]]\\\\$" > /dev/null 2>&1
-            then
+            if echo "${line}" | grep -q "[[:space:]]\\\\$" > /dev/null 2>&1; then
                 _envContinuation="true"
             else
                 _envContinuation="false"
@@ -301,15 +285,13 @@ parse_dockerfile ()
         # Parse the EXPOSE values
         #   Example: EXPOSE PORT1 PORT2
         #
-        if [ "$( echo "${line}" | cut -c-7 )" = "EXPOSE " ] ||
-           [ "$( echo "${line}" | cut -c-15 )" = "ONBUILD EXPOSE " ]
-        then
+        if [ "$(echo "${line}" | cut -c-7)" = "EXPOSE " ] ||
+            [ "$(echo "${line}" | cut -c-15)" = "ONBUILD EXPOSE " ]; then
             # shellcheck disable=SC2001
-            EXPOSE_PORTS=$( echo "${line}" | sed 's/^.*EXPOSE \(.*\)$/\1/' )
+            EXPOSE_PORTS=$(echo "${line}" | sed 's/^.*EXPOSE \(.*\)$/\1/')
 
             # Add an empty line after the ENV table
-            if [ "${ENV_TABLE_ACTIVE}" = "true" ]
-            then
+            if [ "${ENV_TABLE_ACTIVE}" = "true" ]; then
                 append_header
                 ENV_TABLE_ACTIVE="false"
             fi
@@ -323,18 +305,16 @@ parse_dockerfile ()
         #
         # Lines starting with '#-' (only one dash) will be added to the doc page outside of the ENV table
         #
-        if [ "$( echo "${line}" | cut -c-2 )" = "#-" ]
-        then
+        if [ "$(echo "${line}" | cut -c-2)" = "#-" ]; then
             # Add an empty line after the ENV table
-            if [ "${ENV_TABLE_ACTIVE}" = "true" ]
-            then
+            if [ "${ENV_TABLE_ACTIVE}" = "true" ]; then
                 append_header
                 ENV_TABLE_ACTIVE="false"
             fi
 
-            md=$( echo "$line" | sed \
-             -e 's/^\#- //' \
-             -e 's/^\#-$//' )
+            md=$(echo "$line" | sed \
+                -e 's/^\#- //' \
+                -e 's/^\#-$//')
 
             append_doc "$md"
         fi
@@ -357,13 +337,11 @@ pingdirectoryproxy pingdelegator apache-jmeter pingcentral pingintelligence ping
 #
 # Parse the provided arguments, if any
 #
-while test -n "${1}"
-do
+while test -n "${1}"; do
     case "${1}" in
-        -d|--docker-image)
+        -d | --docker-image)
             shift
-            if test -z "${1}"
-            then
+            if test -z "${1}"; then
                 echo "You must provide name of docker-image(s)"
                 usage
             fi
@@ -383,12 +361,11 @@ do
     shift
 done
 
-for dockerImage in ${dockerImages}
-do
+for dockerImage in ${dockerImages}; do
     echo "Creating docs for '${dockerImage}'"
 
-    test ! -d "${DOCKER_BUILD_DIR}/${dockerImage}" \
-        && echo "Docker Image '${dockerImage}' not found"
+    test ! -d "${DOCKER_BUILD_DIR}/${dockerImage}" &&
+        echo "Docker Image '${dockerImage}' not found"
 
     parse_dockerfile "${dockerImage}"
     parse_hooks "${dockerImage}"

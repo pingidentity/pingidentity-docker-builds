@@ -30,4 +30,3 @@ run_hook "07-apply-server-profile.sh"
 
 # Builds and displays a Message of the Day file"
 run_hook "09-build-motd.sh"
-

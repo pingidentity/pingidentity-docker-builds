@@ -6,9 +6,11 @@
 #
 test "${VERBOSE}" = "true" && set -x
 
-if test -z "${CI_COMMIT_REF_NAME}"
-then
-    CI_PROJECT_DIR="$( cd "$( dirname "${0}" )/.." || exit 97 ; pwd )"
+if test -z "${CI_COMMIT_REF_NAME}"; then
+    CI_PROJECT_DIR="$(
+        cd "$(dirname "${0}")/.." || exit 97
+        pwd
+    )"
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
@@ -18,29 +20,27 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 banner "Cleaning containers and images ( CI_TAG = ${CI_TAG} )"
 
 # stop containers
-_containers=$( docker container ls -q | sort | uniq )
+_containers=$(docker container ls -q | sort | uniq)
 # Word-split is expected behavior for $_containers. Disable shellcheck.
 # shellcheck disable=SC2086
 test -n "${_containers}" && docker container stop ${_containers}
 
-_containers=$( docker container ls -aq | sort | uniq )
+_containers=$(docker container ls -aq | sort | uniq)
 # Word-split is expected behavior for $_containers. Disable shellcheck.
 # shellcheck disable=SC2086
 test -n "${_containers}" && docker container rm -f ${_containers}
 
-
-imagesToClean=$( docker image ls -qf "reference=*/*/*${CI_TAG}" | sort | uniq )
+imagesToClean=$(docker image ls -qf "reference=*/*/*${CI_TAG}" | sort | uniq)
 # Word-split is expected behavior for $imagesToClean. Disable shellcheck.
 # shellcheck disable=SC2086
 test -n "${imagesToClean}" && docker image rm -f ${imagesToClean}
-imagesToClean=$( docker image ls -qf "dangling=true" )
+imagesToClean=$(docker image ls -qf "dangling=true")
 # Word-split is expected behavior for $imagesToClean. Disable shellcheck.
 # shellcheck disable=SC2086
 test -n "${imagesToClean}" && docker image rm -f ${imagesToClean}
 
 # clean all images if full clean is requested
-if test "${1}" = "full"
-then
+if test "${1}" = "full"; then
     docker system prune -af
 fi
 

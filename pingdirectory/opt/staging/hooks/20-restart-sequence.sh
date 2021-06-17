@@ -21,18 +21,16 @@ echo "Restarting container"
 #
 # Generate the jvm options
 #
-jvmOptions=$( getJvmOptions )
+jvmOptions=$(getJvmOptions)
 _returnCode=${?}
-if test ${_returnCode} -ne 0
-then
+if test ${_returnCode} -ne 0; then
     echo_red "${jvmOptions}"
     container_failure 183 "Invalid JVM options"
 fi
 
 # Before running any ds tools, remove java.properties and re-create it
 # for the current JVM if necessary.
-if ! compare_and_save_jvm_settings "${jvmOptions}" || test "${REGENERATE_JAVA_PROPERTIES}" = "true"
-then
+if ! compare_and_save_jvm_settings "${jvmOptions}" || test "${REGENERATE_JAVA_PROPERTIES}" = "true"; then
     echo "JVM options and/or JVM version have changed. Re-generating java.properties for current JVM."
     # re-initialize the current java.properties.  a backup in same location will be created.
     # Word-split is expected behavior for $jvmOptions. Disable shellcheck.
@@ -55,10 +53,9 @@ appendTemplatesToVariablesIgnore
 #
 buildPasswordFileOptions
 
-certificateOptions=$( getCertificateOptions )
+certificateOptions=$(getCertificateOptions)
 _returnCode=${?}
-if test ${_returnCode} -ne 0
-then
+if test ${_returnCode} -ne 0; then
     echo_red "${certificateOptions}"
     container_failure 183 "Invalid certificate options"
 fi
@@ -66,10 +63,9 @@ fi
 #
 # Generate the encryption options
 #
-encryptionOption=$( getEncryptionOption )
+encryptionOption=$(getEncryptionOption)
 _returnCode=${?}
-if test ${_returnCode} -ne 0
-then
+if test ${_returnCode} -ne 0; then
     echo_red "${encryptionOption}"
     container_failure 183 "Invalid encryption option"
 fi
@@ -80,8 +76,7 @@ echo "Checking license file..."
 _currentLicense="${LICENSE_DIR}/${LICENSE_FILE_NAME}"
 _pdProfileLicense="${PD_PROFILE}/server-root/pre-setup/${LICENSE_FILE_NAME}"
 
-if test ! -f "${_pdProfileLicense}"
-then
+if test ! -f "${_pdProfileLicense}"; then
     echo "  Copying in license from existing install."
     echo "    ${_currentLicense} ==> "
     echo "      ${_pdProfileLicense}"
@@ -92,15 +87,13 @@ else
     echo "Using new license from ${_pdProfileLicense}"
 fi
 
-if test -f "${_pdProfileLicense}"
-then
+if test -f "${_pdProfileLicense}"; then
     _licenseKeyFileArg="--licenseKeyFile ${_pdProfileLicense}"
 fi
 
 # If a setup-arguments.txt file isn't found, then generate
 _isSetupArgumentsGenerated=false
-if test ! -f "${SETUP_ARGUMENTS_FILE}"
-then
+if test ! -f "${SETUP_ARGUMENTS_FILE}"; then
     generateSetupArguments
     _isSetupArgumentsGenerated=true
 fi
@@ -108,8 +101,8 @@ fi
 # Copy the manage-profile.log to a previous version to keep size down due to repeated fail attempts
 mv "${SERVER_ROOT_DIR}/logs/tools/manage-profile.log" "${SERVER_ROOT_DIR}/logs/tools/manage-profile.log.prev"
 
-case "$( toLower "${PD_REBUILD_ON_RESTART}")" in
-    yes|true)
+case "$(toLower "${PD_REBUILD_ON_RESTART}")" in
+    yes | true)
         echo "Forcing replace-profile due to PD_REBUILD_ON_RESTART=${PD_REBUILD_ON_RESTART} ..."
         _replaceFullProfile=" --replaceFullProfile"
         ;;
@@ -132,13 +125,11 @@ ${_manage_profile_cmd}
 _manageProfileRC=$?
 
 # Delete the generated setup-arguments.txt file from the profile
-if test "${_isSetupArgumentsGenerated}" = "true"
-then
+if test "${_isSetupArgumentsGenerated}" = "true"; then
     rm "${SETUP_ARGUMENTS_FILE}"
 fi
 
-if test ${_manageProfileRC} -ne 0
-then
+if test ${_manageProfileRC} -ne 0; then
     echo_red "*****"
     echo_red "An error occurred during mange-profile replace-profile."
     echo_red "${SERVER_ROOT_DIR}/logs/tools/manage-profile.log listed below."
@@ -154,4 +145,3 @@ echo ""
 echo "Rebuilding any new or untrusted indexes for base DN ${USER_BASE_DN}"
 rebuild-index --bulkRebuild new --bulkRebuild untrusted --baseDN "${USER_BASE_DN}"
 exit 0
-

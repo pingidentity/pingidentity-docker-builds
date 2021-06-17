@@ -6,9 +6,11 @@
 #
 test "${VERBOSE}" = "true" && set -x
 
-if test -z "${CI_COMMIT_REF_NAME}"
-then
-    CI_PROJECT_DIR="$( cd "$( dirname "${0}" )/.." || exit 97 ; pwd )"
+if test -z "${CI_COMMIT_REF_NAME}"; then
+    CI_PROJECT_DIR="$(
+        cd "$(dirname "${0}")/.." || exit 97
+        pwd
+    )"
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
@@ -25,8 +27,7 @@ git config user.name "devops_program"
 
 git remote add gh_location "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/pingidentity/pingidentity-docker-builds.git"
 
-if test -n "$CI_COMMIT_TAG"
-then
+if test -n "$CI_COMMIT_TAG"; then
     git push gh_location "$CI_COMMIT_TAG"
 fi
 

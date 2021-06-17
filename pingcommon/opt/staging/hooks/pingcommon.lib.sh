@@ -18,34 +18,28 @@ test -f "/run/secrets/${PING_IDENTITY_DEVOPS_FILE}" && . "/run/secrets/${PING_ID
 #  Some extremely basic functions to make life with variables a bit easier
 #
 #
-toLower ()
-{
-    printf "%s" "${*}"|tr '[:upper:]' '[:lower:]'
+toLower() {
+    printf "%s" "${*}" | tr '[:upper:]' '[:lower:]'
 }
 
-toLowerVar ()
-{
-    toLower "$( eval printf "%s" \$"${1}" )"
+toLowerVar() {
+    toLower "$(eval printf "%s" \$"${1}")"
 }
 
-lowerVar()
-{
-    eval "${1}=$( toLowerVar "${1}" )"
+lowerVar() {
+    eval "${1}=$(toLowerVar "${1}")"
 }
 
-toUpper ()
-{
-    printf "%s" "${*}"|tr '[:lower:]' '[:upper:]'
+toUpper() {
+    printf "%s" "${*}" | tr '[:lower:]' '[:upper:]'
 }
 
-toUpperVar ()
-{
-    toUpper "$( eval printf "%s" \$"${1}" )"
+toUpperVar() {
+    toUpper "$(eval printf "%s" \$"${1}")"
 }
 
-upperVar()
-{
-    eval "${1}=$( toUpperVar "${1}" )"
+upperVar() {
+    eval "${1}=$(toUpperVar "${1}")"
 }
 
 #
@@ -53,24 +47,23 @@ upperVar()
 # NOTICE: This function expects --output to be passed in as function arguments,
 # otherwise the test and return will fail, as HTTP_RESULT_CODE with contain the curl output
 #
-_curl ()
-{
+_curl() {
     #Build curl options in $@
     set -- --get \
-            --silent \
-            --show-error \
-            --write-out '%{http_code}' \
-            --location \
-            --connect-timeout 2 \
-            --retry 6 \
-            --retry-max-time 30 \
-            --retry-delay 3 \
-            "${@}"
+        --silent \
+        --show-error \
+        --write-out '%{http_code}' \
+        --location \
+        --connect-timeout 2 \
+        --retry 6 \
+        --retry-max-time 30 \
+        --retry-delay 3 \
+        "${@}"
 
     # CentOS curl does not support the retry on connection refused option
     isOS "centos" || set -- --retry-connrefused "${@}"
 
-    HTTP_RESULT_CODE=$( curl "${@}" )
+    HTTP_RESULT_CODE=$(curl "${@}")
     test "${HTTP_RESULT_CODE}" = "200"
     return ${?}
 }
@@ -78,63 +71,57 @@ _curl ()
 #
 # Stable function to retrieve OS information
 #
-parseOSRelease ()
-{
-    test -n "${1}" && awk '$0~/^'"${1}"'=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null
+parseOSRelease() {
+    test -n "${1}" && awk '$0~/^'"${1}"'=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' < /etc/os-release 2> /dev/null
 }
 
 # The OS ID is all lowercase
-getOSID ()
-{
+getOSID() {
     parseOSRelease ID
 }
 
-getOSVersion ()
-{
+getOSVersion() {
     parseOSRelease VERSION
 }
 
 # The name is often pretty-printed
-getOSName ()
-{
+getOSName() {
     parseOSRelease NAME
 }
 
-isOS ()
-{
+isOS() {
     _targetOS="${1}"
-    _currentOS="$( getOSID )"
+    _currentOS="$(getOSID)"
     test -n "${_targetOS}" && test "${_targetOS}" = "${_currentOS}"
     return ${?}
 }
 
 getSemanticImageVersion() {
-  version=$( echo "${IMAGE_VERSION}" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]" )
-  major=$( echo "${version}" | awk -F"." '{ print $1 }' )
-  minor=$( echo "${version}" | awk -F"." '{ print $2 }' )
-  patch=$( echo "${version}" | awk -F"." '{ print $3 }' )
+    version=$(echo "${IMAGE_VERSION}" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]")
+    major=$(echo "${version}" | awk -F"." '{ print $1 }')
+    minor=$(echo "${version}" | awk -F"." '{ print $2 }')
+    patch=$(echo "${version}" | awk -F"." '{ print $3 }')
 }
 
 # send desired semantic version to be compared to image version.
 #   example: IMAGE_VERSION=10.1.0
 #   test $( isImageVersionGtEq 10.0.0 ) -eq 0 && echo "current image is greater or equal"
 isImageVersionGtEq() {
-  getSemanticImageVersion
-  aVersion=${1}
-  aMajor=$( echo "${aVersion}" | awk -F"." '{ print $1 }' )
-  aMinor=$( echo "${aVersion}" | awk -F"." '{ print $2 }' )
-  aPatch=$( echo "${aVersion}" | awk -F"." '{ print $3 }' )
+    getSemanticImageVersion
+    aVersion=${1}
+    aMajor=$(echo "${aVersion}" | awk -F"." '{ print $1 }')
+    aMinor=$(echo "${aVersion}" | awk -F"." '{ print $2 }')
+    aPatch=$(echo "${aVersion}" | awk -F"." '{ print $3 }')
 
-  test "${aMajor}" -gt "${major}" && echo 1 && return
-  test "${aMajor}" -eq "${major}" && test "${aMinor}" -gt "${minor}" && echo 1 && return
-  test "${aMajor}" -eq "${major}" && test "${aMinor}" -eq "${minor}" && test "${aPatch}" -gt "${patch}" && echo 1 && return
+    test "${aMajor}" -gt "${major}" && echo 1 && return
+    test "${aMajor}" -eq "${major}" && test "${aMinor}" -gt "${minor}" && echo 1 && return
+    test "${aMajor}" -eq "${major}" && test "${aMinor}" -eq "${minor}" && test "${aPatch}" -gt "${patch}" && echo 1 && return
 
-  echo 0
+    echo 0
 }
 
-echo_color ()
-{
-    _color="$( toLower "${1}" )"
+echo_color() {
+    _color="$(toLower "${1}")"
     shift
     case "${_color}" in
         red) _colorCode='\033[0;31m' ;;
@@ -142,8 +129,7 @@ echo_color ()
         yellow) _colorCode='\033[0;33m' ;;
     esac
     _endColor='\033[0m'
-    if test "${COLORIZE_LOGS}" = "true"
-    then
+    if test "${COLORIZE_LOGS}" = "true"; then
         printf "%b%s%b\n" "${_colorCode}" "${*}" "${_endColor}"
     else
         printf "%s\n" "${*}"
@@ -155,8 +141,7 @@ echo_color ()
 #
 # Prints a message in the color red
 ###############################################################################
-echo_red ()
-{
+echo_red() {
     echo_color red "${*}"
 }
 
@@ -165,8 +150,7 @@ echo_red ()
 #
 # Prints a message in the color green
 ###############################################################################
-echo_green ()
-{
+echo_green() {
     echo_color green "${*}"
 }
 
@@ -175,8 +159,7 @@ echo_green ()
 #
 # Prints a message in the color yellow
 ###############################################################################
-echo_yellow ()
-{
+echo_yellow() {
     echo_color yellow "${*}"
 }
 
@@ -185,9 +168,8 @@ echo_yellow ()
 #
 # Echos a bar of 80 hash marks
 ###############################################################################
-echo_bar ()
-{
-    printf "################################################################################\n"    
+echo_bar() {
+    printf "################################################################################\n"
 }
 
 ###############################################################################
@@ -195,8 +177,7 @@ echo_bar ()
 #
 # cat a file to stdout and indent 4 spaces
 ###############################################################################
-cat_indent ()
-{
+cat_indent() {
     test -f "${1}" && sed 's/^/    /' < "${1}"
 }
 
@@ -205,8 +186,7 @@ cat_indent ()
 #
 # cat a file to stdout and indent with a comment '# '
 ###############################################################################
-cat_comment ()
-{
+cat_comment() {
     test -f "${1}" && sed 's/^/# /' < "${1}"
 }
 
@@ -215,14 +195,12 @@ cat_comment ()
 #
 # runs a script, if the script is present
 ###############################################################################
-run_if_present ()
-{
+run_if_present() {
     _runFile=${1}
 
     _commandSet="sh"
     ${VERBOSE} && _commandSet="${_commandSet} -x"
-    if test -f "${_runFile}"
-    then
+    if test -f "${_runFile}"; then
         ${_commandSet} "${_runFile}"
         return ${?}
     else
@@ -236,12 +214,10 @@ run_if_present ()
 # echo a CONTAINER FAILURE with passed message
 # exit with the exitCode
 ###############################################################################
-container_failure ()
-{
+container_failure() {
     _exitCode=${1} && shift
 
-    if test "$( toLower "${UNSAFE_CONTINUE_ON_ERROR}" )" = "true"
-    then
+    if test "$(toLower "${UNSAFE_CONTINUE_ON_ERROR}")" = "true"; then
         echo_red "################################################################################"
         echo_red "################################### WARNING ####################################"
         echo_red "################################################################################"
@@ -270,13 +246,11 @@ container_failure ()
 #    Wipe the runtime
 #    exit with the exitCode
 ###############################################################################
-die_on_error ()
-{
+die_on_error() {
     _errorCode=${?}
     _exitCode=${1} && shift
 
-    if test ${_errorCode} -ne 0
-    then
+    if test ${_errorCode} -ne 0; then
         container_failure "${_exitCode}" "$*"
     fi
 }
@@ -289,13 +263,11 @@ die_on_error ()
 #
 # If the number is > 256, then it will result in a return of that number mod 256
 ################################################################################
-run_hook ()
-{
+run_hook() {
     _hookScript="$1"
-    _hookExit=$( echo "${_hookScript}" | sed  's/^\([0-9]*\).*$/\1/g' )
+    _hookExit=$(echo "${_hookScript}" | sed 's/^\([0-9]*\).*$/\1/g')
 
     test -z "${_hookExit}" && _hookExit=99
-
 
     run_if_present "${HOOKS_DIR}/${_hookScript}.pre"
     die_on_error ${_hookExit} "Error running ${_hookScript}.pre" || exit ${?}
@@ -314,10 +286,8 @@ run_hook ()
 # We do this on every startup such that updates to the IN_DIR contents apply
 # on container restart
 ###############################################################################
-apply_local_server_profile()
-{
-    if test -n "${IN_DIR}" && test -n "$( ls -A "${IN_DIR}" 2>/dev/null )"
-    then
+apply_local_server_profile() {
+    if test -n "${IN_DIR}" && test -n "$(ls -A "${IN_DIR}" 2> /dev/null)"; then
         echo "copying local IN_DIR files (${IN_DIR}) to STAGING_DIR (${STAGING_DIR})"
         copy_files "${IN_DIR}" "${STAGING_DIR}"
     else
@@ -333,22 +303,19 @@ apply_local_server_profile()
 # copied. Destination must be a directory and is created if it doesn't already
 # exist.
 ###############################################################################
-copy_files()
-{
+copy_files() {
     SRC="$1"
     DST="$2"
 
-    if ! test -e "${DST}"
-    then
+    if ! test -e "${DST}"; then
         echo "copy_files - dst dir (${DST}) does not exist - will create it"
         mkdir -p "${DST}"
-    elif ! test -d "${DST}"
-    then
+    elif ! test -d "${DST}"; then
         echo "Error: copy_files - dst (${DST}) must be a directory"
         exit 1
     fi
 
-    ( cd "${SRC}" && find . -type f -exec cp -fL --parents '{}' "${DST}" \; )
+    (cd "${SRC}" && find . -type f -exec cp -fL --parents '{}' "${DST}" \;)
 }
 
 ###############################################################################
@@ -359,8 +326,7 @@ copy_files()
 #
 # check files in the path for potential security issues based on pattern passed
 ###############################################################################
-security_filename_check()
-{
+security_filename_check() {
     _scPath="${1}"
     _patternToCheck="${2}"
 
@@ -369,17 +335,15 @@ security_filename_check()
     _tmpSC="/tmp/.securityCheck"
     # Check for *.jwk files
     # shellcheck disable=SC2164
-    test -d "${_scPath}" && _tmpPWD=$( pwd ) && cd "${_scPath}"
+    test -d "${_scPath}" && _tmpPWD=$(pwd) && cd "${_scPath}"
     find . -type f -name "${_patternToCheck}" > "${_tmpSC}"
     # shellcheck disable=SC2164
     test -d "${_scPath}" && cd "${_tmpPWD}"
 
-    _numViolations=$( awk 'END{print NR}' "${_tmpSC}" )
+    _numViolations=$(awk 'END{print NR}' "${_tmpSC}")
 
-    if test "${_numViolations}" -gt 0
-    then
-        if test "${SECURITY_CHECKS_STRICT}" = "true"
-        then
+    if test "${_numViolations}" -gt 0; then
+        if test "${SECURITY_CHECKS_STRICT}" = "true"; then
             echo_red "SECURITY_CHECKS_FILENAME: ${_numViolations} files found matching file pattern ${_patternToCheck}"
         else
             echo_green "SECURITY_CHECKS_FILENAME: ${_numViolations} files found matching file pattern ${_patternToCheck}"
@@ -387,7 +351,7 @@ security_filename_check()
 
         cat_indent ${_tmpSC}
 
-        TOTAL_SECURITY_VIOLATIONS=$(( TOTAL_SECURITY_VIOLATIONS + _numViolations ))
+        TOTAL_SECURITY_VIOLATIONS=$((TOTAL_SECURITY_VIOLATIONS + _numViolations))
     fi
 
     export TOTAL_SECURITY_VIOLATIONS
@@ -399,13 +363,12 @@ security_filename_check()
 # Sleep at least one second and at most the indicated duration and
 # echos a message
 ###############################################################################
-sleep_at_most ()
-{
+sleep_at_most() {
     _max=$1
-    _modulus=$(( _max - 1 ))
+    _modulus=$((_max - 1))
     _random_num=$(awk 'BEGIN { srand(); print int(rand()*32768) }' /dev/null)
-    _result=$(( _random_num % _modulus ))
-    _duration=$(( _result + 1 ))
+    _result=$((_random_num % _modulus))
+    _duration=$((_result + 1))
 
     echo "Sleeping ${_duration} seconds (max: ${_max})..."
 
@@ -423,19 +386,16 @@ sleep_at_most ()
 # variable will be checked. If the file variable is set, the value will be
 # read from the corresponding file.
 ###############################################################################
-get_value ()
-{
+get_value() {
     # the following will preserve spaces in the printf
     IFS="%%"
-    value="$( eval printf '%s' "\${${1}}" )"
-    checkFile="$( toLower "${2}" )"
-    if test -z "${value}" && test "${checkFile}" = "true"
-    then
+    value="$(eval printf '%s' "\${${1}}")"
+    checkFile="$(toLower "${2}")"
+    if test -z "${value}" && test "${checkFile}" = "true"; then
         fileVar="${1}_FILE"
-        file="$( eval printf '%s' "\${${fileVar}}" )"
-        if test -n "${file}"
-        then
-            value="$( cat "${file}" )"
+        file="$(eval printf '%s' "\${${fileVar}}")"
+        if test -n "${file}"; then
+            value="$(cat "${file}")"
         fi
     fi
     printf '%s' "${value}"
@@ -447,19 +407,16 @@ get_value ()
 #
 # Echo a header, with each line passed on separate lines
 ###############################################################################
-echo_header ()
-{
-  echo_bar
+echo_header() {
+    echo_bar
 
-  while test -n "${1}"
-  do
-    _msg=${1} && shift
-    echo "#    ${_msg}"
-  done
+    while test -n "${1}"; do
+        _msg=${1} && shift
+        echo "#    ${_msg}"
+    done
 
-  echo_bar
+    echo_bar
 }
-
 
 ###############################################################################
 # error_req_var (var)
@@ -468,8 +425,7 @@ echo_header ()
 # Echo a formatted list of variables and their value.  If the variable is
 # empty, then, a string of '---- empty ----' will be echoed
 ###############################################################################
-echo_req_vars ()
-{
+echo_req_vars() {
     echo_red "# Variable (${_var}) is required."
 }
 
@@ -483,60 +439,54 @@ echo_req_vars ()
 # If the variable has a _REDACT=true, or if the _redactAll variable is set
 # to true, then '*** REDACTED ***'
 ###############################################################################
-echo_vars ()
-{
-  while test -n "${1}"
-  do
-    _var=${1} && shift
-    _val=$( get_value "${_var}" )
+echo_vars() {
+    while test -n "${1}"; do
+        _var=${1} && shift
+        _val=$(get_value "${_var}")
 
-    # If the same var is found in env_vars, then we will print an
-    # overridden message
-    #
-    grep -e "^${_var}=" "${STAGING_DIR}/env_vars" >/dev/null 2>/dev/null
-    if test $? -eq 0
-    then
-        _overridden=" (env_vars overridden)"
-    else
-        _overridden=""
-    fi
+        # If the same var is found in env_vars, then we will print an
+        # overridden message
+        #
+        grep -e "^${_var}=" "${STAGING_DIR}/env_vars" > /dev/null 2> /dev/null
+        if test $? -eq 0; then
+            _overridden=" (env_vars overridden)"
+        else
+            _overridden=""
+        fi
 
-    # If the variable_REDACT is true, then we will print a
-    # redaction message
-    #
-    _varRedact="${_var}_REDACT"
-    _varRedact=$( get_value "${_varRedact}" )
+        # If the variable_REDACT is true, then we will print a
+        # redaction message
+        #
+        _varRedact="${_var}_REDACT"
+        _varRedact=$(get_value "${_varRedact}")
 
-    if test "${_varRedact}" = "true" || test "${_redactAll}" = "true"
-    then
-      _val="*** REDACTED ***"
-    fi
+        if test "${_varRedact}" = "true" || test "${_redactAll}" = "true"; then
+            _val="*** REDACTED ***"
+        fi
 
-    printf "    %30s : %s %s\n" "${_var}" "${_val:---- empty ---}" "${_overridden}"
+        printf "    %30s : %s %s\n" "${_var}" "${_val:---- empty ---}" "${_overridden}"
 
-    # Find out if there is a _VALIDATION string
-    #
-    # var_VALIDATION must be of format "true|valid values|message"
-    #
-    _varValidation="${_var}_VALIDATION"
-    _valValidation=$( get_value "${_varValidation}" )
+        # Find out if there is a _VALIDATION string
+        #
+        # var_VALIDATION must be of format "true|valid values|message"
+        #
+        _varValidation="${_var}_VALIDATION"
+        _valValidation=$(get_value "${_varValidation}")
 
-    # Parse the validation value if it exists
-    if test -n "${_valValidation}"
-    then
-      _validReq=$( echo "${_valValidation}" | sed  's/^\(.*\)|\(.*\)|\(.*\)$/\1/g' )
-      _validVal=$( echo "${_valValidation}" | sed  's/^\(.*\)|\(.*\)|\(.*\)$/\2/g' )
-      _validMsg=$( echo "${_valValidation}" | sed  's/^\(.*\)|\(.*\)|\(.*\)$/\3/g' )
+        # Parse the validation value if it exists
+        if test -n "${_valValidation}"; then
+            _validReq=$(echo "${_valValidation}" | sed 's/^\(.*\)|\(.*\)|\(.*\)$/\1/g')
+            _validVal=$(echo "${_valValidation}" | sed 's/^\(.*\)|\(.*\)|\(.*\)$/\2/g')
+            _validMsg=$(echo "${_valValidation}" | sed 's/^\(.*\)|\(.*\)|\(.*\)$/\3/g')
 
-      if test "${_validReq}" = "true" && test -z "${_val}"
-      then
-        # _validationFailed="true"
-        test "${_validReq}" = "true" && echo_red "         Required: ${_var}"
-        test -n "${_validVal}" && echo_red "     Valid Values: ${_validVal}"
-        test -n "${_validMsg}" && echo_red "        More Info: ${_validMsg}"
-      fi
-    fi
-  done
+            if test "${_validReq}" = "true" && test -z "${_val}"; then
+                # _validationFailed="true"
+                test "${_validReq}" = "true" && echo_red "         Required: ${_var}"
+                test -n "${_validVal}" && echo_red "     Valid Values: ${_validVal}"
+                test -n "${_validMsg}" && echo_red "        More Info: ${_validMsg}"
+            fi
+        fi
+    done
 }
 
 ###############################################################################
@@ -544,13 +494,11 @@ echo_vars ()
 #
 # Provide hard warning about any variables starting with UNSAFE_
 ###############################################################################
-warn_unsafe_variables ()
-{
+warn_unsafe_variables() {
 
-    _unsafeValues="$( env | grep "^UNSAFE_" | awk -F'=' '{ print $2 }' )"
+    _unsafeValues="$(env | grep "^UNSAFE_" | awk -F'=' '{ print $2 }')"
 
-    if test -n "${_unsafeValues}"
-    then
+    if test -n "${_unsafeValues}"; then
         echo_red "################################################################################"
         echo_red "######################### WARNING - UNSAFE_ VARIABLES ##########################"
         echo_red "################################################################################"
@@ -558,9 +506,8 @@ warn_unsafe_variables ()
         echo_red "#  as it is considered unsafe to continue, especially in production deployments."
         echo_red ""
 
-        for _unsafeVar in $( env | grep "^UNSAFE_" | sort | awk -F'=' '{ print $1 }' )
-        do
-            _unsafeValue=$( get_value "${_unsafeVar}" )
+        for _unsafeVar in $(env | grep "^UNSAFE_" | sort | awk -F'=' '{ print $1 }'); do
+            _unsafeValue=$(get_value "${_unsafeVar}")
 
             test -n "${_unsafeValue}" && echo_vars "${_unsafeVar}"
         done
@@ -576,24 +523,19 @@ warn_unsafe_variables ()
 #
 # Provide a warning about any deprecated variables
 ###############################################################################
-warn_deprecated_variables ()
-{
+warn_deprecated_variables() {
     # Add any new deprecated variables to this file in the pingcommon image.
     _deprecatedVarsJson="/opt/staging/deprecated-variables.json"
-    if ! test -f "${_deprecatedVarsJson}"
-    then
+    if ! test -f "${_deprecatedVarsJson}"; then
         return 0
     fi
 
     _deprecatedHeaderPrinted=false
     # Read variable names from the json file
-    for _deprecatedVar in $( jq -r '.[] | .name' "${_deprecatedVarsJson}" )
-    do
-        _deprecatedValue=$( get_value "${_deprecatedVar}" )
-        if test -n "${_deprecatedValue}"
-        then
-            if test "${_deprecatedHeaderPrinted}" != "true"
-            then
+    for _deprecatedVar in $(jq -r '.[] | .name' "${_deprecatedVarsJson}"); do
+        _deprecatedValue=$(get_value "${_deprecatedVar}")
+        if test -n "${_deprecatedValue}"; then
+            if test "${_deprecatedHeaderPrinted}" != "true"; then
                 echo_yellow "################################################################################"
                 echo_yellow "################################################################################"
                 echo_yellow "###################### WARNING - DEPRECATED VARIABLES ##########################"
@@ -603,24 +545,21 @@ warn_deprecated_variables ()
                 _deprecatedHeaderPrinted=true
             fi
             # Don't print values of sensitive variables
-            _sensitive=$( jq -r ".[] | select(.name==\"${_deprecatedVar}\") | .sensitive" "${_deprecatedVarsJson}" )
-            if test "${_sensitive}" = "true"
-            then
+            _sensitive=$(jq -r ".[] | select(.name==\"${_deprecatedVar}\") | .sensitive" "${_deprecatedVarsJson}")
+            if test "${_sensitive}" = "true"; then
                 _redactAll=true
             else
                 _redactAll=false
             fi
             echo_vars "${_deprecatedVar}"
             # Print a specific message for variables that have provided one
-            _deprecatedVarMessage=$( jq -r ".[] | select(.name==\"${_deprecatedVar}\") | .message" "${_deprecatedVarsJson}" )
-            if test -n "${_deprecatedVarMessage}" && test "${_deprecatedVarMessage}" != "null"
-            then
+            _deprecatedVarMessage=$(jq -r ".[] | select(.name==\"${_deprecatedVar}\") | .message" "${_deprecatedVarsJson}")
+            if test -n "${_deprecatedVarMessage}" && test "${_deprecatedVarMessage}" != "null"; then
                 echo_yellow "# ${_deprecatedVarMessage}"
             fi
         fi
     done
-    if test "${_deprecatedHeaderPrinted}" = "true"
-    then
+    if test "${_deprecatedHeaderPrinted}" = "true"; then
         echo_yellow ""
         echo_yellow "################################################################################"
         echo_yellow ""
@@ -633,8 +572,7 @@ warn_deprecated_variables ()
 #
 # Print warnings for deprecated variables and variables starting with _UNSAFE
 ###############################################################################
-print_variable_warnings ()
-{
+print_variable_warnings() {
     warn_deprecated_variables
     warn_unsafe_variables
 }
@@ -644,11 +582,9 @@ print_variable_warnings ()
 #
 # source and export all the CONTAINER_ENV variables
 ###############################################################################
-source_container_env ()
-{
+source_container_env() {
     # shellcheck source=/dev/null
-    if test -f "${CONTAINER_ENV}"
-    then
+    if test -f "${CONTAINER_ENV}"; then
         set -o allexport
         . "${CONTAINER_ENV}"
         set +o allexport
@@ -660,13 +596,10 @@ source_container_env ()
 #
 # source and export all ${SECRETS_DIR}/*.env files (including subdirectories)
 ###############################################################################
-source_secret_envs ()
-{
-    if test -d "${SECRETS_DIR}"
-    then
+source_secret_envs() {
+    if test -d "${SECRETS_DIR}"; then
         find "${SECRETS_DIR}" -type f -name '*.env' -print > /tmp/_envFile
-        while IFS= read -r _envFile
-        do
+        while IFS= read -r _envFile; do
             set -o allexport
             # shellcheck source=/dev/null
             . "${_envFile}"
@@ -682,8 +615,7 @@ source_secret_envs ()
 # Write the var passed to the CONTAINER_VAR for communication to further
 # hooks
 ###############################################################################
-export_container_env ()
-{
+export_container_env() {
     {
         echo ""
         echo_bar
@@ -691,10 +623,9 @@ export_container_env ()
         echo_bar
     } >> "${CONTAINER_ENV}"
 
-    while test -n "${1}"
-    do
+    while test -n "${1}"; do
         _var=${1} && shift
-        _val=$( get_value "${_var}" )
+        _val=$(get_value "${_var}")
 
         echo "${_var}=${_val}" >> "${CONTAINER_ENV}"
     done
@@ -707,12 +638,10 @@ export_container_env ()
 #
 # Check if str1 contains str2
 ###############################################################################
-contains ()
-{
+contains() {
     string="$1"
     substring="$2"
-    if test "${string#*$substring}" != "$string"
-    then
+    if test "${string#*$substring}" != "$string"; then
         # substring is in string
         return 0
     else
@@ -726,10 +655,9 @@ contains ()
 #
 # Check if str1 contains str2, ignoring case
 ###############################################################################
-contains_ignore_case ()
-{
-    stringLower="$( toLower "$1" )"
-    substringLower="$( toLower "$2" )"
+contains_ignore_case() {
+    stringLower="$(toLower "$1")"
+    substringLower="$(toLower "$2")"
     contains "${stringLower}" "${substringLower}"
     return ${?}
 }
@@ -741,15 +669,11 @@ contains_ignore_case ()
 # exists, the specified filename is a file, and the filename is not included
 # in the manifest, then it will be deleted.
 ###############################################################################
-clean_staging_file ()
-{
-    if test -f "${STAGING_MANIFEST}" && ! grep -Fxq "${1}" "${STAGING_MANIFEST}"
-    then
-        if test -f "${1}"
-        then
+clean_staging_file() {
+    if test -f "${STAGING_MANIFEST}" && ! grep -Fxq "${1}" "${STAGING_MANIFEST}"; then
+        if test -f "${1}"; then
             rm "${1}"
-        elif test -d "${1}"
-        then
+        elif test -d "${1}"; then
             rmdir "${1}"
         fi
     fi
@@ -765,8 +689,7 @@ clean_staging_file ()
 # This method is used to clean the /opt/staging directory before copying a
 # local server profile or pulling a remote profile in.
 ###############################################################################
-clean_staging_dir ()
-{
+clean_staging_dir() {
     find "${STAGING_DIR}" | awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' | while read -r file; do clean_staging_file "${file}"; done
 }
 

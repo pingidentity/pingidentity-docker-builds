@@ -15,4 +15,4 @@ ldapsearch \
     --trustAll \
     --baseDN "" \
     --searchScope base "(&)" 1.1 \
-    2>/dev/null || exit 1
+    2> /dev/null || exit 1

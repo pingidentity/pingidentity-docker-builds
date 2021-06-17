@@ -9,13 +9,11 @@ TIMEOUT="${1:-1}"
 
 URL="https://localhost:${HTTPS_PORT}/available-state"
 
-for _ in $( seq "${TIMEOUT}" )
-do
+for _ in $(seq "${TIMEOUT}"); do
 
-    _curlResult=$( curl -k -o /dev/null -w '%{http_code}' --connect-timeout 2 "${URL}" 2> /dev/null )
+    _curlResult=$(curl -k -o /dev/null -w '%{http_code}' --connect-timeout 2 "${URL}" 2> /dev/null)
 
-    if test "${_curlResult}" -eq 200
-    then
+    if test "${_curlResult}" -eq 200; then
         exit 0
     fi
 

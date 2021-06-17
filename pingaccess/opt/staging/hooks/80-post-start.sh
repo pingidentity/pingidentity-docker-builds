@@ -8,8 +8,7 @@
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" || test "${OPERATIONAL_MODE}" = "STANDALONE"
-then
+if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" || test "${OPERATIONAL_MODE}" = "STANDALONE"; then
     echo "INFO: waiting for PingAccess to start before importing configuration"
 
     # using 127.0.0.1 (rather than localhost) until nc (part ob busybox) supports ipv4/ipv6
@@ -18,8 +17,7 @@ then
     test ${?} -ne 0 && kill 1
 fi
 
-if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE"
-then
+if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE"; then
     echo "Bringing eth0 back up..."
     ip link set eth0 up
 fi

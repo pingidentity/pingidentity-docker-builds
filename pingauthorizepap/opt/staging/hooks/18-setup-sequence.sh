@@ -10,8 +10,7 @@ test "${VERBOSE}" = "true" && set -x
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-if test ! -f "${SERVER_ROOT_DIR}/config/server.uuid"
-then
+if test ! -f "${SERVER_ROOT_DIR}/config/server.uuid"; then
     # setup the instance given all the provided data
     run_hook "183-run-setup.sh"
 fi

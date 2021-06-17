@@ -1,10 +1,9 @@
 #!/usr/bin/env sh
-if test "$( id -u )" -ne 0
-then
+if test "$(id -u)" -ne 0; then
     echo This tool must be run as root
     exit 1
 fi
-cat <<END_DISCLAIMER
+cat << END_DISCLAIMER
 ################################################################################
 #                                  NOTICE                                      #
 ################################################################################
@@ -24,10 +23,10 @@ read -r userResponse
 test "${userResponse}" = "y" || exit 2
 
 cd / || exit 3
-_ver=$( awk -F= '$1~/VERSION_ID/{gsub(/"/,"",$2);gsub(/\.[0-9]+$/,"",$2);print $2;}' /etc/os-release )
-_arch=$( uname -m )
+_ver=$(awk -F= '$1~/VERSION_ID/{gsub(/"/,"",$2);gsub(/\.[0-9]+$/,"",$2);print $2;}' /etc/os-release)
+_arch=$(uname -m)
 _url="http://dl-cdn.alpinelinux.org/alpine/v${_ver}/main/${_arch}/"
-_apk=$( curl -s "${_url}" | awk '$0~/apk-tools-static/ {sub(/.*href="/,"",$2);sub(/".*$/,"",$2);print $2}')
+_apk=$(curl -s "${_url}" | awk '$0~/apk-tools-static/ {sub(/.*href="/,"",$2);sub(/".*$/,"",$2);print $2}')
 curl -s "${_url}/${_apk}" | tar xvzf -
 ln -s /sbin/apk.static /sbin/apk
 apk -X http://dl-cdn.alpinelinux.org/alpine/latest-stable/main -U --allow-untrusted --initdb add apk-tools-static

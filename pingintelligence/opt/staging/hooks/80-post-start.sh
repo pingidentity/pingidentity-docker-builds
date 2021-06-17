@@ -13,9 +13,7 @@
 # shellcheck source=./pingintelligence.lib.sh
 . "${HOOKS_DIR}/pingintelligence.lib.sh"
 
-
-while ! isASERunning
-do
+while ! isASERunning; do
     sleep 1
 done
 
@@ -25,12 +23,10 @@ test ${?} -ne 0 && echo_red "Error updating password" && exit 80
 pi_obfuscate_keys
 test ${?} -ne 0 && echo_red "Error obfuscating keys" && exit 80
 
-if test -d "${STAGING_DIR}/apis/"
-then
+if test -d "${STAGING_DIR}/apis/"; then
     # this loop will fail with files having whitespaces in their name (or path for that matter)
     find "${STAGING_DIR}/apis/" -type f -iname \*.json > tmp
-    while IFS= read -r file
-    do
+    while IFS= read -r file; do
         pi_add_api "${file}"
         test ${?} -ne 0 && exit 80
     done < tmp

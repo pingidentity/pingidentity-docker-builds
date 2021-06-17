@@ -18,12 +18,11 @@ LICENSE_FILE="${LICENSE_DIR}/${LICENSE_FILE_NAME}"
 _licenseAPI="https://license.pingidentity.com/devops/license"
 _checkLicenceAPI="https://license.pingidentity.com/devops/check-license"
 
-if test -f "${LICENSE_FILE}"
-then
-    _licenseID=$( awk 'BEGIN{FS="="}$1~/^ID/{print $2}' "${LICENSE_FILE}" )
+if test -f "${LICENSE_FILE}"; then
+    _licenseID=$(awk 'BEGIN{FS="="}$1~/^ID/{print $2}' "${LICENSE_FILE}")
 
     case "${MUTE_LICENSE_VERIFICATION}" in
-        TRUE|true|YES|yes|Y|y)
+        TRUE | true | YES | yes | Y | y)
             echo "Opting out of license verification due to MUTE_LICENSE_VERIFICATION=${MUTE_LICENSE_VERIFICATION}"
             ;;
         *)
@@ -43,22 +42,19 @@ then
 
     licenseFound="true"
 else
-   if test ! -z "${PING_IDENTITY_DEVOPS_USER}" && test ! -z "${PING_IDENTITY_DEVOPS_KEY}"
-   then
+    if test ! -z "${PING_IDENTITY_DEVOPS_USER}" && test ! -z "${PING_IDENTITY_DEVOPS_KEY}"; then
         ##################################################################
         # Let's get the license from the license server
         ##################################################################
-        if ! test -z "${LICENSE_SHORT_NAME}" && ! test -z "${LICENSE_VERSION}"
-        then
+        if ! test -z "${LICENSE_SHORT_NAME}" && ! test -z "${LICENSE_VERSION}"; then
             echo "Pulling evaluation license from Ping Identity for:"
             echo "   Prod License: ${LICENSE_SHORT_NAME} - v${LICENSE_VERSION}"
             echo "    DevOps User: ${PING_IDENTITY_DEVOPS_USER}..."
 
             _resultCode=99
             _retries=4
-            while test ${_retries} -gt 0
-            do
-                _retries=$(( _retries - 1 ))
+            while test ${_retries} -gt 0; do
+                _retries=$((_retries - 1))
                 _curl \
                     --header "product: ${LICENSE_SHORT_NAME}" \
                     --header "version: ${LICENSE_VERSION}" \
@@ -77,27 +73,25 @@ else
             # also need to capture & test the curl return code.
             #
             rc=${_resultCode}
-            if test ${rc} -eq 0
-            then
+            if test ${rc} -eq 0; then
                 echo ""
                 echo "Successfully pulled evaluation license from Ping Identity"
                 test "${PING_DEBUG}" = "true" && cat_indent "${LICENSE_FILE}"
                 echo ""
 
-                case $( toLower "${PING_IDENTITY_ACCEPT_EULA}" ) in
-                    yes|y)
-                        ;;
+                case $(toLower "${PING_IDENTITY_ACCEPT_EULA}") in
+                    yes | y) ;;
+
                     *)
-                    container_failure 17 "You must accept the EULA by providing the environment variable PING_IDENTITY_ACCEPT_EULA=YES"
-                    ;;
+                        container_failure 17 "You must accept the EULA by providing the environment variable PING_IDENTITY_ACCEPT_EULA=YES"
+                        ;;
                 esac
 
                 licenseFound="true"
             else
-                _licenseError=$( jq -r ".error" "${LICENSE_FILE}" 2> /dev/null )
+                _licenseError=$(jq -r ".error" "${LICENSE_FILE}" 2> /dev/null)
 
-                if test -z "${_licenseError}" || test "${_licenseError}" = "null"
-                then
+                if test -z "${_licenseError}" || test "${_licenseError}" = "null"; then
                     _licenseError="Error (${HTTP_RESULT_CODE}).  Please contact devops_program@pingidentity.com with this log."
                 fi
 
@@ -113,8 +107,7 @@ else
     fi
 fi
 
-if test "${licenseFound}" != "true"
-then
+if test "${licenseFound}" != "true"; then
     echo_red "
 ##################################################################################
 ############################        ALERT        #################################

@@ -2,29 +2,25 @@
 test "${VERBOSE}" = "true" && set -x
 
 ##  PingFederate Docker Bootstrap Script
-DIRNAME=$( dirname "${0}" )
-PROGNAME=$( basename "${0}" )
+DIRNAME=$(dirname "${0}")
+PROGNAME=$(basename "${0}")
 
 # a function to display warnings in a f
-warn () 
-{
+warn() {
     printf "%s: %s" "${PROGNAME}" "${*}"
 }
 
 # Helper to fail.
-die () 
-{
+die() {
     warn "${@}"
     exit 1
 }
 
 # Helper to check required files
-require ()
-{
+require() {
     _requiredFile=${1}
     shift
-    if ! test -f "${_requiredFile}"
-    then
+    if ! test -f "${_requiredFile}"; then
         die "Missing required file: ${_requiredFile}"
     fi
 }
@@ -41,7 +37,7 @@ PF_SERVER_HOME="${PF_HOME}/server/default"
 PF_SERVER_LIB="${PF_SERVER_HOME}/lib"
 
 # Set PF_HOME_ESC - this is PF_HOME but with spaces that are replaced with %20
-PF_HOME_ESC=$( echo "${PF_HOME}" | awk '{gsub(/ /,"%20");print;}' )
+PF_HOME_ESC=$(echo "${PF_HOME}" | awk '{gsub(/ /,"%20");print;}')
 
 # Setup the JVM
 JAVA="${JAVA_HOME}/bin/java"
@@ -53,8 +49,7 @@ jetty_starter_jar="${PF_BIN}/jetty-start.jar"
 xmlbeans="${PF_SERVER_LIB}/xmlbeans.jar"
 pf_xml="${PF_SERVER_LIB}/pf-xml.jar"
 PF_BOOT_CLASSPATH=""
-for requiredFile in ${run_jar} ${pf_run_jar} ${jetty_starter_jar} ${xmlbeans} ${pf_xml}
-do
+for requiredFile in ${run_jar} ${pf_run_jar} ${jetty_starter_jar} ${xmlbeans} ${pf_xml}; do
     require "${requiredFile}"
     PF_BOOT_CLASSPATH="${PF_BOOT_CLASSPATH}${PF_BOOT_CLASSPATH:+:}${requiredFile}"
 done
@@ -67,23 +62,20 @@ PF_BOOT_CLASSPATH="${PF_BOOT_CLASSPATH}${PF_BOOT_CLASSPATH:+:}${pf_console_util}
 
 PF_CLASSPATH="${PF_CLASSPATH}${PF_CLASSPATH:+:}${PF_BOOT_CLASSPATH}"
 
-if test -z "${JAVA_OPTS}"
-then
+if test -z "${JAVA_OPTS}"; then
     jvm_memory_opts="${PF_BIN}/jvm-memory.options"
     require "${jvm_memory_opts}"
-    JAVA_OPTS=$( awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print OPTS}' <"${jvm_memory_opts}" )
+    JAVA_OPTS=$(awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print OPTS}' < "${jvm_memory_opts}")
 fi
 
 # Debugger arguments
-if test "${PING_DEBUG}" = "true" || test "${PF_ENGINE_DEBUG}" = "true" || test "${PF_ADMIN_DEBUG}" = "true"
-then
+if test "${PING_DEBUG}" = "true" || test "${PF_ENGINE_DEBUG}" = "true" || test "${PF_ADMIN_DEBUG}" = "true"; then
     JVM_OPTS="${JVM_OPTS:-${JVM_OPTS} }-Xdebug -Xrunjdwp:transport=dt_socket,address=${PF_DEBUG_PORT},server=y,suspend=n"
 fi
 
 # Check for run.properties (used by PingFederate to configure ports, etc.)
 run_props="${PF_BIN}/run.properties"
-if ! test -r "${run_props}"
-then
+if ! test -r "${run_props}"; then
     warn "Missing run.properties; using defaults."
     run_props=""
 fi
