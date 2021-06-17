@@ -76,8 +76,16 @@ intel.i.unmerged:
 intel.i.shellcheck:
   stage: intialization
   script:
-    - ci_scripts/lint_shell.sh
-  allow_failure: true
+    - ci_scripts/shellcheck.sh
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+
+intel.i.shfmt:
+  stage: intialization
+  script:
+    - ci_scripts/shfmt.sh --diff
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/

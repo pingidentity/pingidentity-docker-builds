@@ -6,8 +6,7 @@ test -f "/opt/build.sh.pre" && sh /opt/build.sh.pre
 
 # Update file permissions for the BASE for the default container user,
 # and update the /var/lib/nginx owner if necessary.
-fixPermissions ()
-{
+fixPermissions() {
     test -f /etc/motd || touch /etc/motd
     chmod go+w /etc/motd
     chown -Rf 9031:9999 /etc/motd
@@ -27,35 +26,30 @@ fixPermissions ()
     # for the user defined in the image
     find "${BASE}" -type f -iname \*.sh -exec chmod u+x '{}' \+
 
-    if grep ^nginx: /etc/passwd >/dev/null 
-    then
+    if grep ^nginx: /etc/passwd > /dev/null; then
         # rebase ownerships for nginx to ping user
         find / -user nginx -exec chown 9031 {} +
         find / -group nginx -exec chgrp 9999 {} +
     fi
 }
 
-removePackageManager_alpine ()
-{
+removePackageManager_alpine() {
     rm -f /sbin/apk
 }
 
-removePackageManager_centos ()
-{
+removePackageManager_centos() {
     rpm --erase yum
     rpm --erase --nodeps rpm
 }
 
-removePackageManager_ubuntu ()
-{
+removePackageManager_ubuntu() {
     dpkg -P apt
     dpkg -P --force-remove-essential --force-depends dpkg
 }
 
-
 echo "Build stage (shim-specific installations)"
 set -x
-_osID=$( awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null )
+_osID=$(awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' < /etc/os-release 2> /dev/null)
 
 case "${_osID}" in
     alpine)
@@ -90,11 +84,11 @@ case "${_osID}" in
         adduser --uid 9031 --ingroup identity --disabled-password --shell /bin/false ping
 
         removePackageManager_alpine
-    ;;
+        ;;
     centos)
         rm -rf /var/lib/rpm
         rpmdb -v --rebuilddb
-        _versionID=$( awk '$0~/^VERSION_ID=/{split($1,version,"=");gsub(/"/,"",version[2]);print version[2];}' /etc/os-release )
+        _versionID=$(awk '$0~/^VERSION_ID=/{split($1,version,"=");gsub(/"/,"",version[2]);print version[2];}' /etc/os-release)
         yum -y update --releasever "${_versionID}"
         yum -y install --releasever "${_versionID}" epel-release
         curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | bash
@@ -116,7 +110,7 @@ case "${_osID}" in
 
         #TODO this causes issues because yum is a dependency of other yum-related packages.
         #removePackageManager_centos
-    ;;
+        ;;
     ubuntu)
         apt-get -y update
         apt-get -y install apt-utils
@@ -135,12 +129,11 @@ case "${_osID}" in
         adduser --uid 9031 --ingroup identity --disabled-password --shell /bin/false ping
 
         removePackageManager_ubuntu
-    ;;
+        ;;
 esac
 
 # create stubs for volume mounts
-for dir in "backup" "in" "logs" "out"
-do
+for dir in "backup" "in" "logs" "out"; do
     mkdir "/opt/${dir}"
 done
 

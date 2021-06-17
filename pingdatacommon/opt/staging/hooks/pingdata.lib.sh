@@ -11,8 +11,7 @@ _configLDIF="${SERVER_ROOT_DIR}/config/config.ldif"
 # Location to hold JVM state information
 JVM_STATE_DIR="${OUT_DIR}/jvm-settings-state"
 
-buildPasswordFileOptions ()
-{
+buildPasswordFileOptions() {
     #
     # Support legacy password file locations
     # Set these as the defaults.  They will be overridden by the next section.
@@ -36,8 +35,7 @@ buildPasswordFileOptions ()
     # If no SECRETS_DIR (/run/secrets) exists, then create a /tmp/secrets directory to be
     # used for now if password files need to be created.
     _passwordFilesDir="${SECRETS_DIR}"
-    if test ! -d "${SECRETS_DIR}"
-    then
+    if test ! -d "${SECRETS_DIR}"; then
         echo_yellow "WARNING: Important that the orchestration environment create a tmpfs for '${SECRETS_DIR}'"
         echo_yellow "         Using 'tmp/secrets' for now."
         _passwordFilesDir="/tmp/secrets"
@@ -59,7 +57,6 @@ buildPasswordFileOptions ()
         ENCRYPTION_PASSWORD_FILE="${_passwordFilesDir}/encryption-password" &&
         echo "Using ENCRYPTION_PASSWORD_FILE '${ENCRYPTION_PASSWORD_FILE}'"
 
-
     export_container_env ROOT_USER_PASSWORD_FILE ADMIN_USER_PASSWORD_FILE ENCRYPTION_PASSWORD_FILE
 
     # If there is a PING_IDENTITY_PASSWORD, create the possible PASSWORD_FILEs with that value if the
@@ -69,21 +66,17 @@ buildPasswordFileOptions ()
     #   ENCRYPTION_PASSWORD_FILE
     #   ADMIN_USER_PASSWORD_FILE
 
-    if test -n "${PING_IDENTITY_PASSWORD}"
-    then
-        if test -n "${ROOT_USER_PASSWORD_FILE}" && ! test -f "${ROOT_USER_PASSWORD_FILE}"
-        then
-            mkdir -p "$( dirname "${ROOT_USER_PASSWORD_FILE}" )"
+    if test -n "${PING_IDENTITY_PASSWORD}"; then
+        if test -n "${ROOT_USER_PASSWORD_FILE}" && ! test -f "${ROOT_USER_PASSWORD_FILE}"; then
+            mkdir -p "$(dirname "${ROOT_USER_PASSWORD_FILE}")"
             echo "${PING_IDENTITY_PASSWORD}" > "${ROOT_USER_PASSWORD_FILE}"
         fi
-        if test -n "${ENCRYPTION_PASSWORD_FILE}" && ! test -f "${ENCRYPTION_PASSWORD_FILE}"
-        then
-            mkdir -p "$( dirname "${ENCRYPTION_PASSWORD_FILE}" )"
+        if test -n "${ENCRYPTION_PASSWORD_FILE}" && ! test -f "${ENCRYPTION_PASSWORD_FILE}"; then
+            mkdir -p "$(dirname "${ENCRYPTION_PASSWORD_FILE}")"
             echo "${PING_IDENTITY_PASSWORD}" > "${ENCRYPTION_PASSWORD_FILE}"
         fi
-        if test -n "${ADMIN_USER_PASSWORD_FILE}" && ! test -f "${ADMIN_USER_PASSWORD_FILE}"
-        then
-            mkdir -p "$( dirname "${ADMIN_USER_PASSWORD_FILE}" )"
+        if test -n "${ADMIN_USER_PASSWORD_FILE}" && ! test -f "${ADMIN_USER_PASSWORD_FILE}"; then
+            mkdir -p "$(dirname "${ADMIN_USER_PASSWORD_FILE}")"
             echo "${PING_IDENTITY_PASSWORD}" > "${ADMIN_USER_PASSWORD_FILE}"
         fi
     fi
@@ -92,25 +85,20 @@ buildPasswordFileOptions ()
 #
 # Check for the cert files in the directory passed, and if found, then set
 # the certFile
-_checkAndSetCertDefaults ()
-{
+_checkAndSetCertDefaults() {
     _checkDir="${1}"
 
-    if test -f "${_checkDir}/${_certVarLower}.pin"
-    then
-        if test -f "${_checkDir}/${_certVarLower}"
-        then
+    if test -f "${_checkDir}/${_certVarLower}.pin"; then
+        if test -f "${_checkDir}/${_certVarLower}"; then
             eval "${_certFile}=${_checkDir}/${_certVarLower}"
             eval "${_certType}=jks"
-        elif test -f "${_checkDir}/${_certVarLower}.p12"
-        then
+        elif test -f "${_checkDir}/${_certVarLower}.p12"; then
             eval "${_certFile}=${_checkDir}/${_certVarLower}.p12"
             eval "${_certType}=pkcs12"
         fi
         eval "${_certPinFile}=${_checkDir}/${_certVarLower}.pin"
     fi
 }
-
 
 #
 # This is a helper function which will validate the certificate files and pins
@@ -122,44 +110,38 @@ _checkAndSetCertDefaults ()
 #       KEYSTORE_PIN_FILE       TRUSTSTORE_PIN_FILE
 #       KEYSTORE_TYPE           TRUSTSTORE_TYPE
 #
-_validateCertificateOptions ()
-{
+_validateCertificateOptions() {
     # certVar must be either keystore or truststore
-    _certVar=$( toUpper "${1}" )
-    _certVarLower=$( toLower "${1}" )
+    _certVar=$(toUpper "${1}")
+    _certVarLower=$(toLower "${1}")
 
     _certFile="${_certVar}_FILE"
     _certPinFile="${_certVar}_PIN_FILE"
     _certType="${_certVar}_TYPE"
 
-    _certFileVal=$( get_value "${_certFile}" )
-    _certPinFileVal=$( get_value "${_certPinFile}" )
-    _certTypeVal=$( get_value "${_certType}" )
+    _certFileVal=$(get_value "${_certFile}")
+    _certPinFileVal=$(get_value "${_certPinFile}")
+    _certTypeVal=$(get_value "${_certType}")
 
-    if test -n "${_certFileVal}"
-    then
-        if ! test -f "${_certFileVal}"
-        then
+    if test -n "${_certFileVal}"; then
+        if ! test -f "${_certFileVal}"; then
             echo_red "**********"
             echo_red "${_certFile} value [${_certFileVal}] is invalid: the specified file does not exist"
             exit 75
         fi
-        if test -z "${_certPinFileVal}"
-        then
+        if test -z "${_certPinFileVal}"; then
             echo_red "**********"
             echo_red "A value for ${_certPinFile} must be specified when ${_certFile} is provided"
             exit 75
         fi
-        if ! test -f "${_certPinFileVal}"
-        then
+        if ! test -f "${_certPinFileVal}"; then
             echo_red "**********"
             echo_red "${_certPinFile} value [${_certPinFileVal}] is invalid: the specified file does not exist"
             exit 75
         fi
-        if test -z "${_certTypeVal}"
-        then
+        if test -z "${_certTypeVal}"; then
             # Attempt to get the store type from the store file name
-            _storeFileLower=$( toLower "${_certFileVal}" )
+            _storeFileLower=$(toLower "${_certFileVal}")
             case "${_storeFileLower}" in
                 *.p12)
                     eval "${_certType}=pkcs12"
@@ -171,9 +153,9 @@ _validateCertificateOptions ()
             esac
         else
             # lowercase the truststore type
-            _storeTypeLower=$( toLower "${_certTypeVal}" )
+            _storeTypeLower=$(toLower "${_certTypeVal}")
             case "${_storeTypeLower}" in
-                pkcs12|jks)
+                pkcs12 | jks)
                     eval "${_certType}=${_storeTypeLower}"
                     ;;
                 *)
@@ -216,15 +198,13 @@ _validateCertificateOptions ()
 #
 #   certificate nickname used in keystore
 #     --certNickname {nickname}
-getCertificateOptions ()
-{
+getCertificateOptions() {
     # Validate keystore options
     _validateCertificateOptions keystore
     _validateCertificateOptions truststore
 
     # Create the certificate options
-    if test -z "${KEYSTORE_FILE}"
-    then
+    if test -z "${KEYSTORE_FILE}"; then
         certificateOptions="--generateSelfSignedCertificate"
     else
         case "${KEYSTORE_TYPE}" in
@@ -234,11 +214,10 @@ getCertificateOptions ()
             jks)
                 certificateOptions="--useJavaKeyStore ${KEYSTORE_FILE}"
                 ;;
-            *)
-                ;;
+            *) ;;
+
         esac
-        if test -n "${KEYSTORE_PIN_FILE}"
-        then
+        if test -n "${KEYSTORE_PIN_FILE}"; then
             certificateOptions="${certificateOptions} --keyStorePasswordFile ${KEYSTORE_PIN_FILE}"
         else
             echo_red "KEYSTORE_PIN_FILE is required if a KEYSTORE_FILE is provided."
@@ -247,8 +226,7 @@ getCertificateOptions ()
     fi
 
     # Add the truststore certificate options
-    if test -n "${TRUSTSTORE_FILE}"
-    then
+    if test -n "${TRUSTSTORE_FILE}"; then
         case "${TRUSTSTORE_TYPE}" in
             pkcs12)
                 certificateOptions="${certificateOptions} --usePkcs12TrustStore ${TRUSTSTORE_FILE}"
@@ -256,30 +234,28 @@ getCertificateOptions ()
             jks)
                 certificateOptions="${certificateOptions} --useJavaTrustStore ${TRUSTSTORE_FILE}"
                 ;;
-            *)
-                ;;
+            *) ;;
+
         esac
     fi
-    if test -n "${TRUSTSTORE_PIN_FILE}"
-    then
+    if test -n "${TRUSTSTORE_PIN_FILE}"; then
         certificateOptions="${certificateOptions} --trustStorePasswordFile ${TRUSTSTORE_PIN_FILE}"
     fi
 
     # get the CERTIFICATE_NICKNAME.
     #
     # Look in the keystore file for a single cert of type PrivateKeyEntry
-    if test -z "${CERTIFICATE_NICKNAME}"
-    then
+    if test -z "${CERTIFICATE_NICKNAME}"; then
         CERTIFICATE_NICKNAME=$(
             keytool -list \
                 -keystore "${KEYSTORE_FILE}" \
                 -storetype "${KEYSTORE_TYPE}" \
                 -protected \
-                -rfc 2>/dev/null\
-            | awk  'BEGIN { }
+                -rfc 2> /dev/null | awk 'BEGIN { }
                       /^Alias name: / { certAlias=$3 }
                       /^Entry type: PrivateKeyEntry/  { ++n; privateKeyEntry=certAlias }
-                    END { if (n == 1) print privateKeyEntry }')
+                    END { if (n == 1) print privateKeyEntry }'
+        )
 
         test -z "${CERTIFICATE_NICKNAME}" && CERTIFICATE_NICKNAME="server-cert"
     fi
@@ -290,12 +266,10 @@ getCertificateOptions ()
 
 # if an encryption password file is provided, then this will provide the option to use
 # that file during setup.  Otherwise, a random passphrase will be used.
-getEncryptionOption ()
-{
+getEncryptionOption() {
     encryptionOption="--encryptDataWithRandomPassphrase"
 
-    if test -f "${ENCRYPTION_PASSWORD_FILE}"
-    then
+    if test -f "${ENCRYPTION_PASSWORD_FILE}"; then
         encryptionOption="--encryptDataWithPassphraseFromFile ${ENCRYPTION_PASSWORD_FILE}"
     fi
 
@@ -303,22 +277,19 @@ getEncryptionOption ()
 }
 
 # returns the jvm option used during the setup of a PingData product
-getJvmOptions ()
-{
+getJvmOptions() {
     jvmOptions=""
-    if test "$( isImageVersionGtEq 8.1.0 )" -eq 0 && test "${PING_PRODUCT}" = "PingDirectory"
-    then
+    if test "$(isImageVersionGtEq 8.1.0)" -eq 0 && test "${PING_PRODUCT}" = "PingDirectory"; then
         # If PingDirectory 8.1.0.0 or greater is run and the MAX_HEAP_SIZE is 384m, then it's
         # assumed to have never been set so it'll update it to the minimum needed
         # for version 8.1.0.0 or greater.
-        if test "${MAX_HEAP_SIZE}" = "384m"
-        then
+        if test "${MAX_HEAP_SIZE}" = "384m"; then
             MAX_HEAP_SIZE="768m"
         fi
     fi
 
     case "${JVM_TUNING}" in
-        NONE|AGGRESSIVE|SEMI_AGGRESSIVE)
+        NONE | AGGRESSIVE | SEMI_AGGRESSIVE)
             jvmOptions="${jvmOptions} --jvmTuningParameter ${JVM_TUNING}"
             ;;
         *)
@@ -329,8 +300,7 @@ getJvmOptions ()
             ;;
     esac
 
-    if test -n "${MAX_HEAP_SIZE}" && ! test "${MAX_HEAP_SIZE}" = "AUTO"
-    then
+    if test -n "${MAX_HEAP_SIZE}" && ! test "${MAX_HEAP_SIZE}" = "AUTO"; then
         jvmOptions="${jvmOptions} --maxHeapSize ${MAX_HEAP_SIZE}"
     fi
 
@@ -338,11 +308,10 @@ getJvmOptions ()
 }
 
 # Generates a setup-arguments.txt file passed as first parameter
-generateSetupArguments ()
-{
+generateSetupArguments() {
     # Create product specific setup arguments and manage-profile setup arguments
     case "${PING_PRODUCT}" in
-        PingDataSync|PingDataGovernance|PingDirectoryProxy|PingAuthorize)
+        PingDataSync | PingDataGovernance | PingDirectoryProxy | PingAuthorize)
             _pingDataSetupArguments=""
             PING_DATA_MANAGE_PROFILE_SETUP_ARGS=""
             ;;
@@ -350,9 +319,8 @@ generateSetupArguments ()
             _pingDataSetupArguments="${encryptionOption} \
                                     --baseDN \"${USER_BASE_DN}\" \
                                     --addBaseEntry "
-            _doesStartWith8=$( echo "${LICENSE_VERSION}" | sed 's/^8.*//' )
-            if test -z "${_doesStartWith8}"
-            then
+            _doesStartWith8=$(echo "${LICENSE_VERSION}" | sed 's/^8.*//')
+            if test -z "${_doesStartWith8}"; then
                 PING_DATA_MANAGE_PROFILE_SETUP_ARGS="--addMissingRdnAttributes"
             fi
             PING_DATA_MANAGE_PROFILE_SETUP_ARGS="${PING_DATA_MANAGE_PROFILE_SETUP_ARGS:+${PING_DATA_MANAGE_PROFILE_SETUP_ARGS} }--rejectFile /tmp/rejects.ldif ${_skipImports:=}"
@@ -363,42 +331,40 @@ generateSetupArguments ()
             ;;
     esac
 
-    if test "${RUN_PLAN}" = "RESTART"
-    then
+    if test "${RUN_PLAN}" = "RESTART"; then
         _prevSetupArgs="${SERVER_ROOT_DIR}/config/.manage-profile-setup-arguments.txt"
-        _prevLdapsPort=$( sed -n 's/.*--ldapsPort \([0-9]*\).*/\1/p' < "${_prevSetupArgs}" )
-        _prevLdapPort=$( sed -n 's/.*--ldapPort \([0-9]*\).*/\1/p' < "${_prevSetupArgs}" )
-        _prevHttpsPort=$( sed -n 's/.*--httpsPort \([0-9]*\).*/\1/p' < "${_prevSetupArgs}" )
+        _prevLdapsPort=$(sed -n 's/.*--ldapsPort \([0-9]*\).*/\1/p' < "${_prevSetupArgs}")
+        _prevLdapPort=$(sed -n 's/.*--ldapPort \([0-9]*\).*/\1/p' < "${_prevSetupArgs}")
+        _prevHttpsPort=$(sed -n 's/.*--httpsPort \([0-9]*\).*/\1/p' < "${_prevSetupArgs}")
 
         # Check to see if there is an attempt to change the ports.  If so, emit an error and fail
         # LDAP_PORT is defined. Disable shellcheck.
         # shellcheck disable=SC2153
         if test "${_prevLdapPort}" != "${LDAP_PORT}" ||
             test "${_prevLdapsPort}" != "${LDAPS_PORT}" ||
-            test "${_prevHttpsPort}" != "${HTTPS_PORT}"
-            then
-                echo_red "*****"
-                echo_red "LDAP/LDAPS/HTTPS ports from original settings may not be changed on restart."
-                echo_red "   Service         Original Setting     Attempt"
-                echo_red "   LDAP_PORT       ${_prevLdapPort}                  ${LDAP_PORT}"
-                echo_red "   LDAPS_PORT      ${_prevLdapsPort}                  ${LDAPS_PORT}"
-                echo_red "   HTTPS_PORT      ${_prevHttpsPort}                  ${HTTPS_PORT}"
-                echo_red "Please make any adjustments in dsconfig commands."
-                echo_red "*****"
-                container_failure 20 "Resolve the issues with your orchestration environment variables"
+            test "${_prevHttpsPort}" != "${HTTPS_PORT}"; then
+            echo_red "*****"
+            echo_red "LDAP/LDAPS/HTTPS ports from original settings may not be changed on restart."
+            echo_red "   Service         Original Setting     Attempt"
+            echo_red "   LDAP_PORT       ${_prevLdapPort}                  ${LDAP_PORT}"
+            echo_red "   LDAPS_PORT      ${_prevLdapsPort}                  ${LDAPS_PORT}"
+            echo_red "   HTTPS_PORT      ${_prevHttpsPort}                  ${HTTPS_PORT}"
+            echo_red "Please make any adjustments in dsconfig commands."
+            echo_red "*****"
+            container_failure 20 "Resolve the issues with your orchestration environment variables"
         fi
     fi
 
     echo "Generating ${SETUP_ARGUMENTS_FILE}"
-    cat <<EOSETUP > "${SETUP_ARGUMENTS_FILE}"
+    cat << EOSETUP > "${SETUP_ARGUMENTS_FILE}"
     --verbose \
     --acceptLicense \
     --skipPortCheck \
     --instanceName ${INSTANCE_NAME} \
     --location ${LOCATION} \
-    $( test ! -z "${LDAP_PORT}" && echo "--ldapPort ${LDAP_PORT}" ) \
-    $( test ! -z "${LDAPS_PORT}" && echo "--ldapsPort ${LDAPS_PORT}" ) \
-    $( test ! -z "${HTTPS_PORT}" && echo "--httpsPort ${HTTPS_PORT}" ) \
+    $(test ! -z "${LDAP_PORT}" && echo "--ldapPort ${LDAP_PORT}") \
+    $(test ! -z "${LDAPS_PORT}" && echo "--ldapsPort ${LDAPS_PORT}") \
+    $(test ! -z "${HTTPS_PORT}" && echo "--httpsPort ${HTTPS_PORT}") \
     --enableStartTLS \
     ${jvmOptions} \
     ${certificateOptions} \
@@ -411,33 +377,27 @@ EOSETUP
 }
 
 #
-getPingDataInstanceName ()
-{
-    if test "${RUN_PLAN}" = "RESTART"
-    then
+getPingDataInstanceName() {
+    if test "${RUN_PLAN}" = "RESTART"; then
         grep "ds-cfg-instance-name: " "${_configLDIF}" | awk -F": " '{ print $2 }'
     else
         hostname
     fi
 }
 
-getFirstHostInTopology ()
-{
+getFirstHostInTopology() {
     PRODUCT="${1}"
-    if test -z "${PRODUCT}"
-    then
+    if test -z "${PRODUCT}"; then
         PRODUCT=DIRECTORY
     fi
     jq -r ".|[.serverInstances[]|select(.product==\"${PRODUCT}\")]|.[0]|.hostname" < "${TOPOLOGY_FILE}"
 }
 
-getIP ()
-{
-    getent hosts "${1}" 2>/dev/null | awk '{print $1}'
+getIP() {
+    getent hosts "${1}" 2> /dev/null | awk '{print $1}'
 }
 
-getIPsForDomain ()
-{
+getIPsForDomain() {
     getent ahosts "${1}" | grep STREAM | awk '{print $1}'
 }
 
@@ -447,12 +407,10 @@ getIPsForDomain ()
 # parameters:  $1 - hostname
 #              $2 - port
 #              $3 - baseDN
-waitUntilLdapUp ()
-{
+waitUntilLdapUp() {
     _iCnt=1
 
-    while true
-    do
+    while true; do
         ldapsearch \
             --terse \
             --suppressPropertiesFileComment \
@@ -461,18 +419,17 @@ waitUntilLdapUp ()
             --useSSL \
             --trustAll \
             --baseDN "$3" \
-            --scope base "(&)" 1.1 2>/dev/null && break
+            --scope base "(&)" 1.1 2> /dev/null && break
 
         sleep_at_most 15
 
-        if test $_iCnt = 8
-        then
+        if test $_iCnt = 8; then
             _iCnt=0
             echo "May be a DNS/Firewall/Service/PortMapping Issue."
             echo "    Ensure that the container/pod can reach: $1:$2"
         fi
 
-        _iCnt=$(( _iCnt + 1 ))
+        _iCnt=$((_iCnt + 1))
     done
 }
 
@@ -484,8 +441,8 @@ waitUntilLdapUp ()
 #   8.1.0.0-GA
 #
 build_info_version() {
-  awk \
-'BEGIN {maj=0;min=0;pt=0;patch=0;qal=""}
+    awk \
+        'BEGIN {maj=0;min=0;pt=0;patch=0;qal=""}
 $1=="Major" {maj=$3}
 $1=="Minor" {min=$3}
 $1=="Point" {pt=$3}
@@ -516,8 +473,8 @@ END {print maj "." min "." pt "." patch qal}'
 #   802000001
 #
 sortable_version() {
-  awk \
-'BEGIN {FS="[.-]";qal=0}
+    awk \
+        'BEGIN {FS="[.-]";qal=0}
 $5=="EA" {qal=1}
 $5~/^RC[0-9]*$/ {qal=2}
 $5=="GA" {qal=3}
@@ -535,10 +492,10 @@ END { printf "%d%02d%02d%02d%d",$1,$2,$3,$4,qal }'
 # @param $1 A version string to compare.
 #
 is_version_eq() {
-  _build_info_version=$( build_info_version <"${SERVER_ROOT_DIR}"/build-info.txt \
-    | sortable_version )
-  _sortable_version=$( echo "${1}" | sortable_version )
-  test "${_build_info_version}" = "${_sortable_version}"
+    _build_info_version=$(build_info_version < "${SERVER_ROOT_DIR}"/build-info.txt |
+        sortable_version)
+    _sortable_version=$(echo "${1}" | sortable_version)
+    test "${_build_info_version}" = "${_sortable_version}"
 }
 
 # Check if the version argument (e.g. "8.2.0.0-GA")
@@ -555,10 +512,9 @@ is_version_eq() {
 # @param $1 A version string to compare.
 #
 is_version_gt() {
-  _build_info_version=$( build_info_version <"${SERVER_ROOT_DIR}"/build-info.txt\
-    | sortable_version )
-  _sortable_version=$( echo "${1}" | sortable_version )
-  test "${_build_info_version}" -gt "${_sortable_version}"
+    _build_info_version=$(build_info_version < "${SERVER_ROOT_DIR}"/build-info.txt | sortable_version)
+    _sortable_version=$(echo "${1}" | sortable_version)
+    test "${_build_info_version}" -gt "${_sortable_version}"
 }
 
 # Check if the version argument (e.g. "8.2.0.0")
@@ -575,7 +531,7 @@ is_version_gt() {
 # @param $1 A version string to compare.
 #
 is_version_ge() {
-  is_version_eq "${1}" || is_version_gt "${1}"
+    is_version_eq "${1}" || is_version_gt "${1}"
 }
 
 # Build environment variables needed for starting up the container and joining a
@@ -583,12 +539,11 @@ is_version_ge() {
 # The run plan is based on what is orchestrating the containers (kubernetes, docker-compose, etc.).
 # Orchestration is necessary for containers to find a seed server to join a topology with.
 # Needed for PingDirectory replication setup and PingDataSync failover setup.
-buildRunPlan ()
-{
+buildRunPlan() {
     # Create temporary files that will be used to store output as items are determined
-    _fullPlan=$( mktemp )
-    _planSteps=$( mktemp )
-    ORCHESTRATION_TYPE=$( echo "${ORCHESTRATION_TYPE}" | tr '[:lower:]' '[:upper:]' )
+    _fullPlan=$(mktemp)
+    _planSteps=$(mktemp)
+    ORCHESTRATION_TYPE=$(echo "${ORCHESTRATION_TYPE}" | tr '[:lower:]' '[:upper:]')
 
     # Goal of building a run plan is to provide a plan for the server as it starts up
     # Options for the RUN_PLAN and the PD_STATE are as follows:
@@ -613,15 +568,13 @@ buildRunPlan ()
     # PingDirectory, and a RESTART plan for any other PingData products.
     # If we don't have a server.uuid file, then we should START with a SETUP plan.  Additionally
     #    if a SERVER_ROOT_DIR is found, then we should cleanup before starting.
-    if  test -f "${SERVER_UUID_FILE}"
-    then
+    if test -f "${SERVER_UUID_FILE}"; then
         # Sets the serverUUID variable
         # shellcheck disable=SC1090
         . "${SERVER_UUID_FILE}"
 
         RUN_PLAN="RESTART"
-        if test "${PING_PRODUCT}" = "PingDirectory"
-        then
+        if test "${PING_PRODUCT}" = "PingDirectory"; then
             PD_STATE="UPDATE"
         else
             PD_STATE="RESTART"
@@ -630,8 +583,7 @@ buildRunPlan ()
         RUN_PLAN="START"
         PD_STATE="SETUP"
 
-        if test -d "${SERVER_ROOT_DIR}"
-        then
+        if test -d "${SERVER_ROOT_DIR}"; then
             echo "No server.uuid found. Removing existing SERVER_ROOT_DIR '${SERVER_ROOT_DIR}''"
             rm -rf "${SERVER_ROOT_DIR}"
         fi
@@ -640,16 +592,15 @@ buildRunPlan ()
     #
     # Create all the POD Server details
     #
-    _podName=$( hostname )
+    _podName=$(hostname)
     _ordinal="${_podName##*-}"
 
-    _podInstanceName=$( getPingDataInstanceName )
+    _podInstanceName=$(getPingDataInstanceName)
     POD_HOSTNAME="${_podInstanceName}"
 
     _podLocation="${LOCATION}"
     POD_LDAPS_PORT="${LDAPS_PORT}"
-    if test "${PING_PRODUCT}" = "PingDirectory"
-    then
+    if test "${PING_PRODUCT}" = "PingDirectory"; then
         _podReplicationPort="${REPLICATION_PORT}"
     fi
 
@@ -665,16 +616,13 @@ buildRunPlan ()
     #########################################################################
     # KUBERNETES ORCHESTRATION_TYPE
     #########################################################################
-    if test "${ORCHESTRATION_TYPE}" = "KUBERNETES"
-    then
+    if test "${ORCHESTRATION_TYPE}" = "KUBERNETES"; then
 
-        if test -z "${K8S_STATEFUL_SET_NAME}"
-        then
+        if test -z "${K8S_STATEFUL_SET_NAME}"; then
             container_failure "03" "KUBERNETES Orchestration ==> K8S_STATEFUL_SET_NAME required"
         fi
 
-        if test -z "${K8S_STATEFUL_SET_SERVICE_NAME}"
-        then
+        if test -z "${K8S_STATEFUL_SET_SERVICE_NAME}"; then
             container_failure "03" "KUBERNETES Orchestration ==> K8S_STATEFUL_SET_SERVICE_NAME required"
         fi
 
@@ -685,15 +633,13 @@ buildRunPlan ()
         # multi cluster mode.
         #
         if test -z "${K8S_CLUSTERS}" ||
-        test -z "${K8S_CLUSTER}" ||
-        test -z "${K8S_SEED_CLUSTER}"
-        then
+            test -z "${K8S_CLUSTER}" ||
+            test -z "${K8S_SEED_CLUSTER}"; then
             _clusterMode="single"
 
             if test ! -z "${K8S_CLUSTERS}" ||
-            test ! -z "${K8S_CLUSTER}" ||
-            test ! -z "${K8S_SEED_CLUSTER}"
-            then
+                test ! -z "${K8S_CLUSTER}" ||
+                test ! -z "${K8S_SEED_CLUSTER}"; then
                 echo "One of K8S_CLUSTERS (${K8S_CLUSTERS}), K8S_CLUSTER (${K8S_CLUSTER}), K8S_SEED_CLUSTER (${K8S_SEED_CLUSTER}) aren't set."
                 echo "All or none of these must be set."
                 container_failure "03" "KUBERNETES Orchestration ==> All or none of K8S_CLUSTERS K8S_CLUSTER K8S_SEED_CLUSTER required"
@@ -701,43 +647,36 @@ buildRunPlan ()
         else
             _clusterMode="multi"
 
-            if test -z "${K8S_POD_HOSTNAME_PREFIX}"
-            then
+            if test -z "${K8S_POD_HOSTNAME_PREFIX}"; then
                 echo "K8S_POD_HOSTNAME_PREFIX not set.  Defaulting to K8S_STATEFUL_SET_NAME- (\${K8S_STATEFUL_SET_NAME}-)"
                 K8S_POD_HOSTNAME_PREFIX="${K8S_STATEFUL_SET_NAME}-"
             fi
 
-            if test -z "${K8S_POD_HOSTNAME_SUFFIX}"
-            then
+            if test -z "${K8S_POD_HOSTNAME_SUFFIX}"; then
                 echo "K8S_POD_HOSTNAME_SUFFIX not set.  Defaulting to K8S_CLUSTER (.\${K8S_CLUSTER})"
                 K8S_POD_HOSTNAME_SUFFIX=".\${K8S_CLUSTER}"
             fi
 
-            if test -z "${K8S_SEED_HOSTNAME_SUFFIX}"
-            then
+            if test -z "${K8S_SEED_HOSTNAME_SUFFIX}"; then
                 echo "K8S_SEED_HOSTNAME_SUFFIX not set.  Defaulting to K8S_SEED_CLUSTER (.\${K8S_SEED_CLUSTER})"
                 K8S_SEED_HOSTNAME_SUFFIX=".\${K8S_SEED_CLUSTER}"
             fi
 
-            if test "${K8S_INCREMENT_PORTS}" = true
-            then
+            if test "${K8S_INCREMENT_PORTS}" = true; then
                 _incrementPortsMsg="Using different ports for each instance, incremented from LDAPS_PORT (${LDAPS_PORT})"
-                if test "${PING_PRODUCT}" = "PingDirectory"
-                then
+                if test "${PING_PRODUCT}" = "PingDirectory"; then
                     _incrementPortsMsg="${_incrementPortsMsg} and REPLICATION_PORT (${REPLICATION_PORT})"
                 fi
             else
                 _incrementPortsMsg="K8S_INCREMENT_PORTS not used ==> Using same ports for all instances - LDAPS_PORT (${LDAPS_PORT})"
-                if test "${PING_PRODUCT}" = "PingDirectory"
-                then
+                if test "${PING_PRODUCT}" = "PingDirectory"; then
                     _incrementPortsMsg="${_incrementPortsMsg}, REPLICATION_PORT (${REPLICATION_PORT})"
                 fi
             fi
         fi
 
         SEED_LDAPS_PORT="${LDAPS_PORT}"
-        if test "${PING_PRODUCT}" = "PingDirectory"
-        then
+        if test "${PING_PRODUCT}" = "PingDirectory"; then
             _seedReplicationPort="${REPLICATION_PORT}"
         fi
 
@@ -745,8 +684,7 @@ buildRunPlan ()
         # Single Cluster Details
         #
         # Create an instance/hostname using the Kubernetes StatefulSet Name and Service Name
-        if test "${_clusterMode}" = "single"
-        then
+        if test "${_clusterMode}" = "single"; then
             _podInstanceName="${K8S_STATEFUL_SET_NAME}-${_ordinal}.${K8S_STATEFUL_SET_SERVICE_NAME}"
             POD_HOSTNAME=${_podInstanceName}
             _podLocation="${LOCATION}"
@@ -760,51 +698,43 @@ buildRunPlan ()
         # Multi Cluster Details
         #
         # Create an instance/hostname using the Kubernetes Cluster and Suffixes provided
-        if test "${_clusterMode}" = "multi"
-        then
+        if test "${_clusterMode}" = "multi"; then
             _podInstanceName="${K8S_STATEFUL_SET_NAME}-${_ordinal}.${K8S_CLUSTER}"
-            POD_HOSTNAME=$( eval "echo ${K8S_POD_HOSTNAME_PREFIX}${_ordinal}${K8S_POD_HOSTNAME_SUFFIX}" )
+            POD_HOSTNAME=$(eval "echo ${K8S_POD_HOSTNAME_PREFIX}${_ordinal}${K8S_POD_HOSTNAME_SUFFIX}")
             _podLocation="${K8S_CLUSTER}"
 
             _seedInstanceName="${K8S_STATEFUL_SET_NAME}-0.${K8S_SEED_CLUSTER}"
-            SEED_HOSTNAME=$( eval "echo ${K8S_POD_HOSTNAME_PREFIX}0${K8S_SEED_HOSTNAME_SUFFIX}" )
+            SEED_HOSTNAME=$(eval "echo ${K8S_POD_HOSTNAME_PREFIX}0${K8S_SEED_HOSTNAME_SUFFIX}")
             _seedLocation="${K8S_SEED_CLUSTER}"
 
-
-            if test "${K8S_INCREMENT_PORTS}" = "true"
-            then
-                POD_LDAPS_PORT=$(( LDAPS_PORT + _ordinal ))
+            if test "${K8S_INCREMENT_PORTS}" = "true"; then
+                POD_LDAPS_PORT=$((LDAPS_PORT + _ordinal))
                 LDAPS_PORT=${POD_LDAPS_PORT}
-                if test "${PING_PRODUCT}" = "PingDirectory"
-                then
-                    _podReplicationPort=$(( REPLICATION_PORT + _ordinal ))
+                if test "${PING_PRODUCT}" = "PingDirectory"; then
+                    _podReplicationPort=$((REPLICATION_PORT + _ordinal))
                     REPLICATION_PORT=${_podReplicationPort}
                 fi
             fi
         fi
 
-        if test "${_podInstanceName}" = "${_seedInstanceName}"
-        then
+        if test "${_podInstanceName}" = "${_seedInstanceName}"; then
             echo "We are the SEED server (${_seedInstanceName})"
 
-            if test -z "${serverUUID}"
-            then
+            if test -z "${serverUUID}"; then
                 #
                 # First, we will check to see if there are any servers available in
                 # existing cluster
-                _numHosts=$( getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}" | wc -w 2>/dev/null )
+                _numHosts=$(getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}" | wc -w 2> /dev/null)
 
                 echo "Number of servers available in this domain: ${_numHosts}"
 
                 #
                 # If there are no hosts found, this is situation where the k8s service cluster
                 # is returning no hosts, hence, there are no pingdirectory instances running
-                if test "${_numHosts}" -eq 0
-                then
+                if test "${_numHosts}" -eq 0; then
                     #
                     # Second, we need to check other clusters
-                    if test "${_clusterMode}" = "multi"
-                    then
+                    if test "${_clusterMode}" = "multi"; then
                         echo_red "We need to check all 0 servers in each cluster"
                     fi
 
@@ -817,8 +747,7 @@ buildRunPlan ()
                 # If there is only 1 host that is returned, and that host's IP is the same
                 # as the current _podHostName, then we can assured that this server is the first
                 # in the current statefulset to be started, and will mark as GENESIS
-                if test "${_numHosts}" -eq 1 && test "$( getIP "${POD_HOSTNAME}" )" = "$( getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}" )"
-                then
+                if test "${_numHosts}" -eq 1 && test "$(getIP "${POD_HOSTNAME}")" = "$(getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}")"; then
                     echo "Verified that this host/ip is the only pod found in domain '${K8S_STATEFUL_SET_SERVICE_NAME}'"
                     PD_STATE="GENESIS"
                 fi
@@ -845,26 +774,21 @@ buildRunPlan ()
     #########################################################################
     # COMPOSE ORCHESTRATION_TYPE
     #########################################################################
-    if test "${ORCHESTRATION_TYPE}" = "COMPOSE"
-    then
+    if test "${ORCHESTRATION_TYPE}" = "COMPOSE"; then
         # Assume GENESIS state for now, if we aren't kubernetes when setting up
-        if test "${RUN_PLAN}" = "START"
-        then
+        if test "${RUN_PLAN}" = "START"; then
             PD_STATE="GENESIS"
 
             #
             # Check to see
-            if test "$( getIP "${COMPOSE_SERVICE_NAME}_1" )" != "$( getIP "${HOST_NAME}" )"
-            then
+            if test "$(getIP "${COMPOSE_SERVICE_NAME}_1")" != "$(getIP "${HOST_NAME}")"; then
                 echo "We are the SEED Server"
                 PD_STATE="SETUP"
             fi
         fi
 
-        if test -z "${COMPOSE_SERVICE_NAME}"
-        then
-            if test "${PING_PRODUCT}" = "PingDirectory"
-            then
+        if test -z "${COMPOSE_SERVICE_NAME}"; then
+            if test "${PING_PRODUCT}" = "PingDirectory"; then
                 echo "Replication will not be enabled."
                 echo "Variable COMPOSE_SERVICE_NAME is required to enable replication."
             else
@@ -876,8 +800,7 @@ buildRunPlan ()
             _seedInstanceName="${COMPOSE_SERVICE_NAME}"
             _seedLocation="${LOCATION}"
             SEED_LDAPS_PORT="${LDAPS_PORT}"
-            if test "${PING_PRODUCT}" = "PingDirectory"
-            then
+            if test "${PING_PRODUCT}" = "PingDirectory"; then
                 _seedReplicationPort="${REPLICATION_PORT}"
             fi
         fi
@@ -886,13 +809,10 @@ buildRunPlan ()
     #########################################################################
     # DIRECTED ORCHESTRATION_TYPE
     #########################################################################
-    if test "${ORCHESTRATION_TYPE}" = "DIRECTED"
-    then
-        if test "${RUN_PLAN}" = "START"
-        then
+    if test "${ORCHESTRATION_TYPE}" = "DIRECTED"; then
+        if test "${RUN_PLAN}" = "START"; then
             # When the RUN_PLAN is for a fresh start (vs a restart of a container)
-            if test -z "${REPLICATION_SEED_HOST}" && test -z "${FAILOVER_SEED_HOST}"
-            then
+            if test -z "${REPLICATION_SEED_HOST}" && test -z "${FAILOVER_SEED_HOST}"; then
                 # either it is a genesis event for a standalone container
                 # or the first container of a topology
                 PD_STATE="GENESIS"
@@ -902,8 +822,7 @@ buildRunPlan ()
             fi
         fi
 
-        if test "${PING_PRODUCT}" = "PingDirectory"
-        then
+        if test "${PING_PRODUCT}" = "PingDirectory"; then
             SEED_HOSTNAME="${REPLICATION_SEED_HOST}"
             _seedInstanceName="${REPLICATION_SEED_NAME:-${REPLICATION_SEED_HOST}}"
             _seedLocation="${REPLICATION_SEED_LOCATION:-${LOCATION}}"
@@ -917,14 +836,11 @@ buildRunPlan ()
         fi
     fi
 
-
     #########################################################################
     # Unknown ORCHESTRATION_TYPE
     #########################################################################
-    if test -z "${ORCHESTRATION_TYPE}" && test "${PD_STATE}" = "SETUP"
-    then
-        if test "${PING_PRODUCT}" = "PingDirectory"
-        then
+    if test -z "${ORCHESTRATION_TYPE}" && test "${PD_STATE}" = "SETUP"; then
+        if test "${PING_PRODUCT}" = "PingDirectory"; then
             echo "Replication will not be enabled. Unknown ORCHESTRATION_TYPE"
         else
             echo "Sync failover will not be enabled. Unknown ORCHESTRATION_TYPE"
@@ -941,8 +857,7 @@ buildRunPlan ()
             echo "\
     #     Startup Plan
     #        - manage-profile setup" >> "${_planSteps}"
-            if test "${PING_PRODUCT}" = "PingDirectory"
-            then
+            if test "${PING_PRODUCT}" = "PingDirectory"; then
                 echo "\
     #        - import data" >> "${_planSteps}"
             fi
@@ -965,14 +880,14 @@ buildRunPlan ()
 
             test "${ORCHESTRATION_TYPE}" = "KUBERNETES" && echo "\
     #
-    #   2. KUBERNETES - Our host name ($( hostname ))is the 1st one in the stateful set (${K8S_STATEFUL_SET_SERVICE_NAME}-0)
+    #   2. KUBERNETES - Our host name ($(hostname))is the 1st one in the stateful set (${K8S_STATEFUL_SET_SERVICE_NAME}-0)
     #   3. KUBERNETES - There are no other servers currently running in the stateful set (${K8S_STATEFUL_SET_SERVICE_NAME})"
 
             test "${ORCHESTRATION_TYPE}" = "COMPOSE" && echo "\
     #
-    #   2. COMPOSE - Our host name ($( hostname )) has the same IP address as the
+    #   2. COMPOSE - Our host name ($(hostname)) has the same IP address as the
                     first host in the COMPOSE_SERVICE_NAME (${COMPOSE_SERVICE_NAME}_1)"
-    echo "\
+            echo "\
     #
     ##################################################################################
     "
@@ -981,8 +896,7 @@ buildRunPlan ()
             echo "\
     #     Startup Plan
     #        - manage-profile setup" >> "${_planSteps}"
-            if test "${PING_PRODUCT}" = "PingDirectory"
-            then
+            if test "${PING_PRODUCT}" = "PingDirectory"; then
                 echo "\
     #        - repl enable (from SEED Server-${_seedInstanceName})
     #        - repl init   (from topology.json, from SEED Server-${_seedInstanceName})" >> "${_planSteps}"
@@ -995,8 +909,7 @@ buildRunPlan ()
             echo "\
     #     Startup Plan
     #        - manage-profile replace-profile" >> "${_planSteps}"
-            if test "${PING_PRODUCT}" = "PingDirectory"
-            then
+            if test "${PING_PRODUCT}" = "PingDirectory"; then
                 echo "\
     #        - repl enable (from SEED Server-${_seedInstanceName})
     #        - repl init   (from topology.json, from SEED Server-${_seedInstanceName})" >> "${_planSteps}"
@@ -1009,17 +922,18 @@ buildRunPlan ()
             ;;
         *)
             container_failure 08 "Unknown PD_STATE of ($PD_STATE)"
+            ;;
     esac
 
     {
-    echo "
+        echo "
     ###################################################################################
     #
     #                      PD_STATE: ${PD_STATE}
     #                      RUN_PLAN: ${RUN_PLAN}
     #"
 
-    cat "${_planSteps}"
+        cat "${_planSteps}"
     } >> "${_fullPlan}"
 
     echo "\
@@ -1030,8 +944,7 @@ buildRunPlan ()
     #                      hostname: ${POD_HOSTNAME}
     #                      location: ${_podLocation}
     #                    ldaps port: ${POD_LDAPS_PORT}" >> "${_fullPlan}"
-    if test "${PING_PRODUCT}" = "PingDirectory"
-    then
+    if test "${PING_PRODUCT}" = "PingDirectory"; then
         echo "\
     #              replication port: ${_podReplicationPort}" >> "${_fullPlan}"
     fi
@@ -1042,8 +955,7 @@ buildRunPlan ()
     #                      hostname: ${SEED_HOSTNAME}
     #                      location: ${_seedLocation}
     #                    ldaps port: ${SEED_LDAPS_PORT}" >> "${_fullPlan}"
-    if test "${PING_PRODUCT}" = "PingDirectory"
-    then
+    if test "${PING_PRODUCT}" = "PingDirectory"; then
         echo "\
     #              replication port: ${_seedReplicationPort}" >> "${_fullPlan}"
     fi
@@ -1051,15 +963,12 @@ buildRunPlan ()
     ###################################################################################
     " >> "${_fullPlan}"
 
-
-
     #########################################################################
     # print out a table of all the pods and clusters if we have the proper variables
     # defined
     #########################################################################
     if test ! -z "${K8S_CLUSTERS}" &&
-    test ! -z "${K8S_NUM_REPLICAS}"
-    then
+        test ! -z "${K8S_NUM_REPLICAS}"; then
         _numReplicas=${K8S_NUM_REPLICAS}
         _clusterWidth=0
         _podWidth=0
@@ -1069,66 +978,57 @@ buildRunPlan ()
         # First, we will calculate a bunch of sizes so we can print in a pretty table
         # and place all the values into a row array to be printed in a loop later on
         #
-        for _cluster in ${K8S_CLUSTERS}
-        do
+        for _cluster in ${K8S_CLUSTERS}; do
             # get the max size of cluster name
             test ${#_cluster} -gt ${_clusterWidth} && _clusterWidth=${#_cluster}
 
             i=0
-            while test $i -lt "${_numReplicas}"
-            do
+            while test $i -lt "${_numReplicas}"; do
                 _pod="${K8S_STATEFUL_SET_NAME}-${_ordinal}.${_cluster}"
 
                 # get the max size of the pod name
                 test ${#_pod} -gt ${_podWidth} && _podWidth=${#_pod}
 
                 _ldapsPort=${SEED_LDAPS_PORT}
-                if test "${PING_PRODUCT}" = "PingDirectory"
-                then
+                if test "${PING_PRODUCT}" = "PingDirectory"; then
                     _replicationPort=${_seedReplicationPort}
                 fi
-                if test "${K8S_INCREMENT_PORTS}" = true
-                then
-                    _ldapsPort=$(( _ldapsPort + i ))
-                    if test "${PING_PRODUCT}" = "PingDirectory"
-                    then
-                        _replicationPort=$(( _replicationPort + i ))
+                if test "${K8S_INCREMENT_PORTS}" = true; then
+                    _ldapsPort=$((_ldapsPort + i))
+                    if test "${PING_PRODUCT}" = "PingDirectory"; then
+                        _replicationPort=$((_replicationPort + i))
                     fi
                 fi
 
-                i=$(( i + 1 ))
+                i=$((i + 1))
             done
         done
 
-
         # Get the total width of each row and the width of the cluster header rows
-        if test "${PING_PRODUCT}" = "PingDirectory"
-        then
+        if test "${PING_PRODUCT}" = "PingDirectory"; then
             # pingdirectory needs an extra column for the replication port
-            totalWidth=$(( _podWidth + _portWidth + _portWidth + 11 ))
+            totalWidth=$((_podWidth + _portWidth + _portWidth + 11))
         else
-            totalWidth=$(( _podWidth + _portWidth + 11 ))
+            totalWidth=$((_podWidth + _portWidth + 11))
         fi
-        _clusterWidth=$(( totalWidth - 14 ))
+        _clusterWidth=$((totalWidth - 14))
 
         # The following are some variables used for printf format statements
         _dashes="--------------------------------------------------------------------------------"
         _clusterFormat="# | %-4s   %-4s | CLUSTER: %-${_clusterWidth}s |\n"
-        if test "${PING_PRODUCT}" = "PingDirectory"
-        then
-            _separatorRow=$( printf "# +------+------+-%.${_podWidth}s-+-%.${_portWidth}s-+-%.${_portWidth}s-+\n" \
-                "${_dashes}" "${_dashes}" "${_dashes}" )
+        if test "${PING_PRODUCT}" = "PingDirectory"; then
+            _separatorRow=$(printf "# +------+------+-%.${_podWidth}s-+-%.${_portWidth}s-+-%.${_portWidth}s-+\n" \
+                "${_dashes}" "${_dashes}" "${_dashes}")
             _podFormat="# | %-4s | %-4s | %-${_podWidth}s | %-${_portWidth}s | %-${_portWidth}s |\n"
         else
-            _separatorRow=$( printf "# +------+------+-%.${_podWidth}s-+-%.${_portWidth}s-+\n" \
-                "${_dashes}" "${_dashes}" "${_dashes}" )
+            _separatorRow=$(printf "# +------+------+-%.${_podWidth}s-+-%.${_portWidth}s-+\n" \
+                "${_dashes}" "${_dashes}" "${_dashes}")
             _podFormat="# | %-4s | %-4s | %-${_podWidth}s | %-${_portWidth}s |\n"
         fi
 
         # print out the top header for the table
         echo "${_separatorRow}" >> "${_fullPlan}"
-        if test "${PING_PRODUCT}" = "PingDirectory"
-        then
+        if test "${PING_PRODUCT}" = "PingDirectory"; then
             # shellcheck disable=SC2059
             printf "${_podFormat}" "SEED" "POD" "Instance" "LDAPS" "REPL" >> "${_fullPlan}"
         else
@@ -1137,20 +1037,17 @@ buildRunPlan ()
         fi
 
         # Print each row
-        for _cluster in ${K8S_CLUSTERS}
-        do
+        for _cluster in ${K8S_CLUSTERS}; do
             _ordinal=0
 
-            while test $_ordinal -lt "${_numReplicas}"
-            do
+            while test $_ordinal -lt "${_numReplicas}"; do
                 _pod="${K8S_STATEFUL_SET_NAME}-${_ordinal}.${_cluster}"
 
                 # If we are printing a row representing the seed pod
                 _seedIndicator=""
-                test "${_cluster}" = "${K8S_SEED_CLUSTER}" && \
-                test "${_ordinal}" = "0" && \
-                _seedIndicator="***"
-
+                test "${_cluster}" = "${K8S_SEED_CLUSTER}" &&
+                    test "${_ordinal}" = "0" &&
+                    _seedIndicator="***"
 
                 # If we are printing a row representing the current pod, then we will
                 # provide an indicator of that
@@ -1158,23 +1055,19 @@ buildRunPlan ()
                 test "${_podInstanceName}" = "${_pod}" && _podIndicator="***"
 
                 _ldapsPort=${LDAPS_PORT}
-                if test "${PING_PRODUCT}" = "PingDirectory"
-                then
+                if test "${PING_PRODUCT}" = "PingDirectory"; then
                     _replicationPort=${REPLICATION_PORT}
                 fi
-                if test "${K8S_INCREMENT_PORTS}" = true
-                then
-                    _ldapsPort=$(( _ldapsPort + _ordinal ))
-                    if test "${PING_PRODUCT}" = "PingDirectory"
-                    then
-                        _replicationPort=$(( _replicationPort + _ordinal ))
+                if test "${K8S_INCREMENT_PORTS}" = true; then
+                    _ldapsPort=$((_ldapsPort + _ordinal))
+                    if test "${PING_PRODUCT}" = "PingDirectory"; then
+                        _replicationPort=$((_replicationPort + _ordinal))
                     fi
                 fi
 
                 # As we print the rows, if we are a new cluster, then we'll print a new cluster
                 # header row
-                if test "${_prevCluster}" != "${_cluster}"
-                then
+                if test "${_prevCluster}" != "${_cluster}"; then
                     {
                         echo "${_separatorRow}"
                         # shellcheck disable=SC2059
@@ -1184,8 +1077,7 @@ buildRunPlan ()
                 fi
                 _prevCluster=${_cluster}
 
-                if test "${PING_PRODUCT}" = "PingDirectory"
-                then
+                if test "${PING_PRODUCT}" = "PingDirectory"; then
                     # shellcheck disable=SC2059
                     printf "${_podFormat}" "${_seedIndicator}" "${_podIndicator}" "${_pod}" "${_ldapsPort}" "${_replicationPort}" >> "${_fullPlan}"
                 else
@@ -1193,7 +1085,7 @@ buildRunPlan ()
                     printf "${_podFormat}" "${_seedIndicator}" "${_podIndicator}" "${_pod}" "${_ldapsPort}" >> "${_fullPlan}"
                 fi
 
-                _ordinal=$(( _ordinal + 1 ))
+                _ordinal=$((_ordinal + 1))
             done
         done
 
@@ -1214,22 +1106,19 @@ buildRunPlan ()
 
     # POD Server Info
     export_container_env _podInstanceName POD_HOSTNAME _podLocation POD_LDAPS_PORT
-    if test "${PING_PRODUCT}" = "PingDirectory"
-    then
+    if test "${PING_PRODUCT}" = "PingDirectory"; then
         export_container_env _podReplicationPort
     fi
 
     # SEED Server Info
     export_container_env _seedInstanceName SEED_HOSTNAME _seedLocation SEED_LDAPS_PORT
-    if test "${PING_PRODUCT}" = "PingDirectory"
-    then
+    if test "${PING_PRODUCT}" = "PingDirectory"; then
         export_container_env _seedReplicationPort
     fi
 
     # PingData Port Info
     export_container_env LDAPS_PORT LOCATION
-    if test "${PING_PRODUCT}" = "PingDirectory"
-    then
+    if test "${PING_PRODUCT}" = "PingDirectory"; then
         export_container_env REPLICATION_PORT
     fi
 
@@ -1243,8 +1132,7 @@ buildRunPlan ()
 # This method returns 0 if the server was successfully prepared and should move
 # forward with joining the topology. It will return a non-zero exit code if the
 # server should not attempt to join the topology.
-prepareToJoinTopology ()
-{
+prepareToJoinTopology() {
     #
     #- * Ensures the PingData service has been started and accepts queries.
     #
@@ -1255,8 +1143,7 @@ prepareToJoinTopology ()
     #
     #- * Only version 8.2-EA and greater support configuring sync failover
     #
-    if test "${PING_PRODUCT}" = "PingDataSync" && ! is_version_ge "8.2.0.0-EA"
-    then
+    if test "${PING_PRODUCT}" = "PingDataSync" && ! is_version_ge "8.2.0.0-EA"; then
         echo "PingDataSync failover will not be configured. Product version older than 8.2.0.0-EA."
         return 1
     fi
@@ -1280,10 +1167,8 @@ prepareToJoinTopology ()
     #
     #- * Check to see if PD_STATE is GENESIS.  If so, no replication or failover will be performed
     #
-    if test "${PD_STATE}" = "GENESIS"
-    then
-        if test "${PING_PRODUCT}" = "PingDirectory"
-        then
+    if test "${PD_STATE}" = "GENESIS"; then
+        if test "${PING_PRODUCT}" = "PingDirectory"; then
             echo "PD_STATE is GENESIS ==> Replication on this server won't be set up until more instances are added"
         else
             echo "PD_STATE is GENESIS ==> Failover on this server won't be set up until more instances are added"
@@ -1291,10 +1176,8 @@ prepareToJoinTopology ()
         return 1
     fi
 
-    if test -z "${_seedInstanceName}" || test -z "${SEED_HOSTNAME}" || test -z "${SEED_LDAPS_PORT}"
-    then
-        if test "${PING_PRODUCT}" = "PingDirectory"
-        then
+    if test -z "${_seedInstanceName}" || test -z "${SEED_HOSTNAME}" || test -z "${SEED_LDAPS_PORT}"; then
+        if test "${PING_PRODUCT}" = "PingDirectory"; then
             echo "PingDirectory replication will not be configured. Seed server could not be determined."
         else
             echo "PingDataSync failover will not be configured. Seed server could not be determined."
@@ -1304,28 +1187,24 @@ prepareToJoinTopology ()
 
     #Change the seed build out for pingDirectory-0 server that has been restarted and it's pvc lost
     if test "${_podInstanceName}" = "${_seedInstanceName}" &&
-      test "${PD_STATE}" = "SETUP" && test "${ORCHESTRATION_TYPE}" = "KUBERNETES"
-    then
-      if test -z "${K8S_CLUSTERS}" &&
-        test -z "${K8S_CLUSTER}" &&
-        test -z "${K8S_SEED_CLUSTER}"
-      then
-        _IPList=$( getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}" )
-      else
-        _IPList=$( getIPsForDomain "${K8S_CLUSTER}" )
-      fi
-
-      for ip in ${_IPList}
-      do
-        if test "$( getIP "${POD_HOSTNAME}" )" != "${ip}"
-        then
-          SEED_HOSTNAME=${ip}
-          _seedInstanceName=${ip}
-          waitUntilLdapUp "${SEED_HOSTNAME}" "${SEED_LDAPS_PORT}" "" > /dev/null 2>&1
-          echo_yellow "This seed server is out of sync with the topology. Using alternative seed server: ${SEED_HOSTNAME}:${SEED_LDAPS_PORT}"
-          export_container_env _seedInstanceName SEED_HOSTNAME
+        test "${PD_STATE}" = "SETUP" && test "${ORCHESTRATION_TYPE}" = "KUBERNETES"; then
+        if test -z "${K8S_CLUSTERS}" &&
+            test -z "${K8S_CLUSTER}" &&
+            test -z "${K8S_SEED_CLUSTER}"; then
+            _IPList=$(getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}")
+        else
+            _IPList=$(getIPsForDomain "${K8S_CLUSTER}")
         fi
-      done
+
+        for ip in ${_IPList}; do
+            if test "$(getIP "${POD_HOSTNAME}")" != "${ip}"; then
+                SEED_HOSTNAME=${ip}
+                _seedInstanceName=${ip}
+                waitUntilLdapUp "${SEED_HOSTNAME}" "${SEED_LDAPS_PORT}" "" > /dev/null 2>&1
+                echo_yellow "This seed server is out of sync with the topology. Using alternative seed server: ${SEED_HOSTNAME}:${SEED_LDAPS_PORT}"
+                export_container_env _seedInstanceName SEED_HOSTNAME
+            fi
+        done
     fi
 
     #
@@ -1344,15 +1223,14 @@ prepareToJoinTopology ()
         --hostname "${SEED_HOSTNAME}" \
         --port "${SEED_LDAPS_PORT}" \
         --exportFilePath "${_priorTopoFile}"
-    _priorNumInstances=$( jq ".serverInstances | length" "${_priorTopoFile}" )
+    _priorNumInstances=$(jq ".serverInstances | length" "${_priorTopoFile}")
 
     #
     #- * If this server is already in a prior topology, then replication or failover may already be enabled.
     #- * It is also possible that this server has lost its volume and isn't aware of the topology.
     #- * When that is the case, run remove-defunct-server and re-add this server to the topology from the seed server.
     #
-    if test ! -z "$( jq -r ".serverInstances[] | select(.instanceName==\"${_podInstanceName}\") | .instanceName" "${_priorTopoFile}" )"
-    then
+    if test ! -z "$(jq -r ".serverInstances[] | select(.instanceName==\"${_podInstanceName}\") | .instanceName" "${_priorTopoFile}")"; then
         # Get the topology according to this instance if possible.
         _currentTopoFile="/tmp/currentTopology.json"
         rm -rf "${_currentTopoFile}"
@@ -1361,10 +1239,8 @@ prepareToJoinTopology ()
             --port "${POD_LDAPS_PORT}" \
             --exportFilePath "${_currentTopoFile}"
         # Check if this server knows about the seed server.
-        if test -z "$( jq -r ".serverInstances[] | select(.instanceName==\"${_seedInstanceName}\") | .instanceName" "${_currentTopoFile}" )"
-        then
-            if is_version_ge "8.2.0.0-EA"
-            then
+        if test -z "$(jq -r ".serverInstances[] | select(.instanceName==\"${_seedInstanceName}\") | .instanceName" "${_currentTopoFile}")"; then
+            if is_version_ge "8.2.0.0-EA"; then
                 # If this instance does not think it is in the seed server's topology, then it may have lost its volume.
                 # Remove the remnants of this server from the seed server's topology so it can be re-added below.
                 echo_yellow "Seed server topology and local topology are out of sync. Running remove-defunct-server before re-adding this server to the topology."
@@ -1378,15 +1254,14 @@ prepareToJoinTopology ()
                     --enableDebug --globalDebugLevel verbose
                 _returnCode=$?
 
-                if test ${_returnCode} -ne 0
-                then
+                if test ${_returnCode} -ne 0; then
                     echo_red "**********"
                     echo_red "Failed to run the remove-defunct-server tool while setting up the topology"
                     echo_red "Contents of remove-defunct-server.log file:"
                     cat "${SERVER_ROOT_DIR}"/logs/tools/remove-defunct-server.log
                     return ${_returnCode}
                 fi
-                _priorNumInstances=$(( _priorNumInstances - 1 ))
+                _priorNumInstances=$((_priorNumInstances - 1))
             else
                 # Due to a bug in PD versions before 8.2.0.0-EA (see DS-42438), we can't run remove-defunct-server here.
                 # The command must be run on the seed server itself without using the topologyFilePath argument.
@@ -1395,8 +1270,7 @@ prepareToJoinTopology ()
             fi
         else
             # If the server knows about the seed server's topology locally, then everything is good.
-            if test "${PING_PRODUCT}" = "PingDirectory"
-            then
+            if test "${PING_PRODUCT}" = "PingDirectory"; then
                 echo "This instance (${_podInstanceName}) is already found in topology --> No need to enable replication"
                 dsreplication status --displayServerTable --showAll
             else
@@ -1409,11 +1283,9 @@ prepareToJoinTopology ()
     #
     #- * If the server being setup is the Seed Instance, then no replication or failover will be performed
     #
-    if test "${_podInstanceName}" = "${_seedInstanceName}"
-    then
+    if test "${_podInstanceName}" = "${_seedInstanceName}"; then
         echo ""
-        if test "${PING_PRODUCT}" = "PingDirectory"
-        then
+        if test "${PING_PRODUCT}" = "PingDirectory"; then
             echo "We are the SEED Server: ${_seedInstanceName} --> No need to enable replication"
         else
             echo "We are the SEED Server: ${_seedInstanceName} --> No need to enable failover"
@@ -1424,44 +1296,37 @@ prepareToJoinTopology ()
     #
     #- * Get the current Topology Master
     #
-    MASTER_TOPOLOGY_INSTANCE=$( ldapsearch --hostname "${SEED_HOSTNAME}" --port "${SEED_LDAPS_PORT}" --terse --outputFormat json -b "cn=Mirrored subtree manager for base DN cn_Topology_cn_config,cn=monitor" -s base objectclass=* master-instance-name | jq -r .attributes[].values[] )
+    MASTER_TOPOLOGY_INSTANCE=$(ldapsearch --hostname "${SEED_HOSTNAME}" --port "${SEED_LDAPS_PORT}" --terse --outputFormat json -b "cn=Mirrored subtree manager for base DN cn_Topology_cn_config,cn=monitor" -s base objectclass=* master-instance-name | jq -r .attributes[].values[])
     MASTER_TOPOLOGY_HOSTNAME="${SEED_HOSTNAME}"
     MASTER_TOPOLOGY_LDAPS_PORT="${SEED_LDAPS_PORT}"
-    if test "${PING_PRODUCT}" = "PingDirectory"
-    then
+    if test "${PING_PRODUCT}" = "PingDirectory"; then
         MASTER_TOPOLOGY_REPLICATION_PORT="${_seedReplicationPort:?}"
     fi
-
 
     #
     #- * Determine the Master Topology server to use to enable with
     #
-    if test "${_priorNumInstances}" -eq 1
-    then
-        if test "${PING_PRODUCT}" = "PingDirectory"
-        then
+    if test "${_priorNumInstances}" -eq 1; then
+        if test "${PING_PRODUCT}" = "PingDirectory"; then
             echo "Only 1 instance (${MASTER_TOPOLOGY_INSTANCE}) found in current topology.  Adding 1st replica"
         else
             echo "Only 1 instance (${MASTER_TOPOLOGY_INSTANCE}) found in current topology.  Adding 1st failover server"
         fi
     else
-        if test "${MASTER_TOPOLOGY_INSTANCE}" = "${_seedInstanceName}"
-        then
+        if test "${MASTER_TOPOLOGY_INSTANCE}" = "${_seedInstanceName}"; then
             echo "Seed Instance is the Topology Master Instance"
             MASTER_TOPOLOGY_HOSTNAME="${SEED_HOSTNAME}"
             MASTER_TOPOLOGY_LDAPS_PORT="${SEED_LDAPS_PORT}"
-            if test "${PING_PRODUCT}" = "PingDirectory"
-            then
+            if test "${PING_PRODUCT}" = "PingDirectory"; then
                 MASTER_TOPOLOGY_REPLICATION_PORT="${_seedReplicationPort}"
             fi
         else
             echo "Topology master instance (${MASTER_TOPOLOGY_INSTANCE}) isn't seed instance (${_seedInstanceName})"
 
-            MASTER_TOPOLOGY_HOSTNAME=$( jq -r ".serverInstances[] | select(.instanceName==\"${MASTER_TOPOLOGY_INSTANCE}\") | .hostname" "${_priorTopoFile}" )
-            MASTER_TOPOLOGY_LDAPS_PORT=$( jq ".serverInstances[] | select(.instanceName==\"${MASTER_TOPOLOGY_INSTANCE}\") | .ldapsPort" "${_priorTopoFile}" )
-            if test "${PING_PRODUCT}" = "PingDirectory"
-            then
-                MASTER_TOPOLOGY_REPLICATION_PORT=$( jq ".serverInstances[] | select(.instanceName==\"${MASTER_TOPOLOGY_INSTANCE}\") | .replicationPort" "${_priorTopoFile}" )
+            MASTER_TOPOLOGY_HOSTNAME=$(jq -r ".serverInstances[] | select(.instanceName==\"${MASTER_TOPOLOGY_INSTANCE}\") | .hostname" "${_priorTopoFile}")
+            MASTER_TOPOLOGY_LDAPS_PORT=$(jq ".serverInstances[] | select(.instanceName==\"${MASTER_TOPOLOGY_INSTANCE}\") | .ldapsPort" "${_priorTopoFile}")
+            if test "${PING_PRODUCT}" = "PingDirectory"; then
+                MASTER_TOPOLOGY_REPLICATION_PORT=$(jq ".serverInstances[] | select(.instanceName==\"${MASTER_TOPOLOGY_INSTANCE}\") | .replicationPort" "${_priorTopoFile}")
             fi
         fi
     fi
@@ -1473,8 +1338,7 @@ prepareToJoinTopology ()
 }
 
 # Call the remove-defunct-server command on this server
-removeDefunctServer()
-{
+removeDefunctServer() {
     # This script will remove the server from the topology for any graceful
     # termination, i.e. scale-down and rolling-update when invoked from a pre-stop
     # hook. Ideally, the server is not removed from the topology in the rolling
@@ -1485,22 +1349,22 @@ removeDefunctServer()
     # through a config-map mounted volume will not do because that will change the
     # pod spec and re-spin --all-- of the pods unnecessarily, even if the only
     # change to the deployment is a reduced replica count.
-    INSTANCE_NAME=$( dsconfig --no-prompt \
-    --useSSL --trustAll \
-    --hostname "${HOST_NAME}" --port "${LDAPS_PORT}" \
-    get-global-configuration-prop \
-    --property instance-name \
-    --script-friendly |
-    awk '{ print $2 }' )
+    INSTANCE_NAME=$(dsconfig --no-prompt \
+        --useSSL --trustAll \
+        --hostname "${HOST_NAME}" --port "${LDAPS_PORT}" \
+        get-global-configuration-prop \
+        --property instance-name \
+        --script-friendly |
+        awk '{ print $2 }')
 
     echo "Removing ${HOST_NAME} (instance name: ${INSTANCE_NAME}) from the topology"
     remove-defunct-server --no-prompt \
-    --serverInstanceName "${INSTANCE_NAME}" \
-    --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
-    --ignoreOnline \
-    --bindDN "${ROOT_USER_DN}" \
-    --bindPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
-    --enableDebug --globalDebugLevel verbose
+        --serverInstanceName "${INSTANCE_NAME}" \
+        --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
+        --ignoreOnline \
+        --bindDN "${ROOT_USER_DN}" \
+        --bindPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
+        --enableDebug --globalDebugLevel verbose
     echo "Server removal exited with return code: $?"
 }
 
@@ -1510,8 +1374,7 @@ removeDefunctServer()
 #             a valid value, then wait-for will be used to determine whether
 #             the server is online or not.
 #
-get_dsconfig_options ()
-{
+get_dsconfig_options() {
     case "$1" in
         online)
             _isOnline=true
@@ -1520,9 +1383,8 @@ get_dsconfig_options ()
             _isOnline=false
             ;;
         *)
-            wait-for "${HOST_NAME}:${LDAPS_PORT}" -t 1 >/dev/null 2>/dev/null
-            if test $? -eq 0
-            then
+            wait-for "${HOST_NAME}:${LDAPS_PORT}" -t 1 > /dev/null 2> /dev/null
+            if test $? -eq 0; then
                 _isOnline=true
             else
                 _isOnline=false
@@ -1530,8 +1392,7 @@ get_dsconfig_options ()
             ;;
     esac
 
-    if test "${_isOnline}" = "true"
-    then
+    if test "${_isOnline}" = "true"; then
         echo "--no-prompt --quiet --noPropertiesFile --hostname ${HOST_NAME} --port ${LDAPS_PORT} --bindDN \"${ROOT_USER_DN}\" --bindPasswordFile \"${ROOT_USER_PASSWORD_FILE}\" --useSSL --trustAll"
     else
         echo "--no-prompt --quiet --offline --noPropertiesFile"
@@ -1547,16 +1408,14 @@ get_dsconfig_options ()
 #             a valid value, then wait-for will be used to determine whether
 #             the server is online or not.
 #
-set_server_unavailable ()
-{
+set_server_unavailable() {
     _status="${1:=not ready}"
 
-    if test "$( isImageVersionGtEq 8.2.0 )" -eq 0
-    then
-        _jsonMsg="{ \"status\":\"${_status}\", \"source\":\"${0}\", \"updated\":\"$( date )\" }"
+    if test "$(isImageVersionGtEq 8.2.0)" -eq 0; then
+        _jsonMsg="{ \"status\":\"${_status}\", \"source\":\"${0}\", \"updated\":\"$(date)\" }"
 
-        _dsconfigOptions=$( get_dsconfig_options "$2" )
-        _batchFile=$( mktemp )
+        _dsconfigOptions=$(get_dsconfig_options "$2")
+        _batchFile=$(mktemp)
 
         echo "Setting Server to Unavailable - ${_jsonMsg}"
 
@@ -1583,12 +1442,10 @@ set_server_unavailable ()
 #             a valid value, then wait-for will be used to determine whether
 #             the server is online or not.
 #
-set_server_available ()
-{
-    if test "$( isImageVersionGtEq 8.2.0 )" -eq 0
-    then
-        _dsconfigOptions=$( get_dsconfig_options "$1" )
-        _batchFile=$( mktemp )
+set_server_available() {
+    if test "$(isImageVersionGtEq 8.2.0)" -eq 0; then
+        _dsconfigOptions=$(get_dsconfig_options "$1")
+        _batchFile=$(mktemp)
 
         echo "Setting Server to Available"
 
@@ -1618,8 +1475,7 @@ set_server_available ()
 #
 # Usage example: save_jvm_settings "--jvmTuningParameter AGGRESSIVE --maxHeapSize 800m"
 #
-save_jvm_settings ()
-{
+save_jvm_settings() {
     mkdir -p "${JVM_STATE_DIR}"
 
     # Write passed JVM options for dsjavaproperties
@@ -1639,10 +1495,8 @@ save_jvm_settings ()
 #
 # Usage example: compare_and_save_jvm_settings "--jvmTuningParameter AGGRESSIVE --maxHeapSize 800m"
 #
-compare_and_save_jvm_settings ()
-{
-    if test -f "${JVM_STATE_DIR}/jvmOptions" && test -f "${JVM_STATE_DIR}/jvmVersion"
-    then
+compare_and_save_jvm_settings() {
+    if test -f "${JVM_STATE_DIR}/jvmOptions" && test -f "${JVM_STATE_DIR}/jvmVersion"; then
         mv "${JVM_STATE_DIR}/jvmOptions" "${JVM_STATE_DIR}/jvmOptions.prev"
         mv "${JVM_STATE_DIR}/jvmVersion" "${JVM_STATE_DIR}/jvmVersion.prev"
     fi
@@ -1652,10 +1506,9 @@ compare_and_save_jvm_settings ()
 
     # Determine if there are any changes
     _diffRC=1
-    if test -f "${JVM_STATE_DIR}/jvmOptions.prev" && test -f "${JVM_STATE_DIR}/jvmVersion.prev"
-    then
-        diff "${JVM_STATE_DIR}/jvmOptions.prev" "${JVM_STATE_DIR}/jvmOptions" > /dev/null && \
-            diff "${JVM_STATE_DIR}/jvmVersion.prev" "${JVM_STATE_DIR}/jvmVersion" > /dev/null && \
+    if test -f "${JVM_STATE_DIR}/jvmOptions.prev" && test -f "${JVM_STATE_DIR}/jvmVersion.prev"; then
+        diff "${JVM_STATE_DIR}/jvmOptions.prev" "${JVM_STATE_DIR}/jvmOptions" > /dev/null &&
+            diff "${JVM_STATE_DIR}/jvmVersion.prev" "${JVM_STATE_DIR}/jvmVersion" > /dev/null &&
             _diffRC=0
     fi
 

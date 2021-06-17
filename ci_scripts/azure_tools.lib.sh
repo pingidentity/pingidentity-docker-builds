@@ -5,36 +5,28 @@
 # azure utilities
 #
 
-
-
 # get all versions (from versions.json) for a product to build
-_getDockerRepoNames ()
-{
+_getDockerRepoNames() {
     echo "not implemented"
 }
 
 # get all the tags for an image
-_getDockerTagsForRepo ()
-{
+_getDockerTagsForRepo() {
     echo "not implemented"
 }
 
 # untag an image
-_untagDockerImage ()
-{
+_untagDockerImage() {
     echo "not implemented"
 }
 
 # get all digest for untagged images
-_getUntaggedImageDigests ()
-{
+_getUntaggedImageDigests() {
     echo "not implemented"
 }
 
-
 # delete digest for an image
-_deleteImageDigest ()
-{
+_deleteImageDigest() {
     echo "not implemented"
 }
 
@@ -45,5 +37,3 @@ _deleteImageDigest ()
 echo_red "Azure Tools not implemented"
 
 exit 1
-
-

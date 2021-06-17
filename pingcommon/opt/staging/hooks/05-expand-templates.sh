@@ -41,8 +41,7 @@ export _DOLLAR_="$"
 # getEnvKeys
 # Create a list of environment keys
 #
-getEnvKeys()
-{
+getEnvKeys() {
     env | cut -d'=' -f1 | sed -e 's/^/$/'
 }
 
@@ -50,18 +49,16 @@ getEnvKeys()
 # expand files in current directory
 # we check if there are templates that we have to run through env subst
 #
-expandFiles()
-{
+expandFiles() {
     #
     # First, let's process all files that end in .subst
     #
     echo "  Processing templates"
 
     find "." -type f -iname \*.subst > tmp
-    while IFS= read -r template
-    do
+    while IFS= read -r template; do
         echo "    t - ${template}"
-        envsubst "'$( getEnvKeys )'" < "${template}" > "${template%.subst}"
+        envsubst "'$(getEnvKeys)'" < "${template}" > "${template%.subst}"
         rm -f "${template}"
     done < tmp
     rm tmp
@@ -73,27 +70,22 @@ expandFiles()
     #
     echo "  Processing defaults"
     find "." -type f -iname \*.subst.default > tmp
-    while IFS= read -r template
-    do
+    while IFS= read -r template; do
         printf "    d - %s .. " "${template}"
         _effectiveFile="${template%.subst.default}"
         _processDefault="true"
-        if test "${RUN_PLAN}" = "RESTART"
-        then
+        if test "${RUN_PLAN}" = "RESTART"; then
             _targetInstanceFile="${OUT_DIR}${_effectiveFile#.}"
-            if test -f "${_targetInstanceFile}" || test -f "${_effectiveFile}"
-            then
+            if test -f "${_targetInstanceFile}" || test -f "${_effectiveFile}"; then
                 _processDefault="false"
             fi
         else
-            if test -f "${_effectiveFile}"
-            then
+            if test -f "${_effectiveFile}"; then
                 _processDefault="false"
             fi
         fi
-        if test "${_processDefault}" = "true"
-        then
-            envsubst "'$( getEnvKeys )'" < "${template}" > "${_effectiveFile}"
+        if test "${_processDefault}" = "true"; then
+            envsubst "'$(getEnvKeys)'" < "${template}" > "${_effectiveFile}"
             echo_green "expanded"
         else
             echo_yellow "skipped"
@@ -107,8 +99,7 @@ expandFiles()
 cd "${STAGING_DIR}" || exit 15
 
 find "." -type f -iname \*.zip.subst > tmp
-while IFS= read -r _zipBundle
-do
+while IFS= read -r _zipBundle; do
     echo "expanding .zip file - ${_zipBundle}"
 
     # create a temporary zip directory and unzip the .zip.subst artifacts there
@@ -141,7 +132,6 @@ expandFiles
 #
 cd "${STAGING_DIR}" || exit 15
 
-if test -d _data.zip_
-then
+if test -d _data.zip_; then
     echo_red "WARNING: Building of data.zip from a _data.zip_ directory is no longer supported."
 fi

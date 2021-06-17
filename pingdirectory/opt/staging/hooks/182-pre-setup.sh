@@ -24,9 +24,8 @@ test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib
 #  required replication has been setup.  If we don't check for this here then the
 #  setup process here will fail.
 if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" &&
-   test "$( isImageVersionGtEq 8.2.0 )" -eq 0 &&
-   test -z "$( getIP "${POD_HOSTNAME}" )"
-then
+    test "$(isImageVersionGtEq 8.2.0)" -eq 0 &&
+    test -z "$(getIP "${POD_HOSTNAME}")"; then
     echo_red "Detected:"
     echo_red "  - Container running in Kubernetes"
     echo_red "  - Running version 8.2 or higher"
@@ -51,20 +50,17 @@ fi
 # If we are the GENESIS state, then process any templates if they are defined.
 #
 
-if test "${PD_STATE}" = "GENESIS"
-then
+if test "${PD_STATE}" = "GENESIS"; then
     echo "PD_STATE is GENESIS ==> Processing Templates"
 
     test -z "${MAKELDIF_USERS}" && MAKELDIF_USERS=0
 
-    find "${PD_PROFILE}/ldif" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | while read -r _ldifDir
-        do
-        find "${_ldifDir}" -type f -iname \*.template 2>/dev/null | while read -r _template
-        do
+    find "${PD_PROFILE}/ldif" -maxdepth 1 -mindepth 1 -type d 2> /dev/null | while read -r _ldifDir; do
+        find "${_ldifDir}" -type f -iname \*.template 2> /dev/null | while read -r _template; do
             echo "Processing (${_template}) template with ${MAKELDIF_USERS} users..."
             _generatedLdifFilename="${_template%.*}.ldif"
             "${SERVER_ROOT_DIR}/bin/make-ldif" \
-                --templateFile "${_template}"  \
+                --templateFile "${_template}" \
                 --ldifFile "${_generatedLdifFilename}" \
                 --numThreads 3
         done

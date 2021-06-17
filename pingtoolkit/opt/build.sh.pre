@@ -2,9 +2,8 @@
 echo "Pre-build stage (before package are laid down on the shim)"
 
 # Common wrapper for reliable curl calls
-_curl ()
-{
-    _httpResultCode=$( 
+_curl() {
+    _httpResultCode=$(
         curl \
             --get \
             --silent \
@@ -24,22 +23,20 @@ _curl ()
 
 set -x
 
-
-
-_osID=$( awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null )
+_osID=$(awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' < /etc/os-release 2> /dev/null)
 
 case "${_osID}" in
     alpine)
-        # cause a failure if anything below raises an error 
+        # cause a failure if anything below raises an error
         set -e
         apk --update add py3-pip curl openssl
         pip3 install --no-cache-dir --upgrade awscli
 
-        _kubectlVer=$( curl https://storage.googleapis.com/kubernetes-release/release/stable.txt )
-        case "$( uname -m )" in
+        _kubectlVer=$(curl https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+        case "$(uname -m)" in
             x86_64) _vanityArch="amd64" ;;
             aarch64) _vanityArch="arm64" ;;
-            *) _vanityArch=$( uname -m ) ;;
+            *) _vanityArch=$(uname -m) ;;
         esac
         _file=/opt/kubectl
         _curl -o ${_file} "https://storage.googleapis.com/kubernetes-release/release/${_kubectlVer}/bin/linux/${_vanityArch}/kubectl"
@@ -53,9 +50,9 @@ case "${_osID}" in
         rm ${_file}.tgz
 
         set +e
-    ;;
-    *)
-    ;;
+        ;;
+    *) ;;
+
 esac
 # delete self
 rm -f "${0}"

@@ -18,8 +18,7 @@ test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib
 # Check availability and set variables necessary for enabling replication
 # If this method returns a non-zero exit code, then we shouldn't try
 # to enable replication
-if ! prepareToJoinTopology
-then
+if ! prepareToJoinTopology; then
     echo "Replication will not be configured."
     set_server_available online
 
@@ -69,8 +68,7 @@ dsreplication enable \
 _replEnableResult=$?
 echo "Replication enable for POD Server result=${_replEnableResult}"
 
-if test ${_replEnableResult} -ne 0
-then
+if test ${_replEnableResult} -ne 0; then
     echo "Not running dsreplication initialize since enable failed with a non-successful return code"
     exit ${_replEnableResult}
 fi

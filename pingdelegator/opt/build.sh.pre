@@ -2,9 +2,8 @@
 echo "Pre-build stage (before package are laid down on the shim)"
 
 # Common wrapper for reliable curl calls
-_curl ()
-{
-    _httpResultCode=$( 
+_curl() {
+    _httpResultCode=$(
         curl \
             --get \
             --silent \
@@ -24,20 +23,18 @@ _curl ()
 
 set -x
 
-
-
-_osID=$( awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' </etc/os-release 2>/dev/null )
+_osID=$(awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' < /etc/os-release 2> /dev/null)
 
 case "${_osID}" in
     alpine)
-        # cause a failure if anything below raises an error 
+        # cause a failure if anything below raises an error
         set -e
         apk --update add nginx openssl
         mkdir /run/nginx
         set +e
-    ;;
-    *)
-    ;;
+        ;;
+    *) ;;
+
 esac
 # delete self
 rm -f "${0}"

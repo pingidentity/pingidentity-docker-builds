@@ -1,8 +1,7 @@
 #!/usr/bin/env sh
 test "${VERBOSE}" = "true" && set -x
 
-if test -z "${1}" -o "$1" = "start-server" ;
-then
+if test -z "${1}" -o "$1" = "start-server"; then
     # shellcheck source=./staging/hooks/pingcommon.lib.sh
     . "${HOOKS_DIR}/pingcommon.lib.sh"
 
@@ -19,8 +18,8 @@ then
     # Capture environment variables and secrets state info
     add_state_info "environment_variables"
 
-    HOST_NAME=$( hostname -f )
-    DOMAIN_NAME=$( hostname -d )
+    HOST_NAME=$(hostname -f)
+    DOMAIN_NAME=$(hostname -d)
 
     export HOST_NAME DOMAIN_NAME
 
@@ -31,8 +30,7 @@ then
         "      HOST_NAME: ${HOST_NAME}" \
         "    DOMAIN_NAME: ${DOMAIN_NAME}"
     # If there is no startup command provided, provide error message and exit.
-    if test -z "${STARTUP_COMMAND}"
-    then
+    if test -z "${STARTUP_COMMAND}"; then
         echo_red "*** NO CONTAINER STARTUP COMMAND PROVIDED ***"
         echo_red "*** Please set the environment variable STARTUP_COMMAND with a command to run"
         echo_red "*** Example: STARTUP_COMMAND=/opt/out/instance/bin/start-server"
@@ -43,8 +41,7 @@ then
     # First ensure the STAGING_DIR is clean, before copying in
     # or pulling the server profile. This method will remove any
     # files in STAGING_DIR that are not built into the image.
-    if test "${CLEAN_STAGING_DIR}" = "true"
-    then
+    if test "${CLEAN_STAGING_DIR}" = "true"; then
         clean_staging_dir
     fi
 
@@ -81,19 +78,16 @@ then
     # before the service is actually started.  The post start SHOULD
     # poll the service (i.e. curl commands or ldapsearch or ...) to verify it
     # is running before performing the actual post start tasks.
-    if test -f "${HOOKS_DIR}/80-post-start.sh"
-    then
+    if test -f "${HOOKS_DIR}/80-post-start.sh"; then
         run_hook "80-post-start.sh" &
     fi
 
-    if test -n "${TAIL_LOG_FILES}"
-    then
+    if test -n "${TAIL_LOG_FILES}"; then
         echo "Tailing log files (${TAIL_LOG_FILES})"
         # Word-split is expected behavior for $TAIL_LOG_FILES. Disable shellcheck.
         # shellcheck disable=SC2086
-        exec tail -F ${TAIL_LOG_FILES} 2>/dev/null &
+        exec tail -F ${TAIL_LOG_FILES} 2> /dev/null &
     fi
-
 
     # If a command is provided after the "start-server" on the container start, then
     # startup the server in the background and then run that command.  A good example
@@ -104,8 +98,7 @@ then
     #   run docker .... start-server           # Starts server in foreground (same as previous)
     #   run docker .... start-server /bin/sh   # Starts server in background and runs shell
     #   run docker .... /bin/sh                # Doesn't start the server but drops into a shell
-    if test -z "${*}"
-    then
+    if test -z "${*}"; then
         # replace the shell with foreground server
         echo_green "Starting server in foreground: (${STARTUP_COMMAND} ${STARTUP_FOREGROUND_OPTS})"
         # Word-split is expected behavior for $STARTUP_FOREGROUND_OPTS. Disable shellcheck.

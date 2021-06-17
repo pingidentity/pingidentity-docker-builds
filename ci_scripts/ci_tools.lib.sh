@@ -12,108 +12,91 @@ HISTTIMEFORMAT='%T'
 export HISTTIMEFORMAT
 
 # get all versions (from versions.json) for a product to build
-_getAllVersionsToBuildForProduct ()
-{
-    _jvmFilter=$( _getJVMFilterArray )
+_getAllVersionsToBuildForProduct() {
+    _jvmFilter=$(_getJVMFilterArray)
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.build==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|$v.version]|unique|.[]' "${_file}"
 }
 
 # get all versions (from versions.json) for a product to deploy
-_getAllVersionsToDeployForProduct ()
-{
-    _jvmFilter=$( _getJVMFilterArray )
+_getAllVersionsToDeployForProduct() {
+    _jvmFilter=$(_getJVMFilterArray)
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.deploy==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|$v.version]|unique|.[]' "${_file}"
 }
 
 # get the latest (from versions.json) version of a product to build
-_getLatestVersionForProduct ()
-{
+_getLatestVersionForProduct() {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r 'if (.latest) then .latest else "" end' "${_file}"
 }
 
 # get the default shim (from versions.json) for a product version
-_getDefaultShimForProductVersion ()
-{
+_getDefaultShimForProductVersion() {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r '.|.versions[]| select(.version == "'"${2}"'") | .preferredShim' "${_file}"
 }
 
 # get all the shims (from versions.json) for a product version
-_getShimsToBuildForProductVersion ()
-{
-    _jvmFilter=$( _getJVMFilterArray )
+_getShimsToBuildForProductVersion() {
+    _jvmFilter=$(_getJVMFilterArray)
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r '[.|.versions[]| select(.version == "'"${2}"'")|.shims[]|. as $v|.jvms[]|select(.build==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|$v.shim]|unique|.[]' "${_file}"
 }
 
 # get all shims for JVM
-_getShimsToBuildForJVM ()
-{
+_getShimsToBuildForJVM() {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
     test -f "${_file}" && jq -r '[.|.versions[]|select(.id=="'"${1}"'")|.shims[]]|unique|.[]' "${_file}"
 }
 
 # get all the shims (from versions.json) for a product version
-_getShimsToDeployForProductVersion ()
-{
+_getShimsToDeployForProductVersion() {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r '[.|.versions[]| select(.version == "'"${2}"'")|.shims[]|. as $v|.jvms[]|select(.deploy==true)|$v.shim]|unique|.[]' "${_file}"
 }
 
 # get all the shims (from versions.json) for a product
-_getAllShimsForProduct ()
-{
+_getAllShimsForProduct() {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r '[.|.versions[]|.shims[]|.shim]|unique|.[]' "${_file}"
 }
 
 # get all the jvms (from versions.json) for a product to build
-_getJVMsToBuildForProductVersionShim ()
-{
-    _jvmFilter=$( _getJVMFilterArray )
+_getJVMsToBuildForProductVersionShim() {
+    _jvmFilter=$(_getJVMFilterArray)
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'"${2}"'").shims[]|select(.shim=="'"${3}"'")|.jvms[]|select(.build==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|.jvm' "${_file}"
 }
 
-_getJVMsForArch ()
-{
+_getJVMsForArch() {
     # treat as a singleton
-    if test -z "${_JVMS}"
-    then
+    if test -z "${_JVMS}"; then
         _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-        _JVMS=$( jq -r '[.versions[]|select(.archs[]|contains("'"${ARCH}"'"))|.id]|.[]' "${_file}" )
+        _JVMS=$(jq -r '[.versions[]|select(.archs[]|contains("'"${ARCH}"'"))|.id]|.[]' "${_file}")
         export _JVMS
     fi
     printf "%s" "${_JVMS}"
 }
 
-_getAllArchsForJVM ()
-{
+_getAllArchsForJVM() {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
     test -f "${_file}" && jq -r '.versions[]|select(.id == "'"${1}"'")|.archs|.[]' "${_file}"
 }
 
-_isJVMMultiArch ()
-{
+_isJVMMultiArch() {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    if test -f "${_file}"
-    then
-        _numArchs=$( jq -r '.versions[]|select(.id == "'"${1}"'")|.archs|length' "${_file}" )
+    if test -f "${_file}"; then
+        _numArchs=$(jq -r '.versions[]|select(.id == "'"${1}"'")|.archs|length' "${_file}")
         test "${_numArchs}" -gt 1 && return 0
     fi
     return 1
 }
 
-_getJVMFilterArray ()
-{
+_getJVMFilterArray() {
     # treat as a singleton
-    if test -z "${_JVM_FILTER_ARRAY}"
-    then
-        for _j in $( _getJVMsForArch )
-        do
+    if test -z "${_JVM_FILTER_ARRAY}"; then
+        for _j in $(_getJVMsForArch); do
             # shellcheck disable=SC2089
             _v=${_v}${_v:+,}'"'${_j}'"'
         done
@@ -124,101 +107,86 @@ _getJVMFilterArray ()
     printf "%s" "${_JVM_FILTER_ARRAY}"
 }
 
-_filterJVMForArch ()
-{
+_filterJVMForArch() {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
     test -f "${_file}" && jq -r '[.versions[]|select(.id=="'"${1}"'")|select(.archs[]|contains("'"${ARCH}"'"))|.id]|.[]' "${_file}"
 }
 
 # get all the jvms (from versions.json) for a product to deploy
-_getJVMsToDeployForProductVersionShim ()
-{
-    _jvmFilter=$( _getJVMFilterArray )
+_getJVMsToDeployForProductVersionShim() {
+    _jvmFilter=$(_getJVMFilterArray)
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'"${2}"'").shims[]|select(.shim=="'"${3}"'")|.jvms[]|select(.deploy==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|.jvm' "${_file}"
 }
 
 # get the preferred (from versions.json) for a product, version and shim
-_getPreferredJVMForProductVersionShim ()
-{
+_getPreferredJVMForProductVersionShim() {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'"${2}"'").shims[]|select(.shim=="'"${3}"'")|.preferredJVM' "${_file}"
 }
 
 # get the target image registries for a product, version, shim, and jvm
-_getTargetRegistriesForProductVersionShimJVM ()
-{
+_getTargetRegistriesForProductVersionShimJVM() {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'"${2}"'").shims[]|select(.shim=="'"${3}"'")|.jvms[]|select(.jvm=="'"${4}"'")|.registries[]' "${_file}"
 }
 
 # get the jvm versions (from versions.json) for an ID
-_getJVMVersionForID ()
-{
+_getJVMVersionForID() {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
     test -f "${_file}" && jq -r '.|.versions[]|select(.id=="'"${1}"'")|.version' "${_file}"
 }
 
 # get the jvm IDs (from versions.json) for a shim
-_getAllJVMIDsForShim ()
-{
+_getAllJVMIDsForShim() {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
     test -f "${_file}" && jq -r '[.versions[]|select(.archs[]|contains("'"${ARCH}"'"))|select(.shims[]|contains("'"${1}"'"))|.id]|unique|.[]' "${_file}"
 }
 
 # get the jvms (from versions.json) to build for a shim
-_getAllJVMsToBuildForShim ()
-{
-    for _jvm in $( find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|select(.shim=="'"${1}"'")|.jvms[]|select(.build==true)|.jvm' {} + 2>/dev/null| sort | uniq )
-    do
+_getAllJVMsToBuildForShim() {
+    for _jvm in $(find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|select(.shim=="'"${1}"'")|.jvms[]|select(.build==true)|.jvm' {} + 2> /dev/null | sort | uniq); do
         _filterJVMForArch "${_jvm}"
     done
 }
 
 # get the jvms (from versions.json) to build
-_getAllJVMsToBuild ()
-{
-    find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|.jvms[]|select(.build==true)|.jvm' {} + 2>/dev/null| sort | uniq
+_getAllJVMsToBuild() {
+    find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|.jvms[]|select(.build==true)|.jvm' {} + 2> /dev/null | sort | uniq
 }
 
 # get the jvm images (from versions.json) for a shim ID
-_getJVMImageForShimID ()
-{
+_getJVMImageForShimID() {
     _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
     test -f "${_file}" && jq -r '[.versions[]|select(.shims[]|contains("'"${1}"'"))| select(.id=="'"${2}"'")|.from]|unique|.[]' "${_file}"
 }
 
 # get the dependencies (from versions.json) for product version
-_getDependenciesForProductVersion ()
-{
+_getDependenciesForProductVersion() {
     _file="${CI_PROJECT_DIR}/${1}/versions.json"
     test -f "${_file}" && jq -jr '.versions[]|select( .version == "'"${2}"'" )|if (.dependencies) then .dependencies[]|.product," ",.version,"\n" else "" end' "${_file}" | awk 'BEGIN{i=0} {print "--build-arg DEPENDENCY_"i"_PRODUCT="$1" --build-arg DEPENDENCY_"i"_VERSION="$2; i++}'
 }
 
 # get the long tag
-_getLongTag ()
-{
+_getLongTag() {
     echo "${1}" | awk '{gsub(/:/,"_");print}'
 }
 
 # get the short tag
-_getShortTag ()
-{
-    echo "${1}"| awk '{gsub(/:.*/,"");print}'
+_getShortTag() {
+    echo "${1}" | awk '{gsub(/:.*/,"");print}'
 }
 
 # get the the shims (from versions.json)
-_getAllShims ()
-{
-    find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '[.|.versions[]|.shims[]|.shim]|unique|.[]' {} + 2>/dev/null | sort | uniq
+_getAllShims() {
+    find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '[.|.versions[]|.shims[]|.shim]|unique|.[]' {} + 2> /dev/null | sort | uniq
 }
 
 # returns the license version from the full product version
 #
 # Example: 8.1.0.1 --> 8.1
-_getLicenseVersion ()
-{
-    echo "${1}"| cut -d. -f1,2
+_getLicenseVersion() {
+    echo "${1}" | cut -d. -f1,2
 }
 
 ###############################################################################
@@ -226,8 +194,7 @@ _getLicenseVersion ()
 #
 # Get the value of a variable passed, preserving any spaces
 ###############################################################################
-get_value ()
-{
+get_value() {
     # the following will preserve spaces in the printf
     IFS="%%"
     eval printf '%s' "\${${1}}"
@@ -235,27 +202,24 @@ get_value ()
 }
 
 # echos banner bar of 80 hashes '#'
-banner_bar ()
-{
+banner_bar() {
     printf '%0.1s' "#"{1..80}
     printf "\n"
 }
 
-banner_pad=$( printf '%0.1s' " "{1..80})
+banner_pad=$(printf '%0.1s' " "{1..80})
 # echos banner contents centering argument passed
-banner_head ()
-{
+banner_head() {
     # line is divided like so # <- a -> b <- c ->#
     # b is the string to display centered
     # a and c are whitespace padding to center the string
     _b="${*}"
-    if test ${#_b} -gt 78
-    then
+    if test ${#_b} -gt 78; then
         _a=0
         _c=0
     else
-        _a=$(( ( 78 - ${#_b} ) / 2 ))
-        _c=$(( 78 - _a - ${#_b} ))
+        _a=$(((78 - ${#_b}) / 2))
+        _c=$((78 - _a - ${#_b}))
     fi
     printf "#"
     printf '%*.*s' 0 ${_a} "${banner_pad}"
@@ -265,44 +229,39 @@ banner_head ()
 }
 
 # echos full banner with contents
-banner ()
-{
+banner() {
     banner_bar
     banner_head "${*}"
     banner_bar
 }
 
-FONT_RED="$( printf '\033[0;31m' )"
-FONT_GREEN="$( printf '\033[0;32m' )"
-FONT_NORMAL="$( printf '\033[0m' )"
-CHAR_CHECKMARK="$( printf '\xE2\x9C\x94' )"
-CHAR_CROSSMARK="$( printf '\xE2\x9D\x8C' )"
+FONT_RED="$(printf '\033[0;31m')"
+FONT_GREEN="$(printf '\033[0;32m')"
+FONT_NORMAL="$(printf '\033[0m')"
+CHAR_CHECKMARK="$(printf '\xE2\x9C\x94')"
+CHAR_CROSSMARK="$(printf '\xE2\x9D\x8C')"
 
 ################################################################################
 # Echo message in red color
 ################################################################################
-echo_red()
-{
+echo_red() {
     echo -e "${FONT_RED}$*${FONT_NORMAL}"
 }
 
 ################################################################################
 # Echo message in green color
 ################################################################################
-echo_green()
-{
+echo_green() {
     echo -e "${FONT_GREEN}$*${FONT_NORMAL}"
 }
 
 ################################################################################
 # append to output following a colorized pattern
 ################################################################################
-append_status ()
-{
+append_status() {
     _output="${1}"
     shift
-    if test "${1}" = "PASS"
-    then
+    if test "${1}" = "PASS"; then
         _prefix="${FONT_GREEN}${CHAR_CHECKMARK} "
     else
         _prefix="${FONT_RED}${CHAR_CROSSMARK} "
@@ -319,8 +278,7 @@ append_status ()
 ################################################################################
 # Convenience function for curl
 ################################################################################
-_curl ()
-{
+_curl() {
     curl \
         --get \
         --silent \
@@ -340,8 +298,7 @@ _curl ()
 #
 # currently only available for the Ping Data products
 ################################################################################
-_getLatestSnapshotVersionForProduct ()
-{
+_getLatestSnapshotVersionForProduct() {
     _baseURL="${SNAPSHOT_NEXUS_URL}"
     _basePath="com/unboundid/product/ds"
     case "${1}" in
@@ -354,18 +311,18 @@ _getLatestSnapshotVersionForProduct ()
         pingdatasync)
             _product="sync"
             ;;
-        pingdatagovernance|pingauthorize)
+        pingdatagovernance | pingauthorize)
             _product="broker"
             ;;
-        pingdatagovernancepap|pingauthorizepap)
+        pingdatagovernancepap | pingauthorizepap)
             _product="symphonic-pap-packaged"
             _basePath="com/pingidentity/pd/governance"
             ;;
-        *)
-            ;;
+        *) ;;
+
     esac
     case "${1}" in
-        pingdatagovernance|pingdatagovernancepap|pingdatasync|pingdirectory|pingdirectoryproxy|pingauthorize|pingauthorizepap)
+        pingdatagovernance | pingdatagovernancepap | pingdatasync | pingdirectory | pingdirectoryproxy | pingauthorize | pingauthorizepap)
             _curl "${_baseURL}/${_basePath}/${_product}/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/latest)' -
             ;;
         pingdelegator)
@@ -387,12 +344,10 @@ _getLatestSnapshotVersionForProduct ()
 ################################################################################
 # Verify that the file is found.  If not, then error/exit
 ################################################################################
-requirePipelineFile ()
-{
-    _pipelineFile="$( get_value "${1}" )"
+requirePipelineFile() {
+    _pipelineFile="$(get_value "${1}")"
 
-    if test ! -f "${_pipelineFile}" 
-    then
+    if test ! -f "${_pipelineFile}"; then
         echo_red "${_pipelineFile} file missing. Needs to be defined/created (i.e. ci/cd pipeline file)"
         exit 1
     fi
@@ -401,12 +356,10 @@ requirePipelineFile ()
 ################################################################################
 # Verify that the variable is found and not empty.  If not, then error/exit
 ################################################################################
-requirePipelineVar ()
-{
+requirePipelineVar() {
     _pipelineVar="${1}"
 
-    if test -z "${_pipelineVar}"
-    then
+    if test -z "${_pipelineVar}"; then
         echo_red "${_pipelineVar} variable missing. Needs to be defined/created (i.e. ci/cd pipeline variable)"
         exit 1
     fi
@@ -420,8 +373,7 @@ requirePipelineVar ()
 # authenticate to docker registries
 # 3) Bring in the docker config.json for Artifactory.
 ################################################################################
-setupDockerConfigJson ()
-{
+setupDockerConfigJson() {
     echo "Logging into docker hub..."
     requirePipelineVar DOCKER_USERNAME
     requirePipelineVar DOCKER_PASSWORD
@@ -459,13 +411,11 @@ _docker_config_hub_dir="/root/.docker-hub"
 _docker_config_ecr_dir="/root/.docker"
 _docker_config_artifactory_dir="/root/.docker-artifactory"
 
-if test -n "${PING_IDENTITY_SNAPSHOT}"
-then
+if test -n "${PING_IDENTITY_SNAPSHOT}"; then
     #we are in building snapshot
     FOUNDATION_REGISTRY="${PIPELINE_BUILD_REGISTRY}/${PIPELINE_BUILD_REPO}"
     # we terminate to DEPS registry with a slash so it can be omitted to revert to implicit
     DEPS_REGISTRY="${PIPELINE_DEPS_REGISTRY}/"
-
 
     banner "CI PIPELINE using ${PIPELINE_BUILD_REGISTRY_VENDOR} - ${FOUNDATION_REGISTRY}"
 
@@ -474,11 +424,10 @@ then
     #
     setupDockerConfigJson
 
-    GIT_REV_SHORT=$( date '+%H%M')
-    GIT_REV_LONG=$( date '+%s' )
-    CI_TAG="$( date '+%Y%m%d' )"
-elif test -n "${CI_COMMIT_REF_NAME}"
-then
+    GIT_REV_SHORT=$(date '+%H%M')
+    GIT_REV_LONG=$(date '+%s')
+    CI_TAG="$(date '+%Y%m%d')"
+elif test -n "${CI_COMMIT_REF_NAME}"; then
     #we are in CI pipeline
     FOUNDATION_REGISTRY="${PIPELINE_BUILD_REGISTRY}/${PIPELINE_BUILD_REPO}"
     # we terminate to DEPS registry with a slash so it can be omitted to revert to implicit
@@ -507,7 +456,6 @@ then
             . "${CI_SCRIPTS_DIR}/azure_tools.lib.sh"
             ;;
     esac
-
 
     #
     # setup the docker trust material.
@@ -542,8 +490,8 @@ then
     echo "Using notary server IP value'${ARTIFACTORY_NOTARY_SERVER_IP}'"
     echo "${ARTIFACTORY_NOTARY_SERVER_IP} notaryserver" >> /etc/hosts
 
-    GIT_REV_SHORT=$( git rev-parse --short=4 "$CI_COMMIT_SHA" )
-    GIT_REV_LONG=$( git rev-parse "$CI_COMMIT_SHA" )
+    GIT_REV_SHORT=$(git rev-parse --short=4 "$CI_COMMIT_SHA")
+    GIT_REV_LONG=$(git rev-parse "$CI_COMMIT_SHA")
     CI_TAG="${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
 else
     #we are on local
@@ -551,12 +499,12 @@ else
     export IS_LOCAL_BUILD
     FOUNDATION_REGISTRY="pingidentity"
     DEPS_REGISTRY=""
-    gitBranch=$( git rev-parse --abbrev-ref HEAD )
-    GIT_REV_SHORT=$( git rev-parse --short=4 HEAD )
-    GIT_REV_LONG=$( git rev-parse HEAD )
+    gitBranch=$(git rev-parse --abbrev-ref HEAD)
+    GIT_REV_SHORT=$(git rev-parse --short=4 HEAD)
+    GIT_REV_LONG=$(git rev-parse HEAD)
     CI_TAG="${gitBranch}-${GIT_REV_SHORT}"
 fi
-ARCH="$( uname -m )"
+ARCH="$(uname -m)"
 export ARCH
 export FOUNDATION_REGISTRY
 export DEPS_REGISTRY
@@ -564,4 +512,3 @@ export GIT_REV_SHORT
 export GIT_REV_LONG
 export gitBranch
 export CI_TAG
-

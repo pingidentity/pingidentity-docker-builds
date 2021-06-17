@@ -12,8 +12,7 @@
 _legacyKeystoreFile="${STAGING_DIR}/keystore"
 _legacyKeystorePinFile="${STAGING_DIR}/.sec/.keystore.pin"
 
-if test ! -d "${SECRETS_DIR}"
-then
+if test ! -d "${SECRETS_DIR}"; then
     echo_yellow "WARNING: Important that the orchestration environment create a tmpfs for '${SECRETS_DIR}'"
     echo_yellow "         Using 'tmp/secrets' for now."
     SECRETS_DIR="/tmp/secrets"
@@ -21,17 +20,14 @@ then
 fi
 
 # Get the keystore and pin if they are provided
-if test -n "${KEYSTORE_FILE}"
-then
-    if ! test -f "${KEYSTORE_FILE}"
-    then
+if test -n "${KEYSTORE_FILE}"; then
+    if ! test -f "${KEYSTORE_FILE}"; then
         container_failure 18 "KEYSTORE_FILE value [${KEYSTORE_FILE}] is invalid: the specified file does not exist"
     else
         _keystoreFile="${KEYSTORE_FILE}"
     fi
 else
-    if test -f "${_legacyKeystoreFile}"
-    then
+    if test -f "${_legacyKeystoreFile}"; then
         echo "WARNING: Using a legacy location for keystore '${_legacyKeystoreFile}'"
         echo "         Consider moving to a vault secret location"
         _keystoreFile="${_legacyKeystoreFile}"
@@ -40,17 +36,14 @@ else
     fi
 fi
 
-if test -n "${KEYSTORE_PIN_FILE}"
-then
-    if ! test -f "${KEYSTORE_PIN_FILE}"
-    then
+if test -n "${KEYSTORE_PIN_FILE}"; then
+    if ! test -f "${KEYSTORE_PIN_FILE}"; then
         container_failure 18 "KEYSTORE_PIN_FILE value [${KEYSTORE_PIN_FILE}] is invalid: the specified file does not exist"
     else
         _keystorePinFile="${KEYSTORE_PIN_FILE}"
     fi
 else
-    if test -f "${_legacyKeystorePinFile}"
-    then
+    if test -f "${_legacyKeystorePinFile}"; then
         echo "WARNING: Using a legacy location for keystore pin file '${_legacyKeystorePinFile}'"
         echo "         Consider moving to a vault secret location"
         _keystorePinFile="${_legacyKeystorePinFile}"
@@ -59,18 +52,15 @@ else
     fi
 fi
 
-if ! test -f "${_keystoreFile}"
-then
-    if ! test -f "${_keystorePinFile}"
-    then
-        if test -n "${KEYSTORE_PIN}"
-        then
+if ! test -f "${_keystoreFile}"; then
+    if ! test -f "${_keystorePinFile}"; then
+        if test -n "${KEYSTORE_PIN}"; then
             echo "${KEYSTORE_PIN}" > "${_keystorePinFile}"
         else
             head -c 1024 /dev/urandom | tr -dc 'a-zA-Z0-9-' | cut -c 1-64 > "${_keystorePinFile}"
         fi
     fi
-    _pin="$( cat "${_keystorePinFile}" )"
+    _pin="$(cat "${_keystorePinFile}")"
     keytool \
         -genkey \
         -keyalg RSA \
@@ -86,11 +76,9 @@ then
         -ext san=dns:localhost
 fi
 
-if test -z "${KEYSTORE_PIN}"
-then
-    KEYSTORE_PIN=$( cat "${_keystorePinFile}" )
+if test -z "${KEYSTORE_PIN}"; then
+    KEYSTORE_PIN=$(cat "${_keystorePinFile}")
 fi
-
 
 KEYSTORE_FILE="${_keystoreFile}"
 

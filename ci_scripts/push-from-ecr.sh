@@ -1,9 +1,8 @@
 #!/usr/bin/env sh
-usage ()
-{
+usage() {
     echo "${*}"
-    cat <<END
-    usage: $( basename "${0}" ) <product> <sourceTag> <destinationRegion> [destinationTag]
+    cat << END
+    usage: $(basename "${0}") <product> <sourceTag> <destinationRegion> [destinationTag]
         publishes a build to another ECR
 
         if destinationRegion is not provided, default to us-east-1
@@ -14,8 +13,7 @@ END
     exit 1
 }
 
-die ()
-{
+die() {
     _exitCode=${1}
     shift
     echo "${*}"

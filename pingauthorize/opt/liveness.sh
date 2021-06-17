@@ -6,10 +6,9 @@ test -f "${CONTAINER_ENV}" && . "${CONTAINER_ENV}"
 
 URL="https://localhost:${HTTPS_PORT}/available-or-degraded-state"
 
-_curlResult=$( curl -k -o /dev/null -w '%{http_code}' "${URL}" 2> /dev/null )
+_curlResult=$(curl -k -o /dev/null -w '%{http_code}' "${URL}" 2> /dev/null)
 
-if test "${_curlResult}" -ne 200
-then
+if test "${_curlResult}" -ne 200; then
     # the health check must return 0 for healthy, 1 otherwise
     # but not any other code so we catch the curl return code and
     # change any non-zero code to 1
