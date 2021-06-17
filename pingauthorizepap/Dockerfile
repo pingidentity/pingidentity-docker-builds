@@ -105,7 +105,7 @@ COPY --from=final-staging ["/","/"]
 #- ```
 #-   docker run \
 #-            --name pingauthorizepap \
-#-            --env PING_EXTERNAL_BASE_URL=my-pe-hostname:8443 \
+#-            --env PING_EXTERNAL_BASE_URL=my-pap-hostname:8443 \
 #-            --publish 8443:443 \
 #-            --detach \
 #-            --env PING_IDENTITY_ACCEPT_EULA=YES \
@@ -116,7 +116,7 @@ COPY --from=final-staging ["/","/"]
 #- ```
 #-
 #- Log in with:
-#- * https://my-pe-hostname:8443/
+#- * https://my-pap-hostname:8443/
 #-   * Username: admin
 #-   * Password: password123
 #-
@@ -130,7 +130,7 @@ COPY --from=final-staging ["/","/"]
 #-            --env PING_EXTERNAL_BASE_URL=my-pe-hostname:8443 \
 #-            --env PING_OIDC_CONFIGURATION_ENDPOINT=https://my-oidc-provider/.well-known/openid-configuration \
 #-            --env PING_CLIENT_ID=b1929abc-e108-4b4f-83d467059fa1 \
-#-            --publish 8443:443 \
+#-            --publish 8443:1443 \
 #-            --detach \
 #-            --env PING_IDENTITY_ACCEPT_EULA=YES \
 #-            --env PING_IDENTITY_DEVOPS_USER \
@@ -143,7 +143,7 @@ COPY --from=final-staging ["/","/"]
 #- not specified, then the PingAuthorize Policy Editor will be set up in demo mode.
 #-
 #- Log in with:
-#- * https://my-pe-hostname:8443/
+#- * https://my-pap-hostname:8443/
 #-   * Provide credentials as prompted by the OIDC provider
 #-
 #- Follow Docker logs with:
@@ -158,14 +158,14 @@ COPY --from=final-staging ["/","/"]
 #- The Policy Editor consists of a client-side application that runs in the user's web
 #- browser and a backend REST API service that runs within the container. So
 #- that the client-side application can successfully make API calls to the
-#- backend, the PE must be configured with an externally accessible
-#- hostname:port. If the PE is configured in OIDC mode, then the external
-#- hostname:port pair is also needed so that the PE can correctly generate its
+#- backend, the Policy Editor must be configured with an externally accessible
+#- hostname:port. If the Policy Editor is configured in OIDC mode, then the external
+#- hostname:port pair is also needed so that the Policy Editor can correctly generate its
 #- OIDC redirect URI.
 #-
-#- Use the `PING_EXTERNAL_BASE_URL` environment variable to specify the PE's
+#- Use the `PING_EXTERNAL_BASE_URL` environment variable to specify the Policy Editor's
 #- external hostname and port using the form `hostname[:port]`, where `hostname`
-#- is the hostname of the Docker host and `port` is the PE container's published
+#- is the hostname of the Docker host and `port` is the Policy Editor container's published
 #- port. If the published port is 443, then it should be omitted.
 #-
 #- For example:
@@ -173,7 +173,7 @@ COPY --from=final-staging ["/","/"]
 #- ```
 #-   docker run \
 #-            --name pingauthorizepap \
-#-            --env PING_EXTERNAL_BASE_URL=my-pe-hostname:8443 \
+#-            --env PING_EXTERNAL_BASE_URL=my-pap-hostname:8443 \
 #-            --publish 8443:443 \
 #-            --detach \
 #-            --env PING_IDENTITY_ACCEPT_EULA=YES \
@@ -201,10 +201,10 @@ COPY --from=final-staging ["/","/"]
 #- ```
 #-   docker run \
 #-            --name pingauthorizepap \
-#-            --env PING_EXTERNAL_BASE_URL=my-pe-hostname:8443 \
+#-            --env PING_EXTERNAL_BASE_URL=my-pap-hostname:8443 \
 #-            --env PING_BACKUP_SCHEDULE="0 0 12 * * ?" \
 #-            --env PING_H2_BACKUP_DIR=/opt/out/backup \
-#-            --publish 8443:443 \
+#-            --publish 8443:1443 \
 #-            --detach \
 #-            pingidentity/pingauthorizepap:edge
 #- ```
