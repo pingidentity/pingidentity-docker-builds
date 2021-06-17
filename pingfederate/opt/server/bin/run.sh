@@ -2,7 +2,6 @@
 test "${VERBOSE}" = "true" && set -x
 
 ##  PingFederate Docker Bootstrap Script
-DIRNAME=$(dirname "${0}")
 PROGNAME=$(basename "${0}")
 
 # a function to display warnings in a f
@@ -25,22 +24,17 @@ require() {
     fi
 }
 
+PF_BIN="${SERVER_ROOT_DIR}/bin"
 # Read an optional running configuration file
-test -z "${RUN_CONF}" && RUN_CONF="${DIRNAME}/run.conf"
+test -z "${RUN_CONF}" && RUN_CONF="${PF_BIN}/run.conf"
 # shellcheck disable=SC1090
 test -r "${RUN_CONF}" && . "${RUN_CONF}"
 
-# Setup PF_HOME
-PF_HOME="${SERVER_ROOT_DIR}"
-PF_BIN="${PF_HOME}/bin"
-PF_SERVER_HOME="${PF_HOME}/server/default"
+PF_SERVER_HOME="${SERVER_ROOT_DIR}/server/default"
 PF_SERVER_LIB="${PF_SERVER_HOME}/lib"
 
 # Set PF_HOME_ESC - this is PF_HOME but with spaces that are replaced with %20
-PF_HOME_ESC=$(echo "${PF_HOME}" | awk '{gsub(/ /,"%20");print;}')
-
-# Setup the JVM
-JAVA="${JAVA_HOME}/bin/java"
+PF_HOME_ESC=$(echo "${SERVER_ROOT_DIR}" | awk '{gsub(/ /,"%20");print;}')
 
 # Setup the classpath
 run_jar="${PF_BIN}/run.jar"
@@ -56,7 +50,7 @@ done
 
 pf_console_util="${PF_BIN}/pf-consoleutils.jar"
 pf_crypto_luna="${PF_SERVER_LIB}/pf-crypto-luna.jar"
-pf_fips="${PF_HOME}/lib/bc-fips-1.0.2.jar"
+pf_fips="${SERVER_ROOT_DIR}/lib/bc-fips-1.0.2.jar"
 
 PF_BOOT_CLASSPATH="${PF_BOOT_CLASSPATH}${PF_BOOT_CLASSPATH:+:}${pf_console_util}:${xmlbeans}:${pf_xml}:${pf_crypto_luna}:${pf_fips}"
 
@@ -82,7 +76,7 @@ fi
 
 # Word-split is expected behavior for $JAVA_OPTS and $JVM_OPTS. Disable Shellcheck
 # shellcheck disable=SC2086
-exec "${JAVA}" ${JAVA_OPTS} ${JVM_OPTS} \
+exec "${JAVA_HOME}"/bin/java ${JAVA_OPTS} ${JVM_OPTS} \
     -Dprogram.name="${PROGNAME}" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dorg.bouncycastle.fips.approved_only="${PF_BC_FIPS_APPROVED_ONLY}" \
@@ -95,8 +89,8 @@ exec "${JAVA}" ${JAVA_OPTS} ${JVM_OPTS} \
     -XX:ErrorFile="${PF_HOME_ESC}/log/java_error%p.log" \
     -Dlog4j.configurationFile="${PF_HOME_ESC}/server/default/conf/log4j2.xml" \
     -Drun.properties="${run_props}" \
-    -Dpf.home="${PF_HOME}" \
-    -Djetty.home="${PF_HOME}" \
+    -Dpf.home="${SERVER_ROOT_DIR}" \
+    -Djetty.home="${SERVER_ROOT_DIR}" \
     -Djetty.base="${PF_BIN}" \
     -Djetty.server=com.pingidentity.appserver.jetty.PingFederateInit \
     -Dpf.server.default.dir="${PF_SERVER_HOME}" \
