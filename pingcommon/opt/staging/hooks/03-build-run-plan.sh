@@ -7,9 +7,10 @@
 #-
 #- RUN_PLAN (Initially set to UNKNOWN)
 #-          START   - Instructs the container to start from scratch.  This is primarily
-#-                    because a SERVER_ROOT_DIR (i.e. /opt/out/instance) isn't present.
+#-                    because a STARTUP_COMMAND (i.e. /opt/out/instance/bin/run.sh) isn't present.
 #-          RESTART - Instructs the container to restart.  This is primarily because the
-#-                    SERVER_ROOT_DIR (i.e. /opt/out/instance) is present.
+#-                    STARTUP_COMMAND (i.e. /opt/out/instance/bin/run.sh) is present and typically
+#-                    signifies that the server bits have been copied and run before
 #-
 #- > NOTE: It will be common for products to override this hook to provide
 #- > RUN_PLAN directions based on product specifics.
@@ -18,11 +19,11 @@
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 #
-# Check for the existence of a SERVER_ROOT_DIR
+# Check for the existence of a STARTUP_COMMAND
 #   If NOT Found, then we are STARTing for the first time
 #   If Found,     then we are RESTARTing
 #
-if test -d "${SERVER_ROOT_DIR}"; then
+if test -f "${STARTUP_COMMAND}"; then
     RUN_PLAN="RESTART"
 else
     RUN_PLAN="START"
