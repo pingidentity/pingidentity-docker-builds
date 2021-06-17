@@ -76,6 +76,9 @@ ENV SHIM=${SHIM} \
 #-- Files tailed once container has started
     TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/pingaccess.log \
     PA_ADMIN_PORT=9000 \
+#-- Percentage of the container memory to allocate to PingAccess JVM
+#-- DO NOT set to 100% or your JVM will exit with OutOfMemory errors and the container will terminate
+    JAVA_RAM_PERCENTAGE=60.0 \
 # pingaccess comes ootb listening on 3000 but it is more natural for https traffic to be listened for on 443
     PA_ENGINE_PORT=3000
 #-- Specify a password for administrator user for interaction with admin API

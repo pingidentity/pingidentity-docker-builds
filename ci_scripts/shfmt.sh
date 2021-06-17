@@ -23,10 +23,22 @@ Usage: ${0} {options}
         Overwrites all shell files in the current working directory (recursive)
         which contain formatting that differs from shfmt's configuration.
         If found, files are updated to use the configured format for the project.
+    -f, --file
+        target a specific file rather than the default behavior of analyzing
+        all the eligible files in the project
     --help
         Display general usage information
 END_USAGE
     exit 99
+}
+
+format_file() {
+    #Checks for space indents of size 4
+    #Checks for spaces following redirects
+    #Checks for indented switch case statements
+    #Prints diff of actual file vs shfmt format
+    "${command_prefix}shfmt" -i 4 -sr -ci "${mode}" "${1}"
+    return ${?}
 }
 
 while ! test -z "${1}"; do
@@ -36,6 +48,10 @@ while ! test -z "${1}"; do
             ;;
         -w | --write)
             mode="-w"
+            ;;
+        -f | --file)
+            shift
+            file="${1}"
             ;;
         --help)
             usage
@@ -52,40 +68,42 @@ if test -z "${mode}"; then
     mode="-d"
 fi
 
-if test -n "${CI_COMMIT_REF_NAME}"; then
-    #We are in the pipeline
-    # Install shfmt
-    curl -O https://gte-bits-repo.s3.amazonaws.com/shfmt
-    chmod +x shfmt
-    command_prefix="./"
-else
-    #We are on local
-    command_prefix=""
+command_prefix=""
+if ! type shfmt; then
+    if test "$(uname -m)" = "x86_64" && test "$(uname -s)" = "Linux"; then
+        # Install shfmt
+        curl -O https://gte-bits-repo.s3.amazonaws.com/shfmt
+        chmod +x shfmt
+        command_prefix="./"
+    else
+        echo "Missing shfmt"
+        exit 99
+    fi
 fi
 
-# For each file in the project, if it starts with a shebang, add it to a list in tmp.
-# This is used in favor of "shfmt -f ." as shfmt does not consider files with extension
-# .pre, .post, etc. as shell.
-find "$(pwd)" -type f -not -path '*/\.*' -exec awk 'FNR==1 {if ($0~/^#!/){print FILENAME}}' {} + > tmp
-
-test "${VERBOSE}" = "true" && echo "Files in use:" && cat tmp
-
 num_files_fail_shfmt=0
-# Scan each file in tmp with shfmt
-while IFS= read -r shell_file; do
-    #Checks for space indents of size 4
-    #Checks for spaces following redirects
-    #Checks for indented switch case statements
-    #Prints diff of actual file vs shfmt format
-    "${command_prefix}shfmt" -i 4 -sr -ci "${mode}" "${shell_file}"
+if test -n "${file}"; then
+    echo "Checking format of ${file}"
+    format_file "${file}"
     test $? -ne 0 && num_files_fail_shfmt=$((num_files_fail_shfmt + 1))
-done < tmp
-rm tmp
+else
+    # For each file in the project, if it starts with a shebang, add it to a list in tmp.
+    # This is used in favor of "shfmt -f ." as shfmt does not consider files with extension
+    # .pre, .post, etc. as shell.
+    find "$(pwd)" -type f -not -path '*/\.*' -exec awk 'FNR==1 {if ($0~/^#!/){print FILENAME}}' {} + > tmp
 
+    test "${VERBOSE}" = "true" && echo "Files in use:" && cat tmp
+
+    # Scan each file in tmp with shfmt
+    while IFS= read -r shell_file; do
+        format_file "${shell_file}"
+        test $? -ne 0 && num_files_fail_shfmt=$((num_files_fail_shfmt + 1))
+    done < tmp
+    rm tmp
+fi
 test -n "${command_prefix}" && rm shfmt
 
 test "${mode}" = "-d" && echo "Number of Files that do not match shfmt format: ${num_files_fail_shfmt}"
-
 if test ${num_files_fail_shfmt} -ne 0; then
     exit 1
 fi

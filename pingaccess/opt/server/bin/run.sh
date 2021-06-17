@@ -1,37 +1,24 @@
 #!/usr/bin/env sh
+test "${VERBOSE}" = "true" && set -x
 
-DIRNAME=$(dirname "${0}")
+##  PingAccess Docker Bootstrap Script
 PROGNAME=$(basename "${0}")
+# a function to display warnings in a f
+warn() {
+    printf "%s: %s" "${PROGNAME}" "${*}"
+}
 
-#
-# helper to abort.
-#
+# Helper to fail.
 die() {
-    (echo >&2 "${*}")
+    warn "${@}"
     exit 1
 }
 
-#
-# Helper to complain.
-#
-warn() {
-    echo "${PROGNAME}: ${*}"
-}
+PA_HOME_ESC=$(echo "${SERVER_ROOT_DIR}" | awk '{gsub(/ /,"%20");print;}')
 
-# Setup the JVM
-JAVA="${JAVA_HOME}/bin/java"
-PA_HOME=$(
-    cd "${DIRNAME}/.." || exit 99
-    pwd
-)
-test -z "${PA_HOME}" && exit 99
-export PA_HOME
-export PA_CONF="${PA_HOME}/conf"
-PA_HOME_ESC=$(echo "${PA_HOME}" | awk '{gsub(/ /,"%20");print;}')
-
+PA_CONF="${SERVER_ROOT_DIR}/conf"
 run_props="${PA_CONF}/run.properties"
 boot_props="${PA_CONF}/bootstrap.properties"
-jvm_memory_opts="${PA_CONF}/jvm-memory.options"
 
 # Check for run.properties (used by PingAccess to configure ports, etc.)
 if test ! -f "${run_props}"; then
@@ -45,26 +32,26 @@ if test ! -f "${boot_props}"; then
     boot_props=""
 fi
 
-# Check for jvm-memory.options (used by PingAccess to set JVM memory settings)
-if test ! -f "${jvm_memory_opts}"; then
-    die "Missing ${jvm_memory_opts}"
-fi
-
 #Setup JVM Heap optimizations
-JVM_MEMORY_OPTS=$(awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print}' < "${jvm_memory_opts}")
+if test -z "${JAVA_OPTS}"; then
+    # Check for jvm-memory.options (used by PingAccess to set JVM memory settings)
+    jvm_memory_opts="${PA_CONF}/jvm-memory.options"
+    if test ! -f "${jvm_memory_opts}"; then
+        die "Missing ${jvm_memory_opts}"
+    fi
+    JAVA_OPTS=$(awk 'BEGIN{OPTS=""} $1!~/^#/{OPTS=OPTS" "$0;} END{print OPTS}' < "${jvm_memory_opts}")
+fi
 
 if test "${PING_DEBUG}" = "true"; then
-    DEBUG="-Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n"
+    JVM_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n"
 fi
 
-CLASSPATH="${PA_CONF}:${PA_HOME}/lib/*:${PA_HOME}/deploy/*"
+CLASSPATH="${PA_CONF}:${SERVER_ROOT_DIR}/lib/*:${SERVER_ROOT_DIR}/deploy/*"
 
-cd "${PA_HOME}" || exit 99
-# Word-split is expected behavior for $JAVA_OPTS, $JVM_MEMORY_OPTS, and $DEBUG. Disable shellcheck.
+cd "${SERVER_ROOT_DIR}" || exit 99
+# Word-split is expected behavior for $JAVA_OPTS, $JVM_OPTS. Disable shellcheck.
 # shellcheck disable=SC2086
-exec "${JAVA}" \
-    -classpath "${CLASSPATH}" \
-    ${JAVA_OPTS} ${JVM_MEMORY_OPTS} ${DEBUG} \
+exec "${JAVA_HOME}"/bin/java ${JAVA_OPTS} ${JVM_OPTS} \
     --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
     --add-opens java.base/java.lang=ALL-UNNAMED \
     --add-exports java.base/sun.security.x509=ALL-UNNAMED \
@@ -80,7 +67,8 @@ exec "${JAVA}" \
     -Djava.net.preferIPv4Stack=true \
     -Djava.net.preferIPv6Addresses=false \
     -Djava.awt.headless=true \
-    -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -Dpa.jwk="${PA_CONF}/pa.jwk" \
+    -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager \
+    -Dpa.jwk="${PA_CONF}/pa.jwk" \
     -Dpa.jwk.properties="${PA_CONF}/pa.jwk.properties" \
     -Dlog4j.configurationFile="${PA_CONF}/log4j2.xml" \
     -Dlog4j2.AsyncQueueFullPolicy=Discard \
@@ -89,5 +77,6 @@ exec "${JAVA}" \
     -Dhibernate.cache.ehcache.missing_cache_strategy=create \
     -Drun.properties="${run_props}" \
     -Dbootstrap.properties="${boot_props}" \
-    -Dpa.home="${PA_HOME}" \
+    -Dpa.home="${SERVER_ROOT_DIR}" \
+    -classpath "${CLASSPATH}" \
     com.pingidentity.pa.cli.Starter "$@"
