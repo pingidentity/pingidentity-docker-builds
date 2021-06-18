@@ -100,7 +100,7 @@ COPY --from=final-staging ["/","/"]
 #-
 #- The easiest way to test a simple standalone image of PingDataGovernance is to cut/paste the following command into a terminal on a machine with docker.
 #-
-#- ```
+#- ```sh
 #-   docker run \
 #-            --name pingdatagovernance \
 #-            --publish 1389:1389 \
@@ -117,7 +117,7 @@ COPY --from=final-staging ["/","/"]
 #-
 #- You can view the Docker logs with the command:
 #-
-#- ```
+#- ```sh
 #-   docker logs -f pingdatagovernance
 #- ```
 #-
@@ -128,12 +128,12 @@ COPY --from=final-staging ["/","/"]
 #- ## Stopping/Removing the container
 #- To stop the container:
 #-
-#- ```
+#- ```sh
 #-   docker container stop pingdatagovernance
 #- ```
 #-
 #- To remove the container:
 #-
-#- ```
+#- ```sh
 #-   docker container rm -f pingdatagovernance
 #- ```
