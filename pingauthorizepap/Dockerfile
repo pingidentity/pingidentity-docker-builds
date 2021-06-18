@@ -79,7 +79,7 @@ ENV SHIM=${SHIM} \
 
 #-- Hostname used for the REST API (deprecated, use `PING_EXTERNAL_BASE_URL` instead)
     REST_API_HOSTNAME="localhost" \
-    
+
 #-- Define shared secret between PAZ and the Policy Editor
     DECISION_POINT_SHARED_SECRET="2FederateM0re"
 
@@ -102,7 +102,7 @@ COPY --from=final-staging ["/","/"]
 #-
 #- To run a PingAuthorize Policy Editor container in demo mode:
 #-
-#- ```
+#- ```sh
 #-   docker run \
 #-            --name pingauthorizepap \
 #-            --env PING_EXTERNAL_BASE_URL=my-pap-hostname:8443 \
@@ -116,15 +116,16 @@ COPY --from=final-staging ["/","/"]
 #- ```
 #-
 #- Log in with:
-#- * https://my-pap-hostname:8443/
-#-   * Username: admin
-#-   * Password: password123
+#-
+#- - https://my-pap-hostname:8443/
+#-     - Username: admin
+#-     - Password: password123
 #-
 #- To run a PingAuthorize Policy Editor container in OpenID Connect mode, specify
 #- the `PING_OIDC_CONFIGURATION_ENDPOINT` and `PING_CLIENT_ID` environment
 #- variables:
 #-
-#- ```
+#- ```sh
 #-   docker run \
 #-            --name pingauthorizepap \
 #-            --env PING_EXTERNAL_BASE_URL=my-pe-hostname:8443 \
@@ -143,12 +144,13 @@ COPY --from=final-staging ["/","/"]
 #- not specified, then the PingAuthorize Policy Editor will be set up in demo mode.
 #-
 #- Log in with:
-#- * https://my-pap-hostname:8443/
-#-   * Provide credentials as prompted by the OIDC provider
+#-
+#- - https://my-pap-hostname:8443/
+#-     - Provide credentials as prompted by the OIDC provider
 #-
 #- Follow Docker logs with:
 #-
-#- ```
+#- ```sh
 #- docker logs -f pingauthorizepap
 #- ```
 #-
@@ -170,7 +172,7 @@ COPY --from=final-staging ["/","/"]
 #-
 #- For example:
 #-
-#- ```
+#- ```sh
 #-   docker run \
 #-            --name pingauthorizepap \
 #-            --env PING_EXTERNAL_BASE_URL=my-pap-hostname:8443 \
@@ -198,7 +200,7 @@ COPY --from=final-staging ["/","/"]
 #- For example, to perform backups daily at UTC noon and place backups in
 #- `/opt/out/backup`:
 #-
-#- ```
+#- ```sh
 #-   docker run \
 #-            --name pingauthorizepap \
 #-            --env PING_EXTERNAL_BASE_URL=my-pap-hostname:8443 \
