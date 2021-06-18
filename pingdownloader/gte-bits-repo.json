@@ -9,7 +9,7 @@
         {
             "name": "delegator",
             "mapping": "pingdirectory-delegator-${version}.zip",
-            "latestVersion": "4.4.1"
+            "latestVersion": "4.6.0"
         },
         {
             "name": "ldapsdk",
