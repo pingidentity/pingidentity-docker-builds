@@ -30,7 +30,7 @@ case "${_osID}" in
         # cause a failure if anything below raises an error
         set -e
         apk --update add nginx openssl
-        mkdir /run/nginx
+        mkdir -p /run/nginx
         set +e
         ;;
     *) ;;
