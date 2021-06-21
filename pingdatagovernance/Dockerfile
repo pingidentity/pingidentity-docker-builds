@@ -10,6 +10,14 @@
 #- - `pingidentity/pingdatacommon` - Common Ping files (i.e. hook scripts)
 #- - `pingidentity/pingdownloader` - Used to download product bits
 #-
+#- ## Introducing PingAuthorize™
+#- Starting with the 8.3 release, PingDataGovernance has been renamed to PingAuthorize. Customers are increasingly applying
+#- the product to general, externalized, and dynamic authorization use cases, beyond the original privacy and data protection
+#- use cases of PingDataGovernance, and Ping Identity has updated the name to reflect the growing trend and application of
+#- Dynamic Authorization.
+#-
+#- Please click [here](https://hub.docker.com/r/pingidentity/pingauthorize) to view the PingAuthorize Docker Image
+#-
 ARG PRODUCT
 ARG SHIM
 ARG SHIM_TAG
