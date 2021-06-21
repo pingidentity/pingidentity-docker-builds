@@ -2,7 +2,7 @@ version: "2.4"
 
 services:
   pingaccess:
-    image: ${REGISTRY}/pingaccess:${PINGACCESS_LATEST}-alpine-${JVM}-${GIT_TAG}-${ARCH}
+    image: ${REGISTRY}/pingaccess:${PINGACCESS_LATEST}-${PINGACCESS_SHIM}-${JVM}-${GIT_TAG}-${ARCH}
     command: wait-for pingfederate:9031 -t 900 -- entrypoint.sh start-server
     environment:
       - SERVER_PROFILE_PATH=baseline/pingaccess
@@ -30,7 +30,7 @@ services:
       - pingdirectory
 
   pingfederate:
-    image: ${REGISTRY}/pingfederate:${PINGFEDERATE_LATEST}-alpine-${JVM}-${GIT_TAG}-${ARCH}
+    image: ${REGISTRY}/pingfederate:${PINGFEDERATE_LATEST}-${PINGFEDERATE_SHIM}-${JVM}-${GIT_TAG}-${ARCH}
     command: wait-for pingdirectory:1389 -t 900 -- entrypoint.sh start-server
     environment:
       - SERVER_PROFILE_PATH=baseline/pingfederate
@@ -56,7 +56,7 @@ services:
       - pingdirectory
 
   pingdirectory:
-    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-alpine-${JVM}-${GIT_TAG}-${ARCH}
+    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-${PINGDIRECTORY_SHIM}-${JVM}-${GIT_TAG}-${ARCH}
     environment:
       - SERVER_PROFILE_PATH=baseline/pingdirectory
       - MAX_HEAP_SIZE=768m

@@ -2,7 +2,7 @@ version: "2.4"
 
 services:
   pingdirectory:
-    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-alpine-${JVM}-${GIT_TAG}-${ARCH}
+    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-${PINGDIRECTORY_SHIM}-${JVM}-${GIT_TAG}-${ARCH}
     environment:
       - SERVER_PROFILE_PATH=baseline/pingdirectory
       - MAX_HEAP_SIZE=768m
@@ -21,7 +21,7 @@ services:
     tmpfs: /run/secrets
 
   pingdirectoryproxy:
-    image: ${REGISTRY}/pingdirectoryproxy:${PINGDIRECTORYPROXY_LATEST}-alpine-${JVM}-${GIT_TAG}-${ARCH}
+    image: ${REGISTRY}/pingdirectoryproxy:${PINGDIRECTORYPROXY_LATEST}-${PINGDIRECTORYPROXY_SHIM}-${JVM}-${GIT_TAG}-${ARCH}
     command: wait-for pingdirectory:1389 -t 900 -- entrypoint.sh start-server
     environment:
       - SERVER_PROFILE_PATH=baseline/pingdirectoryproxy
