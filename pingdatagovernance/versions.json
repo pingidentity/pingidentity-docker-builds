@@ -29,27 +29,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "version": "8.1.0.3",
-            "preferredShim": "alpine",
-            "shims":[
-                {
-                    "shim": "alpine",
-                    "preferredJVM": "az11",
-                    "jvms": [
-                        {
-                            "jvm": "az11",
-                            "build": true,
-                            "deploy": true,
-                            "registries": [
-                                "DockerHub",
-                                "Artifactory"
-                            ]
-                        }
-                    ]
-                }
-            ]
         }
     ]
 }

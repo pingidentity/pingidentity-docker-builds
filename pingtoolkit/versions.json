@@ -3,7 +3,7 @@
     "versions":[
         {   
             "version": "1.0.0",
-            "preferredShim": "alpine",
+            "preferredShim": "alpine:3.13",
             "shims":[
                 {
                     "shim": "alpine:3.13",

@@ -2,7 +2,7 @@ version: "2.4"
 
 services:
   pingdirectory:
-    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-alpine-${JVM}-${GIT_TAG}-${ARCH}
+    image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-${PINGDIRECTORY_SHIM}-${JVM}-${GIT_TAG}-${ARCH}
     scale: 2
     environment:
       - SERVER_PROFILE_PATH=baseline/pingdirectory

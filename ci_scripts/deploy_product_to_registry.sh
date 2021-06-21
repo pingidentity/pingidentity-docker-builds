@@ -255,7 +255,7 @@ for _version in ${versionsToDeploy}; do
                 if _isJVMMultiArch "${_jvm}"; then
                     _archSuffix="-${_arch}"
                 fi
-                fullTag="${_version}-${_shimLongTag}-${_jvm}-${CI_TAG}${_archSuffix}"
+                fullTag="${_version}-${_shimLongTag}-${_jvm}-${CI_TAG}-${_arch}"
                 test -z "${dryRun}" &&
                     docker --config "${_docker_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
                 for targetRegistry in ${_registryList}; do

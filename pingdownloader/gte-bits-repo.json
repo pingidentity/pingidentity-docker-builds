@@ -38,7 +38,7 @@
         {
             "name": "pingdatasync",
             "mapping": "PingDataSync-${version}.zip",
-            "latestVersion": "8.2.0.3",
+            "latestVersion": "8.3.0.0",
             "licenseFile": "PingDirectory.lic"
         },
         {
@@ -50,7 +50,7 @@
         {
             "name": "pingauthorize",
             "mapping": "PingAuthorize-${version}.zip",
-            "latestVersion": "8.3.0.0-EA",
+            "latestVersion": "8.3.0.0",
             "licenseFile": "PingAuthorize.lic"
         },
         {
@@ -62,19 +62,19 @@
         {
             "name": "pingauthorizepap",
             "mapping": "PingAuthorize-PAP-${version}.zip",
-            "latestVersion": "8.3.0.0-EA",
+            "latestVersion": "8.3.0.0",
             "licenseFile": "PingAuthorize.lic"
         },
         {
             "name": "pingdirectory",
             "mapping": "PingDirectory-${version}.zip",
-            "latestVersion": "8.2.0.3",
+            "latestVersion": "8.3.0.0",
             "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdirectoryproxy",
             "mapping": "PingDirectoryProxy-${version}.zip",
-            "latestVersion": "8.2.0.3",
+            "latestVersion": "8.3.0.0",
             "licenseFile": "PingDirectory.lic"
         },
         {
@@ -91,7 +91,7 @@
         {
             "name": "apache-tomcat",
             "mapping": "apache-tomcat-${version}.zip",
-            "latestVersion": "9.0.46"
+            "latestVersion": "9.0.48"
         },
         {
             "name": "apache-jmeter",
