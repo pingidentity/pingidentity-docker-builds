@@ -13,6 +13,19 @@
 # console and API runs. Default is 9999.
 pf.admin.https.port=${PF_ADMIN_PORT}
 
+# This property defines the URL that PingFederate's administrative node will use
+# to populate resource references in Administrative API responses
+# and for the redirect URL the node will send to an OP for administrator OIDC login
+# (for example, https://pingfederate-admin.example.com or, if the load balancer uses
+# a custom port, https://pingfederate-admin.example.com:8443).
+#
+# This property should be used because pf.admin.hostname has been deprecated.
+# If pf.admin.hostname is defined in run.properties, it will be ignored
+# if pf.admin.baseurl is specified. But if only pf.admin.hostname is defined,
+# then the URL will be constructed the same way as in versions of PingFederate
+# before 10.3.
+pf.admin.baseurl=${PF_ADMIN_PUBLIC_BASEURL}
+
 #
 # This property defines the host name of this machine that will be used in
 # PingFederate's administrative API to represent itself to clients.

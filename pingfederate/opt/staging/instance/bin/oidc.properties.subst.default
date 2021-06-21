@@ -26,6 +26,13 @@
 # - Admin roles (role.admin, role.cryptoManager, role.userAdmin and role.expressionAdmin)
 #
 
+#  The redirect URI sent to the OIDC provider is constructed from the property pf.admin.baseurl,
+#  a combination of the deprecated property pf.admin.hostname and pf.admin.https.port
+#  or a combination of the host's IP address and pf.admin.https.port. Using pf.admin.baseurl is preferred.
+#
+#  This base is followed by '/pingfederate/app?service=finishsso'. For example, if pf.admin.baseurl
+#  is 'https://pingfederate-admin.example.com', then the redirect URI will be
+#  'https://pingfederate-admin.example.com/pingfederate/app?service=finishsso'.
 
 #   -----------------------------
 #   Client Identification (REQUIRED)
