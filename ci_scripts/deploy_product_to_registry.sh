@@ -127,32 +127,32 @@ while test -n "${1}"; do
             shift
             test -z "${1}" && usage "You must provide a registry file"
             test -f "${1}" || usage "The registry file provided does not exist or is not a file"
-            _registryListFile="${1}"
+            _registryListFileManual="${1}"
             ;;
         -j | --jvm)
             shift
             test -z "${1}" && usage "You must provide a JVM id"
-            jvmsToDeploy="${jvmsToDeploy:+${jvmsToDeploy} }${1}"
+            jvmsToDeployManual="${jvmsToDeployManual:+${jvmsToDeployManual} }${1}"
             ;;
         -J | --default-jvm)
             shift
             test -z "${1}" && usage "You must provide a JVM id"
-            defaultJvm="${1}"
+            defaultJvmManual="${1}"
             ;;
         -s | --shim)
             shift
             test -z "${1}" && usage "You must provide an OS Shim"
-            shimsToDeploy="${shimsToDeploy:+${shimsToDeploy} }${1}"
+            shimsToDeployManual="${shimsToDeployManual:+${shimsToDeployManual} }${1}"
             ;;
         -d | --default-shim)
             shift
             test -z "${1}" && usage "You must provide a default OS Shim"
-            defaultShim="${1}"
+            defaultShimManual="${1}"
             ;;
         -v | --version)
             shift
             test -z "${1}" && usage "You must provide a version to build"
-            versionsToDeploy="${versionsToDeploy:+${versionsToDeploy} }${1}"
+            versionsToDeployManual="${versionsToDeployManual:+${versionsToDeployManual} }${1}"
             ;;
         --dry-run)
             dryRun="echo"
@@ -168,12 +168,12 @@ while test -n "${1}"; do
 done
 
 # read in the lines from the passed registry file
-if test -f "${_registryListFile}"; then
+if test -f "${_registryListFileManual}"; then
     while read -r _registry; do
         if test -n "${_registry}"; then
             _registryListManual="${_registryListManual:+${_registryListManual} }${_registry}"
         fi
-    done < "${_registryListFile}"
+    done < "${_registryListFileManual}"
 fi
 
 test -z "${productToDeploy}" &&
@@ -189,11 +189,6 @@ fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
-
-if test -z "${versionsToDeploy}"; then
-    versionsToDeploy=$(_getAllVersionsToDeployForProduct "${productToDeploy}")
-fi
-latestVersion=$(_getLatestVersionForProduct "${productToDeploy}")
 
 #
 # Determine whether the commit is associated with a sprint tag
@@ -214,34 +209,43 @@ _docker_config_artifactory_dir="/root/.docker-artifactory"
 #Pull down Docker Trust JSON on signature data
 _signed_tags=$(docker trust inspect "${DOCKER_HUB_REGISTRY}/${productToDeploy}" | jq "[.[0].SignedTags[].SignedTag]")
 
-banner "Deploying ${productToDeploy}"
+if test -n "${versionsToDeployManual}"; then
+    versionsToDeploy="${versionsToDeployManual}"
+else
+    versionsToDeploy=$(_getAllVersionsToDeployForProduct "${productToDeploy}")
+fi
+latestVersion=$(_getLatestVersionForProduct "${productToDeploy}")
 
-#
-# For all other products with versions
-#
+banner "Deploying ${productToDeploy}"
 for _version in ${versionsToDeploy}; do
-    if test -z "${shimsToDeploy}"; then
-        _shimsToDeploy=$(_getShimsToDeployForProductVersion "${productToDeploy}" "${_version}")
+    if test -n "${shimsToDeployManual}"; then
+        shimsToDeploy="${shimsToDeployManual}"
     else
-        _shimsToDeploy=${shimsToDeploy}
+        shimsToDeploy=$(_getShimsToDeployForProductVersion "${productToDeploy}" "${_version}")
     fi
-    if test -z "${defaultShim}"; then
+
+    if test -n "${defaultShimManual}"; then
+        defaultShim="${defaultShimManual}"
+    else
         defaultShim=$(_getDefaultShimForProductVersion "${productToDeploy}" "${_version}")
     fi
-    for _shim in ${_shimsToDeploy}; do
+
+    for _shim in ${shimsToDeploy}; do
         _shimLongTag=$(_getLongTag "${_shim}")
 
-        if test -z "${jvmsToDeploy}"; then
-            _jvmsToBuild=$(_getJVMsToDeployForProductVersionShim "${productToDeploy}" "${_version}" "${_shim}")
+        if test -n "${jvmsToDeployManual}"; then
+            jvmsToDeploy="${jvmsToDeployManual}"
         else
-            _jvmsToBuild=${jvmsToDeploy}
+            jvmsToDeploy=$(_getJVMsToDeployForProductVersionShim "${productToDeploy}" "${_version}" "${_shim}")
         fi
 
-        if test -z "${defaultJvm}"; then
+        if test -n "${defaultJvmManual}"; then
+            defaultJvm="${defaultJvmManual}"
+        else
             defaultJvm=$(_getPreferredJVMForProductVersionShim "${productToDeploy}" "${_version}" "${_shim}")
         fi
 
-        for _jvm in ${_jvmsToBuild}; do
+        for _jvm in ${jvmsToDeploy}; do
             banner "Processing ${productToDeploy} ${_shim} ${_jvm} ${_version} ${_arch}"
             #Get the target registries for the specified product, version, shim, and jvm
             if test -n "${_registryListManual}"; then
