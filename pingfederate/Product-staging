@@ -18,9 +18,6 @@ ARG DEVOPS_USER
 ARG DEVOPS_KEY
 ARG VERBOSE
 
-ARG DEPENDENCY_0_PRODUCT
-ARG DEPENDENCY_0_VERSION
-
 COPY tmp /tmp
 
 # copy your product zip file into the staging image
@@ -46,22 +43,7 @@ RUN /get-bits.sh --product ${PRODUCT} \
         -x *.bat \
         -x *.dll \
         -x *.exe \
-    && rm /tmp/product.zip \
-    && mv /tmp/${PRODUCT}-*/${PRODUCT} /opt/server \
-    && rm -rf /tmp/pingfederate-* \
-    && ( \
-        test -n "${DEPENDENCY_0_PRODUCT}" \
-        && test -n "${DEPENDENCY_0_VERSION}" \
-        && /get-bits.sh --product ${DEPENDENCY_0_PRODUCT} \
-            --version ${DEPENDENCY_0_VERSION} \
-            --devops-user ${DEVOPS_USER} \
-            --devops-key ${DEVOPS_KEY} \
-            --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
-            --verify-gpg-signature \
-        && unzip /tmp/product.zip -d /tmp/ \
-        && /tmp/${DEPENDENCY_0_PRODUCT}-${DEPENDENCY_0_VERSION}/apply-patch.sh --target /opt/server --no-backup \
-        || : \
-        )
+    && mv /tmp/${PRODUCT}-*/${PRODUCT} /opt/server
 
 
 # Flatten the bits layers to provide a compact product layer for all shims
