@@ -184,6 +184,8 @@ ENV IN_DIR=${BASE}/in \
     PF_ENGINE_PUBLIC_HOSTNAME="localhost" \
 #-- PF (PingFederate) engine private hostname
     PF_ENGINE_PRIVATE_HOSTNAME="pingfederate" \
+#-- PF (PingFederate) admin public baseurl that may be used in redirects
+    PF_ADMIN_PUBLIC_BASEURL="https://localhost:9999" \
 #-- PF (PingFederate) admin public hostname that may be used in redirects
     PF_ADMIN_PUBLIC_HOSTNAME="localhost" \
 #-- PF (PingFederate) admin private hostname
