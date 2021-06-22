@@ -28,8 +28,8 @@ fixPermissions() {
 
     if grep ^nginx: /etc/passwd > /dev/null; then
         # rebase ownerships for nginx to ping user
-        find / -user nginx -exec chown 9031 {} +
-        find / -group nginx -exec chgrp 9999 {} +
+        find / -xdev -not -path "/sys/*" -not -path "/proc/*" -not -path "/dev/*" -user nginx -exec chown 9031 {} +
+        find / -xdev -not -path "/sys/*" -not -path "/proc/*" -not -path "/dev/*" -group nginx -exec chgrp 9999 {} +
     fi
 }
 
