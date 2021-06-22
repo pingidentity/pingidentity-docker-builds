@@ -80,13 +80,8 @@
         {
             "name": "pingfederate",
             "mapping": "pingfederate-${version}.zip",
-            "latestVersion": "10.2.3",
+            "latestVersion": "10.3.0",
             "licenseFile": "pingfederate.lic"
-        },
-        {
-            "name": "pingfederate-patch",
-            "mapping": "pingfederate-patch-${version}.zip",
-            "latestVersion": "9.3.3-P4"
         },
         {
             "name": "apache-tomcat",
