@@ -274,12 +274,17 @@ for _version in ${versionsToBuild}; do
                 if test -z "${IS_LOCAL_BUILD}"; then
                     ${dryRun} docker push "${_image}"
                     if test -n "${PING_IDENTITY_SNAPSHOT}"; then
-                        ${dryRun} docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
-                        ${dryRun} docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
-                        ${dryRun} docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
-                        ${dryRun} docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}"
-                        ${dryRun} docker push "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}"
-                        ${dryRun} docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}"
+                        ${dryRun} docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
+                        ${dryRun} docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
+                        ${dryRun} docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
+                        ${dryRun} docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-$(date "+%m%d%Y")"
+                        ${dryRun} docker push "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-$(date "+%m%d%Y")"
+                        ${dryRun} docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-$(date "+%m%d%Y")"
+                        if test "${ARCH}" = "x86_64"; then
+                            ${dryRun} docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
+                            ${dryRun} docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
+                            ${dryRun} docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
+                        fi
                     fi
                     ${dryRun} docker image rm -f "${_image}"
                 fi
