@@ -10,6 +10,15 @@ if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" || test "${OPERATIONAL_MODE}
             --header "X-Xsrf-Header: PingAccess" \
             "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows" | jq '.items[-1].status' | grep "Complete"
         exit $?
+    else
+        curl \
+            --insecure \
+            --silent \
+            --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD:-PA_ADMIN_PASSWORD_INITIAL}" \
+            --header "Content-Type: application/json" \
+            --header "X-Xsrf-Header: PingAccess" \
+            "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/version"
+        exit $?
     fi
 else
     curl -ss -o /dev/null -k "https://localhost:${PA_ENGINE_PORT}/pa/heartbeat.ping"
