@@ -20,7 +20,7 @@
         {
             "name": "pingaccess",
             "mapping": "pingaccess-${version}.zip",
-            "latestVersion": "6.2.1",
+            "latestVersion": "6.3.0",
             "licenseFile": "pingaccess.lic"
         },
         {
@@ -32,7 +32,7 @@
         {
             "name": "pingdatametrics",
             "mapping": "PingDataMetrics-${version}.zip",
-            "latestVersion": "8.2.0.3",
+            "latestVersion": "8.3.0.0",
             "licenseFile": "PingDirectory.lic"
         },
         {

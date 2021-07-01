@@ -1,8 +1,8 @@
 {
-    "latest": "6.2.1",
+    "latest": "6.3.0",
     "versions": [
         {
-            "version": "6.3.0-Beta",
+            "version": "6.3.0",
             "preferredShim": "alpine:3.13",
             "shims": [
                 {
@@ -56,27 +56,6 @@
                             ]
                         }
 
-                    ]
-                }
-            ]
-        },
-        {
-            "version": "6.1.4",
-            "preferredShim": "alpine",
-            "shims": [
-                {
-                    "shim": "alpine",
-                    "preferredJVM": "az11",
-                    "jvms": [
-                        {
-                            "jvm": "az11",
-                            "build": true,
-                            "deploy": true,
-                            "registries": [
-                                "DockerHub",
-                                "Artifactory"
-                            ]
-                        }
                     ]
                 }
             ]
