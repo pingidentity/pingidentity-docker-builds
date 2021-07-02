@@ -498,7 +498,7 @@ else
     IS_LOCAL_BUILD=true
     export IS_LOCAL_BUILD
     FOUNDATION_REGISTRY="pingidentity"
-    DEPS_REGISTRY=""
+    DEPS_REGISTRY="${DEPS_REGISTRY_OVERRIDE}"
     gitBranch=$(git rev-parse --abbrev-ref HEAD)
     GIT_REV_SHORT=$(git rev-parse --short=4 HEAD)
     GIT_REV_LONG=$(git rev-parse HEAD)

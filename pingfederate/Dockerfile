@@ -29,6 +29,8 @@ FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
+ARG RHEL_USER
+ARG RHEL_PASSWORD
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
@@ -79,9 +81,6 @@ ENV SHIM=${SHIM} \
 #-- Defines the log file size max for ALL appenders
     PF_LOG_SIZE_MAX="10000 KB" \
 
-#-- Defines a variable that allows instantiating non-FIPS crypto/random
-    PF_BC_FIPS_APPROVED_ONLY=false \
-
 #-- Defines the maximum of log files to retain upon rotation
     PF_LOG_NUMBER=2 \
 
@@ -127,6 +126,14 @@ ENV SHIM=${SHIM} \
 #-- Hardware Security Module Mode in run.properties
 #-- Options include OFF, AWSCLOUDHSM, NCIPHER, LUNA, BCFIPS.
     HSM_MODE="OFF" \
+
+#-- Defines a variable that allows instantiating non-FIPS crypto/random
+    PF_BC_FIPS_APPROVED_ONLY=false \
+
+#-- Hardware Security Module Hybrid Mode
+#--   When PF is in Hybrid mode, certs/keys can be created either on the local trust store or on the HSM.
+#--   This can used as a migration strategy towards an HSM setup.
+    PF_HSM_HYBRID=false \
 
 #-- This is the username for an account within the LDAP Directory Server
 #-- that can be used to perform user lookups for authentication and other

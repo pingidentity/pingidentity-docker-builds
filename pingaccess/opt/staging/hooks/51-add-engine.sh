@@ -83,7 +83,7 @@ if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGI
     cert_id=$(jq -r ".items[] | select(.alias==\"${kp_alias}\" and .keyPair==true) | .id" "${_out}")
     echo "Engine Cert ID: ${cert_id}"
 
-    host=$(hostname)
+    host=$(getHostName)
     echo "Adding new engine: ${host}"
     engine_id=$(
         curl \

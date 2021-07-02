@@ -26,4 +26,6 @@ bindPasswordFile=${ROOT_USER_PASSWORD_FILE}
 adminUID=${ADMIN_USER_NAME}
 adminPasswordFile=${ADMIN_USER_PASSWORD_FILE}
 suppressPropertiesFileComment=true
+
+ldapsearch.dontWrap=true
 " > "${TOOLS_PROPERTIES_FILE}"

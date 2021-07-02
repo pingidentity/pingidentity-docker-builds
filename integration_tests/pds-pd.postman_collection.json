@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "35e34ac9-bd4b-4ed2-ab6b-07d77142f757",
+		"_postman_id": "bbd32297-818e-4606-a347-e68ebc348871",
 		"name": "pds-pd",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -11,7 +11,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
 						"exec": [
 							"var _retries=pm.variables.has(\"_retries\")?pm.variables.get(\"_retries\"):pm.variables.get(\"request_retry_count\");",
 							"",
@@ -45,7 +44,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "05e7a877-6ace-4d57-bf76-93c0d411f558",
 						"exec": [
 							"",
 							""
@@ -75,12 +73,64 @@
 			"response": []
 		},
 		{
+			"name": "PD CHECK GET available-or-degraded-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"console.log(jsonData);",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pd_hostname}}:{{pd_port_https}}/available-or-degraded-state",
+					"protocol": "https",
+					"host": [
+						"{{pd_hostname}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-or-degraded-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "PDS Heartbeat",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
 						"exec": [
 							"var _retries=pm.variables.has(\"_retries\")?pm.variables.get(\"_retries\"):pm.variables.get(\"request_retry_count\");",
 							"var jsonData = JSON.parse(responseBody);",
@@ -120,7 +170,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "05e7a877-6ace-4d57-bf76-93c0d411f558",
 						"exec": [
 							"",
 							""
@@ -154,7 +203,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
 						"exec": [
 							"tests['Status code is ' + responseCode.code] = responseCode.code === 200;",
 							"",
@@ -168,7 +216,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "05e7a877-6ace-4d57-bf76-93c0d411f558",
 						"exec": [
 							"",
 							""
@@ -209,7 +256,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
 						"exec": [
 							"tests['Status code is ' + responseCode.code] = responseCode.code === 201;",
 							"",
@@ -262,7 +308,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
 						"exec": [
 							"tests['Status code is ' + responseCode.code] = responseCode.code === 200;",
 							"",
@@ -277,7 +322,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "05e7a877-6ace-4d57-bf76-93c0d411f558",
 						"exec": [
 							"setTimeout(function(){},2000);",
 							""
@@ -311,7 +355,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
 						"exec": [
 							"tests['Status code is ' + responseCode.code] = responseCode.code === 200;",
 							"",
@@ -326,7 +369,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "05e7a877-6ace-4d57-bf76-93c0d411f558",
 						"exec": [
 							"",
 							""
@@ -375,7 +417,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
 						"exec": [
 							"tests['Status code is ' + responseCode.code] = responseCode.code === 200;",
 							"",
@@ -390,7 +431,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "05e7a877-6ace-4d57-bf76-93c0d411f558",
 						"exec": [
 							"setTimeout(function(){},2000);"
 						],
@@ -423,7 +463,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b1ceea23-5599-4efe-ab5d-c1cb687e00d9",
 						"exec": [
 							"tests['Status code is ' + responseCode.code] = responseCode.code === 204;",
 							"",
@@ -465,7 +504,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8dc87685-abfd-4f6c-a725-5be2ff88e674",
 						"exec": [
 							"tests['Status code is ' + responseCode.code] = responseCode.code === 404;",
 							""
@@ -476,7 +514,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "05e7a877-6ace-4d57-bf76-93c0d411f558",
 						"exec": [
 							"setTimeout(function(){},2000);",
 							""
@@ -524,7 +561,6 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "5d64bf06-2f98-4cf7-b0f4-f88b22825417",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -534,7 +570,6 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "cf8e98ff-a67a-4841-bfa6-24e7944e2ace",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -544,97 +579,81 @@
 	],
 	"variable": [
 		{
-			"id": "94f1a567-8025-4db8-b8ed-e33143e857f8",
 			"key": "request_retry_count",
 			"value": "10",
 			"type": "string"
 		},
 		{
-			"id": "e2a53165-1f78-4b2e-bb93-74ec976d0e4a",
 			"key": "request_retry_delay_max_ms",
 			"value": "15000",
 			"type": "string",
 			"disabled": true
 		},
 		{
-			"id": "84405895-9c0a-4349-ae0f-9d902419c65e",
 			"key": "request_retry_delay_min_ms",
 			"value": "1000",
 			"type": "string",
 			"disabled": true
 		},
 		{
-			"id": "a34d015d-b6ad-4373-9ecd-0b6c25297b7e",
 			"key": "admin_user",
 			"value": "administrator",
 			"type": "string"
 		},
 		{
-			"id": "c2c8aeb7-60ce-4c86-9b0f-0ee02246fc54",
 			"key": "admin_pwd",
 			"value": "2FederateM0re",
 			"type": "string"
 		},
 		{
-			"id": "1338ff87-c447-4729-b794-2d158ff6ecd1",
 			"key": "pd_admin_user",
 			"value": "cn={{admin_user}}",
 			"type": "string"
 		},
 		{
-			"id": "d4876f78-35f0-4d59-8d0a-9a3108aa9b68",
 			"key": "pd_admin_pwd",
 			"value": "{{admin_pwd}}",
 			"type": "string"
 		},
 		{
-			"id": "58e91b9e-e3d5-4c46-a9d9-5ccc8ed0b0a7",
 			"key": "pd_hostname",
 			"value": "pingdirectory",
 			"type": "string"
 		},
 		{
-			"id": "02407b90-55a2-4c71-8e64-230794e48783",
 			"key": "pds_hostname",
 			"value": "pingdatasync",
 			"type": "string"
 		},
 		{
-			"id": "9bebf2b0-59db-440b-bcc2-e58d7dca657e",
 			"key": "pd_port_https",
 			"value": "1443",
 			"type": "string"
 		},
 		{
-			"id": "0f69e830-65c2-44b6-8c49-2d56929c65c6",
 			"key": "pds_port_https",
 			"value": "1443",
 			"type": "string"
 		},
 		{
-			"id": "cb475c63-1654-458d-8b0a-e329d976a934",
 			"key": "regular_user",
 			"value": "postman.user.0",
 			"type": "string"
 		},
 		{
-			"id": "cdbeac30-b697-472f-b08c-0b83a3be8ddb",
 			"key": "regular_pwd",
 			"value": "{{admin_pwd}}",
 			"type": "string"
 		},
 		{
-			"id": "98183535-2094-4840-98fc-17448fc34288",
 			"key": "base_dn",
 			"value": "o=sync",
 			"type": "string"
 		},
 		{
-			"id": "a149510e-3b19-478c-b85b-67bc3594b17a",
 			"key": "sync_pipe_name",
 			"value": "pingdirectory_source-to-pingdirectory_destination",
 			"type": "string"
 		}
-	],
-	"protocolProfileBehavior": {}
+	]
 }

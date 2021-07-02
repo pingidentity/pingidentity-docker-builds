@@ -25,6 +25,8 @@ FROM ${REGISTRY}/pingdatacommon:${GIT_TAG}-${ARCH} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
+ARG RHEL_USER
+ARG RHEL_PASSWORD
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
 # get Ping-wide common scripts
@@ -95,7 +97,7 @@ ENV SHIM=${SHIM} \
     ENCRYPTION_PASSWORD_FILE= \
 
 #-- Files tailed once container has started
-    TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access ${SERVER_ROOT_DIR}/logs/errors ${SERVER_ROOT_DIR}/logs/failed-ops ${SERVER_ROOT_DIR}/logs/config-audit.log ${SERVER_ROOT_DIR}/logs/tools/*.log* ${SERVER_BITS_DIR}/logs/tools/*.log*" \
+    TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access ${SERVER_ROOT_DIR}/logs/errors ${SERVER_ROOT_DIR}/logs/failed-ops ${SERVER_ROOT_DIR}/logs/config-audit.log ${SERVER_ROOT_DIR}/logs/debug-trace ${SERVER_ROOT_DIR}/logs/debug-aci ${SERVER_ROOT_DIR}/logs/tools/*.log* ${SERVER_BITS_DIR}/logs/tools/*.log* " \
 #-- Number of users to auto-populate using make-ldif templates
     MAKELDIF_USERS=0 \
 
@@ -109,6 +111,14 @@ ENV SHIM=${SHIM} \
 
 #-- Directory for the profile used by the PingData manage-profile tool
     PD_PROFILE="${STAGING_DIR}/pd.profile" \
+
+#-- Turns on FIPS mode (currently with the Councy Castle FIPS provider)
+#-- set to exactly "true" lowercase to turn on
+#-- set to anything else to turn off
+    FIPS_MODE_ON=false \
+
+#-- BCFIPS is the only provider currently supported -- do not edit
+    FIPS_PROVIDER="BCFIPS" \
 
 #-- Force a rebuild (replace-profile) of a PingDirectoy on restart.
 #-- Used when changes are made outside of the PD_PROFILE

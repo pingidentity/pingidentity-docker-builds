@@ -26,6 +26,8 @@ FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} as common
 FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
+ARG RHEL_USER
+ARG RHEL_PASSWORD
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
@@ -79,6 +81,10 @@ ENV SHIM=${SHIM} \
 #-- Percentage of the container memory to allocate to PingAccess JVM
 #-- DO NOT set to 100% or your JVM will exit with OutOfMemory errors and the container will terminate
     JAVA_RAM_PERCENTAGE=60.0 \
+#-- Turns on FIPS mode (currently with the Bouncy Castle FIPS provider)
+#-- set to exactly "true" lowercase to turn on
+#-- set to anything else to turn off
+    FIPS_MODE_ON=false \
 # pingaccess comes ootb listening on 3000 but it is more natural for https traffic to be listened for on 443
     PA_ENGINE_PORT=3000
 #-- Specify a password for administrator user for interaction with admin API

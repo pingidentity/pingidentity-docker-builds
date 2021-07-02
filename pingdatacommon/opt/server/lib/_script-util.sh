@@ -178,25 +178,6 @@ if test -f "${INSTANCE_ROOT}/config/server.umask"; then
     . "${INSTANCE_ROOT}/config/server.umask"
 fi
 
-# Attempt to determine the width and height of the user's terminal
-# specifying TERM if it is missing to avoid tput error messages.
-if test -n "${TERM:+x}"; then
-    TPUT="/usr/bin/tput"
-else
-    TPUT="/usr/bin/tput -T xterm"
-fi
-if test -f "/usr/bin/tput"; then
-    COLUMNS=$(${TPUT} cols)
-    if test -n "${COLUMNS}"; then
-        export COLUMNS
-    fi
-
-    LINES=$(${TPUT} lines)
-    if test -n "${LINES}"; then
-        export LINES
-    fi
-fi
-
 test -z "${INSTANCE_ROOT}" && INSTANCE_ROOT="${SERVER_ROOT_DIR}"
 
 if test "${SCRIPT_UTIL_CMD}" = "set-full-environment-and-test-java"; then

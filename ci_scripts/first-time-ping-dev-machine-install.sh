@@ -54,6 +54,7 @@ then
     . ~/.pingidentity/devops
     set +o allexport
 fi
+test "${-/i/}" != "${-}" && ~/whatip.sh
 # add the locally built docker-compose binary to the path
 export PATH=~/.local/bin:${PATH}
 export AWS_REGION=us-west-2

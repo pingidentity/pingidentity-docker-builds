@@ -4,7 +4,8 @@ test "${VERBOSE}" = "true" && set -x
 # shellcheck source=/dev/null
 test -f "${CONTAINER_ENV}" && . "${CONTAINER_ENV}"
 
-ldapsearch \
+LDAPSEARCH_TIMEOUT_SECONDS=${LDAPSEARCH_TIMEOUT_SECONDS:-12}
+timeout "${LDAPSEARCH_TIMEOUT_SECONDS}" ldapsearch \
     --dontWrap \
     --terse \
     --suppressPropertiesFileComment \

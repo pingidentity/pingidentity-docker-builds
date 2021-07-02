@@ -113,7 +113,7 @@ if test -z "${IS_LOCAL_BUILD}"; then
 
     # wipe everything clean
     docker image prune -f
-    docker network prune
+    docker network prune -f
 else
     banner "LOCAL FOUNDATION BUILD"
 fi
