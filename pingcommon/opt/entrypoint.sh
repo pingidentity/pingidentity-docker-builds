@@ -1,9 +1,9 @@
 #!/usr/bin/env sh
 test "${VERBOSE}" = "true" && set -x
+# shellcheck source=./staging/hooks/pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
 
 if test -z "${1}" -o "$1" = "start-server"; then
-    # shellcheck source=./staging/hooks/pingcommon.lib.sh
-    . "${HOOKS_DIR}/pingcommon.lib.sh"
 
     # shellcheck source=./staging/hooks/pingstate.lib.sh
     . "${HOOKS_DIR}/pingstate.lib.sh"
@@ -18,8 +18,8 @@ if test -z "${1}" -o "$1" = "start-server"; then
     # Capture environment variables and secrets state info
     add_state_info "environment_variables"
 
-    HOST_NAME=$(hostname -f)
-    DOMAIN_NAME=$(hostname -d)
+    HOST_NAME=$(getHostName)
+    DOMAIN_NAME=$(getDomainName)
 
     export HOST_NAME DOMAIN_NAME
 

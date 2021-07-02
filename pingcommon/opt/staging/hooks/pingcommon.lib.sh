@@ -60,8 +60,10 @@ _curl() {
         --retry-delay 3 \
         "${@}"
 
-    # CentOS curl does not support the retry on connection refused option
-    isOS "centos" || set -- --retry-connrefused "${@}"
+    # CentOS and RHEL curl does not support the retry on connection refused option
+    if ! isOS "centos" && ! isOS "rhel"; then
+        set -- --retry-connrefused "${@}"
+    fi
 
     HTTP_RESULT_CODE=$(curl "${@}")
     test "${HTTP_RESULT_CODE}" = "200"
@@ -94,6 +96,23 @@ isOS() {
     _currentOS="$(getOSID)"
     test -n "${_targetOS}" && test "${_targetOS}" = "${_currentOS}"
     return ${?}
+}
+
+#
+# Read the host name directly from the /proc filesystem
+# this avoid implementation differences between distros
+# the RHEL shim in particular doesn't ship the hostname cli
+#
+getHostName() {
+    cat /proc/sys/kernel/hostname
+}
+
+getDomainName() {
+    _result=$(cat /proc/sys/kernel/domainname)
+    if test "$(toLower "${_result}")" = "(none)"; then
+        _result=""
+    fi
+    echo "${_result}"
 }
 
 getSemanticImageVersion() {
@@ -357,6 +376,10 @@ security_filename_check() {
     export TOTAL_SECURITY_VIOLATIONS
 }
 
+now() {
+    date '+%s'
+}
+
 ###############################################################################
 # sleep_at_most (num_seconds)
 #
@@ -366,10 +389,13 @@ security_filename_check() {
 sleep_at_most() {
     _max=$1
     _modulus=$((_max - 1))
-    _random_num=$(awk 'BEGIN { srand(); print int(rand()*32768) }' /dev/null)
+    if test "${FIPS_MODE_ON}" = "true"; then
+        _random_num=$(now)
+    else
+        _random_num=$(awk 'BEGIN { srand(); print int(rand()*32768) }' /dev/null)
+    fi
     _result=$((_random_num % _modulus))
     _duration=$((_result + 1))
-
     echo "Sleeping ${_duration} seconds (max: ${_max})..."
 
     sleep ${_duration}

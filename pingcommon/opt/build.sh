@@ -1,7 +1,4 @@
 #!/usr/bin/env sh
-
-set -e
-
 test -f "/opt/build.sh.pre" && sh /opt/build.sh.pre
 
 # Update file permissions for the BASE for the default container user,
@@ -69,9 +66,6 @@ case "${_osID}" in
         apk --no-cache del jq
         # altogether remove the package manager
 
-        # Support for the inside-out security pattern, allowing for running as non-privileged user
-        apk --no-cache add su-exec
-
         # Removing apk installed file, removing false positive CVEs
         rm /lib/apk/db/installed
 
@@ -85,23 +79,35 @@ case "${_osID}" in
 
         removePackageManager_alpine
         ;;
-    centos)
-        rm -rf /var/lib/rpm
-        rpmdb -v --rebuilddb
+    centos | rhel)
+        if test "${_osID}" = "rhel"; then
+            if test -z "${RHEL_USER}" || test -z "${RHEL_PASSWORD}"; then
+                echo "Cannot build RHEL image without valid subscription"
+                exit 9
+            fi
+            yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+            yum -y install jq inotify-tools
+            subscription-manager register --username "${RHEL_USER}" --password "${RHEL_PASSWORD}" --auto-attach
+        fi
         _versionID=$(awk '$0~/^VERSION_ID=/{split($1,version,"=");gsub(/"/,"",version[2]);print version[2];}' /etc/os-release)
-        yum -y update --releasever "${_versionID}"
-        yum -y install --releasever "${_versionID}" epel-release
-        curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | bash
-        # yum -y install java-11-openjdk-devel gettext bind-utils git git-lfs jq unzip openssh-clients nmap-ncat
-        yum -y install --releasever "${_versionID}" gettext bind-utils git git-lfs jq unzip openssh-clients nmap-ncat inotify-tools
-        yum -y install gcc make
-        cd /tmp
-        curl -sL https://github.com/ncopa/su-exec/archive/v0.2.tar.gz | tar xzf -
-        make -C su-exec-0.2
-        cp /tmp/su-exec-0.2/su-exec /usr/local/bin
-        yum -y autoremove gcc make
+        _packages="gettext bind-utils git git-lfs unzip openssh-clients nmap-ncat"
+        if ! test "${_osID}" = "rhel"; then
+            rm -rf /var/lib/rpm
+            rpmdb -v --rebuilddb
+            rm -fr /var/cache/yum/*
+            yum clean all
+            yum -y update --releasever "${_versionID}"
+            yum -y install --releasever "${_versionID}" epel-release
+            curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | bash
+            _packages="${_packages} jq inotify-tools"
+        fi
+        # Word-splitting expected in listing yum packages to install
+        # shellcheck disable=SC2086
+        yum -y install --releasever "${_versionID}" ${_packages}
         yum -y clean all
-        # rm -rf /var/cache/yum
+        if test "${_osID}" = "rhel"; then
+            subscription-manager unregister
+        fi
         rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki
 
         # Create user and group
@@ -115,12 +121,6 @@ case "${_osID}" in
         apt-get -y update
         apt-get -y install apt-utils
         apt-get -y install curl gettext-base dnsutils git git-lfs jq unzip openssh-client netcat inotify-tools
-        apt-get -y install gcc make
-        cd /tmp
-        curl -sL https://github.com/ncopa/su-exec/archive/v0.2.tar.gz | tar xzf -
-        make -C su-exec-0.2
-        cp /tmp/su-exec-0.2/su-exec /usr/local/bin
-        apt-get --purge remove gcc make
         apt-get -y autoremove
         rm -rf /var/lib/apt/lists/*
 

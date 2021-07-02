@@ -129,20 +129,28 @@ _validateCertificateOptions() {
             echo_red "${_certFile} value [${_certFileVal}] is invalid: the specified file does not exist"
             exit 75
         fi
-        if test -z "${_certPinFileVal}"; then
-            echo_red "**********"
-            echo_red "A value for ${_certPinFile} must be specified when ${_certFile} is provided"
-            exit 75
-        fi
-        if ! test -f "${_certPinFileVal}"; then
-            echo_red "**********"
-            echo_red "${_certPinFile} value [${_certPinFileVal}] is invalid: the specified file does not exist"
-            exit 75
+        if test "$(toLower "${_certTypeVal}")" != "pem"; then
+            if test -z "${_certPinFileVal}"; then
+                echo_red "**********"
+                echo_red "A value for ${_certPinFile} must be specified when ${_certFile} is provided"
+                exit 75
+            fi
+            if ! test -f "${_certPinFileVal}"; then
+                echo_red "**********"
+                echo_red "${_certPinFile} value [${_certPinFileVal}] is invalid: the specified file does not exist"
+                exit 75
+            fi
         fi
         if test -z "${_certTypeVal}"; then
             # Attempt to get the store type from the store file name
             _storeFileLower=$(toLower "${_certFileVal}")
             case "${_storeFileLower}" in
+                *.bcfks)
+                    eval "${_certType}=bcfks"
+                    ;;
+                *.pem)
+                    eval "${_certType}=pem"
+                    ;;
                 *.p12)
                     eval "${_certType}=pkcs12"
                     ;;
@@ -155,7 +163,7 @@ _validateCertificateOptions() {
             # lowercase the truststore type
             _storeTypeLower=$(toLower "${_certTypeVal}")
             case "${_storeTypeLower}" in
-                pkcs12 | jks)
+                pkcs12 | jks | bcfks | pem)
                     eval "${_certType}=${_storeTypeLower}"
                     ;;
                 *)
@@ -207,19 +215,27 @@ getCertificateOptions() {
     if test -z "${KEYSTORE_FILE}"; then
         certificateOptions="--generateSelfSignedCertificate"
     else
-        case "${KEYSTORE_TYPE}" in
+        case "$(toLower "${KEYSTORE_TYPE}")" in
             pkcs12)
                 certificateOptions="--usePkcs12KeyStore ${KEYSTORE_FILE}"
                 ;;
             jks)
                 certificateOptions="--useJavaKeyStore ${KEYSTORE_FILE}"
                 ;;
-            *) ;;
-
+            bcfks)
+                certificateOptions="--useBCFKSKeystore ${KEYSTORE_FILE}"
+                ;;
+            pem)
+                certificateOptions="--certificatePrivateKeyPEMFile ${KEYSTORE_FILE}"
+                ;;
+            *)
+                echo_red "The provided value [${KEYSTORE_TYPE}] for variable KEYSTORE_TYPE is not supported"
+                exit 75
+                ;;
         esac
         if test -n "${KEYSTORE_PIN_FILE}"; then
             certificateOptions="${certificateOptions} --keyStorePasswordFile ${KEYSTORE_PIN_FILE}"
-        else
+        elif test "$(toLower "${KEYSTORE_TYPE}")" != "pem"; then
             echo_red "KEYSTORE_PIN_FILE is required if a KEYSTORE_FILE is provided."
             exit 75
         fi
@@ -227,15 +243,23 @@ getCertificateOptions() {
 
     # Add the truststore certificate options
     if test -n "${TRUSTSTORE_FILE}"; then
-        case "${TRUSTSTORE_TYPE}" in
+        case "$(toLower "${TRUSTSTORE_TYPE}")" in
             pkcs12)
                 certificateOptions="${certificateOptions} --usePkcs12TrustStore ${TRUSTSTORE_FILE}"
                 ;;
             jks)
                 certificateOptions="${certificateOptions} --useJavaTrustStore ${TRUSTSTORE_FILE}"
                 ;;
-            *) ;;
-
+            bcfks)
+                certificateOptions="${certificateOptions} --useBCFKSTruststore ${TRUSTSTORE_FILE}"
+                ;;
+            pem)
+                certificateOptions="${certificateOptions} --certificateChainPEMFile ${TRUSTSTORE_FILE}"
+                ;;
+            *)
+                echo_red "The provided value [${TRUSTSTORE_TYPE}] for variable TRUSTSTORE_TYPE is not supported"
+                exit 75
+                ;;
         esac
     fi
     if test -n "${TRUSTSTORE_PIN_FILE}"; then
@@ -324,6 +348,16 @@ generateSetupArguments() {
                 PING_DATA_MANAGE_PROFILE_SETUP_ARGS="--addMissingRdnAttributes"
             fi
             PING_DATA_MANAGE_PROFILE_SETUP_ARGS="${PING_DATA_MANAGE_PROFILE_SETUP_ARGS:+${PING_DATA_MANAGE_PROFILE_SETUP_ARGS} }--rejectFile /tmp/rejects.ldif ${_skipImports:=}"
+            if test "${FIPS_MODE_ON}" = "true"; then
+                # a provision is made for the future case where we would support multiple
+                # FIPS providers but since currently we do not, we check that the
+                # only correct value is provided or we alert and die in place
+                if test -z "${FIPS_PROVIDER}" || ! test "${FIPS_PROVIDER}" = "BCFIPS"; then
+                    echo_red "When FIPS mode is enabled, the only FIPS provider currently supported is BCFIPS."
+                    exit 182
+                fi
+                _fips_mode_on="--fips-provider ${FIPS_PROVIDER}"
+            fi
             ;;
         *)
             echo_red "Unknown PING_PRODUCT value [${PING_PRODUCT}]"
@@ -371,6 +405,7 @@ generateSetupArguments() {
     --rootUserDN "${ROOT_USER_DN}" \
     --rootUserPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
     ${_pingDataSetupArguments} \
+    ${_fips_mode_on} \
     ${ADDITIONAL_SETUP_ARGS}
 EOSETUP
 
@@ -381,7 +416,7 @@ getPingDataInstanceName() {
     if test "${RUN_PLAN}" = "RESTART"; then
         grep "ds-cfg-instance-name: " "${_configLDIF}" | awk -F": " '{ print $2 }'
     else
-        hostname
+        getHostName # simply using the hostname utility does not work on all distros
     fi
 }
 
@@ -409,27 +444,63 @@ getIPsForDomain() {
 #              $3 - baseDN
 waitUntilLdapUp() {
     _iCnt=1
+    LDAP_UP_TIMEOUT_SECONDS=${LDAP_UP_TIMEOUT_SECONDS:-3600}
+    LDAPSEARCH_TIMEOUT_SECONDS=${LDAPSEARCH_TIMEOUT_SECONDS:-12}
+    _startTime="$(now)"
 
     while true; do
-        ldapsearch \
-            --terse \
-            --suppressPropertiesFileComment \
-            --hostname "$1" \
-            --port "$2" \
-            --useSSL \
-            --trustAll \
-            --baseDN "$3" \
-            --scope base "(&)" 1.1 2> /dev/null && break
+        if test "${FIPS_MODE_ON}" = "true"; then
+            if test "$(cat /proc/sys/kernel/random/entropy_avail)" -lt 100; then
+                echo_red "Your entropy pool is very low."
+                echo_red "Please install the rngd daemon or a hardware RNG on the node"
+                # the entropy is likely too low to attempt a full on TLS handshake
+                # if we did, we'd deplete the entropy pool and further slow down
+                # server setup, import, dsconfig, startup or replication enablement
+                timeout "${LDAPSEARCH_TIMEOUT_SECONDS}" nc -z "${1}" "${2}" > /dev/null 2>&1 && break
+                # sleep long enough to give the entropy pool a shot at refilling
+                sleep 151
+            else
+                # the entropy is sufficient to attempt a full on TLS handshake
+                # this is the better option to test that the server indeed serves data
+                # we're more lenient on timeout than in normal mode
+                timeout "${LDAPSEARCH_TIMEOUT_SECONDS}" ldapsearch \
+                    --terse \
+                    --suppressPropertiesFileComment \
+                    --hostname "${1}" \
+                    --port "${2}" \
+                    --useSSL \
+                    --trustAll \
+                    --baseDN "${3}" \
+                    --scope base "(&)" 1.1 2> /dev/null && break
+                # we avoid using a random if we don't have to in FIPS mode
+                sleep 15
+            fi
+        else
+            timeout "${LDAPSEARCH_TIMEOUT_SECONDS}" ldapsearch \
+                --terse \
+                --suppressPropertiesFileComment \
+                --hostname "${1}" \
+                --port "${2}" \
+                --useSSL \
+                --trustAll \
+                --baseDN "${3}" \
+                --scope base "(&)" 1.1
+            test ${?} -eq 0 && return 0
+            sleep_at_most 15
+        fi
 
-        sleep_at_most 15
-
-        if test $_iCnt = 8; then
+        if test ${_iCnt} -eq 8; then
             _iCnt=0
             echo "May be a DNS/Firewall/Service/PortMapping Issue."
-            echo "    Ensure that the container/pod can reach: $1:$2"
+            echo "    Ensure that the container/pod can reach: ${1}:${2}"
         fi
 
         _iCnt=$((_iCnt + 1))
+        _thisIteration="$(now)"
+        if test $((_thisIteration - _startTime)) -gt "${LDAP_UP_TIMEOUT_SECONDS}"; then
+            echo_red "We waited for LDAP to come up for more than ${LDAP_UP_TIMEOUT_SECONDS} seconds. Bailing..."
+            exit 91
+        fi
     done
 }
 
@@ -592,7 +663,7 @@ buildRunPlan() {
     #
     # Create all the POD Server details
     #
-    _podName=$(hostname)
+    _podName=$(getHostName)
     _ordinal="${_podName##*-}"
 
     _podInstanceName=$(getPingDataInstanceName)
@@ -1375,7 +1446,7 @@ removeDefunctServer() {
 #             the server is online or not.
 #
 get_dsconfig_options() {
-    case "$1" in
+    case "${1}" in
         online)
             _isOnline=true
             ;;
@@ -1384,7 +1455,7 @@ get_dsconfig_options() {
             ;;
         *)
             wait-for "${HOST_NAME}:${LDAPS_PORT}" -t 1 > /dev/null 2> /dev/null
-            if test $? -eq 0; then
+            if test ${?} -eq 0; then
                 _isOnline=true
             else
                 _isOnline=false
@@ -1393,7 +1464,16 @@ get_dsconfig_options() {
     esac
 
     if test "${_isOnline}" = "true"; then
-        echo "--no-prompt --quiet --noPropertiesFile --hostname ${HOST_NAME} --port ${LDAPS_PORT} --bindDN \"${ROOT_USER_DN}\" --bindPasswordFile \"${ROOT_USER_PASSWORD_FILE}\" --useSSL --trustAll"
+        _options="--no-prompt --quiet --noPropertiesFile --hostname ${HOST_NAME} --bindDN \"${ROOT_USER_DN}\" --bindPasswordFile \"${ROOT_USER_PASSWORD_FILE}\" "
+        case "${2}" in
+            clear)
+                _options="${_options} --port ${LDAP_PORT} --useNoSecurity"
+                ;;
+            *)
+                _options="${_options} --port ${LDAPS_PORT}  --useSSL --trustAll"
+                ;;
+        esac
+        echo "${_options}"
     else
         echo "--no-prompt --quiet --offline --noPropertiesFile"
     fi
@@ -1444,7 +1524,7 @@ set_server_unavailable() {
 #
 set_server_available() {
     if test "$(isImageVersionGtEq 8.2.0)" -eq 0; then
-        _dsconfigOptions=$(get_dsconfig_options "$1")
+        _dsconfigOptions=$(get_dsconfig_options "${1}")
         _batchFile=$(mktemp)
 
         echo "Setting Server to Available"

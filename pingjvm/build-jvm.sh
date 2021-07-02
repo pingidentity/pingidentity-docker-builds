@@ -4,27 +4,42 @@ test "${VERBOSE}" = "true" && set -x
 _osID=$(awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' < /etc/os-release 2> /dev/null)
 _osArch=$(uname -m)
 
-if test "alpine" = "${_osID}" && ! type java > /dev/null 2> /dev/null; then
-    # We're on Alpine but there no Java, we'll pull down Liberica
+if ! type java > /dev/null 2> /dev/null; then
+    # there is no Java, we'll pull down Liberica
 
     # optimized modules java 11 alpine modules
     # on liberica, no org.openjsse (which delivers TLS 1.3 for java 8 actually so that makes sense)
     # _modules="java.base,java.compiler,java.datatransfer,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.jdwp.agent,jdk.httpserver,jdk.jcmd,jdk.localedata,jdk.management,jdk.management.agent,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.rmic,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom,jdk.zipfs"
     _jdkDir="$(mktemp -d)"
     _jdkArchive="${_jdkDir}/jdk.tgz"
-    JDK_VERSION="11.0.10+9"
+    JDK_VERSION="11.0.11+9"
     if test "aarch64" = "${_osArch}"; then
         _arch="${_osArch}"
-        digest="9378f16fbe32e072546d1330419684fc04d5301f"
+        _digest="d433d55d12ae6bd9072ecf7cf87686ed6ce31618"
     else
         # on Intel
         _arch="x64"
-        digest="04cd88b33904438a0ac7d883d56f073ed93fe8ec"
+        _digest="018389dfcda30ded2d83d2eff6244785fe9d86b4"
     fi
-    _jdkURL="https://download.bell-sw.com/java/${JDK_VERSION}/bellsoft-jdk${JDK_VERSION}-linux-${_arch}-musl.tar.gz"
-    wget -O "${_jdkArchive}" "${_jdkURL}"
-    test "${digest}" = "$(sha1sum "${_jdkArchive}" | awk '{print $1}')" || exit 97
-    tar -C "${_jdkDir}" -xzf "${_jdkArchive}"
+    case "${_osID}" in
+        alpine)
+            _libc="-musl"
+            _cmd="wget -O"
+            ;;
+        rhel)
+            curl -o busybox https://busybox.net/downloads/binaries/1.31.0-i686-uclibc/busybox
+            chmod +x busybox
+            _cmd="curl -o"
+            _libc=""
+            _arch="amd64"
+            _digest="9155fa3f259ed023fe945e84ae9447336ef8329c"
+            ;;
+    esac
+    _jdkURL="https://download.bell-sw.com/java/${JDK_VERSION}/bellsoft-jdk${JDK_VERSION}-linux-${_arch}${_libc}.tar.gz"
+    eval "${_cmd}" "${_jdkArchive}" "${_jdkURL}"
+    test "${_digest}" = "$(sha1sum "${_jdkArchive}" | awk '{print $1}')" || exit 97
+    ! type tar > /dev/null 2>&1 && _prefix="./busybox"
+    ${_prefix} tar -C "${_jdkDir}" -xzf "${_jdkArchive}"
     rm "${_jdkArchive}"
     JAVA_HOME="$(find "${_jdkDir}" -type d -name jdk-\*)"
     export JAVA_HOME

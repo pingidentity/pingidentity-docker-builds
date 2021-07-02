@@ -142,6 +142,43 @@ intel.pa-pf-pd.latest:
 # The purpose of the integration test below is
 # to verify PingAccess, PingFederate and PingDirectory
 # integrate together into an end to end test
+# for the liberica x86 JVM on a RHEL shim in
+# FIPS mode
+intel.pa-pf-pd-FIPS.latest:
+  stage: test.integration
+  script:
+    - SHIM=rhel7_7.9 ci_scripts/run_integration.sh pa-pf-pd-FIPS.latest rl11
+  only:
+    changes:
+      - integration_tests/**/pa-pf-pd*
+      - pingbase/**/*
+      - pingcommon/**/*
+      - pingdatacommon/**/*
+      - pingaccess/**/*
+      - pingdirectory/**/*
+      - pingfederate/**/*
+      - ci_scripts/*
+      - pingjvm/*
+      - .gitlab-ci.yml
+  variables:
+    KUBERNETES_CPU_REQUEST: 2850m
+    KUBERNETES_CPU_LIMIT: 2850m
+    KUBERNETES_MEMORY_REQUEST: 1960000000
+    KUBERNETES_MEMORY_LIMIT: 1960000000
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i
+
+################################################
+# The purpose of the integration test below is
+# to verify PingAccess, PingFederate and PingDirectory
+# integrate together into an end to end test
 # for the liberica JVM on the x86_64 runner 
 intel.pa-pf-pd.liberica:
   stage: test.integration
