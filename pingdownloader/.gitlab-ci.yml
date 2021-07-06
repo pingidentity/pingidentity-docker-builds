@@ -1,0 +1,24 @@
+################################################
+#                  DEPLOY
+################################################
+
+d.pingdownloader:
+  stage: deploy
+  script:
+    - ci_scripts/deploy_product_to_registry.sh --product pingdownloader
+    - ci_scripts/deploy_manifests_to_registry.sh --product pingdownloader
+  only:
+    refs:
+      - master
+      - tags
+    changes:
+      - pingdownloader/**/*
+      - ci_scripts/*
+      - .gitlab-ci.yml
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+      - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
+      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/

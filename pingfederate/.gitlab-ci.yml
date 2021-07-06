@@ -112,6 +112,7 @@ d.pingfederate:
   stage: deploy
   script:
     - ci_scripts/deploy_product_to_registry.sh --product pingfederate
+    - ci_scripts/deploy_manifests_to_registry.sh --product pingfederate
   only:
     refs:
       - master

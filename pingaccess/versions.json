@@ -21,8 +21,9 @@
                         {
                             "jvm": "al11",
                             "build": true,
-                            "deploy": false,
+                            "deploy": true,
                             "registries": [
+                                "DockerHub",
                                 "Artifactory"
                             ]
                         }
@@ -46,10 +47,10 @@
         },
         {
             "version": "6.2.1",
-            "preferredShim": "alpine",
+            "preferredShim": "alpine:3.13",
             "shims": [
                 {
-                    "shim": "alpine",
+                    "shim": "alpine:3.13",
                     "preferredJVM": "az11",
                     "jvms": [
                         {
@@ -64,12 +65,27 @@
                         {
                             "jvm": "al11",
                             "build": true,
-                            "deploy": false,
+                            "deploy": true,
                             "registries": [
+                                "DockerHub",
                                 "Artifactory"
                             ]
                         }
 
+                    ]
+                },
+                {
+                    "shim": "rhel7:7.9",
+                    "preferredJVM": "rl11",
+                    "jvms": [
+                        {
+                            "jvm": "rl11",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "Artifactory"
+                            ]
+                        }
                     ]
                 }
             ]

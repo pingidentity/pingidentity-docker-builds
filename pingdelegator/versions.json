@@ -26,10 +26,10 @@
         },
         {
             "version": "4.4.1",
-            "preferredShim": "alpine",
+            "preferredShim": "alpine:3.13",
             "shims": [
                 {
-                    "shim": "alpine",
+                    "shim": "alpine:3.13",
                     "preferredJVM": "alnoj",
                     "jvms": [
                         {

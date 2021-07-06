@@ -13,7 +13,7 @@ if test -z "${CI_COMMIT_REF_NAME}"; then
     )"
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
-CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
+CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 

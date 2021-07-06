@@ -110,6 +110,7 @@ d.pingdataconsole:
   stage: deploy
   script:
     - ci_scripts/deploy_product_to_registry.sh --product pingdataconsole
+    - ci_scripts/deploy_manifests_to_registry.sh --product pingdataconsole
   only:
     refs:
       - master

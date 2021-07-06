@@ -112,6 +112,7 @@ d.pingdatasync:
   stage: deploy
   script:
     - ci_scripts/deploy_product_to_registry.sh --product pingdatasync
+    - ci_scripts/deploy_manifests_to_registry.sh --product pingdatasync
   only:
     refs:
       - master

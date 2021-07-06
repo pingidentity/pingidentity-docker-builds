@@ -3,10 +3,10 @@
     "versions": [
         {
             "version": "1.8.0",
-            "preferredShim": "alpine",
+            "preferredShim": "alpine:3.13",
             "shims": [
                 {
-                    "shim": "alpine",
+                    "shim": "alpine:3.13",
                     "preferredJVM": "az11",
                     "jvms": [
                         {
@@ -21,8 +21,9 @@
                         {
                             "jvm": "al11",
                             "build": true,
-                            "deploy": false,
+                            "deploy": true,
                             "registries": [
+                                "DockerHub",
                                 "Artifactory"
                             ]
                         }
@@ -32,14 +33,23 @@
         },
         {
             "version": "1.7.0",
-            "preferredShim": "alpine",
+            "preferredShim": "alpine:3.13",
             "shims": [
                 {
-                    "shim": "alpine",
+                    "shim": "alpine:3.13",
                     "preferredJVM": "az11",
                     "jvms": [
                         {
                             "jvm": "az11",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub",
+                                "Artifactory"
+                            ]
+                        },
+                        {
+                            "jvm": "al11",
                             "build": true,
                             "deploy": true,
                             "registries": [

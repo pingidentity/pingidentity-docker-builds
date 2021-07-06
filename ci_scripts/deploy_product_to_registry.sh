@@ -1,113 +1,83 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 #
 # Ping Identity DevOps - CI scripts
 #
-# This script deploys products to registries based on the registries listed in the product's versions.json file
+# This script deploys products to registries based on the
+# registries listed in the product's versions.json file
 #
 test "${VERBOSE}" = "true" && set -x
 
-#
 # Usage printing function
-#
 usage() {
     cat << END_USAGE
 Usage: ${0} {options}
     where {options} include:
 
-    -r, --registry
-        The registry to deploy new image tags to (may be specified multiple times)
-        If not provided, registry destination will be specified per product versions.json
-    -l, --registry-file
-        The file with the list of registries to deploy to
-        If not provided, registry destinations will be specified per product versions.json
     -p, --product
-        The name of the product for which to build a docker image
-    -v, --version
-        the version of the product for which to build a docker image
-        this setting overrides the versions in the version file of the target product
-    -s, --shim
-        the name of the operating system shim for which to build a docker image
-    -d, --default-shim
-        the name of the operating system shim to consider default and override metadata
-    -j, --jvm
-        the id of the jvm to deploy
-    -J, --default-jvm
-        the id of the jvm to consider default and override metadata
+        The name of the product for which to deploy docker images
     --dry-run
         does everything except actually call the docker command and prints it instead
     --help
         Display general usage information
-
-    Either --registry or --registry-file MUST be provided
 END_USAGE
     test -n "${*}" && echo "${*}"
     exit 99
 }
 
-#
-# Executes the command passed, and fails if return code ne 1
-#
-exec_cmd_fail() {
-    eval "${dryRun} $*"
-
-    test $? -ne 0 && echo "Error: $*" && exit 1
+# Executes the command passed, and fails if return code ne 0
+exec_cmd_or_fail() {
+    eval "${dry_run} ${*}"
+    result_code=${?}
+    test "${result_code}" -ne 0 && echo_red "The following command resulted in an error: ${*}" && exit "${result_code}"
 }
 
-#
 # Tags the product being deployed and push into registry
-#
 tag_and_push() {
-    #
-    # Special case for pingdownloader since it only has a tag for the branch and short sha
-    #
-
-    case "${targetRegistry}" in
-        "Artifactory")
-            _targetRegistryURL="${ARTIFACTORY_REGISTRY}"
+    case "${target_registry}" in
+        "artifactory")
+            target_registry_url="${ARTIFACTORY_REGISTRY}"
             ;;
-        "DockerHub")
-            _targetRegistryURL="${DOCKER_HUB_REGISTRY}"
+        "dockerhub")
+            target_registry_url="${DOCKER_HUB_REGISTRY}"
             ;;
         *)
-            _targetRegistryURL="${targetRegistry}"
+            target_registry_url="${target_registry}"
             ;;
     esac
 
-    _target_tag="${1}"
-    _source="${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
-    _target="${_targetRegistryURL}/${productToDeploy}:${_target_tag}"
+    target_tag="${1}"
+    source="${FOUNDATION_REGISTRY}/${product_to_deploy}:${full_tag}"
+    target="${target_registry_url}/${product_to_deploy}:${target_tag}"
 
-    test -z "${dryRun}" && docker tag "${_source}" "${_target}"
+    echo "Function tag_and_push() is deploying ${target}"
     if test -z "${IS_LOCAL_BUILD}"; then
-        echo "Pushing ${_target}"
         #Use Docker Content Trust to Sign and push images to a specified registry
         if test -z "${DEPLOY_NO_PUSH}"; then
-            case "${targetRegistry}" in
-                "Artifactory")
+            exec_cmd_or_fail docker tag "${source}" "${target}"
+            case "${target_registry}" in
+                "artifactory")
                     export DOCKER_CONTENT_TRUST_SERVER="https://notaryserver:4443"
-                    docker --config "${_docker_config_artifactory_dir}" trust revoke --yes "${_target}"
-                    docker --config "${_docker_config_artifactory_dir}" trust sign "${_target}"
+                    docker --config "${docker_config_artifactory_dir}" trust revoke --yes "${target}"
+                    exec_cmd_or_fail docker --config "${docker_config_artifactory_dir}" trust sign "${target}"
                     unset DOCKER_CONTENT_TRUST_SERVER
                     ;;
-                "DockerHub")
+                "dockerhub")
                     #Check to see if signature data already exists for tag
                     #If it does, remove the signature data
-                    _tag_index=$(jq ". | index(\"${_target_tag}\")" <<< "${_signed_tags}")
-                    if test "${_tag_index}" != "null"; then
-                        docker --config "${_docker_config_hub_dir}" trust revoke --yes "${_target}"
+                    tag_index=$(printf '%s' "${signed_tags}" | jq ". | index(\"${target_tag}\")")
+                    if test "${tag_index}" != "null"; then
+                        exec_cmd_or_fail docker --config "${docker_config_hub_dir}" trust revoke --yes "${target}"
                     fi
-                    docker --config "${_docker_config_hub_dir}" trust sign "${_target}"
+                    exec_cmd_or_fail docker --config "${docker_config_hub_dir}" trust sign "${target}"
                     ;;
                 *)
                     #target registry not recognized, default to simple docker push.
-                    echo_yellow "Non-default registry ${targetRegistry} -- Defaulting to unsigned docker push"
-                    docker push "${_target}"
+                    echo_yellow "Non-default registry ${target_registry} -- Defaulting to unsigned docker push"
+                    exec_cmd_or_fail docker push "${target}"
                     ;;
             esac
+            exec_cmd_or_fail docker image rm -f "${target}"
         fi
-        docker image rm -f "${_target}"
-    else
-        echo "${_target}"
     fi
 }
 
@@ -116,46 +86,10 @@ while test -n "${1}"; do
         -p | --product)
             shift
             test -z "${1}" && usage "You must provide a product to build"
-            productToDeploy="${1}"
-            ;;
-        -r | --registry)
-            shift
-            test -z "${1}" && usage "You must provide a registry"
-            _registryListManual="${_registryListManual:+${_registryListManual} }${1}"
-            ;;
-        -l | --registry-file)
-            shift
-            test -z "${1}" && usage "You must provide a registry file"
-            test -f "${1}" || usage "The registry file provided does not exist or is not a file"
-            _registryListFileManual="${1}"
-            ;;
-        -j | --jvm)
-            shift
-            test -z "${1}" && usage "You must provide a JVM id"
-            jvmsToDeployManual="${jvmsToDeployManual:+${jvmsToDeployManual} }${1}"
-            ;;
-        -J | --default-jvm)
-            shift
-            test -z "${1}" && usage "You must provide a JVM id"
-            defaultJvmManual="${1}"
-            ;;
-        -s | --shim)
-            shift
-            test -z "${1}" && usage "You must provide an OS Shim"
-            shimsToDeployManual="${shimsToDeployManual:+${shimsToDeployManual} }${1}"
-            ;;
-        -d | --default-shim)
-            shift
-            test -z "${1}" && usage "You must provide a default OS Shim"
-            defaultShimManual="${1}"
-            ;;
-        -v | --version)
-            shift
-            test -z "${1}" && usage "You must provide a version to build"
-            versionsToDeployManual="${versionsToDeployManual:+${versionsToDeployManual} }${1}"
+            product_to_deploy="${1}"
             ;;
         --dry-run)
-            dryRun="echo"
+            dry_run="echo"
             ;;
         --help)
             usage
@@ -167,16 +101,7 @@ while test -n "${1}"; do
     shift
 done
 
-# read in the lines from the passed registry file
-if test -f "${_registryListFileManual}"; then
-    while read -r _registry; do
-        if test -n "${_registry}"; then
-            _registryListManual="${_registryListManual:+${_registryListManual} }${_registry}"
-        fi
-    done < "${_registryListFileManual}"
-fi
-
-test -z "${productToDeploy}" &&
+test -z "${product_to_deploy}" &&
     usage "Specifying a product to deploy is required"
 
 if test -z "${CI_COMMIT_REF_NAME}"; then
@@ -186,114 +111,40 @@ if test -z "${CI_COMMIT_REF_NAME}"; then
     )"
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
-CI_SCRIPTS_DIR="${CI_PROJECT_DIR}/ci_scripts"
+CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
-#
-# Determine whether the commit is associated with a sprint tag
-#   a print tag ends with 4 digits, YYMM
-#
-for tag in $(git tag --points-at "${GIT_REV_LONG}"); do
-    if test -z "${tag##2[0-9][0-9][0-9]*}"; then
-        sprint="${tag}"
-        break
-    fi
-done
-
 #Define docker config file locations based on different image registry providers
-_docker_config_hub_dir="/root/.docker-hub"
-_docker_config_ecr_dir="/root/.docker"
-_docker_config_artifactory_dir="/root/.docker-artifactory"
+docker_config_hub_dir="/root/.docker-hub"
+docker_config_ecr_dir="/root/.docker"
+docker_config_artifactory_dir="/root/.docker-artifactory"
 
 #Pull down Docker Trust JSON on signature data
-_signed_tags=$(docker trust inspect "${DOCKER_HUB_REGISTRY}/${productToDeploy}" | jq "[.[0].SignedTags[].SignedTag]")
+signed_tags=$(docker trust inspect "${DOCKER_HUB_REGISTRY}/${product_to_deploy}" | jq "[.[0].SignedTags[].SignedTag]")
 
-if test -n "${versionsToDeployManual}"; then
-    versionsToDeploy="${versionsToDeployManual}"
-else
-    versionsToDeploy=$(_getAllVersionsToDeployForProduct "${productToDeploy}")
-fi
-latestVersion=$(_getLatestVersionForProduct "${productToDeploy}")
-
-banner "Deploying ${productToDeploy}"
-for _version in ${versionsToDeploy}; do
-    if test -n "${shimsToDeployManual}"; then
-        shimsToDeploy="${shimsToDeployManual}"
-    else
-        shimsToDeploy=$(_getShimsToDeployForProductVersion "${productToDeploy}" "${_version}")
-    fi
-
-    if test -n "${defaultShimManual}"; then
-        defaultShim="${defaultShimManual}"
-    else
-        defaultShim=$(_getDefaultShimForProductVersion "${productToDeploy}" "${_version}")
-    fi
-
-    for _shim in ${shimsToDeploy}; do
-        _shimLongTag=$(_getLongTag "${_shim}")
-
-        if test -n "${jvmsToDeployManual}"; then
-            jvmsToDeploy="${jvmsToDeployManual}"
-        else
-            jvmsToDeploy=$(_getJVMsToDeployForProductVersionShim "${productToDeploy}" "${_version}" "${_shim}")
-        fi
-
-        if test -n "${defaultJvmManual}"; then
-            defaultJvm="${defaultJvmManual}"
-        else
-            defaultJvm=$(_getPreferredJVMForProductVersionShim "${productToDeploy}" "${_version}" "${_shim}")
-        fi
-
-        for _jvm in ${jvmsToDeploy}; do
-            banner "Processing ${productToDeploy} ${_shim} ${_jvm} ${_version} ${_arch}"
+versions_to_deploy=$(_getAllVersionsToDeployForProduct "${product_to_deploy}")
+banner "Deploying ${product_to_deploy}"
+for version in ${versions_to_deploy}; do
+    shims_to_deploy=$(_getShimsToDeployForProductVersion "${product_to_deploy}" "${version}")
+    for shim in ${shims_to_deploy}; do
+        shim_long_tag=$(_getLongTag "${shim}")
+        jvms_to_deploy=$(_getJVMsToDeployForProductVersionShim "${product_to_deploy}" "${version}" "${shim}")
+        for jvm in ${jvms_to_deploy}; do
             #Get the target registries for the specified product, version, shim, and jvm
-            if test -n "${_registryListManual}"; then
-                _registryList="${_registryListManual}"
-            else
-                _registryList=$(_getTargetRegistriesForProductVersionShimJVM "${productToDeploy}" "${_version}" "${_shim}" "${_jvm}")
-            fi
-
-            for _arch in $(_getAllArchsForJVM "${_jvm}"); do
-                _archSuffix=""
-                if _isJVMMultiArch "${_jvm}"; then
-                    _archSuffix="-${_arch}"
-                fi
-                fullTag="${_version}-${_shimLongTag}-${_jvm}-${CI_TAG}-${_arch}"
-                test -z "${dryRun}" &&
-                    docker --config "${_docker_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
-                for targetRegistry in ${_registryList}; do
-                    banner "Publishing ${productToDeploy} ${_shim} ${_jvm} ${_version} to ${targetRegistry}"
-                    test -n "${_archSuffix}" && tag_and_push "${_version}-${_shimLongTag}-${_jvm}-${_arch}-edge"
-                    if test -n "${sprint}"; then
-                        if test "${_shim}" = "${defaultShim}"; then
-                            if test "${productToDeploy}" = "pingdownloader"; then
-                                tag_and_push "latest${_archSuffix}"
-                            else
-                                tag_and_push "${sprint}-${_version}${_archSuffix}"
-                                tag_and_push "${_version}-latest${_archSuffix}"
-                                tag_and_push "${_version}${_archSuffix}"
-
-                                #if it's latest product version and a sprint, then it's "latest" overall and also just "edge".
-                                if test "${_version}" = "${latestVersion}"; then
-                                    tag_and_push "latest${_archSuffix}"
-                                    tag_and_push "${sprint}${_archSuffix}"
-                                fi
-                            fi
-                        fi
-                    fi
-
-                    if test "${_jvm}" = "${defaultJvm}"; then
-                        if test "${_shim}" = "${defaultShim}"; then
-                            tag_and_push "${_version}-edge${_archSuffix}"
-                            if test "${_version}" = "${latestVersion}"; then
-                                tag_and_push "edge${_archSuffix}"
-                            fi
-                        fi
-                    fi
+            registry_list=$(_getTargetRegistriesForProductVersionShimJVM "${product_to_deploy}" "${version}" "${shim}" "${jvm}")
+            for arch in $(_getAllArchsForJVM "${jvm}"); do
+                banner "Processing ${product_to_deploy} ${shim} ${jvm} ${version} ${arch}"
+                full_tag="${version}-${shim_long_tag}-${jvm}-${CI_TAG}-${arch}"
+                test -z "${dry_run}" &&
+                    docker --config "${docker_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/${product_to_deploy}:${full_tag}"
+                for target_registry in ${registry_list}; do
+                    target_registry=$(toLower "${target_registry}")
+                    banner "Publishing ${product_to_deploy} ${shim} ${jvm} ${version} to ${target_registry}"
+                    tag_and_push "${version}-${shim_long_tag}-${jvm}-${arch}-edge"
                 done # iterating over target registries to deploy to
-                test -z "${dryRun}" &&
-                    docker image rm -f "${FOUNDATION_REGISTRY}/${productToDeploy}:${fullTag}"
+                test -z "${dry_run}" &&
+                    docker image rm -f "${FOUNDATION_REGISTRY}/${product_to_deploy}:${full_tag}"
             done # iterating over architectures
         done     # iterating over JVMS
     done         # iterating over shims
