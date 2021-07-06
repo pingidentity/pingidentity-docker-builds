@@ -12,6 +12,7 @@ cd "${SERVER_ROOT_DIR}" || exit 99
 # Word-split is expected behavior for $JAVA_OPTS. Disable shellcheck.
 # shellcheck disable=SC2086
 "${JAVA_HOME}"/bin/java -jar ${JAVA_OPTS} \
+    --add-opens java.base/java.lang=ALL-UNNAMED \
     --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
     -Dlogging.config="${LOG4J2_PROPS}" \
     -Dspring.config.additional-location="file:${CONFIG_DIR}/" \
