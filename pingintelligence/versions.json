@@ -1,8 +1,29 @@
 {
-    "latest":"4.4",
+    "latest":"5.0",
     "versions":[
         {
-            "version": "4.4",
+            "version": "5.0",
+            "preferredShim": "centos:7.6.1810",
+            "shims":[
+                {
+                    "shim": "centos:7.6.1810",
+                    "preferredJVM": "conoj",
+                    "jvms": [
+                        {
+                            "jvm": "conoj",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub",
+                                "Artifactory"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "version": "4.4.1",
             "preferredShim": "centos:7.6.1810",
             "shims":[
                 {
@@ -22,5 +43,6 @@
                 }
             ]
         }
+
     ]
 }
