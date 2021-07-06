@@ -35,8 +35,8 @@ create_manifest_and_push() {
     target_manifest_name="${1}"
     # Word-split is expected behavior for $images_list. Disable shellcheck.
     # shellcheck disable=SC2086
-    exec_cmd_or_fail docker manifest create "${target_registry_url}/${product_to_deploy}:${target_manifest_name}" ${images_list}
-    exec_cmd_or_fail docker manifest push --purge "${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
+    exec_cmd_or_fail docker --config "${docker_config}" manifest create "${target_registry_url}/${product_to_deploy}:${target_manifest_name}" ${images_list}
+    exec_cmd_or_fail docker --config "${docker_config}" manifest push --purge "${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
     echo "Successfully created and pushed manifest: ${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
 }
 
