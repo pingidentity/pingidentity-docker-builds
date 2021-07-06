@@ -58,6 +58,7 @@ d.pingintelligence:
   stage: deploy
   script:
     - ci_scripts/deploy_product_to_registry.sh --product pingintelligence
+    - ci_scripts/deploy_manifests_to_registry.sh --product pingintelligence
   only:
     refs:
       - master

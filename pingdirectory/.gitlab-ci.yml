@@ -159,6 +159,7 @@ d.pingdirectory:
   stage: deploy
   script:
     - ci_scripts/deploy_product_to_registry.sh --product pingdirectory
+    - ci_scripts/deploy_manifests_to_registry.sh --product pingdirectory
   only:
     refs:
       - master

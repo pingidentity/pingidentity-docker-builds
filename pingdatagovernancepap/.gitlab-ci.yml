@@ -120,6 +120,7 @@ d.pingdatagovernancepap:
   stage: deploy
   script:
     - ci_scripts/deploy_product_to_registry.sh --product pingdatagovernancepap
+    - ci_scripts/deploy_manifests_to_registry.sh --product pingdatagovernancepap
   only:
     refs:
       - master

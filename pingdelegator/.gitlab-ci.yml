@@ -108,6 +108,7 @@ d.pingdelegator:
   stage: deploy
   script:
     - ci_scripts/deploy_product_to_registry.sh --product pingdelegator
+    - ci_scripts/deploy_manifests_to_registry.sh --product pingdelegator
   only:
     refs:
       - master

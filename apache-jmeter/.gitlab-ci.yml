@@ -98,6 +98,7 @@ d.apache-jmeter:
   stage: deploy
   script:
     - ci_scripts/deploy_product_to_registry.sh --product apache-jmeter
+    - ci_scripts/deploy_manifests_to_registry.sh --product apache-jmeter
   only:
     refs:
       - master

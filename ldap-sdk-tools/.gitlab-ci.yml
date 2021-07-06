@@ -98,7 +98,8 @@ arm.t.ldap-sdk-tools:
 d.ldap-sdk-tools:
   stage: deploy
   script:
-    - VERBOSE=true ci_scripts/deploy_product_to_registry.sh --product ldap-sdk-tools
+    - ci_scripts/deploy_product_to_registry.sh --product ldap-sdk-tools
+    - ci_scripts/deploy_manifests_to_registry.sh --product ldap-sdk-tools
   only:
     refs:
       - master

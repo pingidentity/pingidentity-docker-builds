@@ -112,6 +112,7 @@ d.pingdirectoryproxy:
   stage: deploy
   script:
     - ci_scripts/deploy_product_to_registry.sh --product pingdirectoryproxy
+    - ci_scripts/deploy_manifests_to_registry.sh --product pingdirectoryproxy
   only:
     refs:
       - master
@@ -132,23 +133,3 @@ d.pingdirectoryproxy:
       - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectoryproxy(?:$|,)/i
-
-d.pingdownloader:
-  stage: deploy
-  script:
-    - ci_scripts/deploy_product_to_registry.sh --product pingdownloader
-  only:
-    refs:
-      - master
-      - tags
-    changes:
-      - pingdownloader/**/*
-      - ci_scripts/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/

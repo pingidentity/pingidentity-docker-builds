@@ -16,6 +16,7 @@ include:
   - local: pingintelligence/.gitlab-ci.yml
   - local: pingtoolkit/.gitlab-ci.yml
   - local: integration_tests/.gitlab-ci.yml
+  - local: pingdownloader/.gitlab-ci.yml
 
 stages:
   - intialization

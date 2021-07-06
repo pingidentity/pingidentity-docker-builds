@@ -114,6 +114,7 @@ d.pingdatagovernance:
   stage: deploy
   script:
     - ci_scripts/deploy_product_to_registry.sh --product pingdatagovernance
+    - ci_scripts/deploy_manifests_to_registry.sh --product pingdatagovernance
   only:
     refs:
       - master

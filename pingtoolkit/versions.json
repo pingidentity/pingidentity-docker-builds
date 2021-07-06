@@ -21,8 +21,9 @@
                         {
                             "jvm": "al11",
                             "build": true,
-                            "deploy": false,
+                            "deploy": true,
                             "registries": [
+                                "DockerHub",
                                 "Artifactory"
                             ]
                         }

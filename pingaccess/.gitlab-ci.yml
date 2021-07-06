@@ -114,6 +114,7 @@ d.pingaccess:
   stage: deploy
   script:
     - ci_scripts/deploy_product_to_registry.sh --product pingaccess
+    - ci_scripts/deploy_manifests_to_registry.sh --product pingaccess
   only:
     refs:
       - master
