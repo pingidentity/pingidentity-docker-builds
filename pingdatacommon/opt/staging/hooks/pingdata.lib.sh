@@ -484,7 +484,7 @@ waitUntilLdapUp() {
                 --useSSL \
                 --trustAll \
                 --baseDN "${3}" \
-                --scope base "(&)" 1.1
+                --scope base "(&)" 1.1 2> /dev/null
             test ${?} -eq 0 && return 0
             sleep_at_most 15
         fi
