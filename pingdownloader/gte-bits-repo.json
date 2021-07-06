@@ -44,7 +44,7 @@
         {
             "name": "pingdatagovernance",
             "mapping": "PingDataGovernance-${version}.zip",
-            "latestVersion": "8.2.0.3",
+            "latestVersion": "8.2.0.5",
             "licenseFile": "PingDataGovernance.lic"
         },
         {
@@ -56,7 +56,7 @@
         {
             "name": "pingdatagovernancepap",
             "mapping": "PingDataGovernance-PAP-${version}.zip",
-            "latestVersion": "8.2.0.3",
+            "latestVersion": "8.2.0.5",
             "licenseFile": "PingDataGovernance.lic"
         },
         {
@@ -96,7 +96,7 @@
         {
             "name": "pingintelligence",
             "mapping": "PingIntelligence-ASE-rhel-${version}.zip",
-            "latestVersion": "4.4"
+            "latestVersion": "4.5"
         }
     ]
 }
