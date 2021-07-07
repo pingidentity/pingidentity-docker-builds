@@ -122,7 +122,8 @@ fi
 if test -z "${versionsToBuild}"; then
     if test -n "${PING_IDENTITY_SNAPSHOT}"; then
         versionsToBuild=$(_getLatestSnapshotVersionForProduct "${productToBuild}")
-        shimsToBuild="alpine"
+        latestVersion=$(_getLatestVersionForProduct "${productToBuild}")
+        shimsToBuild=$(_getDefaultShimForProductVersion "${productToBuild}" "${latestVersion}")
         case "${ARCH}" in
             x86_64)
                 jvmsToBuild="az11"
@@ -139,8 +140,8 @@ if test -z "${versionsToBuild}"; then
 fi
 
 if test -z "${IS_LOCAL_BUILD}" && test ${DOCKER_BUILDKIT} -eq 1; then
-    docker pull "${FOUNDATION_REGISTRY}/pingcommon:${CI_TAG}"
-    docker pull "${FOUNDATION_REGISTRY}/pingdatacommon:${CI_TAG}"
+    docker pull "${FOUNDATION_REGISTRY}/pingcommon:${CI_TAG}-${ARCH}"
+    docker pull "${FOUNDATION_REGISTRY}/pingdatacommon:${CI_TAG}-${ARCH}"
 fi
 
 # result table header
@@ -231,7 +232,7 @@ for _version in ${versionsToBuild}; do
 
         for _jvm in ${_jvmsToBuild}; do
             if test -z "${IS_LOCAL_BUILD}" && test ${DOCKER_BUILDKIT} -eq 1; then
-                docker pull "${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimLongTag}-${CI_TAG}-${ARCH}"
+                docker pull "${FOUNDATION_REGISTRY}/pingjvm:${_jvm}-${_shimLongTag}-${CI_TAG}-${ARCH}"
             fi
 
             fullTag="${_buildVersion}-${_shimLongTag}-${_jvm}-${CI_TAG}-${ARCH}"

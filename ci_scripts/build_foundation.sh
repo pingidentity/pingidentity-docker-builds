@@ -217,7 +217,7 @@ for _shim in ${shims}; do
         fi
         banner "Building pingjvm for JDK ${_jvm} for ${_shim}"
         _start=$(date '+%s')
-        _image="${FOUNDATION_REGISTRY}/pingjvm:${_jvm}_${_shimTag}-${CI_TAG}-${ARCH}"
+        _image="${FOUNDATION_REGISTRY}/pingjvm:${_jvm}-${_shimTag}-${CI_TAG}-${ARCH}"
         _jvm_from=$(_getJVMImageForShimID "${_shim}" "${_jvm}")
 
         # Word-Split is expected behavior for $progress. Disable shellcheck.
@@ -240,7 +240,7 @@ for _shim in ${shims}; do
                 docker push "${_image}"
             fi
         fi
-        append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingjvm:${_jvm}_${_shimTag}" "${_duration}" "${_result}"
+        append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingjvm:${_jvm}-${_shimTag}" "${_duration}" "${_result}"
         imagesToCleanup="${imagesToCleanup} ${_image}"
     done
 done
