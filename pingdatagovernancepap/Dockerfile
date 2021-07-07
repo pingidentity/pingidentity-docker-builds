@@ -29,7 +29,7 @@ ARG ARCH
 
 FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
 FROM ${REGISTRY}/pingdatacommon:${GIT_TAG}-${ARCH} as common
-FROM ${REGISTRY}/pingjvm:${JVM}_${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
+FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
 
