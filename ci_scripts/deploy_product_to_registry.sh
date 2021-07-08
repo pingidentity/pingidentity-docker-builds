@@ -31,20 +31,21 @@ exec_cmd_or_fail() {
     test "${result_code}" -ne 0 && echo_red "The following command resulted in an error: ${*}" && exit "${result_code}"
 }
 
+#Executes the command passed, and retries up to 5 times if return code is ne 0
+exec_cmd_or_retry() {
+    num_retries=5
+    while test ${num_retries} -gt 0; do
+        num_retries=$((num_retries - 1))
+        eval "${dry_run} ${*}"
+        result_code=${?}
+        test ${result_code} -eq 0 && break
+        sleep 5
+    done
+    test "${result_code}" -ne 0 && echo_red "The following command repeatedly resulted in an error: ${*}" && exit "${result_code}"
+}
+
 # Tags the product being deployed and push into registry
 tag_and_push() {
-    case "${target_registry}" in
-        "artifactory")
-            target_registry_url="${ARTIFACTORY_REGISTRY}"
-            ;;
-        "dockerhub")
-            target_registry_url="${DOCKER_HUB_REGISTRY}"
-            ;;
-        *)
-            target_registry_url="${target_registry}"
-            ;;
-    esac
-
     target_tag="${1}"
     source="${FOUNDATION_REGISTRY}/${product_to_deploy}:${full_tag}"
     target="${target_registry_url}/${product_to_deploy}:${target_tag}"
@@ -58,7 +59,7 @@ tag_and_push() {
                 "artifactory")
                     export DOCKER_CONTENT_TRUST_SERVER="https://notaryserver:4443"
                     docker --config "${docker_config_artifactory_dir}" trust revoke --yes "${target}"
-                    exec_cmd_or_fail docker --config "${docker_config_artifactory_dir}" trust sign "${target}"
+                    exec_cmd_or_retry docker --config "${docker_config_artifactory_dir}" trust sign "${target}"
                     unset DOCKER_CONTENT_TRUST_SERVER
                     ;;
                 "dockerhub")
@@ -68,7 +69,7 @@ tag_and_push() {
                     if test "${tag_index}" != "null"; then
                         exec_cmd_or_fail docker --config "${docker_config_hub_dir}" trust revoke --yes "${target}"
                     fi
-                    exec_cmd_or_fail docker --config "${docker_config_hub_dir}" trust sign "${target}"
+                    exec_cmd_or_retry docker --config "${docker_config_hub_dir}" trust sign "${target}"
                     ;;
                 *)
                     #target registry not recognized, default to simple docker push.
@@ -140,6 +141,17 @@ for version in ${versions_to_deploy}; do
                     docker --config "${docker_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/${product_to_deploy}:${full_tag}"
                 for target_registry in ${registry_list}; do
                     target_registry=$(toLower "${target_registry}")
+                    case "${target_registry}" in
+                        "artifactory")
+                            target_registry_url="${ARTIFACTORY_REGISTRY}"
+                            ;;
+                        "dockerhub")
+                            target_registry_url="${DOCKER_HUB_REGISTRY}"
+                            ;;
+                        *)
+                            target_registry_url="${target_registry}"
+                            ;;
+                    esac
                     banner "Publishing ${product_to_deploy} ${shim} ${jvm} ${version} to ${target_registry}"
                     tag_and_push "${version}-${shim_long_tag}-${jvm}-${arch}-edge"
                 done # iterating over target registries to deploy to
