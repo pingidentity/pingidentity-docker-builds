@@ -47,7 +47,7 @@ create_manifest_and_push_and_sign() {
     manifest_sha256=$(echo -n "${manifest_text}" | sha256sum | awk '{print $1}')
 
     #Sign new manifest with Docker Content Trust and Notary
-    exec_cmd_or_fail notary addhash -p "${target_registry_url}/${product_to_deploy}" "${target_manifest_name}" "${manifest_byte_size}" --sha256 "${manifest_sha256}"
+    exec_cmd_or_fail notary -s "${notary_server}" addhash -p "${target_registry_url}/${product_to_deploy}" "${target_manifest_name}" "${manifest_byte_size}" --sha256 "${manifest_sha256}"
     echo "Successfully signed manifest: ${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
 }
 
@@ -129,11 +129,13 @@ for version in ${versions_to_deploy}; do
                         echo_yellow "Registry ${target_registry} is not implemented in deploy_manifests.sh"
                         # target_registry_url="${ARTIFACTORY_REGISTRY}"
                         # docker_config="${docker_config_artifactory_dir}"
+                        # notary_server="https://notaryserver:4443"
                         continue
                         ;;
                     "dockerhub")
                         target_registry_url="${DOCKER_HUB_REGISTRY}"
                         docker_config="${docker_config_hub_dir}"
+                        notary_server="https://notary.docker.io"
                         ;;
                     *)
                         echo_red "Registry ${target_registry} is not implemented in deploy_manifests.sh" && exit 1
