@@ -47,7 +47,7 @@ create_manifest_and_push_and_sign() {
     manifest_sha256=$(echo -n "${manifest_text}" | sha256sum | awk '{print $1}')
 
     #Sign new manifest with Docker Content Trust and Notary
-    exec_cmd_or_fail notary -s "${notary_server}" addhash -p "${target_registry_url}/${product_to_deploy}" "${target_manifest_name}" "${manifest_byte_size}" --sha256 "${manifest_sha256}"
+    exec_cmd_or_fail notary --server "${notary_server}" --trustDir "${docker_config}/trust" addhash -p "${target_registry_url}/${product_to_deploy}" "${target_manifest_name}" "${manifest_byte_size}" --sha256 "${manifest_sha256}"
     echo "Successfully signed manifest: ${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
 }
 
