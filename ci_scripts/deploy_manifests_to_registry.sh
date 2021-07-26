@@ -31,6 +31,26 @@ exec_cmd_or_fail() {
     test "${result_code}" -ne 0 && echo_red "The following command resulted in an error: ${*}" && exit "${result_code}"
 }
 
+# Creates and Publishes Multi-Arch Image Manifests
+# Signs the Resulting Docker Manifest for Docker Content Trust
+create_manifest_and_push_and_sign() {
+    target_manifest_name="${1}"
+
+    #Create a docker manifest and push it to DockerHub
+    create_manifest_and_push "${target_manifest_name}"
+
+    #Grab the newly created manifest text
+    manifest_text=$(docker manifest inspect "${target_registry_url}/${product_to_deploy}:${target_manifest_name}")
+
+    #Compute the byte size and sha256 of the manifest
+    manifest_byte_size=$(echo -n "${manifest_text}" | wc -c | awk '{print $1}')
+    manifest_sha256=$(echo -n "${manifest_text}" | sha256sum | awk '{print $1}')
+
+    #Sign new manifest with Docker Content Trust and Notary
+    exec_cmd_or_fail notary addhash -p "${target_registry_url}/${product_to_deploy}" "${target_manifest_name}" "${manifest_byte_size}" --sha256 "${manifest_sha256}"
+    echo "Successfully signed manifest: ${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
+}
+
 create_manifest_and_push() {
     target_manifest_name="${1}"
     # Word-split is expected behavior for $images_list. Disable shellcheck.
@@ -135,24 +155,24 @@ for version in ${versions_to_deploy}; do
                 #This builds pushes manifests to the target registry that contain the images in $images_list
                 banner "Creating Multi-Arch Manifests in ${target_registry} for: ${product_to_deploy} ${shim} ${jvm} ${version}"
                 if test -n "${sprint}"; then
-                    create_manifest_and_push "${version}-${shim_long_tag}-${jvm}-latest"
-                    create_manifest_and_push "${sprint}-${version}-${shim_long_tag}-${jvm}"
+                    create_manifest_and_push_and_sign "${version}-${shim_long_tag}-${jvm}-latest"
+                    create_manifest_and_push_and_sign "${sprint}-${version}-${shim_long_tag}-${jvm}"
                     if test "${shim}" = "${default_shim}" && test "${jvm}" = "${default_jvm}"; then
-                        create_manifest_and_push "${version}-latest"
-                        create_manifest_and_push "${sprint}-${version}"
+                        create_manifest_and_push_and_sign "${version}-latest"
+                        create_manifest_and_push_and_sign "${sprint}-${version}"
                         if test "${version}" = "${latest_version}"; then
-                            create_manifest_and_push "latest"
-                            create_manifest_and_push "${sprint}"
+                            create_manifest_and_push_and_sign "latest"
+                            create_manifest_and_push_and_sign "${sprint}"
                         fi
                     fi
                 fi
                 if test "${shim}" = "${default_shim}" && test "${jvm}" = "${default_jvm}"; then
-                    create_manifest_and_push "${version}-edge"
+                    create_manifest_and_push_and_sign "${version}-edge"
                     if test "${version}" = "${latest_version}"; then
-                        create_manifest_and_push "edge"
+                        create_manifest_and_push_and_sign "edge"
                     fi
                 fi
-                create_manifest_and_push "${version}-${shim_long_tag}-${jvm}-edge"
+                create_manifest_and_push_and_sign "${version}-${shim_long_tag}-${jvm}-edge"
 
                 # Delete images of type ${version}-${shim_long_tag}-${jvm}-${arch}-edge from target registry
                 # These images are no longer needed, as they should be accessible in multi-arch manifest images formed above
