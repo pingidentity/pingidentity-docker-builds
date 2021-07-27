@@ -43,7 +43,9 @@ RUN /get-bits.sh --product ${PRODUCT} \
         -x *.bat \
         -x *.dll \
         -x *.exe \
-    && mv /tmp/${PRODUCT}-*/${PRODUCT} /opt/server
+  && mv /tmp/${PRODUCT}-*/${PRODUCT} /opt/server \
+  && mkdir -p /opt/out/instance/server/default/data
+
 
 
 # Flatten the bits layers to provide a compact product layer for all shims
