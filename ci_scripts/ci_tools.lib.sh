@@ -475,24 +475,18 @@ elif test -n "${CI_COMMIT_REF_NAME}"; then
     #
     # setup the docker trust material.
     #
-    requirePipelineFile DOCKER_TRUST_PRIVATE_KEY_FILE
+    requirePipelineFile DOCKER_TRUST_PRIVATE_KEY_ARCHIVE_FILE
     requirePipelineVar DOCKER_TRUST_PRIVATE_KEY
     requirePipelineVar DOCKER_TRUST_PRIVATE_KEY_SIGNER
 
-    echo "Using docker trust private key '${DOCKER_TRUST_PRIVATE_KEY}'"
-    echo "Using docker trust private key file'${DOCKER_TRUST_PRIVATE_KEY_FILE}'"
-    echo "Using docker trust private key signer '${DOCKER_TRUST_PRIVATE_KEY_SIGNER}'"
-
     #Use private key file with DockerHub
     mkdir -p "${_docker_config_hub_dir}/trust/private"
-    cp "${DOCKER_TRUST_PRIVATE_KEY_FILE}" "${_docker_config_hub_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
-    chmod 600 "${_docker_config_hub_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
+    (cd "${_docker_config_hub_dir}/trust/private" && base64 --decode "${DOCKER_TRUST_PRIVATE_KEY_ARCHIVE_FILE}" | tar -xz)
     docker --config "${_docker_config_hub_dir}" trust key load "${_docker_config_hub_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
 
     #Use private key file with Artifactory
     mkdir -p "${_docker_config_artifactory_dir}/trust/private"
-    cp "${DOCKER_TRUST_PRIVATE_KEY_FILE}" "${_docker_config_artifactory_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
-    chmod 600 "${_docker_config_artifactory_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}"
+    (cd "${_docker_config_artifactory_dir}/trust/private" && base64 --decode "${DOCKER_TRUST_PRIVATE_KEY_ARCHIVE_FILE}" | tar -xz)
     docker --config "${_docker_config_artifactory_dir}" trust key load "${_docker_config_artifactory_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
 
     #Provide Root CA Certificate for Artifactory Notary Server

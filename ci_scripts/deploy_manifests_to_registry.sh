@@ -47,7 +47,7 @@ create_manifest_and_push_and_sign() {
     manifest_sha256=$(echo -n "${manifest_text}" | sha256sum | awk '{print $1}')
 
     #Sign new manifest with Docker Content Trust and Notary
-    exec_cmd_or_fail notary --server "${notary_server}" --trustDir "${docker_config}/trust" addhash -p "${target_registry_url}/${product_to_deploy}" "${target_manifest_name}" "${manifest_byte_size}" --sha256 "${manifest_sha256}"
+    exec_cmd_or_fail notary --server "${notary_server}" --trustDir "${docker_config_dir}/trust" --configFile "${docker_config_dir}/config.json" addhash --publish "${target_registry_url}/${product_to_deploy}" "${target_manifest_name}" "${manifest_byte_size}" --sha256 "${manifest_sha256}"
     echo "Successfully signed manifest: ${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
 }
 
@@ -55,8 +55,8 @@ create_manifest_and_push() {
     target_manifest_name="${1}"
     # Word-split is expected behavior for $images_list. Disable shellcheck.
     # shellcheck disable=SC2086
-    exec_cmd_or_fail docker --config "${docker_config}" manifest create "${target_registry_url}/${product_to_deploy}:${target_manifest_name}" ${images_list}
-    exec_cmd_or_fail docker --config "${docker_config}" manifest push --purge "${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
+    exec_cmd_or_fail docker --config "${docker_config_dir}" manifest create "${target_registry_url}/${product_to_deploy}:${target_manifest_name}" ${images_list}
+    exec_cmd_or_fail docker --config "${docker_config_dir}" manifest push --purge "${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
     echo "Successfully created and pushed manifest: ${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
 }
 
@@ -128,13 +128,13 @@ for version in ${versions_to_deploy}; do
                         # TODO Artifactory is using v1 manifests. Update this to use manifests in Artifactory
                         echo_yellow "Registry ${target_registry} is not implemented in deploy_manifests.sh"
                         # target_registry_url="${ARTIFACTORY_REGISTRY}"
-                        # docker_config="${docker_config_artifactory_dir}"
+                        # docker_config_dir="${docker_config_artifactory_dir}"
                         # notary_server="https://notaryserver:4443"
                         continue
                         ;;
                     "dockerhub")
                         target_registry_url="${DOCKER_HUB_REGISTRY}"
-                        docker_config="${docker_config_hub_dir}"
+                        docker_config_dir="${docker_config_hub_dir}"
                         notary_server="https://notary.docker.io"
                         ;;
                     *)
@@ -149,7 +149,7 @@ for version in ${versions_to_deploy}; do
                 for arch in $(_getAllArchsForJVM "${jvm}"); do
                     current_image="${target_registry_url}/${product_to_deploy}:${version}-${shim_long_tag}-${jvm}-${arch}-edge"
                     #Verify the image exists on the target_registry
-                    exec_cmd_or_fail docker --config "${docker_config}" manifest inspect "${current_image}"
+                    exec_cmd_or_fail docker --config "${docker_config_dir}" manifest inspect "${current_image}"
                     images_list="${images_list:+${images_list} }${current_image}"
                     echo "Image verified: ${current_image}"
                 done # iterating over architectures
