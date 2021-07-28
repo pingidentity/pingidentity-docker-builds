@@ -23,7 +23,7 @@ RUN /get-bits.sh \
         --devops-app "pipeline-build-${DEPENDENCY_0_PRODUCT}-${DEPENDENCY_0_VERSION}" \
         --verify-gpg-signature \
         --file-name appserver.zip \
-	&& unzip  /tmp/appserver.zip \
+	&& unzip -q /tmp/appserver.zip \
         -d /tmp \
         -x *.bat \
         -x *.dll \
@@ -52,10 +52,10 @@ RUN /get-bits.sh \
         --devops-key ${DEVOPS_KEY} \
         --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
         --verify-gpg-signature \
-    && unzip -d /tmp/ /tmp/product.zip PingDirectory/resource/admin-console.zip \
-	&& unzip -d /tmp/ /tmp/PingDirectory/resource/admin-console.zip admin-console.war \
+    && unzip -q -d /tmp/ /tmp/product.zip PingDirectory/resource/admin-console.zip \
+	&& unzip -q -d /tmp/ /tmp/PingDirectory/resource/admin-console.zip admin-console.war \
     && mkdir /opt/server/webapps/console \
-    && unzip /tmp/admin-console.war \
+    && unzip -q /tmp/admin-console.war \
         -d /opt/server/webapps/console \
         -x *-sources.jar \
         -x *unboundid-ldapsdk-*.jar

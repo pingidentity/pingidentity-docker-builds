@@ -106,7 +106,7 @@ if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGI
         "${_enginesURL}/${engine_id}/config"
 
     echo "Extracting bootstrap and pa.jwk files to conf folder..."
-    unzip -o "${_config_zip}" -d "${OUT_DIR}/instance"
+    unzip -oq "${_config_zip}" -d "${OUT_DIR}/instance"
     # ls -la ${OUT_DIR}instance/conf
     # cat ${OUT_DIR}/instance/conf/bootstrap.properties
     chmod 400 "${OUT_DIR}/instance/conf/pa.jwk"

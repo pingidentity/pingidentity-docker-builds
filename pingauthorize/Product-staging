@@ -22,7 +22,7 @@ RUN /get-bits.sh --product ${PRODUCT} \
         --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
         ${PING_IDENTITY_SNAPSHOT} \
         --verify-gpg-signature \
-    && unzip /tmp/product.zip -d /tmp/ \
+    && unzip -q /tmp/product.zip -d /tmp/ \
         -x *.bat \
         -x *.dll \
         -x *.exe \
