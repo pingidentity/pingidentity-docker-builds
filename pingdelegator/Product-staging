@@ -22,7 +22,7 @@ RUN /get-bits.sh --product delegator \
         --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
         ${PING_IDENTITY_SNAPSHOT} \
         --verify-gpg-signature \
-    && unzip /tmp/product.zip -d /tmp \
+    && unzip -q /tmp/product.zip -d /tmp \
     && mkdir -p /opt/server/html \
     && mv /tmp/delegator/app /opt/server/html/delegator
  

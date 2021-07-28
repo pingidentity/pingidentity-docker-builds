@@ -42,7 +42,7 @@ case "${_osArch}" in
         ;;
 esac
 curl "https://awscli.amazonaws.com/awscli-exe-linux-${_osArch}.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
+unzip -q awscliv2.zip
 sudo ./aws/install
 wget -O /tmp/saml2aws.tgz https://github.com/Versent/saml2aws/releases/download/v2.29.0/saml2aws_2.29.0_linux_${_vanityArch}.tar.gz
 sudo tar -C /usr/local/bin -xzf /tmp/saml2aws.tgz
