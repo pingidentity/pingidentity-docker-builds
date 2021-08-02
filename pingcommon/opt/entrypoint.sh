@@ -84,9 +84,9 @@ if test -z "${1}" -o "$1" = "start-server"; then
 
     if test -n "${TAIL_LOG_FILES}"; then
         echo "Tailing log files (${TAIL_LOG_FILES})"
-        # Word-split is expected behavior for $TAIL_LOG_FILES. Disable shellcheck.
-        # shellcheck disable=SC2086
-        exec tail -F ${TAIL_LOG_FILES} 2> /dev/null &
+        for log_file in ${TAIL_LOG_FILES}; do
+            tail -F "${log_file}" 2> /dev/null | awk -v prepend="${log_file}" '{ print prepend ":  " $0 }' &
+        done
     fi
 
     # If a command is provided after the "start-server" on the container start, then
