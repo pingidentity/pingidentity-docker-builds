@@ -1,21 +1,21 @@
 {
     "versions":[
         {
-            "shims": ["alpine","alpine:latest","alpine:3.13","alpine:3.12","alpine:3.11","alpine:3.10"],
+            "shims": ["alpine","alpine:latest","alpine:3.14","alpine:3.13","alpine:3.12","alpine:3.11","alpine:3.10"],
             "id": "az11",
             "version": "11",
             "from": "azul/zulu-openjdk-alpine:11",
             "archs": ["x86_64"]
         },
         {
-            "shims": ["alpine","alpine:latest","alpine:3.13","alpine:3.12","alpine:3.11","alpine:3.10"],
+            "shims": ["alpine","alpine:latest","alpine:3.14","alpine:3.13","alpine:3.12","alpine:3.11","alpine:3.10"],
             "id": "al11",
             "version": "11",
             "from": "bellsoft/liberica-openjdk-alpine-musl:11",
             "archs": ["x86_64","aarch64"]
         },
         {
-            "shims": ["alpine","alpine:latest","alpine:3.13","alpine:3.12","alpine:3.11","alpine:3.10"],
+            "shims": ["alpine","alpine:latest","alpine:3.14","alpine:3.13","alpine:3.12","alpine:3.11","alpine:3.10"],
             "id": "al16",
             "version": "16",
             "from": "bellsoft/liberica-openjdk-alpine-musl:16",
@@ -29,7 +29,7 @@
             "archs": ["x86_64"]
         },
         {
-            "shims": ["alpine","alpine:latest","alpine:3.13","alpine:3.12","alpine:3.11","alpine:3.10"],
+            "shims": ["alpine","alpine:latest","alpine:3.14","alpine:3.13","alpine:3.12","alpine:3.11","alpine:3.10"],
             "id": "alnoj",
             "version": "0",
             "from": "scratch",
