@@ -384,47 +384,42 @@ requirePipelineVar() {
 # This function does the following:
 # 1) Perform a docker login to docker hub.  This is required to properly authenticate and
 # sign images with docker as well as avoid rate limiting from Dockers new policies.
-# 2) Bring in the docker config.json for ECR. Provides instructions to docker on how to
-# authenticate to docker registries
-# 3) Bring in the docker config.json for Artifactory.
+# 2) Bring in the docker config.json for all other registries. Provides instructions to docker on how to
+# authenticate to docker registries.
 ################################################################################
 setupDockerConfigJson() {
-    echo "Logging into docker hub..."
+    ####### SET UP DOCKERHUB #######
+    echo "Logging Into DockerHub..."
     requirePipelineVar DOCKER_USERNAME
     requirePipelineVar DOCKER_PASSWORD
     requirePipelineVar DOCKER_HUB_REGISTRY
-    mkdir -p "${_docker_config_hub_dir}"
+    mkdir -p "${docker_config_hub_dir}"
 
     # login to docker.io to create the docker hub config.json
-    docker --config "${_docker_config_hub_dir}" login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
+    docker --config "${docker_config_hub_dir}" login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
+    test ${?} -ne 0 && echo_red "Error: Failed to login to DockerHub in ci_tools.sh" && exit 1
 
+    ####### SET UP ALL OTHER REGISTRIES #######
     # Ensure that the pipe-line provides the following variables/files
     requirePipelineVar PIPELINE_BUILD_REGISTRY_VENDOR
     requirePipelineVar PIPELINE_BUILD_REGISTRY
     requirePipelineVar PIPELINE_BUILD_REPO
-    requirePipelineFile ECR_DOCKER_CONFIG_JSON
+    requirePipelineVar ARTIFACTORY_REGISTRY
+    requirePipelineVar FEDRAMP_REGISTRY
+    requirePipelineFile DOCKER_CONFIG_JSON
 
-    echo "Using ECR docker config.json '${ECR_DOCKER_CONFIG_JSON}'"
-    mkdir -p "${_docker_config_ecr_dir}"
-    cp "${ECR_DOCKER_CONFIG_JSON}" "${_docker_config_ecr_dir}/config.json"
+    echo "Using Docker config.json '${DOCKER_CONFIG_JSON}'"
+    mkdir -p "${docker_config_default_dir}"
+    cp "${DOCKER_CONFIG_JSON}" "${docker_config_default_dir}/config.json"
 
     # In order to initialize the docker login to ecr, a single docker pull needs
     # to occur.  This basically primes the pump for docker builds with FROMs later on
-    docker --config "${_docker_config_ecr_dir}" pull "${PIPELINE_BUILD_REGISTRY}/ci-utils/hello:latest"
-
-    # Ensure that the pipe-line provides the following variables/files
-    requirePipelineVar ARTIFACTORY_REGISTRY
-    requirePipelineFile ARTIFACTORY_DOCKER_CONFIG_JSON
-
-    echo "Using Artifactory docker config.json '${ARTIFACTORY_DOCKER_CONFIG_JSON}'"
-    mkdir -p "${_docker_config_artifactory_dir}"
-    cp "${ARTIFACTORY_DOCKER_CONFIG_JSON}" "${_docker_config_artifactory_dir}/config.json"
+    docker --config "${docker_config_default_dir}" pull "${PIPELINE_BUILD_REGISTRY}/ci-utils/hello:latest"
 }
 
 #Define docker config file locations based on different image registry providers
-_docker_config_hub_dir="/root/.docker-hub"
-_docker_config_ecr_dir="/root/.docker"
-_docker_config_artifactory_dir="/root/.docker-artifactory"
+docker_config_hub_dir="/root/.docker-hub"
+docker_config_default_dir="/root/.docker"
 
 if test -n "${PING_IDENTITY_SNAPSHOT}"; then
     #we are in building snapshot
@@ -480,14 +475,14 @@ elif test -n "${CI_COMMIT_REF_NAME}"; then
     requirePipelineVar DOCKER_TRUST_PRIVATE_KEY_SIGNER
 
     #Use private key file with DockerHub
-    mkdir -p "${_docker_config_hub_dir}/trust/private"
-    (cd "${_docker_config_hub_dir}/trust/private" && base64 --decode "${DOCKER_TRUST_PRIVATE_KEY_ARCHIVE_FILE}" | tar -xz)
-    docker --config "${_docker_config_hub_dir}" trust key load "${_docker_config_hub_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
+    mkdir -p "${docker_config_hub_dir}/trust/private"
+    (cd "${docker_config_hub_dir}/trust/private" && base64 --decode "${DOCKER_TRUST_PRIVATE_KEY_ARCHIVE_FILE}" | tar -xz)
+    docker --config "${docker_config_hub_dir}" trust key load "${docker_config_hub_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
 
     #Use private key file with Artifactory
-    mkdir -p "${_docker_config_artifactory_dir}/trust/private"
-    (cd "${_docker_config_artifactory_dir}/trust/private" && base64 --decode "${DOCKER_TRUST_PRIVATE_KEY_ARCHIVE_FILE}" | tar -xz)
-    docker --config "${_docker_config_artifactory_dir}" trust key load "${_docker_config_artifactory_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
+    mkdir -p "${docker_config_default_dir}/trust/private"
+    (cd "${docker_config_default_dir}/trust/private" && base64 --decode "${DOCKER_TRUST_PRIVATE_KEY_ARCHIVE_FILE}" | tar -xz)
+    docker --config "${docker_config_default_dir}" trust key load "${docker_config_default_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
 
     #Provide Root CA Certificate for Artifactory Notary Server
     requirePipelineFile ARTIFACTORY_ROOT_CA_FILE
