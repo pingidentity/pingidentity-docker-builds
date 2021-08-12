@@ -46,7 +46,8 @@
                             "build": true,
                             "deploy": true,
                             "registries": [
-                                "Artifactory"
+                                "Artifactory",
+                                "Fedramp"
                             ]
                         }
                     ]
@@ -90,7 +91,8 @@
                             "build": true,
                             "deploy": true,
                             "registries": [
-                                "Artifactory"
+                                "Artifactory",
+                                "Fedramp"
                             ]
                         }
                     ]

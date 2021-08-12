@@ -106,7 +106,7 @@ done
 
 #Define docker config file locations based on different image registry providers
 docker_config_hub_dir="/root/.docker-hub"
-# docker_config_artifactory_dir="/root/.docker-artifactory"
+#docker_config_default_dir="/root/.docker"
 
 versions_to_deploy=$(_getAllVersionsToDeployForProduct "${product_to_deploy}")
 latest_version=$(_getLatestVersionForProduct "${product_to_deploy}")
@@ -128,7 +128,7 @@ for version in ${versions_to_deploy}; do
                         # TODO Artifactory is using v1 manifests. Update this to use manifests in Artifactory
                         echo_yellow "Registry ${target_registry} is not implemented in deploy_manifests.sh"
                         # target_registry_url="${ARTIFACTORY_REGISTRY}"
-                        # docker_config_dir="${docker_config_artifactory_dir}"
+                        # docker_config_dir="${docker_config_default_dir}"
                         # notary_server="https://notaryserver:4443"
                         continue
                         ;;
@@ -136,6 +136,10 @@ for version in ${versions_to_deploy}; do
                         target_registry_url="${DOCKER_HUB_REGISTRY}"
                         docker_config_dir="${docker_config_hub_dir}"
                         notary_server="https://notary.docker.io"
+                        ;;
+                    "fedramp")
+                        echo_yellow "Registry ${target_registry} is not implemented in deploy_manifests.sh"
+                        continue
                         ;;
                     *)
                         echo_red "Registry ${target_registry} is not implemented in deploy_manifests.sh" && exit 1

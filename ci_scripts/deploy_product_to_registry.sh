@@ -58,8 +58,8 @@ tag_and_push() {
             case "${target_registry}" in
                 "artifactory")
                     export DOCKER_CONTENT_TRUST_SERVER="https://notaryserver:4443"
-                    docker --config "${docker_config_artifactory_dir}" trust revoke --yes "${target}"
-                    exec_cmd_or_retry docker --config "${docker_config_artifactory_dir}" trust sign "${target}"
+                    docker --config "${docker_config_default_dir}" trust revoke --yes "${target}"
+                    exec_cmd_or_retry docker --config "${docker_config_default_dir}" trust sign "${target}"
                     unset DOCKER_CONTENT_TRUST_SERVER
                     ;;
                 "dockerhub")
@@ -70,6 +70,9 @@ tag_and_push() {
                         exec_cmd_or_fail docker --config "${docker_config_hub_dir}" trust revoke --yes "${target}"
                     fi
                     exec_cmd_or_retry docker --config "${docker_config_hub_dir}" trust sign "${target}"
+                    ;;
+                "fedramp")
+                    AWS_PROFILE=govPreProd exec_cmd_or_retry docker --config "${docker_config_default_dir}" push "${target}"
                     ;;
                 *)
                     #target registry not recognized, default to simple docker push.
@@ -118,8 +121,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 
 #Define docker config file locations based on different image registry providers
 docker_config_hub_dir="/root/.docker-hub"
-docker_config_ecr_dir="/root/.docker"
-docker_config_artifactory_dir="/root/.docker-artifactory"
+docker_config_default_dir="/root/.docker"
 
 #Pull down Docker Trust JSON on signature data
 signed_tags=$(docker trust inspect "${DOCKER_HUB_REGISTRY}/${product_to_deploy}" | jq "[.[0].SignedTags[].SignedTag]")
@@ -138,7 +140,7 @@ for version in ${versions_to_deploy}; do
                 banner "Processing ${product_to_deploy} ${shim} ${jvm} ${version} ${arch}"
                 full_tag="${version}-${shim_long_tag}-${jvm}-${CI_TAG}-${arch}"
                 test -z "${dry_run}" &&
-                    docker --config "${docker_config_ecr_dir}" pull "${FOUNDATION_REGISTRY}/${product_to_deploy}:${full_tag}"
+                    docker --config "${docker_config_default_dir}" pull "${FOUNDATION_REGISTRY}/${product_to_deploy}:${full_tag}"
                 for target_registry in ${registry_list}; do
                     target_registry=$(toLower "${target_registry}")
                     case "${target_registry}" in
@@ -147,6 +149,9 @@ for version in ${versions_to_deploy}; do
                             ;;
                         "dockerhub")
                             target_registry_url="${DOCKER_HUB_REGISTRY}"
+                            ;;
+                        "fedramp")
+                            target_registry_url="${FEDRAMP_REGISTRY}"
                             ;;
                         *)
                             target_registry_url="${target_registry}"
