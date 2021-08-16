@@ -411,10 +411,6 @@ setupDockerConfigJson() {
     echo "Using Docker config.json '${DOCKER_CONFIG_JSON}'"
     mkdir -p "${docker_config_default_dir}"
     cp "${DOCKER_CONFIG_JSON}" "${docker_config_default_dir}/config.json"
-
-    # In order to initialize the docker login to ecr, a single docker pull needs
-    # to occur.  This basically primes the pump for docker builds with FROMs later on
-    docker --config "${docker_config_default_dir}" pull "${PIPELINE_BUILD_REGISTRY}/ci-utils/hello:latest"
 }
 
 #Define docker config file locations based on different image registry providers
