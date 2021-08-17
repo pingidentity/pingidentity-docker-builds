@@ -139,11 +139,6 @@ if test -z "${versionsToBuild}"; then
     fi
 fi
 
-if test -z "${IS_LOCAL_BUILD}" && test ${DOCKER_BUILDKIT} -eq 1; then
-    docker pull "${FOUNDATION_REGISTRY}/pingcommon:${CI_TAG}-${ARCH}"
-    docker pull "${FOUNDATION_REGISTRY}/pingdatacommon:${CI_TAG}-${ARCH}"
-fi
-
 # result table header
 _resultsFile="/tmp/$$.results"
 _reportPattern='%-23s| %-20s| %-20s| %-10s| %10s| %7s'
@@ -231,10 +226,6 @@ for _version in ${versionsToBuild}; do
         fi
 
         for _jvm in ${_jvmsToBuild}; do
-            if test -z "${IS_LOCAL_BUILD}" && test ${DOCKER_BUILDKIT} -eq 1; then
-                docker pull "${FOUNDATION_REGISTRY}/pingjvm:${_jvm}-${_shimLongTag}-${CI_TAG}-${ARCH}"
-            fi
-
             fullTag="${_buildVersion}-${_shimLongTag}-${_jvm}-${CI_TAG}-${ARCH}"
             imageVersion="${productToBuild}-${_shimLongTag}-${_jvm}-${_buildVersion}-${_date}-${GIT_REV_SHORT}"
             licenseVersion="$(_getLicenseVersion "${_version}")"
