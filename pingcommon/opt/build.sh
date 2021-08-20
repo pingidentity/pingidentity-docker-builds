@@ -87,6 +87,10 @@ case "${_osID}" in
             fi
             yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
             yum -y install jq inotify-tools
+
+            #Run unregister subscriptions upon any exit. This keeps our usage of subscriptions down.
+            trap "subscription-manager unregister" EXIT
+
             subscription-manager register --username "${RHEL_USER}" --password "${RHEL_PASSWORD}" --auto-attach
         fi
         _versionID=$(awk '$0~/^VERSION_ID=/{split($1,version,"=");gsub(/"/,"",version[2]);print version[2];}' /etc/os-release)
@@ -105,9 +109,6 @@ case "${_osID}" in
         # shellcheck disable=SC2086
         yum -y install --releasever "${_versionID}" ${_packages}
         yum -y clean all
-        if test "${_osID}" = "rhel"; then
-            subscription-manager unregister
-        fi
         rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki
 
         # Create user and group
@@ -151,3 +152,5 @@ fixPermissions
 rm -f "${0}"
 set +x
 echo "Build done."
+
+exit 0

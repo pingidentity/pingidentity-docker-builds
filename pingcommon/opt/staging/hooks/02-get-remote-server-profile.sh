@@ -87,6 +87,8 @@ getProfile() {
             # Don't show clone error if the URL should be redacted
             if test "${SERVER_PROFILE_URL_REDACT}" != "true"; then
                 cat "${_gitCloneStderrFile}"
+            else
+                grep -v "${serverProfileUrl}" "${_gitCloneStderrFile}"
             fi
             rm "${_gitCloneStderrFile}"
             container_failure 141 "Git clone failure"
