@@ -21,7 +21,6 @@ intel.b.pingdataconsole:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdataconsole(?:$|,)/i
 
 arm.b.pingdataconsole:
@@ -45,7 +44,6 @@ arm.b.pingdataconsole:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdataconsole(?:$|,)/i
 
 ################################################

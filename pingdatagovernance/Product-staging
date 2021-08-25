@@ -1,19 +1,44 @@
-ARG REGISTRY
+#
+# Ping Identity DevOps - PingDataGovernance Product Staging Dockerfile
+#
+# This Dockerfile retrieves product specific bits and places them in opt/server
+# All ARG inputs are defined in the `docker image build` call from build_product.sh
+#
+
+# Image registry to pull pingdownloader from
+ARG FOUNDATION_REGISTRY
+
+# Unique identifier used in docker tag to pull correct pingdownloader image
 ARG GIT_TAG
+
+# The OS architecture of pingdownloader
 ARG ARCH
 
-FROM ${REGISTRY}/pingdownloader:1.0-alpine-alnoj-${GIT_TAG}-${ARCH} as staging
-ARG PRODUCT=pingdatagovernance
+FROM ${FOUNDATION_REGISTRY}/pingdownloader:1.0-alpine-alnoj-${GIT_TAG}-${ARCH} as staging
+
+# Which product bits to retrieve
+ARG PRODUCT
+
+# Which product version to retrieve
 ARG VERSION
+
+# Devops user to authenticate with pingdownloader
 ARG DEVOPS_USER
+
+# Devops key to authenticate with pingdownloader
 ARG DEVOPS_KEY
-ARG VERBOSE
+
+# If set to `--snapshot`, retrieve latest snapshot build of the specified product instead
 ARG PING_IDENTITY_SNAPSHOT
-ARG SNAPSHOT_NEXUS_URL
+
+# URL location to retrieve snapshot product bits from
+ARG SNAPSHOT_URL
+
+# All executed commands are printed to the console
+ARG VERBOSE
 
 COPY tmp /tmp
 
-ENV SNAPSHOT_NEXUS_URL=${SNAPSHOT_NEXUS_URL}
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} \
         --version ${VERSION} \
@@ -21,6 +46,7 @@ RUN /get-bits.sh --product ${PRODUCT} \
         --devops-key ${DEVOPS_KEY} \
         --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
         ${PING_IDENTITY_SNAPSHOT} \
+        --snapshot-url ${SNAPSHOT_URL} \
         --verify-gpg-signature \
     && unzip -q /tmp/product.zip -d /tmp/ \
         -x *.bat \
@@ -41,5 +67,5 @@ RUN /get-bits.sh --product ${PRODUCT} \
 	&& mv /tmp/PingDataGovernance /opt/server 
 
 FROM scratch
-# get the product staged above (single slender layer)
+# Get the product staged above into one layer
 COPY --from=staging ["/opt/","/opt/"]

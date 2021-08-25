@@ -1,23 +1,54 @@
-ARG REGISTRY
+#
+# Ping Identity DevOps - PingCentral Product Staging Dockerfile
+#
+# This Dockerfile retrieves product specific bits and places them in opt/server
+# All ARG inputs are defined in the `docker image build` call from build_product.sh
+#
+
+# Image registry to pull pingdownloader from
+ARG FOUNDATION_REGISTRY
+
+# Unique identifier used in docker tag to pull correct pingdownloader image
 ARG GIT_TAG
+
+# The OS architecture of pingdownloader
 ARG ARCH
 
-FROM ${REGISTRY}/pingdownloader:1.0-alpine-alnoj-${GIT_TAG}-${ARCH} as staging
-ARG PRODUCT=pingcentral
-ARG VERSION=1.2.0
-ARG PING_IDENTITY_SNAPSHOT
-ARG SNAPSHOT_ARTIFACTORY_URL
-ARG PING_IDENTITY_GITLAB_TOKEN
-ARG INTERNAL_GITLAB_URL
+FROM ${FOUNDATION_REGISTRY}/pingdownloader:1.0-alpine-alnoj-${GIT_TAG}-${ARCH} as staging
+
+# Which product bits to retrieve
+ARG PRODUCT
+
+# Which product version to retrieve
+ARG VERSION
+
+# Devops user to authenticate with pingdownloader
 ARG DEVOPS_USER
+
+# Devops key to authenticate with pingdownloader
 ARG DEVOPS_KEY
+
+# If set to `--snapshot`, retrieve latest snapshot build of the specified product instead
+ARG PING_IDENTITY_SNAPSHOT
+
+# URL location to retrieve snapshot product bits from
+ARG SNAPSHOT_URL
+
+# All executed commands are printed to the console
 ARG VERBOSE
+
+# Token used to retrieve snapshot bits for pingcentral
+ARG PING_IDENTITY_GITLAB_TOKEN
+
+# Pingcentral product bits GitLab URL
+ARG INTERNAL_GITLAB_URL
 
 COPY tmp /tmp
 
-ENV SNAPSHOT_ARTIFACTORY_URL=${SNAPSHOT_ARTIFACTORY_URL}
+# Make these variables available to get-bits.sh and get-snapshots.sh
 ENV PING_IDENTITY_GITLAB_TOKEN=${PING_IDENTITY_GITLAB_TOKEN}
 ENV INTERNAL_GITLAB_URL=${INTERNAL_GITLAB_URL}
+
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} \
         --version ${VERSION} \
@@ -25,10 +56,12 @@ RUN /get-bits.sh --product ${PRODUCT} \
         --devops-key ${DEVOPS_KEY} \
         --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
         ${PING_IDENTITY_SNAPSHOT} \
+        --snapshot-url ${SNAPSHOT_URL} \
         --verify-gpg-signature \
 	&& unzip -q /tmp/product.zip -d /tmp/ \
 	&& find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
 	&& mv /tmp/ping-central-* /opt/server
 
 FROM scratch
+# Get the product staged above into one layer
 COPY --from=staging ["/opt/","/opt/"]

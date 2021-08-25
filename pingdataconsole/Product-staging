@@ -1,14 +1,43 @@
-ARG REGISTRY
+#
+# Ping Identity DevOps - PingDataConsole Product Staging Dockerfile
+#
+# This Dockerfile retrieves product specific bits and places them in opt/server
+# All ARG inputs are defined in the `docker image build` call from build_product.sh
+#
+
+# Image registry to pull pingdownloader from
+ARG FOUNDATION_REGISTRY
+
+# Unique identifier used in docker tag to pull correct pingdownloader image
 ARG GIT_TAG
+
+# The OS architecture of pingdownloader
 ARG ARCH
 
-FROM ${REGISTRY}/pingdownloader:1.0-alpine-alnoj-${GIT_TAG}-${ARCH} as staging
-# place the software being delivered in a conspicuous, unix-correct location
+FROM ${FOUNDATION_REGISTRY}/pingdownloader:1.0-alpine-alnoj-${GIT_TAG}-${ARCH} as staging
+
+# Which product bits to retrieve
 ARG PRODUCT
+
+# Which product version to retrieve
 ARG VERSION
+
+# Devops user to authenticate with pingdownloader
 ARG DEVOPS_USER
+
+# Devops key to authenticate with pingdownloader
 ARG DEVOPS_KEY
+
+# If set to `--snapshot`, retrieve latest snapshot build of the specified product instead
+ARG PING_IDENTITY_SNAPSHOT
+
+# URL location to retrieve snapshot product bits from
+ARG SNAPSHOT_URL
+
+# All executed commands are printed to the console
 ARG VERBOSE
+
+# Apache Tomcat dependency variables
 ARG DEPENDENCY_0_PRODUCT
 ARG DEPENDENCY_0_VERSION
 
@@ -51,6 +80,8 @@ RUN /get-bits.sh \
         --devops-user ${DEVOPS_USER} \
         --devops-key ${DEVOPS_KEY} \
         --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
+        ${PING_IDENTITY_SNAPSHOT} \
+        --snapshot-url ${SNAPSHOT_URL} \
         --verify-gpg-signature \
     && unzip -q -d /tmp/ /tmp/product.zip PingDirectory/resource/admin-console.zip \
 	&& unzip -q -d /tmp/ /tmp/PingDirectory/resource/admin-console.zip admin-console.war \
@@ -61,4 +92,5 @@ RUN /get-bits.sh \
         -x *unboundid-ldapsdk-*.jar
 
 FROM scratch
+# Get the product staged above into one layer
 COPY --from=staging ["/opt/","/opt/"]

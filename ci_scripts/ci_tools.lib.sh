@@ -317,7 +317,7 @@ _getLatestSnapshotVersionForProduct() {
     _baseURL="${SNAPSHOT_NEXUS_URL}"
     _basePath="com/unboundid/product/ds"
     case "${1}" in
-        pingdirectory)
+        pingdirectory | pingdataconsole)
             _product="directory"
             ;;
         pingdirectoryproxy)
@@ -337,7 +337,7 @@ _getLatestSnapshotVersionForProduct() {
 
     esac
     case "${1}" in
-        pingdatagovernance | pingdatagovernancepap | pingdatasync | pingdirectory | pingdirectoryproxy | pingauthorize | pingauthorizepap)
+        pingdataconsole | pingdatagovernance | pingdatagovernancepap | pingdatasync | pingdirectory | pingdirectoryproxy | pingauthorize | pingauthorizepap)
             _curl "${_baseURL}/${_basePath}/${_product}/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/latest)' -
             ;;
         pingdelegator)
