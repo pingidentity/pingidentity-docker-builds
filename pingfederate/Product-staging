@@ -1,34 +1,52 @@
-ARG REGISTRY
+#
+# Ping Identity DevOps - PingFederate Product Staging Dockerfile
+#
+# This Dockerfile retrieves product specific bits and places them in opt/server
+# All ARG inputs are defined in the `docker image build` call from build_product.sh
+#
+
+# Image registry to pull pingdownloader from
+ARG FOUNDATION_REGISTRY
+
+# Unique identifier used in docker tag to pull correct pingdownloader image
 ARG GIT_TAG
+
+# The OS architecture of pingdownloader
 ARG ARCH
 
-FROM ${REGISTRY}/pingdownloader:1.0-alpine-alnoj-${GIT_TAG}-${ARCH} as staging
-ARG PRODUCT
-ARG VERSION
-ARG PING_IDENTITY_SNAPSHOT
-ARG SNAPSHOT_BLD_FED_URL
+FROM ${FOUNDATION_REGISTRY}/pingdownloader:1.0-alpine-alnoj-${GIT_TAG}-${ARCH} as staging
 
+# Which product bits to retrieve
+ARG PRODUCT
+
+# Which product version to retrieve
+ARG VERSION
+
+# Devops user to authenticate with pingdownloader
+ARG DEVOPS_USER
+
+# Devops key to authenticate with pingdownloader
+ARG DEVOPS_KEY
+
+# If set to `--snapshot`, retrieve latest snapshot build of the specified product instead
+ARG PING_IDENTITY_SNAPSHOT
+
+# URL location to retrieve snapshot product bits from
+ARG SNAPSHOT_URL
+
+# All executed commands are printed to the console
+ARG VERBOSE
 
 # MODE could be standalone, engine, upgrade
 # the idea is to produce images with just-enough for their intended use
 # to improve bootstrap time and reduce pressure on backhaul 
 ARG MODE=standalone
 
-ARG DEVOPS_USER
-ARG DEVOPS_KEY
-ARG VERBOSE
-
 COPY tmp /tmp
 
-# copy your product zip file into the staging image
-#
-# For the record, the "|| :" expression means "or null"
-# the null operator is no-op here but allows the subshell to return success either way 
-
-# The line below avoids extracting the upgrade utility
+# Adding the line below to the unzip command avoids extracting the upgrade utility
 #        -x pingfederate-*/pingfederate/upgrade/* \
 
-ENV SNAPSHOT_BLD_FED_URL=${SNAPSHOT_BLD_FED_URL}
 # copy your product zip file into the staging image
 RUN /get-bits.sh --product ${PRODUCT} \
         --version ${VERSION} \
@@ -36,6 +54,7 @@ RUN /get-bits.sh --product ${PRODUCT} \
         --devops-key ${DEVOPS_KEY} \
         --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
         ${PING_IDENTITY_SNAPSHOT} \
+        --snapshot-url ${SNAPSHOT_URL} \
         --verify-gpg-signature \
 	&& unzip -q /tmp/product.zip -d /tmp/ \
         -x */pingfederate-service-installer.jar \
@@ -46,9 +65,6 @@ RUN /get-bits.sh --product ${PRODUCT} \
   && mv /tmp/${PRODUCT}-*/${PRODUCT} /opt/server \
   && mkdir -p /opt/out/instance/server/default/data
 
-
-
-# Flatten the bits layers to provide a compact product layer for all shims
 FROM scratch
-# get the product staged above (single slender layer)
+# Get the product staged above into one layer
 COPY --from=staging ["opt/","/opt/"]

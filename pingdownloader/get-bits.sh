@@ -20,31 +20,32 @@ be downloaded.  If the -l option is provided then only a license will be
 downloaded.  If a license is pulled, a Ping DevOps Key/User is required.
 
 Options include:
-    *-p, --product {product-name}    The name of the product bits/license to download
-    -v, --version {version-num}      The version of the product bits/license to download.
-                                     by default, the downloader will pull the
-                                     latest version
-    -u, --devops-user {devops-user}  Your Ping DevOps Username
-                                     Alternately, you may pass PING_IDENTITY_DEVOPS_USER
-                                     environment variable
-    -k, --devops-key {devops-key}    Your Ping DevOps Key
-                                     Alternately, you may pass PING_IDENTITY_DEVOPS_KEY
-                                     environment variable
-    -a, --devops-app {app-name}      Your App Name
-    -r, --repository                 The URL of the repository to use to get the bits
-    -m, --metadata-file              The file name with the repository metadata
+    *-p, --product {product-name}   The name of the product bits/license to download
+    -v, --version {version-num}     The version of the product bits/license to download.
+                                    by default, the downloader will pull the
+                                    latest version
+    -u, --devops-user {devops-user} Your Ping DevOps Username
+                                    Alternately, you may pass PING_IDENTITY_DEVOPS_USER
+                                    environment variable
+    -k, --devops-key {devops-key}   Your Ping DevOps Key
+                                    Alternately, you may pass PING_IDENTITY_DEVOPS_KEY
+                                    environment variable
+    -a, --devops-app {app-name}     Your App Name
+    -r, --repository                The URL of the repository to use to get the bits
+    -m, --metadata-file             The file name with the repository metadata
 
 For product downloads:
-    -c, --conserve-name              Use this option to conserve the original
-                                     file name by default, the downloader will
-                                     rename the file product.zip or the file name
-                                     provided
-    -f, --file-name                  file name to use for the product zip file
-    -n, --dry-run:                   This will cause the URL to be displayed
-                                     but the the bits not to be downloaded
-    --verify-gpg-signature           Verify the GPG signature. The bits are removed in
-                                     the event verification fails
+    -c, --conserve-name             Use this option to conserve the original
+                                    file name by default, the downloader will
+                                    rename the file product.zip or the file name
+                                    provided
+    -f, --file-name                 file name to use for the product zip file
+    -n, --dry-run                   This will cause the URL to be displayed
+                                    but the the bits not to be downloaded
+    --verify-gpg-signature          Verify the GPG signature. The bits are removed in
+                                    the event verification fails
     --snapshot                      Get snapshot build (Ping Internal)
+    --snapshot-url                  Get snapshot build from URL (Ping Internal)
 
 
 For license downloads:
@@ -333,7 +334,6 @@ dryRun=""
 # Default to the user/key that may have been provided via the devops environment file
 devopsUser="${PING_IDENTITY_DEVOPS_USER}"
 devopsKey="${PING_IDENTITY_DEVOPS_KEY}"
-getSnapshot="${PING_IDENTITY_SNAPSHOT}"
 # default to GTE public repo in S3
 repositoryURL="https://bits.pingidentity.com/"
 licenseURL="https://license.pingidentity.com/devops/v2/license"
@@ -382,6 +382,11 @@ while test -n "${1}"; do
         --snapshot)
             getSnapshot=true
             ;;
+        --snapshot-url)
+            shift
+            test -z "${1}" && usage "Missing snapshot url for provided --snapshot-url flag"
+            snapshot_url="${1}"
+            ;;
         -r | --repository)
             shift
             test -z "${1}" && usage "Missing repository URL"
@@ -416,7 +421,7 @@ fi
 
 # If we weren't passed a product option, then error
 test -z "${product}" && usage "Option --product {product} required"
-test -n "${getSnapshot}" && exec /get-snapshots.sh "${product}"
+test -n "${getSnapshot}" && exec /get-snapshots.sh "${product}" "${snapshot_url}"
 
 test -z "${devopsUser}" && usage "Option --devops-user {devops-user} required for eval license"
 test -z "${devopsKey}" && usage "Option --devops-key {devops-key} required for eval license"

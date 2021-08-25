@@ -35,27 +35,21 @@ _curlSafeFile() {
 }
 
 _getURLForProduct() {
-    _baseURL="${SNAPSHOT_NEXUS_URL}"
     case "${1}" in
         symphonic-pap-packaged)
-            _basePath="com/pingidentity/pd/governance"
-            _url="${_baseURL:+${_baseURL}/${_basePath}/${1}}"
+            _url="${snapshot_url}/com/pingidentity/pd/governance/${1}"
             ;;
         directory | proxy | sync | broker)
-            _basePath="com/unboundid/product/ds"
-            _url="${_baseURL:+${_baseURL}/${_basePath}/${1}}"
+            _url="${snapshot_url}/com/unboundid/product/ds/${1}"
             ;;
-        pingfederate)
-            _url="${SNAPSHOT_BLD_FED_URL}"
+        pingfederate | pingdelegator)
+            _url="${snapshot_url}"
             ;;
         pingcentral)
-            _url="${SNAPSHOT_ARTIFACTORY_URL}/pass/pass-common"
+            _url="${snapshot_url}/pass/pass-common"
             ;;
         pingaccess)
-            _url="${SNAPSHOT_ARTIFACTORY_URL}/products/pingaccess"
-            ;;
-        pingdelegator)
-            _url="${SNAPSHOT_DELEGATOR_URL}"
+            _url="${snapshot_url}/products/pingaccess"
             ;;
         *)
             _url=""
@@ -175,6 +169,8 @@ case "${1}" in
         exit 4
         ;;
 esac
+
+snapshot_url="${2}"
 
 if test -n "${_product}"; then
     _version=$(_getLatestSnapshotVersionForProduct "${_product}")

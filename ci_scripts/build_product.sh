@@ -100,14 +100,25 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
+# Handle snapshot pipeline logic and requirements
 if test -n "${PING_IDENTITY_SNAPSHOT}"; then
     if test -z "${PING_IDENTITY_GITLAB_TOKEN}"; then
         echo "the PING_IDENTITY_GITLAB_TOKEN must be provided for snapshot"
         exit 96
     fi
     case "${productToBuild}" in
-        pingaccess | pingauthorize | pingauthorizepap | pingcentral | pingdatasync | pingdatagovernance | pingdatagovernancepap | pingdirectory | pingdirectoryproxy | pingdelegator | pingfederate) ;;
-
+        pingaccess | pingcentral)
+            snapshot_url="${SNAPSHOT_ARTIFACTORY_URL}"
+            ;;
+        pingfederate)
+            snapshot_url="${SNAPSHOT_BLD_FED_URL}"
+            ;;
+        pingdelegator)
+            snapshot_url="${SNAPSHOT_DELEGATOR_URL}"
+            ;;
+        pingauthorize | pingauthorizepap | pingdataconsole | pingdatasync | pingdatagovernance | pingdatagovernancepap | pingdirectory | pingdirectoryproxy)
+            snapshot_url="${SNAPSHOT_NEXUS_URL}"
+            ;;
         pingdownloader)
             #Build pingdownloader normally in a snapshot pipeline as there is no "snapshot bits" for downloader.
             unset PING_IDENTITY_SNAPSHOT
@@ -171,7 +182,14 @@ for _version in ${versionsToBuild}; do
             _buildVersion="${_version}-fsoverride"
         fi
         _start=$(date '+%s')
-        _dependencies=$(_getDependenciesForProductVersion "${productToBuild}" "${_version}")
+        # In the snapshot pipeline, provide the latest version in the product's version.json
+        # for the dependency check, as the snapshot version is not present in the versions.json
+        if test -n "${PING_IDENTITY_SNAPSHOT}"; then
+            dependency_check_version="${latestVersion}"
+        else
+            dependency_check_version="${_version}"
+        fi
+        _dependencies=$(_getDependenciesForProductVersion "${productToBuild}" "${dependency_check_version}")
         _image="${FOUNDATION_REGISTRY}/${productToBuild}:staging-${_buildVersion}-${CI_TAG}"
         # build the staging for each product so we don't need to download and stage the product each time
         # Word-split is expected behavior for $progress and $_dependencies. Disable shellcheck.
@@ -180,7 +198,7 @@ for _version in ${versionsToBuild}; do
             -f "${CI_PROJECT_DIR}/${productToBuild}/Product-staging" \
             -t "${_image}" \
             ${progress} ${noCache} \
-            --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
+            --build-arg FOUNDATION_REGISTRY="${FOUNDATION_REGISTRY}" \
             --build-arg DEPS="${DEPS_REGISTRY}" \
             --build-arg GIT_TAG="${CI_TAG}" \
             --build-arg ARCH="${ARCH}" \
@@ -188,13 +206,10 @@ for _version in ${versionsToBuild}; do
             --build-arg DEVOPS_KEY="${PING_IDENTITY_DEVOPS_KEY}" \
             --build-arg PRODUCT="${productToBuild}" \
             --build-arg VERSION="${_buildVersion}" \
-            --build-arg SNAPSHOT_ARTIFACTORY_URL="${SNAPSHOT_ARTIFACTORY_URL}" \
-            --build-arg SNAPSHOT_BLD_FED_URL="${SNAPSHOT_BLD_FED_URL}" \
-            --build-arg SNAPSHOT_NEXUS_URL="${SNAPSHOT_NEXUS_URL}" \
-            --build-arg SNAPSHOT_DELEGATOR_URL="${SNAPSHOT_DELEGATOR_URL}" \
-            --build-arg INTERNAL_GITLAB_URL="${INTERNAL_GITLAB_URL}" \
             ${PING_IDENTITY_SNAPSHOT:+--build-arg PING_IDENTITY_SNAPSHOT="${PING_IDENTITY_SNAPSHOT}"} \
-            ${PING_IDENTITY_GITLAB_TOKEN:+--build-arg PING_IDENTITY_GITLAB_TOKEN="${PING_IDENTITY_GITLAB_TOKEN}"} \
+            ${PING_IDENTITY_SNAPSHOT:+--build-arg PING_IDENTITY_GITLAB_TOKEN="${PING_IDENTITY_GITLAB_TOKEN}"} \
+            ${PING_IDENTITY_SNAPSHOT:+--build-arg INTERNAL_GITLAB_URL="${INTERNAL_GITLAB_URL}"} \
+            ${PING_IDENTITY_SNAPSHOT:+--build-arg SNAPSHOT_URL="${snapshot_url}"} \
             ${VERBOSE:+--build-arg VERBOSE="true"} \
             ${_dependencies} \
             "${CI_PROJECT_DIR}/${productToBuild}"
