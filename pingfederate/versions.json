@@ -47,7 +47,7 @@
             ]
         },
         {
-            "version": "10.2.4",
+            "version": "10.2.5",
             "preferredShim": "alpine:3.14",
             "shims": [
                 {
