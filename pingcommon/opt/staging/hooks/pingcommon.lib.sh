@@ -414,7 +414,7 @@ sleep_at_most() {
 ###############################################################################
 get_value() {
     # the following will preserve spaces in the printf
-    IFS="%%"
+    IFS=""
     value="$(eval printf '%s' "\${${1}}")"
     checkFile="$(toLower "${2}")"
     if test -z "${value}" && test "${checkFile}" = "true"; then
