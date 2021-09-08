@@ -169,7 +169,7 @@ _getDependenciesForProductVersion() {
 
 # get the long tag
 _getLongTag() {
-    echo "${1}" | awk '{gsub(/:/,"_");print}'
+    echo "${1}" | awk '{gsub(/[:\/]/,"_");print}'
 }
 
 # get the short tag

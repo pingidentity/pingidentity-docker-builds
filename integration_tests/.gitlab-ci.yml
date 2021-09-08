@@ -147,7 +147,7 @@ intel.pa-pf-pd.latest:
 intel.pa-pf-pd-FIPS.latest:
   stage: test.integration
   script:
-    - SHIM=rhel7_7.9 ci_scripts/run_integration.sh pa-pf-pd-FIPS.latest rl11
+    - SHIM=redhat_ubi_ubi8_8.3 ci_scripts/run_integration.sh pa-pf-pd-FIPS.latest rl11
   only:
     changes:
       - integration_tests/**/pa-pf-pd*
