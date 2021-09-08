@@ -2,7 +2,7 @@ version: "2.4"
 
 services:
   pingaccess:
-    image: pingidentity/pingaccess:6.3.0-Beta-rhel7_7.9-rl11-${GIT_TAG}-x86_64
+    image: pingidentity/pingaccess:6.3.0-Beta-redhat_ubi_ubi8_8.3-rl11-${GIT_TAG}-x86_64
     command: wait-for pingfederate:9031 -t 2100 -- entrypoint.sh start-server
     environment:
       - PING_IDENTITY_ACCEPT_EULA=YES
@@ -37,7 +37,7 @@ services:
       - pingdirectory
 
   pingfederate:
-    image: pingidentity/pingfederate:10.3.0-rhel7_7.9-rl11-${GIT_TAG}-x86_64
+    image: pingidentity/pingfederate:10.3.0-redhat_ubi_ubi8_8.3-rl11-${GIT_TAG}-x86_64
     command: wait-for pingdirectory:1636 -t 1800 -- entrypoint.sh start-server
     environment:
       - PING_IDENTITY_ACCEPT_EULA=YES
@@ -73,7 +73,7 @@ services:
       - pingdirectory
 
   pingdirectory:
-    image: pingidentity/pingdirectory:8.3.0.0-rhel7_7.9-rl11-${GIT_TAG}-x86_64
+    image: pingidentity/pingdirectory:8.3.0.0-redhat_ubi_ubi8_8.3-rl11-${GIT_TAG}-x86_64
     environment:
       - PING_IDENTITY_ACCEPT_EULA=YES
       - PING_IDENTITY_DEVOPS_USER=arno@pingidentity.com

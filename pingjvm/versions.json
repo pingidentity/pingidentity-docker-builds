@@ -36,10 +36,10 @@
             "archs": ["x86_64","aarch64"]
         },
         {
-            "shims": ["rhel7:7.9"],
+            "shims": ["redhat/ubi/ubi8:8.3"],
             "id": "rl11",
             "version": "11",
-            "from": "rhel7/rhel:7.9",
+            "from": "redhat/ubi/ubi8:8.3",
             "archs": ["x86_64"]
         }
     ]

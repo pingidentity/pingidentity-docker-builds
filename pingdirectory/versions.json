@@ -38,7 +38,7 @@
                     ]
                 },
                 {
-                    "shim": "rhel7:7.9",
+                    "shim": "redhat/ubi/ubi8:8.3",
                     "preferredJVM": "rl11",
                     "jvms": [
                         {
@@ -83,7 +83,7 @@
                     ]
                 },
                 {
-                    "shim": "rhel7:7.9",
+                    "shim": "redhat/ubi/ubi8:8.3",
                     "preferredJVM": "rl11",
                     "jvms": [
                         {
