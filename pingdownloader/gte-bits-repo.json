@@ -96,7 +96,7 @@
         {
             "name": "pingintelligence",
             "mapping": "PingIntelligence-ASE-rhel-${version}.zip",
-            "latestVersion": "4.5"
+            "latestVersion": "5.0.1"
         }
     ]
 }
