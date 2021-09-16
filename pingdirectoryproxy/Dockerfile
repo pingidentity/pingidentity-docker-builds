@@ -53,6 +53,8 @@ ENV SHIM=${SHIM} \
 
 #-- Ping product name
     PING_PRODUCT=PingDirectoryProxy \
+#-- License directory
+    LICENSE_DIR="${STAGING_DIR}/pd.profile/server-root/pre-setup" \
 #-- Name of license File
     LICENSE_FILE_NAME=PingDirectory.lic \
 #-- Short name used when retrieving license from License Server
