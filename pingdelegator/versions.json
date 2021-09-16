@@ -2,6 +2,27 @@
     "latest": "4.6.0",
     "versions": [
         {
+            "version": "4.7.0",
+            "preferredShim": "alpine:3.14",
+            "shims": [
+                {
+                    "shim": "alpine:3.14",
+                    "preferredJVM": "alnoj",
+                    "jvms": [
+                        {
+                            "jvm": "alnoj",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub",
+                                "Artifactory"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "version": "4.6.0",
             "preferredShim": "alpine:3.14",
             "shims": [

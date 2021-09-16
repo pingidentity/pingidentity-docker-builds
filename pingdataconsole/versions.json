@@ -2,6 +2,42 @@
     "latest": "8.3.0.1",
     "versions": [
         {
+            "version": "9.0.0.0-EA",
+            "preferredShim": "alpine:3.14",
+            "shims": [
+                {
+                    "shim": "alpine:3.14",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub",
+                                "Artifactory"
+                            ]
+                        },
+                        {
+                            "jvm": "al11",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub",
+                                "Artifactory"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "dependencies": [
+                {
+                    "product": "apache-tomcat",
+                    "version": "9.0.48"
+                }
+            ]
+        },
+        {
             "version": "8.3.0.1",
             "preferredShim": "alpine:3.14",
             "shims": [
