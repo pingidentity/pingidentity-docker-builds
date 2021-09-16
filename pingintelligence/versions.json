@@ -1,8 +1,8 @@
 {
-    "latest":"5.0",
+    "latest":"5.0.1",
     "versions":[
         {
-            "version": "5.0",
+            "version": "5.0.1",
             "preferredShim": "centos:7.6.1810",
             "shims":[
                 {
