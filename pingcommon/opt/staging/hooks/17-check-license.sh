@@ -14,13 +14,6 @@ test "${VERBOSE}" = "true" && set -x
 # shellcheck source=./pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-#check if license directory exists, and if not then creates
-if [ -d "${LICENSE_DIR}" ]; then
-    echo "License directory exists"
-else
-    mkdir -p "${LICENSE_DIR}"
-fi
-
 LICENSE_FILE="${LICENSE_DIR}/${LICENSE_FILE_NAME}"
 _licenseAPI="https://license.pingidentity.com/devops/license"
 _checkLicenceAPI="https://license.pingidentity.com/devops/check-license"

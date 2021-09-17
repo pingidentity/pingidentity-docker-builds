@@ -63,8 +63,6 @@ ENV SHIM=${SHIM} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
 #-- Ping product name
     PING_PRODUCT=PingDataGovernance \
-#-- License directory
-    LICENSE_DIR="${STAGING_DIR}/pd.profile/server-root/pre-setup" \
 #-- Name of license file
     LICENSE_FILE_NAME=PingDataGovernance.lic \
 #-- Short name used when retrieving license from License Server
