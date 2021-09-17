@@ -2,6 +2,51 @@
     "latest": "6.3.1",
     "versions": [
         {
+            "version": "7.0.0-Beta",
+            "preferredShim": "alpine:3.14",
+            "shims": [
+                {
+                    "shim": "alpine:3.14",
+                    "preferredJVM": "az11",
+                    "jvms": [
+                        {
+                            "jvm": "az11",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub",
+                                "Artifactory"
+                            ]
+                        },
+                        {
+                            "jvm": "al11",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub",
+                                "Artifactory"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "shim": "redhat/ubi/ubi8:8.3",
+                    "preferredJVM": "rl11",
+                    "jvms": [
+                        {
+                            "jvm": "rl11",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "Artifactory",
+                                "Fedramp"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "version": "6.3.1",
             "preferredShim": "alpine:3.14",
             "shims": [
