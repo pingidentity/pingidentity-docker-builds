@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "4aa82ef9-c880-4029-a12a-d72073682290",
+		"_postman_id": "ad37d2e6-4950-49c9-9be0-4ea864810451",
 		"name": "pa-pf-pd",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1477,7 +1477,7 @@
 			"response": []
 		},
 		{
-			"name": "PF Admin API CHECK PingFederate has PingID adapter",
+			"name": "PF Admin API CHECK PingFederate has version",
 			"event": [
 				{
 					"listen": "test",
@@ -1499,14 +1499,9 @@
 							"",
 							"var jsonData = JSON.parse(responseBody);",
 							"",
-							"pm.test(\"id key is present\",function(){",
-							"    pm.expect(jsonData[\"id\"]).to.exist;",
+							"pm.test(\"version key is present\",function(){",
+							"    pm.expect(jsonData[\"version\"]).to.exist;",
 							"});",
-							"",
-							"pm.test(\"ID is as expected\",function(){",
-							"    pm.expect(jsonData[\"id\"]).to.be.equal(\"com.pingidentity.adapters.pingid.PingIDAdapter\");",
-							"});",
-							"",
 							""
 						],
 						"type": "text/javascript"
@@ -1550,7 +1545,7 @@
 					}
 				],
 				"url": {
-					"raw": "https://{{pf_admin_hostname}}:{{pf_admin_port}}/pf-admin-api/v1/idp/adapters/descriptors/com.pingidentity.adapters.pingid.PingIDAdapter",
+					"raw": "https://{{pf_admin_hostname}}:{{pf_admin_port}}/pf-admin-api/v1/version",
 					"protocol": "https",
 					"host": [
 						"{{pf_admin_hostname}}"
@@ -1559,10 +1554,7 @@
 					"path": [
 						"pf-admin-api",
 						"v1",
-						"idp",
-						"adapters",
-						"descriptors",
-						"com.pingidentity.adapters.pingid.PingIDAdapter"
+						"version"
 					]
 				}
 			},
