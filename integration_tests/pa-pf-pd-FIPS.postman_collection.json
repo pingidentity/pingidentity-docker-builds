@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "97b2242b-1279-4afa-8527-156dcead5068",
+		"_postman_id": "1a225836-10f7-4e91-9256-aa49540c110c",
 		"name": "pa-pf-pd-FIPS",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1440,12 +1440,8 @@
 							"",
 							"var jsonData = JSON.parse(responseBody);",
 							"",
-							"pm.test(\"id key is present\",function(){",
-							"    pm.expect(jsonData[\"id\"]).to.exist;",
-							"});",
-							"",
-							"pm.test(\"ID is as expected\",function(){",
-							"    pm.expect(jsonData[\"id\"]).to.be.equal(\"com.pingidentity.adapters.pingid.PingIDAdapter\");",
+							"pm.test(\"version key is present\",function(){",
+							"    pm.expect(jsonData[\"version\"]).to.exist;",
 							"});",
 							"",
 							""
@@ -1491,7 +1487,7 @@
 					}
 				],
 				"url": {
-					"raw": "https://{{pf_admin_hostname}}:{{pf_admin_port}}/pf-admin-api/v1/idp/adapters/descriptors/com.pingidentity.adapters.pingid.PingIDAdapter",
+					"raw": "https://{{pf_admin_hostname}}:{{pf_admin_port}}/pf-admin-api/v1/version",
 					"protocol": "https",
 					"host": [
 						"{{pf_admin_hostname}}"
@@ -1500,10 +1496,7 @@
 					"path": [
 						"pf-admin-api",
 						"v1",
-						"idp",
-						"adapters",
-						"descriptors",
-						"com.pingidentity.adapters.pingid.PingIDAdapter"
+						"version"
 					]
 				}
 			},
