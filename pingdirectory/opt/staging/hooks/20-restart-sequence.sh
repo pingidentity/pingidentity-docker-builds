@@ -73,16 +73,24 @@ fi
 export certificateOptions encryptionOption jvmOptions
 
 echo "Checking license file..."
-_currentLicense="${LICENSE_DIR}/${LICENSE_FILE_NAME}"
+_currentLicense="${SERVER_ROOT_DIR}/${LICENSE_FILE_NAME}"
 _pdProfileLicense="${PD_PROFILE}/server-root/pre-setup/${LICENSE_FILE_NAME}"
 
 if test ! -f "${_pdProfileLicense}"; then
-    echo "  Copying in license from existing install."
-    echo "    ${_currentLicense} ==> "
-    echo "      ${_pdProfileLicense}"
-    # Create the pre-setup directory if it doesn't already exist
-    mkdir -p "${PD_PROFILE}/server-root/pre-setup"
-    cp -f "${_currentLicense}" "${_pdProfileLicense}"
+    #check if license version differs from product version
+    _currentLicenseVer=$(cat < "${_currentLicense}" | grep 'Version' | sed 's/Version=//g')
+    if test "${LICENSE_VERSION}" != "${_currentLicenseVer}"; then
+        echo "PingDirectory instance version differs from licensed version. Querying license server."
+        #get a new license for the right version
+        run_hook "17-check-license.sh"
+    else
+        echo "  Copying in license from existing install."
+        echo "    ${_currentLicense} ==> "
+        echo "      ${_pdProfileLicense}"
+        # Create the pre-setup directory if it doesn't already exist
+        mkdir -p "${PD_PROFILE}/server-root/pre-setup"
+        cp -f "${_currentLicense}" "${_pdProfileLicense}"
+    fi
 else
     echo "Using new license from ${_pdProfileLicense}"
 fi
