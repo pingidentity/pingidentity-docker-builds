@@ -1259,14 +1259,8 @@ prepareToJoinTopology() {
     #Change the seed build out for pingDirectory-0 server that has been restarted and it's pvc lost
     if test "${_podInstanceName}" = "${_seedInstanceName}" &&
         test "${PD_STATE}" = "SETUP" && test "${ORCHESTRATION_TYPE}" = "KUBERNETES"; then
-        if test -z "${K8S_CLUSTERS}" &&
-            test -z "${K8S_CLUSTER}" &&
-            test -z "${K8S_SEED_CLUSTER}"; then
-            _IPList=$(getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}")
-        else
-            _IPList=$(getIPsForDomain "${K8S_CLUSTER}")
-        fi
-
+        #TODO: GDO-997 multi-region may need to look for local cluster OR remote cluster for a seed.
+        _IPList=$(getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}")
         for ip in ${_IPList}; do
             if test "$(getIP "${POD_HOSTNAME}")" != "${ip}"; then
                 SEED_HOSTNAME=${ip}
