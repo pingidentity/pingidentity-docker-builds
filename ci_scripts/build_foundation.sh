@@ -83,7 +83,7 @@ if test -z "${CI_COMMIT_REF_NAME}"; then
         cd "$(dirname "${0}")/.." || exit 97
         pwd
     )"
-    test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
+    test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 98
 fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
@@ -224,6 +224,7 @@ for _shim in ${shims}; do
         # shellcheck disable=SC2086
         DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
             ${progress} ${noCache} \
+            ${VERBOSE:+--build-arg VERBOSE="true"} \
             --build-arg SHIM="${_jvm_from}" \
             --build-arg DEPS="${DEPS_REGISTRY}" \
             -t "${_image}" "${CI_PROJECT_DIR}/pingjvm"

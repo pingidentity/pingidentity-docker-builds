@@ -12,14 +12,14 @@ if ! type java > /dev/null 2> /dev/null; then
     # _modules="java.base,java.compiler,java.datatransfer,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.jdwp.agent,jdk.httpserver,jdk.jcmd,jdk.localedata,jdk.management,jdk.management.agent,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.rmic,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom,jdk.zipfs"
     _jdkDir="$(mktemp -d)"
     _jdkArchive="${_jdkDir}/jdk.tgz"
-    JDK_VERSION="11.0.11+9"
+    JDK_VERSION="11.0.12+7"
     if test "aarch64" = "${_osArch}"; then
         _arch="${_osArch}"
-        _digest="d433d55d12ae6bd9072ecf7cf87686ed6ce31618"
+        _digest="5633780b728140cc16d73b0a2b6165f4a19afc4f"
     else
         # on Intel
         _arch="x64"
-        _digest="018389dfcda30ded2d83d2eff6244785fe9d86b4"
+        _digest="3ecb384285975e73b841f8cfe829e3cf5aac27ba"
     fi
     case "${_osID}" in
         alpine)
@@ -32,12 +32,12 @@ if ! type java > /dev/null 2> /dev/null; then
             _cmd="curl -o"
             _libc=""
             _arch="amd64"
-            _digest="9155fa3f259ed023fe945e84ae9447336ef8329c"
+            _digest="25095da274b159f4233a2b69eb4aea1dbd099e9b"
             ;;
     esac
     _jdkURL="https://download.bell-sw.com/java/${JDK_VERSION}/bellsoft-jdk${JDK_VERSION}-linux-${_arch}${_libc}.tar.gz"
     eval "${_cmd}" "${_jdkArchive}" "${_jdkURL}"
-    test "${_digest}" = "$(sha1sum "${_jdkArchive}" | awk '{print $1}')" || exit 97
+    test "${_digest}" = "$(sha1sum "${_jdkArchive}" | awk '{print $1}')" || exit 95
     ! type tar > /dev/null 2>&1 && _prefix="./busybox"
     ${_prefix} tar -C "${_jdkDir}" -xzf "${_jdkArchive}"
     rm "${_jdkArchive}"
