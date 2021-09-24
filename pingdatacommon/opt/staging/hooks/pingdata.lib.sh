@@ -818,7 +818,7 @@ buildRunPlan() {
                 # If there is only 1 host that is returned, and that host's IP is the same
                 # as the current _podHostName, then we can assured that this server is the first
                 # in the current statefulset to be started, and will mark as GENESIS
-                if test "${_numHosts}" -eq 1 && test "$(getIP "${POD_HOSTNAME}")" = "$(getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}")"; then
+                if test "${_numHosts}" -eq 1 && test "$(getIP "${_podName}")" = "$(getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}")"; then
                     echo "Verified that this host/ip is the only pod found in domain '${K8S_STATEFUL_SET_SERVICE_NAME}'"
                     PD_STATE="GENESIS"
                 fi
@@ -1207,9 +1207,18 @@ prepareToJoinTopology() {
     #
     #- * Ensures the PingData service has been started and accepts queries.
     #
+    _podName=$(getHostName)
+    _ordinal="${_podName##*-}"
     echo "Waiting until ${PING_PRODUCT} service is running on this Server (${_podInstanceName:?})"
-    echo "        ${POD_HOSTNAME:?}:${POD_LDAPS_PORT:?}"
-    waitUntilLdapUp "${POD_HOSTNAME}" "${POD_LDAPS_PORT}" ""
+    echo "        ${_podName:?}:${POD_LDAPS_PORT:?}"
+
+    waitUntilLdapUp "${_podName}" "${POD_LDAPS_PORT}" ""
+
+    if test "${ORCHESTRATION_TYPE}" = "KUBERNETES"; then
+        if test -n "${K8S_POD_HOSTNAME_PREFIX}${_ordinal}${K8S_POD_HOSTNAME_SUFFIX}"; then
+            waitForDns "${WAIT_FOR_DNS_TIMEOUT:-600}" "${K8S_POD_HOSTNAME_PREFIX}${_ordinal}${K8S_POD_HOSTNAME_SUFFIX}"
+        fi
+    fi
 
     #
     #- * Only version 8.2-EA and greater support configuring sync failover

@@ -23,25 +23,26 @@ test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib
 #  required to ensure that the pingdirectory service isn't available until after all the
 #  required replication has been setup.  If we don't check for this here then the
 #  setup process here will fail.
+_podHostName=$(hostname -f)
 if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" &&
     test "$(isImageVersionGtEq 8.2.0)" -eq 0 &&
-    test -z "$(getIP "${POD_HOSTNAME}")"; then
-    echo_red "Detected:"
-    echo_red "  - Container running in Kubernetes"
-    echo_red "  - Running version 8.2 or higher"
-    echo_red "  - The Kubernetes service providing IP for '${POD_HOSTNAME}' isn't returning any value"
-    echo_red ""
-    echo_red "This implies that the Kubernetes service isn't providing the annotations allowing for"
-    echo_red "unready hosts to be discovered."
-    echo_red ""
-    echo_red "RESOLUTION - Create/Add a separate cluster service with the following annotations/spec"
-    echo_red ""
-    echo_red "  metadata:"
-    echo_red "    annotations:"
-    echo_red "      service.alpha.kubernetes.io/tolerate-unready-endpoints: true"
-    echo_red "  spec:"
-    echo_red "    publishNotReadyAddresses: true"
-    echo_red ""
+    test -z "$(getIP "${_podHostName}")"; then
+    echo_red "Detected:
+      - Container running in Kubernetes 
+      - Running version 8.2 or higher 
+      - The Kubernetes service providing IP for '${_podHostName}' isn't returning any value
+   
+        This implies that the Kubernetes service isn't providing the annotations allowing for 
+        unready hosts to be discovered. 
+        
+        RESOLUTION - Create/Add a separate cluster service with the following annotations/spec 
+        
+      metadata: 
+        annotations: 
+          service.alpha.kubernetes.io/tolerate-unready-endpoints: true 
+      spec: 
+        publishNotReadyAddresses: true
+    "
 
     container_failure 182 "Resolve issues with pingdirectory Kubernetes cluster service, and restart"
 fi

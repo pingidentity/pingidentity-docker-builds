@@ -402,6 +402,48 @@ sleep_at_most() {
 }
 
 ###############################################################################
+# waitForDns (timeout_seconds host1 hostn)
+#
+# This function will wait for the container IP to resolve from list of hosts
+###############################################################################
+waitForDns() {
+    echo "INFO: waiting for dns propagation"
+
+    _timeout=0
+    _timeout_limit=${1}
+    shift
+    _hostnames=$*
+    _count=0
+    _count_limit=3
+
+    while test "$_timeout" -lt "$_timeout_limit"; do
+        for hostname in $_hostnames; do
+            getent ahosts "${hostname}" | awk '{print $1}' | sort -u | grep "$(hostname -i)" > /dev/null
+            if test $? -eq 0; then
+                _found=true
+            fi
+        done
+        if test $_found; then
+            unset _found
+            _count=$((_count + 1))
+            if test "$_count" -ge "$_count_limit"; then
+                echo "INFO: Waiting for verification of IP resolution from hostname(s)"
+                break
+            fi
+        else
+            _count=0
+        fi
+        _timeout=$((_timeout + 2))
+        sleep 2
+    done
+    if test "$_timeout" -ge "$_timeout_limit"; then
+        echo "ERROR: Timed out waiting for dns"
+        exit 1
+    fi
+    echo "INFO: IP successfully resolves from hostname(s)"
+}
+
+###############################################################################
 # get_value (variable, checkFile)
 #
 # Get the value of a variable passed, preserving any spaces.
