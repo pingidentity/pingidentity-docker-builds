@@ -14,10 +14,8 @@ test "${VERBOSE}" = "true" && set -x
 # shellcheck source=./pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-#check if license directory exists, and if not then creates
-if [ -d "${LICENSE_DIR}" ]; then
-    echo "License directory exists"
-else
+#check if license directory exists, and if not then creates. Likely only matters for containers which were using old LICENSE_DIR value.
+if test ! -d "${LICENSE_DIR}"; then
     mkdir -p "${LICENSE_DIR}"
 fi
 
@@ -49,6 +47,10 @@ if test -f "${LICENSE_FILE}"; then
 
     licenseFound="true"
 else
+    #alert user there is no license file found at $LICENSE_FILE directory
+    echo "License file not found!"
+    echo "Expected license directory path: ${LICENSE_DIR}"
+    echo "Expected license file name: ${LICENSE_FILE_NAME}"
     if test ! -z "${PING_IDENTITY_DEVOPS_USER}" && test ! -z "${PING_IDENTITY_DEVOPS_KEY}"; then
         ##################################################################
         # Let's get the license from the license server

@@ -79,9 +79,10 @@ ENV IN_DIR=${BASE}/in \
 
 #-- If this is set to true, then the container will provide a hard warning and continue.
     UNSAFE_CONTINUE_ON_ERROR="" \
-
 #-- License directory
     LICENSE_DIR="${SERVER_ROOT_DIR}" \
+#-- PD License directory. Separating from above LICENSE_DIR to differentiate for different products
+    PD_LICENSE_DIR="${STAGING_DIR}/pd.profile/server-root/pre-setup" \
 #-- The command that the entrypoint will execute in the foreground to
 #-- instantiate the container
     STARTUP_COMMAND="" \
