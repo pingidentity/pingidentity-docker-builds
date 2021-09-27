@@ -57,8 +57,8 @@ ENV SHIM=${SHIM} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
 #-- Files tailed once container has started
     TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/sync" \
-#-- License directory
-    LICENSE_DIR="${STAGING_DIR}/pd.profile/server-root/pre-setup" \
+#-- PD License directory. This value is set from the pingbase docker file
+    LICENSE_DIR="${PD_LICENSE_DIR}" \
 #-- Name of license file
     LICENSE_FILE_NAME="PingDirectory.lic" \
 #-- Short name used when retrieving license from License Server

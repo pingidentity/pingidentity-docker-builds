@@ -55,6 +55,8 @@ ENV SHIM=${SHIM} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
 #-- Ping product name
     PING_PRODUCT=PingAuthorize-PAP \
+#-- PD License directory. This value is set from the pingbase dockerfile
+    LICENSE_DIR="${PD_LICENSE_DIR}" \
 #-- Name of license File
     LICENSE_FILE_NAME=PingAuthorize.lic \
 #-- Short name used when retrieving license from License Server
