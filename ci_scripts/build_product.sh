@@ -263,8 +263,6 @@ for _version in ${versionsToBuild}; do
                 --build-arg IMAGE_VERSION="${imageVersion}" \
                 --build-arg IMAGE_GIT_REV="${GIT_REV_LONG}" \
                 --build-arg LICENSE_VERSION="${licenseVersion}" \
-                ${RHEL_USER:+--build-arg RHEL_USER="${RHEL_USER}"} \
-                ${RHEL_PASSWORD:+--build-arg RHEL_PASSWORD="${RHEL_PASSWORD}"} \
                 ${VERBOSE:+--build-arg VERBOSE="true"} \
                 "${CI_PROJECT_DIR}/${productToBuild}"
 
