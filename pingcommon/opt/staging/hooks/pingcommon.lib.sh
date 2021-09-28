@@ -237,23 +237,27 @@ container_failure() {
     _exitCode=${1} && shift
 
     if test "$(toLower "${UNSAFE_CONTINUE_ON_ERROR}")" = "true"; then
-        echo_red "################################################################################"
-        echo_red "################################### WARNING ####################################"
-        echo_red "################################################################################"
-        echo_red "#  ERROR (${_exitCode}): $*"
-        echo_red "################################################################################"
-        echo_red "#"
-        echo_red "#  Container would normally fail at this point, however the   "
-        echo_red "#  variable UNSAFE_CONTINUE_ON_ERROR is set to '${UNSAFE_CONTINUE_ON_ERROR}'"
-        echo_red "#"
-        echo_red "#  Container will continue with unknown potential side-effects"
-        echo_red "#  and consequences!!!"
-        echo_red "#"
-        echo_red "################################################################################"
+        echo_red "$(
+            cat << EOF
+################################################################################
+################################### WARNING ####################################
+################################################################################
+#  ERROR (${_exitCode}): $*
+################################################################################
+#
+#  Container would normally fail at this point, however the
+#  variable UNSAFE_CONTINUE_ON_ERROR is set to '${UNSAFE_CONTINUE_ON_ERROR}'
+#
+#  Container will continue with unknown potential side-effects
+#  and consequences!!!
+#
+################################################################################
+EOF
+        )"
     else
         echo_red "CONTAINER FAILURE: $*"
         # shellcheck disable=SC2086
-        exit ${_exitCode}
+        kill -${_exitCode} 1
     fi
 }
 
