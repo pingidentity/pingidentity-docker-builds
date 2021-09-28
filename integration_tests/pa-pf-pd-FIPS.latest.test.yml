@@ -1,35 +1,35 @@
 version: "2.4"
 
 services:
-  # pingaccess:
-  #   image: ${REGISTRY}/pingaccess:${PINGACCESS_LATEST}-${SHIM}-${JVM}-${GIT_TAG}-${ARCH}
-  #   command: wait-for pingfederate:9031 -t 2100 -- entrypoint.sh start-server
-  #   environment:
-  #     - SERVER_PROFILE_PATH=baseline/pingaccess
-  #     - SERVER_PROFILE_BRANCH=FIPS
-  #     - PA_ADMIN_PRIVATE_HOSTNAME=pingaccess
-  #     - PF_ADMIN_PRIVATE_PORT_HTTPS=9999
-  #     - FIPS_MODE_ON=true
-  #   env_file:
-  #     - /tmp/integration_tests.properties
-  #   ulimits:
-  #     nproc:
-  #       soft: 16384
-  #       hard: 16384
-  #     nofile:
-  #       soft: 65535
-  #       hard: 65535
-  #   mem_limit: ${KUBERNETES_MEMORY_LIMIT:-4000000000}b
-  #   memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-4000000000}b
-  #   oom_kill_disable: true
-  #   mem_swappiness: 0
-  #   tmpfs: /run/secrets
-  #   networks:
-  #     - pingnet-dmz
-  #     - pingnet-internal
-  #   depends_on:
-  #     - pingfederate
-  #     - pingdirectory
+  pingaccess:
+    image: ${REGISTRY}/pingaccess:${PINGACCESS_LATEST}-${SHIM}-${JVM}-${GIT_TAG}-${ARCH}
+    command: wait-for pingfederate:9031 -t 2100 -- entrypoint.sh start-server
+    environment:
+      - SERVER_PROFILE_PATH=baseline/pingaccess
+      - SERVER_PROFILE_BRANCH=FIPS
+      - PA_ADMIN_PRIVATE_HOSTNAME=pingaccess
+      - PF_ADMIN_PRIVATE_PORT_HTTPS=9999
+      - FIPS_MODE_ON=true
+    env_file:
+      - /tmp/integration_tests.properties
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    mem_limit: ${KUBERNETES_MEMORY_LIMIT:-4000000000}b
+    memswap_limit: ${KUBERNETES_MEMORY_LIMIT:-4000000000}b
+    oom_kill_disable: true
+    mem_swappiness: 0
+    tmpfs: /run/secrets
+    networks:
+      - pingnet-dmz
+      - pingnet-internal
+    depends_on:
+      - pingfederate
+      - pingdirectory
 
   pingfederate:
     image: ${REGISTRY}/pingfederate:${PINGFEDERATE_LATEST}-${SHIM}-${JVM}-${GIT_TAG}-${ARCH}
@@ -111,11 +111,12 @@ services:
   sut:
     image: ${DEPS}arnaudlacour/newman
     entrypoint: ["/usr/bin/env"]
-    command: sh -c "/tmp/wait-for pingfederate:9031 -t 2400 -- newman run /tmp/collection.json --insecure --ignore-redirects"
+    command: sh -c "/tmp/wait-for pingaccess:3000 -t 2400 -- newman run /tmp/collection.json --insecure --ignore-redirects"
     volumes:
       - ./pa-pf-pd-FIPS.postman_collection.json:/tmp/collection.json
       - ./wait-for:/tmp/wait-for
     depends_on:
+      - pingaccess
       - pingfederate
       - pingdirectory
     networks:
