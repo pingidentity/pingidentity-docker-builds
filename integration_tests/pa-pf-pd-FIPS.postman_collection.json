@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "1a225836-10f7-4e91-9256-aa49540c110c",
+		"_postman_id": "76678343-4af6-452f-841d-0dfb708c4375",
 		"name": "pa-pf-pd-FIPS",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -271,6 +271,65 @@
 					"path": [
 						"pingfederate",
 						"app"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PA CHECK PingAccess engine honors requests",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var _host = pm.variables.get(\"pa_engine_hostname\");",
+							"var _port = pm.variables.get(\"pa_engine_port\");",
+							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"cpu.load key is present\", function () {",
+							"    pm.expect(jsonData.hasOwnProperty(\"cpu.load\")).to.be.true;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{pa_engine_hostname}}:{{pa_engine_port}}/pa/heartbeat.ping",
+					"protocol": "https",
+					"host": [
+						"{{pa_engine_hostname}}"
+					],
+					"port": "{{pa_engine_port}}",
+					"path": [
+						"pa",
+						"heartbeat.ping"
 					]
 				}
 			},
@@ -1631,13 +1690,13 @@
 					"type": "basic",
 					"basic": [
 						{
-							"key": "username",
-							"value": "ac_client",
+							"key": "password",
+							"value": "",
 							"type": "string"
 						},
 						{
-							"key": "password",
-							"value": "",
+							"key": "username",
+							"value": "ac_client",
 							"type": "string"
 						}
 					]
@@ -1668,6 +1727,140 @@
 							"key": "code",
 							"value": "{{_authzCode}}"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PA GET  anything without auth",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var _runId = Math.floor(Math.random()*100000);",
+							"pm.variables.set(\"_runId\",_runId);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"",
+							"    pm.test(\"response is JSON\", function(){",
+							"        pm.response.to.be.json;",
+							"    });",
+							"",
+							"    pm.test(\"response has correct run ID\", function(){",
+							"        var jsonData = pm.response.json();",
+							"        pm.expect(jsonData.headers[\"X-Ping-Build-Run-Id\"]).to.equal(\"\"+pm.variables.get(\"_runId\"));",
+							"    });    "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Ping-Build-Run-Id",
+						"value": "{{_runId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://{{pa_engine_hostname}}:{{pa_engine_port}}/anything/get",
+					"protocol": "https",
+					"host": [
+						"{{pa_engine_hostname}}"
+					],
+					"port": "{{pa_engine_port}}",
+					"path": [
+						"anything",
+						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PA GET  through PD REST API",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var _runId = Math.floor(Math.random()*100000);",
+							"pm.variables.set(\"_runId\",_runId);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"",
+							"    pm.test(\"response is JSON\", function(){",
+							"        pm.response.to.be.json;",
+							"    });",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Ping-Build-Run-Id",
+						"type": "text",
+						"value": "{{_runId}}"
+					}
+				],
+				"url": {
+					"raw": "https://{{pa_engine_hostname}}:{{pa_engine_port}}/directory/v1/uid=postman.user.0,ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{pa_engine_hostname}}"
+					],
+					"port": "{{pa_engine_port}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=postman.user.0,ou=People,{{_base_dn}}"
 					]
 				}
 			},
@@ -1848,7 +2041,7 @@
 		},
 		{
 			"key": "regular_pwd",
-			"value": "{{admin_pwd}}"
+			"value": "{{pd_admin_pwd}}"
 		},
 		{
 			"key": "regular_user",
@@ -1879,10 +2072,6 @@
 			"value": "{{admin_pwd}}"
 		},
 		{
-			"key": "pa_engine_hostname",
-			"value": "pingaccess"
-		},
-		{
 			"key": "pa_engine_port",
 			"value": "3000"
 		},
@@ -1901,6 +2090,10 @@
 		{
 			"key": "pa_admin_pwd",
 			"value": "{{admin_password}}"
+		},
+		{
+			"key": "pa_engine_hostname",
+			"value": "pingaccess"
 		}
 	]
 }
