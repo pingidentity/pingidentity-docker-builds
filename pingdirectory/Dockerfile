@@ -25,8 +25,6 @@ FROM ${REGISTRY}/pingdatacommon:${GIT_TAG}-${ARCH} as common
 FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
 
 FROM ${DEPS}${SHIM} as final-staging
-ARG RHEL_USER
-ARG RHEL_PASSWORD
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
 # get Ping-wide common scripts

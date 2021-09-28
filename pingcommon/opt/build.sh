@@ -81,18 +81,9 @@ case "${_osID}" in
         ;;
     centos | rhel)
         _versionID=$(awk '$0~/^VERSION_ID=/{split($1,version,"=");gsub(/"/,"",version[2]);print version[2];}' /etc/os-release)
-        _packages="gettext bind-utils git git-lfs unzip openssh-clients nmap-ncat"
+        _packages="gettext bind-utils git git-lfs unzip openssh-clients nmap-ncat zip"
 
         if test "${_osID}" = "rhel"; then
-            if test -z "${RHEL_USER}" || test -z "${RHEL_PASSWORD}"; then
-                echo "Cannot build RHEL image without valid subscription"
-                exit 9
-            fi
-
-            #Run unregister subscriptions upon any exit. This keeps our usage of subscriptions down.
-            trap "subscription-manager unregister" EXIT
-            subscription-manager register --username "${RHEL_USER}" --password "${RHEL_PASSWORD}" --auto-attach
-
             #Install EPEL Repository which contains jq
             yum -y install --releasever "${_versionID}" https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
             yum -y update --releasever "${_versionID}"
