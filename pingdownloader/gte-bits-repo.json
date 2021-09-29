@@ -32,49 +32,49 @@
         {
             "name": "pingdatametrics",
             "mapping": "PingDataMetrics-${version}.zip",
-            "latestVersion": "8.3.0.1",
+            "latestVersion": "8.3.0.2",
             "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdatasync",
             "mapping": "PingDataSync-${version}.zip",
-            "latestVersion": "8.3.0.1",
+            "latestVersion": "8.3.0.2",
             "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdatagovernance",
             "mapping": "PingDataGovernance-${version}.zip",
-            "latestVersion": "8.2.0.5",
+            "latestVersion": "8.2.0.6",
             "licenseFile": "PingDataGovernance.lic"
         },
         {
             "name": "pingauthorize",
             "mapping": "PingAuthorize-${version}.zip",
-            "latestVersion": "8.3.0.1",
+            "latestVersion": "8.3.0.2",
             "licenseFile": "PingAuthorize.lic"
         },
         {
             "name": "pingdatagovernancepap",
             "mapping": "PingDataGovernance-PAP-${version}.zip",
-            "latestVersion": "8.2.0.5",
+            "latestVersion": "8.2.0.6",
             "licenseFile": "PingDataGovernance.lic"
         },
         {
             "name": "pingauthorizepap",
             "mapping": "PingAuthorize-PAP-${version}.zip",
-            "latestVersion": "8.3.0.1",
+            "latestVersion": "8.3.0.2",
             "licenseFile": "PingAuthorize.lic"
         },
         {
             "name": "pingdirectory",
             "mapping": "PingDirectory-${version}.zip",
-            "latestVersion": "8.3.0.1",
+            "latestVersion": "8.3.0.2",
             "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdirectoryproxy",
             "mapping": "PingDirectoryProxy-${version}.zip",
-            "latestVersion": "8.3.0.1",
+            "latestVersion": "8.3.0.2",
             "licenseFile": "PingDirectory.lic"
         },
         {
