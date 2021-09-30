@@ -5,8 +5,7 @@ services:
     image: ${REGISTRY}/pingaccess:${PINGACCESS_LATEST}-${SHIM}-${JVM}-${GIT_TAG}-${ARCH}
     command: wait-for pingfederate:9031 -t 2100 -- entrypoint.sh start-server
     environment:
-      - SERVER_PROFILE_PATH=baseline/pingaccess
-      - SERVER_PROFILE_BRANCH=FIPS
+      - SERVER_PROFILE_PATH=FIPS-integration/pingaccess
       - PA_ADMIN_PRIVATE_HOSTNAME=pingaccess
       - PF_ADMIN_PRIVATE_PORT_HTTPS=9999
       - FIPS_MODE_ON=true
@@ -35,8 +34,7 @@ services:
     image: ${REGISTRY}/pingfederate:${PINGFEDERATE_LATEST}-${SHIM}-${JVM}-${GIT_TAG}-${ARCH}
     command: wait-for pingdirectory:1636 -t 1800 -- entrypoint.sh start-server
     environment:
-      - SERVER_PROFILE_PATH=baseline/pingfederate
-      - SERVER_PROFILE_BRANCH=FIPS
+      - SERVER_PROFILE_PATH=FIPS-integration/pingfederate
       - LDAP_PORT=1636
       # In addition to setting HSM_MODE to BCFIPS you will also need:
       #   update hivemodule.xml 
@@ -66,8 +64,7 @@ services:
   pingdirectory:
     image: ${REGISTRY}/pingdirectory:${PINGDIRECTORY_LATEST}-${SHIM}-${JVM}-${GIT_TAG}-${ARCH}
     environment:
-      - SERVER_PROFILE_PATH=baseline/pingdirectory
-      - SERVER_PROFILE_BRANCH=FIPS
+      - SERVER_PROFILE_PATH=FIPS-integration/pingdirectory
       - MAX_HEAP_SIZE=1g
       - FIPS_MODE_ON=true
       - KEYSTORE_FILE=/opt/staging/.sec/private-key.pem
