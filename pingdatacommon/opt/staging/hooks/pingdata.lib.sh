@@ -728,6 +728,11 @@ buildRunPlan() {
                 K8S_POD_HOSTNAME_SUFFIX=".\${K8S_CLUSTER}"
             fi
 
+            if test -z "${K8S_SEED_HOSTNAME_PREFIX}"; then
+                echo "K8S_SEED_HOSTNAME_PREFIX not set.  Defaulting to K8S_POD_HOSTNAME_PREFIX- (\${K8S_POD_HOSTNAME_PREFIX}-)"
+                K8S_SEED_HOSTNAME_PREFIX="${K8S_POD_HOSTNAME_PREFIX}-"
+            fi
+
             if test -z "${K8S_SEED_HOSTNAME_SUFFIX}"; then
                 echo "K8S_SEED_HOSTNAME_SUFFIX not set.  Defaulting to K8S_SEED_CLUSTER (.\${K8S_SEED_CLUSTER})"
                 K8S_SEED_HOSTNAME_SUFFIX=".\${K8S_SEED_CLUSTER}"
@@ -775,7 +780,7 @@ buildRunPlan() {
             _podLocation="${K8S_CLUSTER}"
 
             _seedInstanceName="${K8S_STATEFUL_SET_NAME}-0.${K8S_SEED_CLUSTER}"
-            SEED_HOSTNAME=$(eval "echo ${K8S_POD_HOSTNAME_PREFIX}0${K8S_SEED_HOSTNAME_SUFFIX}")
+            SEED_HOSTNAME=$(eval "echo ${K8S_SEED_HOSTNAME_PREFIX}0${K8S_SEED_HOSTNAME_SUFFIX}")
             _seedLocation="${K8S_SEED_CLUSTER}"
 
             if test "${K8S_INCREMENT_PORTS}" = "true"; then
@@ -835,6 +840,7 @@ buildRunPlan() {
     #              K8S_NUM_REPLICAS: ${K8S_NUM_REPLICAS}
     #       K8S_POD_HOSTNAME_PREFIX: ${K8S_POD_HOSTNAME_PREFIX}
     #       K8S_POD_HOSTNAME_SUFFIX: ${K8S_POD_HOSTNAME_SUFFIX}
+    #      K8S_SEED_HOSTNAME_PREFIX: ${K8S_SEED_HOSTNAME_PREFIX}
     #      K8S_SEED_HOSTNAME_SUFFIX: ${K8S_SEED_HOSTNAME_SUFFIX}
     #           K8S_INCREMENT_PORTS: ${K8S_INCREMENT_PORTS} (${_incrementPortsMsg})
     #
