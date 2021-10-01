@@ -6,27 +6,28 @@ test -f "/opt/build.sh.pre" && sh /opt/build.sh.pre
 fixPermissions() {
     test -f /etc/motd || touch /etc/motd
     chmod go+w /etc/motd
-    chown -Rf 9031:9999 /etc/motd
+
+    chown -Rf 9031:0 /etc/motd
+
     # Environment variables for BASE isn't available here.
     BASE=/opt
 
-    # find "${BASE}" -mindepth 1 -maxdepth 1 -not -name in| while read -r directory
-    # do
-    #     chown -Rf 9031:9999 "${directory}"
-    #     chmod -Rf go-rwx "${directory}"
-    # done
-    chown -Rf 9031:9999 "${BASE}"
-    chmod -Rf go-rwx "${BASE}"
+    #fix permissions to ping user and root group. Removes permissions from others
+    chown -Rf 9031:0 "${BASE}"
+    chmod -Rf o-rwx "${BASE}"
 
     # make shell scripts executable for the user
     # this is safe to do "blind" as it only affects files with the .sh extension
     # for the user defined in the image
     find "${BASE}" -type f -iname \*.sh -exec chmod u+x '{}' \+
 
+    #fix group permissions from owner
+    chmod -Rf g=u "${BASE}"
+
     if grep ^nginx: /etc/passwd > /dev/null; then
-        # rebase ownerships for nginx to ping user
+        # rebase ownerships for nginx to ping user and root group
         find / -xdev -not -path "/sys/*" -not -path "/proc/*" -not -path "/dev/*" -user nginx -exec chown 9031 {} +
-        find / -xdev -not -path "/sys/*" -not -path "/proc/*" -not -path "/dev/*" -group nginx -exec chgrp 9999 {} +
+        find / -xdev -not -path "/sys/*" -not -path "/proc/*" -not -path "/dev/*" -group nginx -exec chgrp 0 {} +
     fi
 }
 
@@ -73,9 +74,8 @@ case "${_osID}" in
 
         apk --no-cache --update add fontconfig ttf-dejavu
 
-        # Create user and group
-        addgroup --gid 9999 identity
-        adduser --uid 9031 --ingroup identity --disabled-password --shell /bin/false ping
+        # Create user in root group
+        adduser --uid 9031 --ingroup root --disabled-password --shell /bin/false ping
 
         removePackageManager_alpine
         ;;
@@ -104,9 +104,8 @@ case "${_osID}" in
         yum -y clean all
         rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki
 
-        # Create user and group
-        groupadd --gid 9999 identity
-        useradd --uid 9031 --gid identity --shell /bin/false ping
+        # Create user in root group
+        useradd --uid 9031 --gid root --shell /bin/false ping
 
         #TODO this causes issues because yum is a dependency of other yum-related packages.
         #removePackageManager_centos
@@ -118,9 +117,8 @@ case "${_osID}" in
         apt-get -y autoremove
         rm -rf /var/lib/apt/lists/*
 
-        # Create user and group
-        addgroup --gid 9999 identity
-        adduser --uid 9031 --ingroup identity --disabled-password --shell /bin/false ping
+        # Create user in root group
+        adduser --uid 9031 --ingroup root --disabled-password --shell /bin/false ping
 
         removePackageManager_ubuntu
         ;;

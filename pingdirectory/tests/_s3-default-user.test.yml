@@ -26,4 +26,4 @@ services:
       - ./test-expected-user.sh:/tmp/test.sh
     tmpfs: /run/secrets
     # Expect the default user and group IDs
-    command: start-server /opt/wait-for localhost:1389 -t 300 -- /tmp/test.sh 9031 9999
+    command: start-server /opt/wait-for localhost:1389 -t 300 -- /tmp/test.sh 9031 0
