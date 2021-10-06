@@ -14,7 +14,7 @@
         {
             "name": "ldapsdk",
             "mapping": "unboundid-ldapsdk-${version}.zip",
-            "latestVersion": "6.0.1",
+            "latestVersion": "6.0.2",
             "url": "https://github.com/pingidentity/ldapsdk/releases/download/${version}/"
         },
         {
@@ -86,7 +86,7 @@
         {
             "name": "apache-tomcat",
             "mapping": "apache-tomcat-${version}.zip",
-            "latestVersion": "9.0.48"
+            "latestVersion": "9.0.54"
         },
         {
             "name": "apache-jmeter",
