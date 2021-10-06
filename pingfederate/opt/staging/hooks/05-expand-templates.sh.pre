@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+# Automatically adjust the numbers of threads for Jetty based on available compute resources
+#
+
+# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
+
+_cores=$(nproc)
+_tuningBase=${_cores}
+test "${_cores}" -gt 8 && _tuningBase=8
+
+if test -z "${PF_JETTY_THREADS_MIN}"; then
+    PF_JETTY_THREADS_MIN=$((_tuningBase * 25))
+fi
+
+if test -z "${PF_JETTY_THREADS_MAX}"; then
+    PF_JETTY_THREADS_MAX=$((_tuningBase * 50))
+fi
+
+export_container_env PF_JETTY_THREADS_MIN PF_JETTY_THREADS_MAX

@@ -160,6 +160,53 @@ ENV SHIM=${SHIM} \
 #-- Grace period, in seconds. Default 600 seconds
     PF_PROVISIONER_GRACE_PERIOD=600 \
 
+#-- Override the default value for the minimum size of the Jetty thread pool
+#-- Leave unset to let the container automatically tune the value according to available resources
+    PF_JETTY_THREADS_MIN="" \
+
+#-- Override the default value for the maximum size of the Jetty thread pool
+#-- Leave unset to let the container automatically tune the value according to available resources
+    PF_JETTY_THREADS_MAX="" \
+
+#-- The size of the accept queue. There is generally no reason to tune this but please refer
+#-- to the performance tuning guide for further tuning guidance.
+    PF_ACCEPT_QUEUE_SIZE=512 \
+
+#-- The region of the PingOne tenant PingFederate should connect with.
+#-- Valid values are "com", "eu" and "asia"
+    PF_PINGONE_REGION="" \
+
+#-- The PingOne environment ID to use
+    PF_PINGONE_ENV_ID="" \
+
+#-- The title featured in the administration console -- this is generally used to easily distinguish between environments
+    PF_CONSOLE_TITLE="Docker PingFederate" \
+
+#-- This property defines the tags associated with this PingFederate node.
+#-- Configuration is optional. When configured, PingFederate takes this property
+#-- into consideration when processing requests. For example, tags may be used
+#-- to determine the data store location that this PingFederate
+#-- node communicates with. Administrators may also use tags in conjunction with
+#-- authentication selectors and policies to define authentication requirements.
+#--
+#-- Administrators may define one tag or a list of space-separated tags.
+#-- Each tag cannot contain any spaces. Other characters are allowed.
+#--
+#-- Example 1: PF_NODE_TAGS=north
+#-- Example 1 defines one tag: 'north'
+#
+#-- Example 2: PF_NODE_TAGS=1 123 test
+#-- Example 2 defines three tags: '1', '123' and 'test'
+#--
+#-- Example 3: PF_NODE_TAGS=
+#-- Example 3 is also valid because the PF_NODE_TAGS property is optional.
+    PF_NODE_TAGS="" \
+
+#-- This property defines the name of the PingFederate environment that will be
+#-- displayed in the administrative console, used to make separate environments
+#-- easily identifiable.
+    PF_CONSOLE_ENV="" \
+    
 #-- Percentage of the container memory to allocate to PingFederate JVM
 #-- DO NOT set to 100% or your JVM will exit with OutOfMemory errors and the container will terminate
     JAVA_RAM_PERCENTAGE=75.0 \
