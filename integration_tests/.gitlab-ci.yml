@@ -73,6 +73,7 @@ intel.pd-repl.liberica:
 # release for the liberica JVM on the aarch64 runner 
 arm.pd-repl.latest:
   stage: test.integration
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
@@ -218,6 +219,7 @@ intel.pa-pf-pd.liberica:
 # for the liberica JVM on the aarch64 runner 
 arm.pa-pf-pd.latest:
   stage: test.integration
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
@@ -326,6 +328,7 @@ intel.pds-pd.liberica:
 # for the liberica JVM on the aarch64 runner 
 arm.pds-pd.latest:
   stage: test.integration
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
@@ -423,6 +426,7 @@ intel.pdp-pd.liberica:
 # for the liberica JVM on the aarch64 runner 
 arm.pdp-pd.latest:
   stage: test.integration
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
@@ -530,6 +534,7 @@ intel.pdg-pd.liberica:
 # for the liberica JVM on the aarch64 runner 
 arm.pdg-pd.latest:
   stage: test.integration
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
@@ -637,6 +642,7 @@ intel.paz-pd.liberica:
 # for the liberica JVM on the aarch64 runner 
 arm.paz-pd.latest:
   stage: test.integration
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:

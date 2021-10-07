@@ -25,6 +25,7 @@ intel.b.pingdelegator:
 
 arm.b.pingdelegator:
   stage: products
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
@@ -76,6 +77,7 @@ intel.t.pingdelegator:
 
 arm.t.pingdelegator:
   stage: test.smoke
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
