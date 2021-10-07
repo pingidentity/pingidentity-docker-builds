@@ -23,6 +23,7 @@ intel.b.apache-jmeter:
 
 arm.b.apache-jmeter:
   stage: products
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
@@ -69,6 +70,7 @@ intel.t.apache-jmeter:
 
 arm.t.apache-jmeter:
   stage: test.smoke
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:

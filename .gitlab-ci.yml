@@ -32,6 +32,7 @@ default:
     - ci_scripts/before_script.sh
   services:
     - $PIPELINE_DEPS_REGISTRY/docker:18.09-dind
+  image: $RUNNER_IMAGE_X86_64
 variables:
   DOCKER_HOST: tcp://localhost:2375
   # effectively, this is one full core scheduled 95% of the time
@@ -114,6 +115,7 @@ intel.f.pingfoundation:
 
 arm.f.pingfoundation:
   stage: foundation
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
@@ -137,6 +139,7 @@ intel.f.pingdownloader:
 
 arm.f.pingdownloader:
   stage: foundation
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:

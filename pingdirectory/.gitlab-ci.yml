@@ -31,6 +31,7 @@ intel.b.pingdirectory:
 
 arm.b.pingdirectory:
   stage: products
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
@@ -122,6 +123,7 @@ intel.t.pd.al11:
 
 arm.t.pingdirectory:
   stage: test.smoke
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:

@@ -466,19 +466,34 @@ elif test -n "${CI_COMMIT_REF_NAME}"; then
     #
     # setup the docker trust material.
     #
-    requirePipelineFile DOCKER_TRUST_PRIVATE_KEY_ARCHIVE_FILE
     requirePipelineVar DOCKER_TRUST_PRIVATE_KEY
     requirePipelineVar DOCKER_TRUST_PRIVATE_KEY_SIGNER
+    requirePipelineVar VAULT_ADDR
+    requirePipelineVar CI_JOB_JWT
+
+    #Temp file location for docker private keys retrieved from Vault
+    keys_temp_file=$(mktemp)
+
+    #Retreive the vault token to authenticate for vault secrets
+    VAULT_TOKEN="$(vault write -field=token auth/jwt/login role=pingdevops jwt="${CI_JOB_JWT}")"
+    export VAULT_TOKEN
+    test -z "${VAULT_TOKEN}" && echo "Error: Vault token was not retrieved" && exit 1
+
+    #Retreive the vault secret
+    vault kv get -field=Signing_Key_Base64 pingdevops/Base64_key > "${keys_temp_file}"
+    test $? -ne 0 && echo "Error: Failed to retrieve private docker keys from vault" && exit 1
 
     #Use private key file with DockerHub
     mkdir -p "${docker_config_hub_dir}/trust/private"
-    (cd "${docker_config_hub_dir}/trust/private" && base64 --decode "${DOCKER_TRUST_PRIVATE_KEY_ARCHIVE_FILE}" | tar -xz)
+    (cd "${docker_config_hub_dir}/trust/private" && base64 --decode "${keys_temp_file}" | tar -xz)
     docker --config "${docker_config_hub_dir}" trust key load "${docker_config_hub_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
 
     #Use private key file with Artifactory
     mkdir -p "${docker_config_default_dir}/trust/private"
-    (cd "${docker_config_default_dir}/trust/private" && base64 --decode "${DOCKER_TRUST_PRIVATE_KEY_ARCHIVE_FILE}" | tar -xz)
+    (cd "${docker_config_default_dir}/trust/private" && base64 --decode "${keys_temp_file}" | tar -xz)
     docker --config "${docker_config_default_dir}" trust key load "${docker_config_default_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
+
+    rm -f "${keys_temp_file}"
 
     #Provide Root CA Certificate for Artifactory Notary Server
     requirePipelineFile ARTIFACTORY_ROOT_CA_FILE

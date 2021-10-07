@@ -28,6 +28,7 @@ intel.b.pingfederate:
 
 arm.b.pingfederate:
   stage: products
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
@@ -81,6 +82,7 @@ intel.t.pingfederate:
 
 arm.t.pingfederate:
   stage: test.smoke
+  image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
