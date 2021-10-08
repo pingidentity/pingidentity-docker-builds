@@ -1,0 +1,67 @@
+# This option cache stores the result of tests applied to Java options in order
+# to see if they are supported by the JVM at "/opt/java".
+
+# The filename of this option cache will need to be updated whenever the JVM used by the image is changed
+
+# Empty argument set is checked
+	true
+
+# -XX:ConcGCThreads can range from 1 to 16 depending on available CPUs
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=1 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=1	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=2 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=2	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=3 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=3	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=4 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=4	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=5 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=5	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=6 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=6	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=7 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=7	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=8 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=8	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=9 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=9	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=10 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=10	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=11 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=11	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=12 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=12	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=13 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=13	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=14 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=14	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=15 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=15	true
+-XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSParallelRemarkEnabled -XX:+CMSParallelSurvivorRemarkEnabled -XX:+CMSParallelInitialMarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads=16 -XX:CMSMaxAbortablePrecleanTime=3600000 -XX:CMSWaitDuration=3600000 -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly	true
+-XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=80 -XX:ConcGCThreads=16	true
+
+-XX:+UseParallelGC	true
+-XX:+UseParallelGC -XX:NewRatio=8 -XX:+HeapDumpOnOutOfMemoryError	true
+-XX:+UseParallelGC -XX:NewRatio=8 -XX:+UseNUMA -XX:+HeapDumpOnOutOfMemoryError	true
+
+# -XX:MaxNewSize/-XX:NewSize have 7 different possible matching values depending on the product and heap size. This set of arguments is tested by PingDirectory
+-XX:MaxNewSize=32m -XX:NewSize=32m -XX:+UseBiasedLocking -XX:-OmitStackTraceInFastThrow -XX:RefDiscoveryPolicy=1 -XX:MaxTenuringThreshold=2 -XX:+HeapDumpOnOutOfMemoryError -Djdk.tls.ephemeralDHKeySize=2048 -Djava.security.egd=file:/dev/./urandom	true
+-XX:MaxNewSize=64m -XX:NewSize=64m -XX:+UseBiasedLocking -XX:-OmitStackTraceInFastThrow -XX:RefDiscoveryPolicy=1 -XX:MaxTenuringThreshold=2 -XX:+HeapDumpOnOutOfMemoryError -Djdk.tls.ephemeralDHKeySize=2048 -Djava.security.egd=file:/dev/./urandom	true
+-XX:MaxNewSize=128m -XX:NewSize=128m -XX:+UseBiasedLocking -XX:-OmitStackTraceInFastThrow -XX:RefDiscoveryPolicy=1 -XX:MaxTenuringThreshold=2 -XX:+HeapDumpOnOutOfMemoryError -Djdk.tls.ephemeralDHKeySize=2048 -Djava.security.egd=file:/dev/./urandom	true
+-XX:MaxNewSize=256m -XX:NewSize=256m -XX:+UseBiasedLocking -XX:-OmitStackTraceInFastThrow -XX:RefDiscoveryPolicy=1 -XX:MaxTenuringThreshold=2 -XX:+HeapDumpOnOutOfMemoryError -Djdk.tls.ephemeralDHKeySize=2048 -Djava.security.egd=file:/dev/./urandom	true
+-XX:MaxNewSize=2g -XX:NewSize=2g -XX:+UseBiasedLocking -XX:-OmitStackTraceInFastThrow -XX:RefDiscoveryPolicy=1 -XX:MaxTenuringThreshold=2 -XX:+HeapDumpOnOutOfMemoryError -Djdk.tls.ephemeralDHKeySize=2048 -Djava.security.egd=file:/dev/./urandom	true
+-XX:MaxNewSize=4g -XX:NewSize=4g -XX:+UseBiasedLocking -XX:-OmitStackTraceInFastThrow -XX:RefDiscoveryPolicy=1 -XX:MaxTenuringThreshold=2 -XX:+HeapDumpOnOutOfMemoryError -Djdk.tls.ephemeralDHKeySize=2048 -Djava.security.egd=file:/dev/./urandom	true
+-XX:MaxNewSize=8g -XX:NewSize=8g -XX:+UseBiasedLocking -XX:-OmitStackTraceInFastThrow -XX:RefDiscoveryPolicy=1 -XX:MaxTenuringThreshold=2 -XX:+HeapDumpOnOutOfMemoryError -Djdk.tls.ephemeralDHKeySize=2048 -Djava.security.egd=file:/dev/./urandom	true
+
+# This set of arguments is tested by PingAuthorize/PingDataSync/PingDirectoryProxy (with permutations for NewSize) - it has no -XX:MaxTenuringThreshold value
+-XX:MaxNewSize=32m -XX:NewSize=32m -XX:+UseBiasedLocking -XX:-OmitStackTraceInFastThrow -XX:RefDiscoveryPolicy=1 -XX:+HeapDumpOnOutOfMemoryError -Djdk.tls.ephemeralDHKeySize=2048 -Djava.security.egd=file:/dev/./urandom	true
+-XX:MaxNewSize=64m -XX:NewSize=64m -XX:+UseBiasedLocking -XX:-OmitStackTraceInFastThrow -XX:RefDiscoveryPolicy=1 -XX:+HeapDumpOnOutOfMemoryError -Djdk.tls.ephemeralDHKeySize=2048 -Djava.security.egd=file:/dev/./urandom	true
+-XX:MaxNewSize=128m -XX:NewSize=128m -XX:+UseBiasedLocking -XX:-OmitStackTraceInFastThrow -XX:RefDiscoveryPolicy=1 -XX:+HeapDumpOnOutOfMemoryError -Djdk.tls.ephemeralDHKeySize=2048 -Djava.security.egd=file:/dev/./urandom	true
+-XX:MaxNewSize=256m -XX:NewSize=256m -XX:+UseBiasedLocking -XX:-OmitStackTraceInFastThrow -XX:RefDiscoveryPolicy=1 -XX:+HeapDumpOnOutOfMemoryError -Djdk.tls.ephemeralDHKeySize=2048 -Djava.security.egd=file:/dev/./urandom	true
+-XX:MaxNewSize=2g -XX:NewSize=2g -XX:+UseBiasedLocking -XX:-OmitStackTraceInFastThrow -XX:RefDiscoveryPolicy=1 -XX:+HeapDumpOnOutOfMemoryError -Djdk.tls.ephemeralDHKeySize=2048 -Djava.security.egd=file:/dev/./urandom	true
+-XX:MaxNewSize=4g -XX:NewSize=4g -XX:+UseBiasedLocking -XX:-OmitStackTraceInFastThrow -XX:RefDiscoveryPolicy=1 -XX:+HeapDumpOnOutOfMemoryError -Djdk.tls.ephemeralDHKeySize=2048 -Djava.security.egd=file:/dev/./urandom	true
+-XX:MaxNewSize=8g -XX:NewSize=8g -XX:+UseBiasedLocking -XX:-OmitStackTraceInFastThrow -XX:RefDiscoveryPolicy=1 -XX:+HeapDumpOnOutOfMemoryError -Djdk.tls.ephemeralDHKeySize=2048 -Djava.security.egd=file:/dev/./urandom	true
+
+# 768m is the minimum heap size for PingData
+-Xmx64m	true
+-Xmx768m	true
