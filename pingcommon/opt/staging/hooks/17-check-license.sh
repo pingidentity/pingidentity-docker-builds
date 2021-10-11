@@ -48,10 +48,9 @@ if test -f "${LICENSE_FILE}"; then
     licenseFound="true"
 else
     #alert user there is no license file found at $LICENSE_FILE directory
-    echo "License file not found!"
-    echo "Expected license directory path: ${LICENSE_DIR}"
-    echo "Expected license file name: ${LICENSE_FILE_NAME}"
+    echo "A license file was not provided at the expected location: ${LICENSE_DIR}/${LICENSE_FILE_NAME}"
     if test ! -z "${PING_IDENTITY_DEVOPS_USER}" && test ! -z "${PING_IDENTITY_DEVOPS_KEY}"; then
+        echo "We will now attempt to retrieve an evaluation license."
         ##################################################################
         # Let's get the license from the license server
         ##################################################################
@@ -111,8 +110,10 @@ else
                 rm -f "${LICENSE_FILE}"
             fi
         else
-            echo "Unable to determine LICENSE_SHORT_NAME (${LICENSE_SHORT_NAME}) or LICENSE_VERSION (${LICENSE_VERSION})"
+            echo_red "Unable to determine LICENSE_SHORT_NAME (${LICENSE_SHORT_NAME}) or LICENSE_VERSION (${LICENSE_VERSION}) for ${PING_PRODUCT}"
         fi
+    else
+        echo_red "No credentials were provided to retrieve an evaluation license."
     fi
 fi
 
@@ -122,8 +123,9 @@ if test "${licenseFound}" != "true"; then
 ############################        ALERT        #################################
 ##################################################################################
 #
-# No Ping Identity License File (${LICENSE_FILE_NAME}) was found in the server profile.
-# No Ping Identity DevOps evaluation license downloaded.
+# License File could not be found at the expected location
+# ${LICENSE_DIR}/${LICENSE_FILE_NAME}
+# An evaluation license could not be obtained from PingIdentity either.
 #
 #
 # More info on obtaining your DevOps User and Key can be found at:

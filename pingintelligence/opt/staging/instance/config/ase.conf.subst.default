@@ -24,13 +24,13 @@ enable_sideband_keepalive=${PING_INTELLIGENCE_ASE_ENABLE_SIDEBAND_KEEPALIVE}
 keystore_password=${PING_INTELLIGENCE_ASE_KEYSTORE_PASSWORD}
 enable_hostname_rewrite=${PING_INTELLIGENCE_ASE_HOSTNAME_REWRITE}
 timezone=${PING_INTELLIGENCE_ASE_TIMEZONE}
-enable_google_pubsub=${PING_INTELLIGENCE_ASE_ENABLE_GOOGLE_PUBSUB}
-google_pubsub_topic=${PING_INTELLIGENCE_ASE_GOOGLE_PUBSUB_TOPIC}
-google_pubsub_concurrency=${PING_INTELLIGENCE_ASE_GOOGLE_PUBSUB_CONCURRENCY}
-google_pubsub_qps=${PING_INTELLIGENCE_ASE_GOOGLE_PUBSUB_QPS}
-google_pubsub_apikey=${PING_INTELLIGENCE_ASE_GOOGLE_PUBSUB_APIKEY}
-cache_queue_size=${PING_INTELLIGENCE_ASE_CACHE_QUEUE_SIZE}
-google_pubsub_timeout=${PING_INTELLIGENCE_ASE_GOOGLE_PUBSUB_TIMEOUT_SECONDS}
+enable_google_pubsub=false
+google_pubsub_topic=/topic/apimetrics
+google_pubsub_concurrency=1000
+google_pubsub_qps=1000
+google_pubsub_apikey=
+cache_queue_size=300
+google_pubsub_timeout=30
 hostname_refresh=${PING_INTELLIGENCE_ASE_HOSTNAME_REFRESH_SECONDS}
 decoy_alert_interval=${PING_INTELLIGENCE_ASE_DECOY_ALERT_INTERVAL_MINUTES}
 ; tcp send buffer size in bytes(kernel)
@@ -59,7 +59,7 @@ cpu_usage=70
 memory_usage=70
 filesystem_size=70
 ; Defines report frequency in days [0=no reports, 1=every day, 2=once in two days and max is 7 ; days]
-email_report=1
+email_report=0
 ; Specify your email settings
 smtp_host=smtp://<smtp-server>
 smtp_port=587

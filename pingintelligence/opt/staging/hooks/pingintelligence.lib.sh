@@ -28,8 +28,14 @@ pi_add_api() {
 }
 
 pi_update_password() {
-    printf "%s\n%s\n%s\n" "${PING_INTELLIGENCE_DEFAULT_ADMIN_PASSWORD}" "${PING_INTELLIGENCE_ADMIN_PASSWORD}" "${PING_INTELLIGENCE_ADMIN_PASSWORD}" | "${CLI}" -u "${PING_INTELLIGENCE_ADMIN_USER}" update_password
-    return ${?}
+    printf "%s\n%s\n%s\n" "${PING_INTELLIGENCE_DEFAULT_ADMIN_PASSWORD}" "${PING_INTELLIGENCE_ADMIN_PASSWORD}" "${PING_INTELLIGENCE_ADMIN_PASSWORD}" | "${CLI}" -u "${PING_INTELLIGENCE_ADMIN_USER}" update_password > /dev/null
+    returnCode=${?}
+    if test ${returnCode} -eq 0; then
+        echo_green "%s\n" "Administrative password updated successfully"
+    else
+        echo_red "Administrative password update failed"
+    fi
+    return ${returnCode}
 }
 
 pi_obfuscate_keys() {

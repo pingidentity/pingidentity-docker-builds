@@ -8,6 +8,10 @@ services:
       - PING_IDENTITY_ACCEPT_EULA=YES
       - PING_INTELLIGENCE_ASE_ENABLE_CLUSTER=true
       - PING_INTELLIGENCE_CLUSTER_MGMT_PORT=9999
+      - PING_INTELLIGENCE_ASE_ENABLE_ABS=false
+      - PING_STARTUP_TIMEOUT=15
+      - PING_INTELLIGENCE_ASE_MODE=inline
+      - PING_INTELLIGENCE_ABS_DEPLOYMENT_TYPE=onprem
       - VERBOSE=true
     ulimits:
       nproc:
@@ -22,4 +26,4 @@ services:
     memswap_limit: 1g
     mem_swappiness: 0
     tmpfs: /run/secrets
-    command: start-server /opt/wait-for localhost:8443 -t 180 -- liveness.sh
+    command: start-server /opt/wait-for localhost:8443 -t 20 -- liveness.sh
