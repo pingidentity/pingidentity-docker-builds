@@ -129,7 +129,8 @@ _manage_profile_cmd="${SERVER_BITS_DIR}/bin/manage-profile replace-profile \
 
 echo "  ${_manage_profile_cmd}"
 
-${_manage_profile_cmd}
+_replaceProfileOutputFile="/tmp/replace-profile-output.txt"
+${_manage_profile_cmd} | tee "${_replaceProfileOutputFile}"
 _manageProfileRC=$?
 
 # Delete the generated setup-arguments.txt file from the profile
@@ -150,6 +151,11 @@ fi
 
 # Rebuild indexes if necessary
 echo ""
-echo "Rebuilding any new or untrusted indexes for base DN ${USER_BASE_DN}"
-rebuild-index --bulkRebuild new --bulkRebuild untrusted --baseDN "${USER_BASE_DN}"
+if grep "there are no changes" "${_replaceProfileOutputFile}" > /dev/null; then
+    echo "Indexes will not be rebuilt since there were no profile changes"
+else
+    echo "Rebuilding any new or untrusted indexes for base DN ${USER_BASE_DN}"
+    rebuild-index --bulkRebuild new --bulkRebuild untrusted --baseDN "${USER_BASE_DN}"
+fi
+rm -f "${_replaceProfileOutputFile}"
 exit 0
