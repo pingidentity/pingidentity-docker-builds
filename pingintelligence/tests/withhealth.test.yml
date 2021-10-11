@@ -7,6 +7,9 @@ services:
       - PING_IDENTITY_DEVOPS_KEY=${PING_IDENTITY_DEVOPS_KEY}
       - PING_IDENTITY_ACCEPT_EULA=YES
       - PING_INTELLIGENCE_ASE_ENABLE_HEALTH=true
+      - PING_INTELLIGENCE_ASE_ENABLE_ABS=false
+      - PING_INTELLIGENCE_ASE_MODE=inline
+      - PING_INTELLIGENCE_ABS_DEPLOYMENT_TYPE=onprem
       - VERBOSE=true
     ulimits:
       nproc:
@@ -21,4 +24,4 @@ services:
     memswap_limit: 1g
     mem_swappiness: 0
     tmpfs: /run/secrets
-    command: start-server /opt/wait-for localhost:8443 -t 180 -- liveness.sh
+    command: start-server /opt/wait-for localhost:8443 -t 10 -- liveness.sh

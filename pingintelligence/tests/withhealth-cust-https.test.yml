@@ -9,6 +9,9 @@ services:
       - PING_INTELLIGENCE_ASE_ENABLE_HEALTH=true
       - PING_INTELLIGENCE_ASE_HTTPS_PORT=1443
       - PING_INTELLIGENCE_ASE_HTTP_PORT=1080
+      - PING_INTELLIGENCE_ASE_ENABLE_ABS=false
+      - PING_INTELLIGENCE_ASE_MODE=inline
+      - PING_INTELLIGENCE_ABS_DEPLOYMENT_TYPE=onprem
       - VERBOSE=true
     ulimits:
       nproc:
@@ -23,4 +26,4 @@ services:
     memswap_limit: 1g
     mem_swappiness: 0
     tmpfs: /run/secrets
-    command: start-server /opt/wait-for localhost:1443 -t 180 -- liveness.sh
+    command: start-server /opt/wait-for localhost:1443 -t 10 -- liveness.sh

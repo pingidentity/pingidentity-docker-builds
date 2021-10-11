@@ -10,6 +10,7 @@
 . "${HOOKS_DIR}/pingintelligence.lib.sh"
 
 pi_obfuscate_keys
-test ${?} -ne 0 && echo_red "Error obfuscating keys" && exit 50
-
-exit 0
+if test ${?} -ne 0; then
+    echo_red "Error obfuscating keys"
+    exit 50
+fi

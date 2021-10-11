@@ -1,0 +1,62 @@
+#!/usr/bin/env sh
+#
+# Ping Identity DevOps - Docker Build Hooks
+#
+# Prints out variables and startup information when the server is started.
+#
+# This may be useful to "call home" or send a notification of startup to a command and control center
+#
+
+# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
+
+_validationFailed=false
+
+echo_header "API Security Enforcer"
+echo_vars PING_INTELLIGENCE_ABS_DEPLOYMENT_TYPE PING_INTELLIGENCE_GATEWAY_CREDENTIALS
+
+if test "${PING_INTELLIGENCE_ASE_ENABLE_ABS}" = "true"; then
+    if test -z "${PING_INTELLIGENCE_ABS_DEPLOYMENT_TYPE}"; then
+        echo_red "PING_INTELLIGENCE_ABS_DEPLOYMENT_TYPE must be set to either onprem or cloud"
+        _validationFailed=true
+    else
+        case "${PING_INTELLIGENCE_ABS_DEPLOYMENT_TYPE}" in
+            cloud)
+                if test -z "${PING_INTELLIGENCE_GATEWAY_CREDENTIALS}"; then
+                    _validationFailed=true
+                    echo_red "When PING_INTELLIGENCE_ABS_DEPLOYMENT_TYPE is set to 'cloud', you"
+                    echo_red "MUST provide the gateway JWT token as obtained from your PingOne"
+                    echo_red " environment."
+                    echo_red "Go to your PingOne dashboard->connections->PingIntelligence->Add Connnection"
+                    echo_red "Copy the value in the PING_INTELLIGENCE_GATEWAY_CREDENTIALS variable."
+                fi
+                ;;
+            onprem)
+                if test -n "${PING_INTELLIGENCE_GATEWAY_CREDENTIALS}"; then
+                    _validationFailed=true
+                    echo_red "When PING_INTELLIGENCE_ABS_DEPLOYMENT_TYPE is set to 'onprem', you"
+                    echo_red "MUST NOT provide a gateway JWT token"
+                fi
+                if test -z "${PING_INTELLIGENCE_ABS_ACCESS_KEY}"; then
+                    _validationFailed=true
+                    echo_red "When PING_INTELLIGENCE_ASE_ENABLE_ABS is set to 'true', you"
+                    echo_red "MUST provide a valid ABS access key with PING_INTELLIGENCE_ABS_ACCESS_KEY"
+                fi
+                if test -z "${PING_INTELLIGENCE_ABS_SECRET_KEY}"; then
+                    _validationFailed=true
+                    echo_red "When PING_INTELLIGENCE_ASE_ENABLE_ABS is set to 'true', you"
+                    echo_red "MUST provide a valid ABS secret key with PING_INTELLIGENCE_ABS_SECRET_KEY"
+                fi
+                ;;
+            *)
+                _validationFailed=true
+                echo_red "Unsupported value for PING_INTELLIGENCE_ABS_DEPLOYMENT_TYPE."
+                echo_red "Valid values are: onprem or cloud"
+                ;;
+        esac
+    fi
+fi
+
+if test "${_validationFailed}" = "true"; then
+    exit 4
+fi

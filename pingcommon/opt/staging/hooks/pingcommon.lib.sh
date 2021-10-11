@@ -256,8 +256,19 @@ EOF
         )"
     else
         echo_red "CONTAINER FAILURE: $*"
-        # shellcheck disable=SC2086
-        kill -${_exitCode} 1
+
+        _osID="$(getOSID)"
+        case "${_osID}" in
+            redhat | fedora | centos)
+                # shellcheck disable=SC2086
+                kill -n ${_exitCode} 1
+                ;;
+            *)
+                # shellcheck disable=SC2086
+                kill -${_exitCode} 1
+                ;;
+        esac
+        exit "${_exitCode}"
     fi
 }
 

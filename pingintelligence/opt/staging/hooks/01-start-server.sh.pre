@@ -1,0 +1,56 @@
+#!/usr/bin/env sh
+#
+# Ping Identity DevOps - Docker Build Hooks
+#
+# Check there is enough shared memory for PingIntelligence API Security Enforcer
+
+# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
+
+_sharedMemoryCheckFailed=false
+if ! test -d "/dev/shm"; then
+    echo_red "No Shared Memory available. This could be because /dev/shm is absent or not traversable."
+    _sharedMemoryCheckFailed=true
+fi
+
+_availableSharedMemory="$(df /dev/shm | awk '/^shm/ {print $2/1024}')"
+if test "${_availableSharedMemory:-0}" -lt "256"; then
+    echo_red "Not enough Shared Memory available in /dev/shm"
+    echo_red "${_availableSharedMemory}MB available."
+    _sharedMemoryCheckFailed=true
+fi
+
+if test "${_sharedMemoryCheckFailed}" = "true"; then
+    echo_red "PingIntelligence API Security Enforcer requires at least 256MB of shared memory."
+    echo_red "Use one of the following depending on your deployment framework:"
+    echo_red "  - docker         : --shm-size 256m"
+    echo_red "  - docker-compose : shm_size: 256m"
+    echo_red "  - kubernetes     : https://stackoverflow.com/questions/46085748/define-size-for-dev-shm-on-container-engine"
+    echo_red "  - openshift      : https://docs.openshift.com/container-platform/3.6/dev_guide/shared_memory.html"
+    _sharedMemoryCheckFailed=true
+else
+    echo_green "Sufficient available shared memory: ${_availableSharedMemory}MB"
+fi
+
+if test "${_sharedMemoryCheckFailed}" = "true"; then
+    exit 1
+fi
+
+# very early check to see if the user limit is set high enough for us to even consider going further
+# we disable the warning about ulimit -n because it works on centos
+# shellcheck disable=SC2039,SC3045
+CURRENT_ULIMIT=$(ulimit -n 2> /dev/null || echo 0)
+# CURRENT_LIMIT is numerical
+# shellcheck disable=SC2086
+if test "${CURRENT_ULIMIT}" -lt "65535"; then
+    echo "limit for open files is very low ($CURRENT_ULIMIT), please set it to at least 65535"
+    echo_red "  - docker         : --ulimit nofile=65536:65536"
+    echo_red "  - docker-compose : "
+    echo_red "    ulimits:"
+    echo_red "      nofile:"
+    echo_red "        soft: 65535"
+    echo_red "        hard: 65535"
+    exit 1
+else
+    echo_green "Sufficient file descriptor limit: ${CURRENT_ULIMIT}"
+fi

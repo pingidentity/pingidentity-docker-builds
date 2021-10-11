@@ -14,17 +14,6 @@ log() {
     echo "${*}" >> "${CONTROLLER_LOG}"
 }
 
-# very early check to see if the user limit is set high enough for us to even consider going further
-# we disable the warning about ulimit -n because it works on centos
-# shellcheck disable=SC2039,SC3045
-CURRENT_ULIMIT=$(ulimit -n 2> /dev/null || echo 0)
-# CURRENT_LIMIT is numerical
-# shellcheck disable=SC2086
-if test ${CURRENT_ULIMIT} -lt 65535; then
-    echo "limit for open files is very low ($CURRENT_ULIMIT), please set it to at least 65535"
-    exit 1
-fi
-
 umask 027
 
 CONTROLLER_BINARY="${SERVER_ROOT_DIR}/lib/controller"
@@ -44,12 +33,12 @@ if test ${CONTROLLER_LOG_DIR_STATUS} -ne 0; then
     exit 1
 fi
 
-res=$("${CONTROLLER_BINARY}" "${CONTROLLER_CONFIG_DIR}" api ping)
-CONTROLLER_ALIVE_STATUS=${?}
-if test ${CONTROLLER_ALIVE_STATUS} -eq 0 && test "${res}" = "pong"; then
-    echo "Another instance of API Security Enforcer is already running"
-    exit 1
-fi
+# res=$("${CONTROLLER_BINARY}" "${CONTROLLER_CONFIG_DIR}" api ping)
+# CONTROLLER_ALIVE_STATUS=${?}
+# if test ${CONTROLLER_ALIVE_STATUS} -eq 0 && test "${res}" = "pong"; then
+#     echo "Another instance of API Security Enforcer is already running"
+#     exit 1
+# fi
 
 # I'm not 100% certain this is advisable yet
 # TODO: make a definitive recommendation for relocating core dump pattern ( within container vs without )
@@ -72,9 +61,9 @@ case "${var_tz_val}" in
         log "Starting ASE in local timezone"
         ;;
     *)
-        log "Timezone [${var_tz_val}] is not an allowed value for timezone in ase.conf. The allowed values are local, utc. Starting ASE in local timezone."
+        echo_red "Timezone [${var_tz_val}] is not an allowed value for timezone in ase.conf."
+        exit 1
         ;;
 esac
 
-echo "Starting API Security Enforcer..."
-exec "${CONTROLLER_BINARY}" "${CONTROLLER_CONFIG_DIR}" management start >> "${CONTROLLER_LOG}"
+"${CONTROLLER_BINARY}" "${CONTROLLER_CONFIG_DIR}" management start >> "${CONTROLLER_LOG}"

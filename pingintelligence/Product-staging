@@ -52,6 +52,8 @@ RUN /get-bits.sh --product ${PRODUCT} \
         -x *.example \
         -x *.conf \
         -x *_rhel7.sh \
+        -x start_aws.sh \
+        -x start.sh \
     && mv /tmp/ase /opt/server
 
 FROM scratch
