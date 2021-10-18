@@ -729,8 +729,8 @@ buildRunPlan() {
             fi
 
             if test -z "${K8S_SEED_HOSTNAME_PREFIX}"; then
-                echo "K8S_SEED_HOSTNAME_PREFIX not set.  Defaulting to K8S_POD_HOSTNAME_PREFIX- (\${K8S_POD_HOSTNAME_PREFIX}-)"
-                K8S_SEED_HOSTNAME_PREFIX="${K8S_POD_HOSTNAME_PREFIX}-"
+                echo "K8S_SEED_HOSTNAME_PREFIX not set.  Defaulting to K8S_POD_HOSTNAME_PREFIX (\${K8S_POD_HOSTNAME_PREFIX})"
+                K8S_SEED_HOSTNAME_PREFIX="${K8S_POD_HOSTNAME_PREFIX}"
             fi
 
             if test -z "${K8S_SEED_HOSTNAME_SUFFIX}"; then
