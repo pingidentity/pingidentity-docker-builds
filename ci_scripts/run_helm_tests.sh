@@ -338,7 +338,8 @@ export TEST_SUFFIX="testframework"
 # Determine the NAMESPACE to use
 #
 if test -n "${_namespace_to_use}"; then
-    export NS="${_namespace_to_use}"
+    NS=$(toLower "${_namespace_to_use}")
+    export NS
 
     kubectl get ns "${NS}" 2> /dev/null > /dev/null
 
@@ -349,7 +350,8 @@ if test -n "${_namespace_to_use}"; then
 else
     export NAMESPACE_PREFIX="${NAMESPACE_PREFIX:-$TEST_PREFIX}"
 
-    export NS="${NAMESPACE_PREFIX}${CI_COMMIT_REF_NAME:-$USER}-${CI_PIPELINE_ID}-${CI_JOB_ID}${_namespace_suffix}"
+    NS=$(toLower "${NAMESPACE_PREFIX}${CI_COMMIT_REF_NAME:-$USER}-${CI_PIPELINE_ID}-${CI_JOB_ID}${_namespace_suffix}")
+    export NS
 
     #
     # Create the namespace
