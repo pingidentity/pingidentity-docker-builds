@@ -1,5 +1,5 @@
 ################################################
-#                  BUILD 
+#                  BUILD
 ################################################
 
 intel.b.pingtoolkit:
@@ -30,6 +30,11 @@ arm.b.pingtoolkit:
     - platform=aarch64
   script:
     - ci_scripts/build_product.sh --product pingtoolkit
+  variables:
+    KUBERNETES_CPU_REQUEST: 950m
+    KUBERNETES_CPU_LIMIT: 3800m
+    KUBERNETES_MEMORY_REQUEST: 1900000000
+    KUBERNETES_MEMORY_LIMIT: 1900000000
   only:
     changes:
       - pingtoolkit/**/*
@@ -54,7 +59,7 @@ arm.b.pingtoolkit:
 intel.t.pingtoolkit:
   stage: test.smoke
   script:
-    - ci_scripts/run_smoke.sh --product pingtoolkit
+    - ci_scripts/run_helm_smoke.sh --product pingtoolkit
   only:
     changes:
       - pingtoolkit/**/*

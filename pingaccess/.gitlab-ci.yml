@@ -6,6 +6,11 @@ intel.b.pingaccess:
   stage: products
   script:
     - ci_scripts/build_product.sh --product pingaccess
+  variables:
+    KUBERNETES_CPU_REQUEST: 1900m
+    KUBERNETES_CPU_LIMIT: 1900m
+    KUBERNETES_MEMORY_REQUEST: 3920000000
+    KUBERNETES_MEMORY_LIMIT: 3920000000
   only:
     changes:
       - pingcommon/**/*
@@ -33,6 +38,11 @@ arm.b.pingaccess:
     - platform=aarch64
   script:
     - ci_scripts/build_product.sh --product pingaccess
+  variables:
+    KUBERNETES_CPU_REQUEST: 950m
+    KUBERNETES_CPU_LIMIT: 3800m
+    KUBERNETES_MEMORY_REQUEST: 1900000000
+    KUBERNETES_MEMORY_LIMIT: 1900000000
   only:
     changes:
       - pingcommon/**/*
@@ -60,7 +70,7 @@ arm.b.pingaccess:
 intel.t.pingaccess:
   stage: test.smoke
   script:
-    - ci_scripts/run_smoke.sh --product pingaccess
+    - ci_scripts/run_helm_smoke.sh --product pingaccess
   only:
     changes:
       - pingcommon/**/*
@@ -87,7 +97,12 @@ arm.t.pingaccess:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_smoke.sh --product pingaccess
+    - ci_scripts/run_helm_smoke.sh --product pingaccess
+  variables:
+    KUBERNETES_CPU_REQUEST: 950m
+    KUBERNETES_CPU_LIMIT: 3800m
+    KUBERNETES_MEMORY_REQUEST: 1900000000
+    KUBERNETES_MEMORY_LIMIT: 1900000000
   only:
     changes:
       - pingcommon/**/*

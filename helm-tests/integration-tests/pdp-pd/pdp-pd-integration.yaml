@@ -1,0 +1,73 @@
+###############################################################################
+# Ping Identity Test - PingDirectory Proxy/PingDirectory Integration Test
+#
+#
+###############################################################################
+pingdirectory:
+  enabled: true
+  envs:
+    SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
+    SERVER_PROFILE_PATH: baseline/pingdirectory
+
+pingdirectoryproxy:
+  enabled: true
+  envs:
+    SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
+    SERVER_PROFILE_PATH: baseline/pingdirectoryproxy
+  container:
+    waitFor:
+      pingdirectory:
+        service: ldaps
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+  testConfigMaps:
+    # DEFAULTS (found in helm chart values.yaml)
+    # prefix: ping-devops-test-
+    # volumeMountPath: /var/run/
+    files:
+      - wait-for-url.sh
+      - pdp-pd.postman-collection.json
+      - generated.postman-environment.json
+      - global-init-test.sh
+
+  testSteps:
+    - name: 01-wait-for-pingdirectory
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - /var/run/wait-for-url.sh
+        - https://${PD_ENGINE_PRIVATE_HOSTNAME}-0.${PD_ENGINE_PRIVATE_HOSTNAME}-cluster:1443/available-state
+        - "900"
+      waitFor:
+        pingdirectory:
+          service: https
+
+    - name: 02-get-dse
+      image: ${DEPS_REGISTRY}pingidentity/ldap-sdk-tools:latest
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      command:
+        - /bin/sh
+        - -c
+        - ldapsearch --baseDN "" --hostname $PD_ENGINE_PRIVATE_HOSTNAME --port $PD_ENGINE_PRIVATE_PORT_LDAPS --useSSL --trustAll --scope base "(&)"
+
+    - name: 03-wait-for-pingdirectoryproxy
+      waitFor:
+        pingdirectoryproxy:
+          service: https
+
+    - name: 04-check-pdp-pd
+      image: ${DEPS_REGISTRY}arnaudlacour/newman
+      command:
+        - newman
+        - run
+        - /var/run/pdp-pd.postman-collection.json
+        - --environment
+        - /var/run/generated.postman-environment.json
+        - --insecure
+        - --ignore-redirects

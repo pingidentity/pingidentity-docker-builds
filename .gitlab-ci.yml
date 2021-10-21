@@ -19,13 +19,14 @@ include:
   - local: pingdownloader/.gitlab-ci.yml
 
 stages:
-  - intialization
+  - initialization
   - foundation
   - products
   - test.smoke
   - test.integration
   - deploy
   - publish
+  - final
 
 default:
   before_script:
@@ -33,32 +34,47 @@ default:
   services:
     - $PIPELINE_DEPS_REGISTRY/docker:18.09-dind
   image: $RUNNER_IMAGE_X86_64
+################################################
+# Default variables used by all jobs unless they
+# are overridden by the job
+#
+#  - .5-1 cpu
+#  - 1.9GB of memory with no elasticity
+#  - poll timeout of 15 minutes (to release capacity)
+################################################
 variables:
   DOCKER_HOST: tcp://localhost:2375
-  # effectively, this is one full core scheduled 95% of the time
-  KUBERNETES_CPU_REQUEST: 950m
-  # 4x the request
-  KUBERNETES_CPU_LIMIT: 3800m
-  # a hair less than 2g
+  KUBERNETES_CPU_REQUEST: 500m
+  KUBERNETES_CPU_LIMIT: 1000m
   KUBERNETES_MEMORY_REQUEST: 1900000000
-  # allocate memory statically ... no elasticity
   KUBERNETES_MEMORY_LIMIT: 1900000000
-  # give jobs up to 15 minutes to release capacity
-  KUBERNETES_POLL_TIMEOUT: 900
+  KUBERNETES_POLL_TIMEOUT: 1200
+################################################
+# For Docker Compose Tests, provide a kubernetes
+# sizing of:
+#
+#  - 95% of a cpu up to 4x (380%)
+#  - 1.9g of memory with no elasticity
+################################################
+# variables:
+#   KUBERNETES_CPU_REQUEST: 950m
+#   KUBERNETES_CPU_LIMIT: 3800m
+#   KUBERNETES_MEMORY_REQUEST: 1900000000
+#   KUBERNETES_MEMORY_LIMIT: 1900000000
 
 
 ################################################
-#   _____ _   _ _____ _______ 
+#   _____ _   _ _____ _______
 #  |_   _| \ | |_   _|__   __|
-#    | | |  \| | | |    | |   
-#    | | | . ` | | |    | |   
+#    | | |  \| | | |    | |
+#    | | | . ` | | |    | |
 #   _| |_| |\  |_| |
-#  |_____|_| \_|_____|  |_|   
-#                            
+#  |_____|_| \_|_____|  |_|
+#
 ################################################
 # Note: Platform agnostic
 intel.i.checks:
-  stage: intialization
+  stage: initialization
   script:
     - ci_scripts/if_readme_only.sh
   except:
@@ -67,7 +83,7 @@ intel.i.checks:
       # - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
 
 intel.i.unmerged:
-  stage: intialization
+  stage: initialization
   script:
     - ci_scripts/unmerged_changes.sh
   except:
@@ -76,7 +92,7 @@ intel.i.unmerged:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
 
 intel.i.shellcheck:
-  stage: intialization
+  stage: initialization
   script:
     - ci_scripts/shellcheck.sh
   except:
@@ -85,7 +101,7 @@ intel.i.shellcheck:
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
 
 intel.i.shfmt:
-  stage: intialization
+  stage: initialization
   script:
     - ci_scripts/shfmt.sh --diff
   except:
@@ -93,15 +109,14 @@ intel.i.shfmt:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
       - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
 
-
 #####################################################################
-#   ______ ____  _    _ _   _ _____       _______ _____ ____  _   _ 
+#   ______ ____  _    _ _   _ _____       _______ _____ ____  _   _
 #  |  ____/ __ \| |  | | \ | |  __ \   /\|__   __|_   _/ __ \| \ | |
 #  | |__ | |  | | |  | |  \| | |  | | /  \  | |    | || |  | |  \| |
 #  |  __|| |  | | |  | | . ` | |  | |/ /\ \ | |    | || |  | | . ` |
 #  | |   | |__| | |__| | |\  | |__| / ____ \| |   _| || |__| | |\  |
 #  |_|    \____/ \____/|_| \_|_____/_/    \_\_|  |_____\____/|_| \_|
-#                                                                  
+#
 #####################################################################
 intel.f.pingfoundation:
   stage: foundation
@@ -153,13 +168,13 @@ arm.f.pingdownloader:
 
 
 ################################################
-#   _____       _     _ _     _     
-#  |  __ \     | |   | (_)   | |    
-#  | |__) |   _| |__ | |_ ___| |__  
-#  |  ___/ | | | '_ \| | / __| '_ \ 
+#   _____       _     _ _     _
+#  |  __ \     | |   | (_)   | |
+#  | |__) |   _| |__ | |_ ___| |__
+#  |  ___/ | | | '_ \| | / __| '_ \
 #  | |   | |_| | |_) | | \__ \ | | |
 #  |_|    \__,_|_.__/|_|_|___/_| |_|
-#                                  
+#
 ################################################
 p.github:
   stage: publish
@@ -177,3 +192,18 @@ p.github:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_REF_NAME =~ /^\[skip deploy\]*/
       - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+
+################################################
+#   ______ _____ _   _          _
+#  |  ____|_   _| \ | |   /\   | |
+#  | |__    | | |  \| |  /  \  | |
+#  |  __|   | | | . ` | / /\ \ | |
+#  | |     _| |_| |\  |/ ____ \| |____
+#  |_|    |_____|_| \_/_/    \_\______|
+################################################
+
+clean-k8s:
+  stage: final
+  script:
+    - ci_scripts/cleanup_kubernetes.sh
+  when: always

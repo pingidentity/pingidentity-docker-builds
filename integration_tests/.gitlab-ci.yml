@@ -1,12 +1,12 @@
 ################################################
 # The purpose of the integration test below is
-# to verify replication between two 
-# instances of PingDirectory with the latest 
-# release for the azul JVM on the x86_64 runner 
-intel.pd-repl.latest:
+# to verify replication between two
+# instances of PingDirectory with the latest
+# release for the azul JVM on the x86_64 runner
+intel.pd-repl:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh pd-replicated.latest
+    - ci_scripts/run_helm_integration.sh --integration-test pd-replicated
   only:
     changes:
       - integration_tests/**/pd-replicated*
@@ -34,13 +34,13 @@ intel.pd-repl.latest:
 
 ################################################
 # The purpose of the integration test below is
-# to verify replication between two 
-# instances of PingDirectory with the latest 
-# release for the liberica JVM on the x86_64 runner 
+# to verify replication between two
+# instances of PingDirectory with the latest
+# release for the liberica JVM on the x86_64 runner
 intel.pd-repl.liberica:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh pd-replicated.latest al11
+    - ci_scripts/run_helm_integration.sh --integration-test pd-replicated --image-tag-jvm al11
   only:
     changes:
       - integration_tests/**/pd-replicated*
@@ -68,9 +68,9 @@ intel.pd-repl.liberica:
 
 ################################################
 # The purpose of the integration test below is
-# to verify replication between two 
-# instances of PingDirectory with the latest 
-# release for the liberica JVM on the aarch64 runner 
+# to verify replication between two
+# instances of PingDirectory with the latest
+# release for the liberica JVM on the aarch64 runner
 arm.pd-repl.latest:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
@@ -107,11 +107,11 @@ arm.pd-repl.latest:
 # The purpose of the integration test below is
 # to verify PingAccess, PingFederate and PingDirectory
 # integrate together into an end to end test
-# for the azul JVM on the x86_64 runner 
-intel.pa-pf-pd.latest:
+# for the azul JVM on the x86_64 runner
+intel.pa-pf-pd:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh pa-pf-pd.latest
+    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd
   only:
     changes:
       - integration_tests/**/pa-pf-pd*
@@ -125,8 +125,8 @@ intel.pa-pf-pd.latest:
       - pingjvm/*
       - .gitlab-ci.yml
   variables:
-    KUBERNETES_CPU_REQUEST: 2850m
-    KUBERNETES_CPU_LIMIT: 2850m
+    KUBERNETES_CPU_REQUEST: 250m
+    KUBERNETES_CPU_LIMIT: 500m
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 3920000000
   except:
@@ -145,7 +145,7 @@ intel.pa-pf-pd.latest:
 # integrate together into an end to end test
 # for the liberica x86 JVM on a RHEL shim in
 # FIPS mode
-intel.pa-pf-pd-FIPS.latest:
+intel.pf-pd-fips.latest:
   stage: test.integration
   script:
     - SHIM=redhat_ubi_ubi8_8.3 ci_scripts/run_integration.sh pa-pf-pd-FIPS.latest rl11
@@ -180,11 +180,11 @@ intel.pa-pf-pd-FIPS.latest:
 # The purpose of the integration test below is
 # to verify PingAccess, PingFederate and PingDirectory
 # integrate together into an end to end test
-# for the liberica JVM on the x86_64 runner 
+# for the liberica JVM on the x86_64 runner
 intel.pa-pf-pd.liberica:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh pa-pf-pd.latest al11
+    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --image-tag-jvm al11
   only:
     changes:
       - integration_tests/**/pa-pf-pd*
@@ -216,7 +216,7 @@ intel.pa-pf-pd.liberica:
 # The purpose of the integration test below is
 # to verify PingAccess, PingFederate and PingDirectory
 # integrate together into an end to end test
-# for the liberica JVM on the aarch64 runner 
+# for the liberica JVM on the aarch64 runner
 arm.pa-pf-pd.latest:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
@@ -255,11 +255,11 @@ arm.pa-pf-pd.latest:
 # The purpose of the integration test below is
 # to verify PingDataSync and PingDirectory
 # integrate together into an end to end test
-# for the azul JVM on the x86_64 runner 
-intel.pds-pd.latest:
+# for the azul JVM on the x86_64 runner
+intel.pds-pd:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh pds-pd.latest
+    - ci_scripts/run_helm_integration.sh --integration-test pds-pd
   only:
     changes:
       - integration_tests/**/pds-pd*
@@ -290,11 +290,11 @@ intel.pds-pd.latest:
 # The purpose of the integration test below is
 # to verify PingDataSync and PingDirectory
 # integrate together into an end to end test
-# for the liberica JVM on the x86_64 runner 
+# for the liberica JVM on the x86_64 runner
 intel.pds-pd.liberica:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh pds-pd.latest al11
+    - ci_scripts/run_helm_integration.sh --integration-test pds-pd --image-tag-jvm al11
   only:
     changes:
       - integration_tests/**/pds-pd*
@@ -325,7 +325,7 @@ intel.pds-pd.liberica:
 # The purpose of the integration test below is
 # to verify PingDataSync and PingDirectory
 # integrate together into an end to end test
-# for the liberica JVM on the aarch64 runner 
+# for the liberica JVM on the aarch64 runner
 arm.pds-pd.latest:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
@@ -363,11 +363,11 @@ arm.pds-pd.latest:
 # The purpose of the integration test below is
 # to verify PingDirectoryProxy and PingDirectory
 # integrate together into an end to end test
-# for the azul JVM on the x86_64 runner 
-intel.pdp-pd.latest:
+# for the azul JVM on the x86_64 runner
+intel.pdp-pd:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh pdp-pd.latest
+    - ci_scripts/run_helm_integration.sh --integration-test pdp-pd
   only:
     changes:
       - integration_tests/**/pdp-pd*
@@ -379,6 +379,11 @@ intel.pdp-pd.latest:
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml
+  variables:
+    KUBERNETES_CPU_REQUEST: 1900m
+    KUBERNETES_CPU_LIMIT: 1900m
+    KUBERNETES_MEMORY_REQUEST: 3920000000
+    KUBERNETES_MEMORY_LIMIT: 5880000000
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -393,11 +398,11 @@ intel.pdp-pd.latest:
 # The purpose of the integration test below is
 # to verify PingDirectoryProxy and PingDirectory
 # integrate together into an end to end test
-# for the liberica JVM on the x86_64 runner 
+# for the liberica JVM on the x86_64 runner
 intel.pdp-pd.liberica:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh pdp-pd.latest al11
+    - ci_scripts/run_helm_integration.sh --integration-test pdp-pd --image-tag-jvm al11
   only:
     changes:
       - integration_tests/**/pdp-pd*
@@ -409,6 +414,11 @@ intel.pdp-pd.liberica:
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml
+  variables:
+    KUBERNETES_CPU_REQUEST: 1900m
+    KUBERNETES_CPU_LIMIT: 1900m
+    KUBERNETES_MEMORY_REQUEST: 3920000000
+    KUBERNETES_MEMORY_LIMIT: 5880000000
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -423,7 +433,7 @@ intel.pdp-pd.liberica:
 # The purpose of the integration test below is
 # to verify PingDirectoryProxy and PingDirectory
 # integrate together into an end to end test
-# for the liberica JVM on the aarch64 runner 
+# for the liberica JVM on the aarch64 runner
 arm.pdp-pd.latest:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
@@ -461,11 +471,11 @@ arm.pdp-pd.latest:
 # The purpose of the integration test below is
 # to verify PingDataGovernance and PingDirectory
 # integrate together into an end to end test
-# for the azul JVM on the x86_64 runner 
-intel.pdg-pd.latest:
+# for the azul JVM on the x86_64 runner
+intel.pdg-pd:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh pdg-pd.latest
+    - ci_scripts/run_helm_integration.sh --integration-test pdg-pd
   only:
     changes:
       - integration_tests/**/pdg-pd*
@@ -496,11 +506,11 @@ intel.pdg-pd.latest:
 # The purpose of the integration test below is
 # to verify PingDataGovernance and PingDirectory
 # integrate together into an end to end test
-# for the liberica JVM on the x86_64 runner 
+# for the liberica JVM on the x86_64 runner
 intel.pdg-pd.liberica:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh pdg-pd.latest al11
+    - ci_scripts/run_helm_integration.sh --integration-test pdg-pd --image-tag-jvm al11
   only:
     changes:
       - integration_tests/**/pdg-pd*
@@ -531,7 +541,7 @@ intel.pdg-pd.liberica:
 # The purpose of the integration test below is
 # to verify PingDataGovernance and PingDirectory
 # integrate together into an end to end test
-# for the liberica JVM on the aarch64 runner 
+# for the liberica JVM on the aarch64 runner
 arm.pdg-pd.latest:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
@@ -569,11 +579,11 @@ arm.pdg-pd.latest:
 # The purpose of the integration test below is
 # to verify PingAuthorize and PingDirectory
 # integrate together into an end to end test
-# for the azul JVM on the x86_64 runner 
-intel.paz-pd.latest:
+# for the azul JVM on the x86_64 runner
+intel.paz-pd:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh paz-pd.latest
+    - ci_scripts/run_helm_integration.sh --integration-test paz-pd
   only:
     changes:
       - integration_tests/**/pdg-pd*
@@ -604,11 +614,11 @@ intel.paz-pd.latest:
 # The purpose of the integration test below is
 # to verify PingAuthorize and PingDirectory
 # integrate together into an end to end test
-# for the liberica JVM on the x86_64 runner 
+# for the liberica JVM on the x86_64 runner
 intel.paz-pd.liberica:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh paz-pd.latest al11
+    - ci_scripts/run_helm_integration.sh --integration-test paz-pd --image-tag-jvm al11
   only:
     changes:
       - integration_tests/**/pdg-pd*
@@ -639,7 +649,7 @@ intel.paz-pd.liberica:
 # The purpose of the integration test below is
 # to verify PingAuthorize and PingDirectory
 # integrate together into an end to end test
-# for the liberica JVM on the aarch64 runner 
+# for the liberica JVM on the aarch64 runner
 arm.paz-pd.latest:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64

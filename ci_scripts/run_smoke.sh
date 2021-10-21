@@ -48,10 +48,6 @@ if test -z "${CI_COMMIT_REF_NAME}"; then
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
 
-CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
-# shellcheck source=./ci_tools.lib.sh
-. "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
-
 while test -n "${1}"; do
     case "${1}" in
         -p | --product)
@@ -62,7 +58,7 @@ while test -n "${1}"; do
         -s | --shim)
             test -z "${2}" && usage "You must provide an OS shim if you specify the ${1} option"
             shift
-            shimList="${shimList}${shimList:+ }${1}"
+            shimList="${shimList:+${shimList} }${1}"
             ;;
         -j | --jvm)
             test -z "${2}" && usage "You must provide a JVM id if you specify the ${1} option"
@@ -88,14 +84,23 @@ while test -n "${1}"; do
     shift
 done
 
+CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
+# shellcheck source=./ci_tools.lib.sh
+. "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
+
 returnCode=""
 
 test -z "${product}" && usage "Providing a product is required"
 ! test -d "${CI_PROJECT_DIR}/${product}" && echo "invalid product ${product}" && exit 98
-! test -d "${CI_PROJECT_DIR}/${product}/tests/" && echo "${product} has non tests" && exit 98
+! test -d "${CI_PROJECT_DIR}/${product}/tests/" && echo "${product} has no tests" && exit 98
 
 if test -z "${versions}" && test -f "${CI_PROJECT_DIR}/${product}"/versions.json; then
     versions=$(_getAllVersionsToBuildForProduct "${product}")
+fi
+
+if test -z "${versions}"; then
+    echo "No version provided, and unable to determine any verions from product versions.json"
+    exit 98
 fi
 
 # IS_LOCAL_BUILD is assigned when we source ci_tools.lib.sh

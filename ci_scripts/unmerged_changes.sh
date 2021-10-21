@@ -20,4 +20,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 _unmerged=$(grep -Rl '<<<<<<<' "${CI_PROJECT_DIR}" | grep -v "${0}")
 
 test -z "${_unmerged}" && exit 0
+
+echo "Found unmerged changes..."
+echo "${_unmerged}"
 exit 1

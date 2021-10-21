@@ -1,0 +1,27 @@
+###############################################################################
+# Ping Identity Test - PingDelegator Smoke Test
+#
+#
+###############################################################################
+pingdelegator:
+  enabled: true
+  container:
+    resources:
+      requests:
+        cpu: 1
+        memory: 64Mi
+      limits:
+        cpu: 1
+        memory: 64Mi
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+
+  testSteps:
+    - name: 01-wait-for
+      waitFor:
+        pingdelegator:
+          service: https

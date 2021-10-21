@@ -1,0 +1,27 @@
+###############################################################################
+# Ping Identity Test - PingAuthorize Smoke Test
+#
+#
+###############################################################################
+pingauthorize:
+  enabled: true
+  container:
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+
+  testSteps:
+    - name: 01-wait-for
+      waitFor:
+        pingauthorize:
+          service: https

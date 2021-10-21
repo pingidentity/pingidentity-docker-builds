@@ -1,0 +1,70 @@
+###############################################################################
+# Ping Identity Test - PingAccess/PingFederate/PingDirectory Integration Test
+#
+#
+###############################################################################
+pingdirectory:
+  enabled: true
+  envs:
+    SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
+    SERVER_PROFILE_PATH: baseline/pingdirectory
+    SERVER_PROFILE_BRANCH: FIPS
+    MAX_HEAP_SIZE: 1g
+    FIPS_MODE_ON: "true"
+    KEYSTORE_FILE: /opt/staging/.sec/private-key.pem
+    KEYSTORE_TYPE: pem
+    TRUSTSTORE_FILE: /opt/staging/.sec/certificate-chain.pem
+    TRUSTSTORE_TYPE: pem
+    CERTIFICATE_NICKNAME: server-cert
+
+pingfederate-admin:
+  enabled: true
+  privateCert:
+    generate: true
+  envs:
+    SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
+    SERVER_PROFILE_PATH: baseline/pingfederate
+    SERVER_PROFILE_BRANCH: FIPS
+    HSM_MODE: BCFIPS
+
+pingfederate-engine:
+  enabled: true
+  envs:
+    SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
+    SERVER_PROFILE_PATH: baseline/pingfederate
+    SERVER_PROFILE_BRANCH: FIPS
+    HSM_MODE: BCFIPS
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+  testConfigMaps:
+    # DEFAULTS (found in helm chart values.yaml)
+    # prefix: ping-devops-test-
+    # volumeMountPath: /var/run/
+    files:
+      - pf-pd-fips.postman-collection.json
+      - generated.postman-environment.json
+
+  testSteps:
+    - name: 01-wait-for
+      waitFor:
+        pingfederate-admin:
+          service: https
+        pingfederate-engine:
+          service: https
+        pingdirectory:
+          service: https
+
+    - name: 02-check-pf-pd-fips
+      image: ${DEPS_REGISTRY}arnaudlacour/newman
+      command:
+        - newman
+        - run
+        - /var/run/pf-pd-fips.postman-collection.json
+        - --environment
+        - /var/run/generated.postman-environment.json
+        - --insecure
+        - --ignore-redirects

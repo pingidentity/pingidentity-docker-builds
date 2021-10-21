@@ -1,5 +1,5 @@
 ################################################
-#                  BUILD 
+#                  BUILD
 ################################################
 
 intel.b.pingcentral:
@@ -29,6 +29,11 @@ arm.b.pingcentral:
     - platform=aarch64
   script:
     - ci_scripts/build_product.sh --product pingcentral
+  variables:
+    KUBERNETES_CPU_REQUEST: 950m
+    KUBERNETES_CPU_LIMIT: 3800m
+    KUBERNETES_MEMORY_REQUEST: 1900000000
+    KUBERNETES_MEMORY_LIMIT: 1900000000
   only:
     changes:
       - pingcentral/**/*

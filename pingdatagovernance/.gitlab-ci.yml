@@ -1,5 +1,5 @@
 ################################################
-#                  BUILD 
+#                  BUILD
 ################################################
 
 intel.b.pingdatagovernance:
@@ -33,6 +33,11 @@ arm.b.pingdatagovernance:
     - platform=aarch64
   script:
     - ci_scripts/build_product.sh --product pingdatagovernance
+  variables:
+    KUBERNETES_CPU_REQUEST: 950m
+    KUBERNETES_CPU_LIMIT: 3800m
+    KUBERNETES_MEMORY_REQUEST: 1900000000
+    KUBERNETES_MEMORY_LIMIT: 1900000000
   only:
     changes:
       - pingdatagovernance/**/*
@@ -60,7 +65,7 @@ arm.b.pingdatagovernance:
 intel.t.pingdatagovernance:
   stage: test.smoke
   script:
-    - ci_scripts/run_smoke.sh --product pingdatagovernance
+    - ci_scripts/run_helm_smoke.sh --product pingdatagovernance
   only:
     changes:
       - pingcommon/**/*
@@ -84,10 +89,15 @@ intel.t.pingdatagovernance:
 arm.t.pingdatagovernance:
   stage: test.smoke
   image: $RUNNER_IMAGE_AARCH64
+  variables:
+    KUBERNETES_CPU_REQUEST: 950m
+    KUBERNETES_CPU_LIMIT: 3800m
+    KUBERNETES_MEMORY_REQUEST: 1900000000
+    KUBERNETES_MEMORY_LIMIT: 1900000000
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_smoke.sh --product pingdatagovernance
+    - ci_scripts/run_helm_smoke.sh --product pingdatagovernance
   only:
     changes:
       - pingcommon/**/*

@@ -1,0 +1,50 @@
+{
+	"info": {
+		"_postman_id": "7a501e87-5e99-4474-bbbb-a4909fd6d1d8",
+		"name": "helm-testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "https://pingdataconsole/console",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"PingDataConsole Redirects\", function () {",
+							"    pm.response.to.have.status(302);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{PD_CONSOLE_PRIVATE_HOSTNAME}}:{{PD_CONSOLE_PRIVATE_PORT_HTTPS}}/console",
+					"protocol": "https",
+					"host": [
+						"{{PD_CONSOLE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PD_CONSOLE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"console"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"id": "9bebf2b0-59db-440b-bcc2-e58d7dca657e",
+			"key": "PD_CONSOLE_PRIVATE_PORT_HTTPS",
+			"value": "8443",
+			"type": "string"
+		}
+	]
+}
