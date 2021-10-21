@@ -1,0 +1,141 @@
+{
+	"info": {
+		"_postman_id": "8fed04dd-91d2-43dc-af72-efaed3973da9",
+		"name": "pd-helm-test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PD available-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}:{{pd_port_https}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD available-or-degraded-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"availability-state  key is present\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"State is available\", function(){",
+							"    pm.expect(jsonData[\"availability-state\"]).to.be.equal(\"AVAILABLE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}:{{pd_port_https}}/available-or-degraded-state",
+					"protocol": "https",
+					"host": [
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"available-or-degraded-state"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "pd_port_https",
+			"value": "443"
+		}
+	]
+}

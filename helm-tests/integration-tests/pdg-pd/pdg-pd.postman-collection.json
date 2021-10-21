@@ -1,0 +1,1567 @@
+{
+	"info": {
+		"_postman_id": "1216a321-261e-49d6-9307-cb353d187f57",
+		"name": "pdg-pd",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PD REST API get RootDSE Invalid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"json data is not empty\",function(){",
+							"    pm.expect(jsonData).to.not.be.empty;",
+							"});",
+							"pm.test(\"Error has code\",function(){",
+							"    pm.expect(jsonData[\"details\"][0][\"code\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Error code is correct\",function(){",
+							"    pm.expect(jsonData[\"details\"][0][\"code\"]).to.be.equal(\"INVALID_REQUEST\");",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API get RootDSE",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"json data is not empty\",function(){",
+							"    pm.expect(jsonData).to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"Vendor string is present\",function(){",
+							"    pm.expect(jsonData[\"vendorName\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Vendor string is as expected\",function(){",
+							"    pm.expect(jsonData[\"vendorName\"]).to.be.equal(\"Ping Identity Corporation\");",
+							"});",
+							"",
+							"pm.test(\"publicBaseDNs key is present\", function(){",
+							"    pm.expect(jsonData[\"publicBaseDNs\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Base DN is as expected\", function(){",
+							"    pm.expect(jsonData[\"publicBaseDNs\"][0]).to.be.equal(\"dc=example,dc=com\");",
+							"    pm.environment.set(\"_base_dn\",jsonData[\"publicBaseDNs\"][0]);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{admin_user}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{admin_pwd}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1",
+					"protocol": "https",
+					"host": [
+						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API direct user reads own entry",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User Mail retrieved\", function () {",
+							"    pm.response.to.be.ok;",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"json data is not empty\",function(){",
+							"    pm.expect(jsonData).to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"mail is present\",function(){",
+							"    pm.expect(jsonData[\"mail\"]).to.exist;",
+							"});",
+							"pm.test(\"uid is present\",function(){",
+							"    pm.expect(jsonData[\"uid\"]).to.exist;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{ \"active\":true,\"sub\" : \"user.1\", \"clientId\":\"client1\",\"scope\":\"ds\" }",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/uid=user.1,ou=people,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=user.1,ou=people,{{_base_dn}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API direct user reads own entry just mail attribute",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User Mail retrieved\", function () {",
+							"    pm.response.to.be.ok;",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"json data is not empty\",function(){",
+							"    pm.expect(jsonData).to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"mail is present\",function(){",
+							"    pm.expect(jsonData[\"mail\"]).to.exist;",
+							"});",
+							"pm.test(\"uid is not present\",function(){",
+							"    pm.expect(jsonData[\"uid\"]).to.not.exist;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{ \"active\":true,\"sub\" : \"user.1\", \"clientId\":\"client1\",\"scope\":\"ds\" }",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/uid=user.1,ou=people,{{_base_dn}}?includeAttributes=mail",
+					"protocol": "https",
+					"host": [
+						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=user.1,ou=people,{{_base_dn}}"
+					],
+					"query": [
+						{
+							"key": "includeAttributes",
+							"value": "mail"
+						},
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API direct user reads own entry just MAIL attribute",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User Mail retrieved\", function () {",
+							"    pm.response.to.not.be.ok;",
+							"});",
+							"pm.test(\"response is invalid\", function(){",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"json data is not empty\",function(){",
+							"    pm.expect(jsonData).to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"mail is not present\",function(){",
+							"    pm.expect(jsonData[\"mail\"]).to.not.exist;",
+							"});",
+							"",
+							"pm.test(\"uid is not present\",function(){",
+							"    pm.expect(jsonData[\"uid\"]).to.not.exist;",
+							"});",
+							"",
+							"pm.test(\"code is present\",function(){",
+							"    pm.expect(jsonData[\"code\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"code is INVALID_REQUEST\",function(){",
+							"    pm.expect(jsonData[\"code\"]).to.be.equal(\"INVALID_REQUEST\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{ \"active\":true,\"sub\" : \"user.1\", \"clientId\":\"client1\",\"scope\":\"ds\" }",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/uid=user.1,ou=people,{{_base_dn}}?includeAttributes=MAIL",
+					"protocol": "https",
+					"host": [
+						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=user.1,ou=people,{{_base_dn}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "includeAttributes",
+							"value": "MAIL"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API direct user reads own entry UPPERCASE USER",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User Mail retrieved\", function () {",
+							"    pm.response.to.be.ok;",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"json data is not empty\",function(){",
+							"    pm.expect(jsonData).to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"mail is present\",function(){",
+							"    pm.expect(jsonData[\"mail\"]).to.exist;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{ \"active\":true,\"sub\" : \"user.1\", \"clientId\":\"client1\",\"scope\":\"ds\" }",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/uid=USER.1,ou=people,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=USER.1,ou=people,{{_base_dn}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API direct user reads own entry UPPERCASE UID",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User Mail retrieved\", function () {",
+							"    pm.response.to.be.ok;",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"json data is not empty\",function(){",
+							"    pm.expect(jsonData).to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"mail is present\",function(){",
+							"    pm.expect(jsonData[\"mail\"]).to.exist;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{ \"active\":true,\"sub\" : \"user.1\", \"clientId\":\"client1\",\"scope\":\"ds\" }",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/UID=user.1,ou=people,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"UID=user.1,ou=people,{{_base_dn}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API direct user reads own entry UPPERCASE People",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User Mail retrieved\", function () {",
+							"    pm.response.to.be.ok;",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"json data is not empty\",function(){",
+							"    pm.expect(jsonData).to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"mail is present\",function(){",
+							"    pm.expect(jsonData[\"mail\"]).to.exist;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{ \"active\":true,\"sub\" : \"user.1\", \"clientId\":\"client1\",\"scope\":\"ds\" }",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/UID=user.1,ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"UID=user.1,ou=People,{{_base_dn}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API direct user reads other entry",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is not ok\", function () {",
+							"    pm.response.to.not.be.ok;",
+							"});",
+							"",
+							"pm.test(\"response is unauthorized\", function(){",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"json data is not empty\",function(){",
+							"    pm.expect(jsonData).to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"code is present\",function(){",
+							"    pm.expect(jsonData[\"code\"]).to.exist;",
+							"});",
+							"pm.test(\"code is ACCESS_FAILED\",function(){",
+							"    pm.expect(jsonData[\"code\"]).to.be.equal(\"ACCESS_FAILED\");",
+							"});",
+							"",
+							"pm.test(\"details is present\",function(){",
+							"    pm.expect(jsonData[\"details\"]).to.exist;",
+							"});",
+							"pm.test(\"details code is present\",function(){",
+							"    pm.expect(jsonData[\"details\"][0][\"code\"]).to.exist;",
+							"});",
+							"pm.test(\"details code is INVALID_REQUEST\",function(){",
+							"    pm.expect(jsonData[\"details\"][0][\"code\"]).to.be.equal(\"INVALID_REQUEST\");",
+							"});",
+							"pm.test(\"mail is NOT present\",function(){",
+							"    pm.expect(jsonData[\"mail\"]).to.not.exist;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{ \"active\":true,\"sub\" : \"user.1\", \"clientId\":\"client1\",\"scope\":\"ds\" }",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/uid=user.2,ou=people,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+					],
+					"port": "{{pd_port_https}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=user.2,ou=people,{{_base_dn}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API via DataGov Bad Token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is not ok\", function () {",
+							"    pm.response.to.not.be.ok;",
+							"});",
+							"",
+							"pm.test(\"response is 401\", function(){",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"json data is not empty\",function(){",
+							"    pm.expect(jsonData).to.not.be.empty;",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{\"active\":false,\"sub\":\"user.1\",\"client_id\":\"client1\",\"scope\":\"ds\"}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{PDG_ENGINE_PRIVATE_HOSTNAME}}:{{PDG_ENGINE_PRIVATE_PORT_HTTPS}}/pd-rest-api/uid=user.1,ou=people,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{PDG_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PDG_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"pd-rest-api",
+						"uid=user.1,ou=people,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API via DataGov Good Token user reads own entry",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.be.ok;",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"json data is not empty\",function(){",
+							"    pm.expect(jsonData).to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"mail is present\",function(){",
+							"    pm.expect(jsonData[\"mail\"]).to.exist;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{\"active\":true,\"sub\":\"user.1\",\"client_id\":\"client1\",\"scope\":\"ds\"}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{PDG_ENGINE_PRIVATE_HOSTNAME}}:{{PDG_ENGINE_PRIVATE_PORT_HTTPS}}/pd-rest-api/uid=user.1,ou=people,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{PDG_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PDG_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"pd-rest-api",
+						"uid=user.1,ou=people,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API via DataGov Good Token user reads own entry just mail attribute",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.be.ok;",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"json data is not empty\",function(){",
+							"    pm.expect(jsonData).to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"mail is present\",function(){",
+							"    pm.expect(jsonData[\"mail\"]).to.exist;",
+							"});",
+							"pm.test(\"uid is not present\",function(){",
+							"    pm.expect(jsonData[\"uid\"]).to.not.exist;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{\"active\":true,\"sub\":\"user.1\",\"client_id\":\"client1\",\"scope\":\"ds\"}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{PDG_ENGINE_PRIVATE_HOSTNAME}}:{{PDG_ENGINE_PRIVATE_PORT_HTTPS}}/pd-rest-api/uid=user.1,ou=people,{{_base_dn}}?includeAttributes=mail",
+					"protocol": "https",
+					"host": [
+						"{{PDG_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PDG_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"pd-rest-api",
+						"uid=user.1,ou=people,{{_base_dn}}"
+					],
+					"query": [
+						{
+							"key": "includeAttributes",
+							"value": "mail"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API via DataGov Good Token user reads own entry just MAIL attribute Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User Mail retrieved\", function () {",
+							"    pm.response.to.not.be.ok;",
+							"});",
+							"pm.test(\"response is invalid\", function(){",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"// pm.test(\"json data is not empty\",function(){",
+							"//     pm.expect(jsonData).to.not.be.empty;",
+							"// });",
+							"",
+							"pm.test(\"mail is not present\",function(){",
+							"    pm.expect(jsonData[\"mail\"]).to.not.exist;",
+							"});",
+							"",
+							"pm.test(\"uid is not present\",function(){",
+							"    pm.expect(jsonData[\"uid\"]).to.not.exist;",
+							"});",
+							"",
+							"// pm.test(\"code is present\",function(){",
+							"//     pm.expect(jsonData[\"code\"]).to.exist;",
+							"// });",
+							"",
+							"// pm.test(\"code is INVALID_REQUEST\",function(){",
+							"//     pm.expect(jsonData[\"code\"]).to.be.equal(\"INVALID_REQUEST\");",
+							"// });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{\"active\":true,\"sub\":\"user.1\",\"client_id\":\"client1\",\"scope\":\"ds\"}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{PDG_ENGINE_PRIVATE_HOSTNAME}}:{{PDG_ENGINE_PRIVATE_PORT_HTTPS}}/pd-rest-api/uid=user.1,ou=people,{{_base_dn}}?includeAttributes=MAIL",
+					"protocol": "https",
+					"host": [
+						"{{PDG_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PDG_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"pd-rest-api",
+						"uid=user.1,ou=people,{{_base_dn}}"
+					],
+					"query": [
+						{
+							"key": "includeAttributes",
+							"value": "MAIL"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API via DataGov Good Token user reads own entry UPPERCASE USER",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.be.ok;",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"json data is not empty\",function(){",
+							"    pm.expect(jsonData).to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"mail is present\",function(){",
+							"    pm.expect(jsonData[\"mail\"]).to.exist;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{\"active\":true,\"sub\":\"user.1\",\"client_id\":\"client1\",\"scope\":\"ds\"}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{PDG_ENGINE_PRIVATE_HOSTNAME}}:{{PDG_ENGINE_PRIVATE_PORT_HTTPS}}/pd-rest-api/uid=USER.1,ou=people,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{PDG_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PDG_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"pd-rest-api",
+						"uid=USER.1,ou=people,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API via DataGov Good Token user reads own entry UPPERCASE USER Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.be.ok;",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.test(\"json data is not empty\",function(){",
+							"    pm.expect(jsonData).to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"mail is present\",function(){",
+							"    pm.expect(jsonData[\"mail\"]).to.exist;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{\"active\":true,\"sub\":\"user.1\",\"client_id\":\"client1\",\"scope\":\"ds\"}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{PDG_ENGINE_PRIVATE_HOSTNAME}}:{{PDG_ENGINE_PRIVATE_PORT_HTTPS}}/pd-rest-api/UID=user.1,ou=people,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{PDG_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PDG_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"pd-rest-api",
+						"UID=user.1,ou=people,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PD REST API via DataGov Good Token user reads other entry",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is not ok\", function () {",
+							"    pm.response.to.not.be.ok;",
+							"});",
+							"",
+							"pm.test(\"response is unauthorized\", function(){",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"json response is empty\",function(){",
+							"    pm.expect(jsonData).to.be.empty;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{\"active\":true,\"sub\":\"user.1\",\"client_id\":\"client1\",\"scope\":\"ds\"}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {\"active\":true,\"sub\":\"useasdfadsfr.0\",\"scope\":\"accounts\"}",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{PDG_ENGINE_PRIVATE_HOSTNAME}}:{{PDG_ENGINE_PRIVATE_PORT_HTTPS}}/pd-rest-api/uid=user.2,ou=people,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{PDG_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PDG_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"pd-rest-api",
+						"uid=user.2,ou=people,{{_base_dn}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "pd_hostname",
+			"value": "pingdirectory",
+			"type": "string"
+		},
+		{
+			"key": "pd_port_https",
+			"value": "1443",
+			"type": "string"
+		},
+		{
+			"key": "pdg_hostname",
+			"value": "pingdatagovernance",
+			"type": "string"
+		},
+		{
+			"key": "pdg_port_https",
+			"value": "1443",
+			"type": "string"
+		},
+		{
+			"key": "admin_user",
+			"value": "administrator",
+			"type": "string"
+		},
+		{
+			"key": "admin_pwd",
+			"value": "2FederateM0re",
+			"type": "string"
+		}
+	]
+}

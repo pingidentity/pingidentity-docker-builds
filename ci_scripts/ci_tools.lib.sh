@@ -527,3 +527,17 @@ export GIT_REV_SHORT
 export GIT_REV_LONG
 export gitBranch
 export CI_TAG
+
+#
+# Stop execution of ci_script if ARCH (i.e. aarch64) is not included in BUILD_ARCH
+#
+if test -n "${BUILD_ARCH}"; then
+    grep "\b${ARCH}\b" <<< "${BUILD_ARCH}" > /dev/null
+    if test $? -eq 1; then
+        echo "This architecture (${ARCH}) is not in list of BUILD_ARCHs (${BUILD_ARCH})"
+        echo "Exiting with a 0"
+        exit 0
+    fi
+    echo "This architecture (${ARCH}) found in BUILD_ARCHs (${BUILD_ARCH})"
+    echo "Continuing"
+fi

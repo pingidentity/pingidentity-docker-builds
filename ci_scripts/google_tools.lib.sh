@@ -30,6 +30,16 @@ _deleteImageDigest() {
     gcloud container images delete "${1}@${2}" --quiet
 }
 
+# create access to the pipelineRepository
+#
+# Create a new secret for access to the pipeline's build registry specified in $PIPELINE_BUILD_REGISTRY.
+# In order for the nodes to pull images from this registry, they have to have the credentials.
+# Provide this information by creating a dockercfg secret and attaching it to the default
+# service account
+_createPipelineRepoAccess() {
+    echo "not implemented"
+}
+
 # use gcloud credentials/config if available
 requirePipelineFile GCLOUD_KEY_JSON_FILE
 requirePipelineVar GCLOUD_ACCOUNT

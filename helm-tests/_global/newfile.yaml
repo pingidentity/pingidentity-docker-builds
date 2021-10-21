@@ -1,0 +1,118 @@
+###############################################################################
+# Ping Identity Test - PingFederate Helm Upgrade Integration Test
+#
+#
+###############################################################################
+pingfederate-admin:
+  enabled: true
+  container:
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+
+pingfederate-engine:
+  enabled: true
+  container:
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+
+testFramework:
+  enabled: true
+  testConfigMaps:
+    # DEFAULTS (found in helm chart values.yaml)
+    # prefix: ping-devops-test-
+    # volumeMountPath: /var/run/
+    files:
+      - global-init-test.sh
+      - newfile.yaml
+      - pf-helm-test.postman-collection.json
+      - generated.postman-environment.json
+      - wait-for-url.sh
+
+  testSteps:
+    - name: 00a-kubectl-version
+      image: alpine/k8s:1.20.7
+      command:
+        - kubectl
+        - version
+
+    - name: 00b-kubectl-get-pvcs
+      image: alpine/k8s:1.20.7
+      command:
+        - kubectl
+        - get
+        - pvc
+
+    - name: 00c-add-repo
+      image: alpine/k8s:1.20.7
+      command:
+        - helm
+        - repo
+        - add
+        - pingidentity
+        - https://helm.pingidentity.com/
+        - --repository-config
+        - "/var/run/shared/.config/helm/repositories.yaml"
+        - --repository-cache
+        - "/var/run/shared/.cache/helm/repository/pingidentity-index.yaml"
+
+    - name: 00d-search-repo
+      image: alpine/k8s:1.20.7
+      command:
+        - helm
+        - search
+        - repo
+        - --repository-cache
+        - "/var/run/shared/.cache/helm/repository/pingidentity-index.yaml"
+        - --repository-config
+        - "/var/run/shared/.config/helm/repositories.yaml"
+
+    - name: 01-update-value-file
+      image: alpine/k8s:1.20.7
+      command:
+        - helm
+        - upgrade
+        - dbt-upgrade-helm
+        - pingidentity/ping-devops
+        - -f
+        - /var/run/newfile.yaml
+        - --repository-cache
+        - "/var/run/shared/.cache/helm/repository/pingidentity-index.yaml"
+        - --repository-config
+        - "/var/run/shared/.config/helm/repositories.yaml"
+
+    - name: 02a-wait-for-pingdfederate-admin
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - /var/run/wait-for-url.sh
+        - https://${PF_ADMIN_PRIVATE_HOSTNAME}:9999/pingfederate/app
+        - "900"
+
+    - name: 02b-wait-for-pingdfederate-engine
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - /var/run/wait-for-url.sh
+        - https://${PF_ENGINE_PRIVATE_HOSTNAME}:9031/pf/heartbeat.ping
+        - "900"
+
+    - name: 03-postman-pf-helm-test
+      image: ${DEPS_REGISTRY}arnaudlacour/newman
+      command:
+        - newman
+        - run
+        - /var/run/pf-helm-test.postman-collection.json
+        - --environment
+        - /var/run/generated.postman-environment.json
+        - --insecure
+        - --ignore-redirects

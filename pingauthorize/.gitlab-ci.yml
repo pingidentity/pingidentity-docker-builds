@@ -1,5 +1,5 @@
 ################################################
-#                  BUILD 
+#                  BUILD
 ################################################
 
 intel.b.pingauthorize:
@@ -32,6 +32,11 @@ arm.b.pingauthorize:
     - platform=aarch64
   script:
     - ci_scripts/build_product.sh --product pingauthorize
+  variables:
+    KUBERNETES_CPU_REQUEST: 950m
+    KUBERNETES_CPU_LIMIT: 3800m
+    KUBERNETES_MEMORY_REQUEST: 1900000000
+    KUBERNETES_MEMORY_LIMIT: 1900000000
   only:
     changes:
       - pingauthorize/**/*
@@ -58,7 +63,7 @@ arm.b.pingauthorize:
 intel.t.pingauthorize:
   stage: test.smoke
   script:
-    - ci_scripts/run_smoke.sh --product pingauthorize
+    - ci_scripts/run_helm_smoke.sh --product pingauthorize
   only:
     changes:
       - pingcommon/**/*
@@ -82,10 +87,15 @@ intel.t.pingauthorize:
 arm.t.pingauthorize:
   stage: test.smoke
   image: $RUNNER_IMAGE_AARCH64
+  variables:
+    KUBERNETES_CPU_REQUEST: 950m
+    KUBERNETES_CPU_LIMIT: 3800m
+    KUBERNETES_MEMORY_REQUEST: 1900000000
+    KUBERNETES_MEMORY_LIMIT: 1900000000
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_smoke.sh --product pingauthorize
+    - ci_scripts/run_helm_smoke.sh --product pingauthorize
   only:
     changes:
       - pingcommon/**/*

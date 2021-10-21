@@ -1,0 +1,328 @@
+{
+	"info": {
+		"_postman_id": "8d18f1e5-e7b2-44c6-a5b0-dca4000fbf72",
+		"name": "pdp-helm-test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PDP CHECK PingDiretory honors requests",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var _retries=pm.variables.has(\"_retries\")?pm.variables.get(\"_retries\"):pm.variables.get(\"request_retry_count\");",
+							"",
+							"// Checks to see if the server actually responded",
+							"if (pm.response.code == 200 ) {",
+							"    pm.variables.unset(\"_retries\");",
+							"    console.log(\"connection successful\");",
+							"    ",
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is empty\", function(){",
+							"        pm.response.to.not.have.body();",
+							"    });",
+							"} else {",
+							"    console.log(\". retries: \"+_retries);",
+							"    _retries--;",
+							"    console.log(\"- retries: \"+_retries);",
+							"    ",
+							"    if ( _retries > 0 ) {",
+							"        pm.variables.set(\"_retries\", _retries);",
+							"        var _retry_min=pm.variables.get(\"request_retry_delay_min_ms\");",
+							"        var _retry_max=pm.variable.get(\"request_retry_delay_max_ms\");",
+							"        var _timeout=_.random(_retry_min, _retry_max);",
+							"        console.log(_retries+\" retries left. Attempting next connection in \"+_timeout+\"ms ...\");",
+							"        // loop back to this request (request.name) after the timeout elapses",
+							"        setTimeout(function() {postman.setNextRequest(request.name);}, timeout);",
+							"    } else { ",
+							"        console.log(\"Attempts exhausted\");",
+							"        postman.setNextRequest(null);",
+							"    }",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var _host = pm.variables.get(\"PDP_ENGINE_PRIVATE_HOSTNAME\");",
+							"var _port = pm.variables.get(\"PDP_ENGINE_PRIVATE_PORT_HTTPS\");",
+							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "https://{{PDP_ENGINE_PRIVATE_HOSTNAME}}:{{PDP_ENGINE_PRIVATE_PORT_HTTPS}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{PDP_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PDP_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP CHECK HEAD available-or-degraded-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "HEAD",
+				"header": [],
+				"url": {
+					"raw": "https://{{PDP_ENGINE_PRIVATE_HOSTNAME}}:{{PDP_ENGINE_PRIVATE_PORT_HTTPS}}/available-or-degraded-state",
+					"protocol": "https",
+					"host": [
+						"{{PDP_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PDP_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"available-or-degraded-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PDP CHECK HEAD available-state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is empty\", function(){",
+							"    pm.response.to.not.have.body();",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "HEAD",
+				"header": [],
+				"url": {
+					"raw": "https://{{PDP_ENGINE_PRIVATE_HOSTNAME}}:{{PDP_ENGINE_PRIVATE_PORT_HTTPS}}/available-state",
+					"protocol": "https",
+					"host": [
+						"{{PDP_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PDP_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"available-state"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "{{pd_admin_pwd}}",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "{{pd_admin_user}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "request_retry_count",
+			"value": "10",
+			"type": "string"
+		},
+		{
+			"key": "request_retry_delay_max_ms",
+			"value": "15000",
+			"type": "string"
+		},
+		{
+			"key": "request_retry_delay_min_ms",
+			"value": "1000",
+			"type": "string"
+		},
+		{
+			"key": "admin_user",
+			"value": "administrator",
+			"type": "string"
+		},
+		{
+			"key": "admin_pwd",
+			"value": "2FederateM0re",
+			"type": "string"
+		},
+		{
+			"key": "pd_admin_user",
+			"value": "cn={{admin_user}}",
+			"type": "string"
+		},
+		{
+			"key": "pd_admin_pwd",
+			"value": "{{admin_pwd}}",
+			"type": "string"
+		},
+		{
+			"key": "pd_hostname",
+			"value": "pingdirectory",
+			"type": "string"
+		},
+		{
+			"key": "pd_port_https",
+			"value": "1443",
+			"type": "string"
+		},
+		{
+			"key": "pd_port_ldaps",
+			"value": "1636",
+			"type": "string"
+		},
+		{
+			"key": "pd_port_ldap",
+			"value": "1389",
+			"type": "string"
+		},
+		{
+			"key": "pf_engine_hostname",
+			"value": "pingfederate",
+			"type": "string"
+		},
+		{
+			"key": "pf_engine_port",
+			"value": "9031",
+			"type": "string"
+		},
+		{
+			"key": "pf_admin_hostname",
+			"value": "pingfederate",
+			"type": "string"
+		},
+		{
+			"key": "pf_admin_port",
+			"value": "9999",
+			"type": "string"
+		},
+		{
+			"key": "regular_user",
+			"value": "postman.user.0",
+			"type": "string"
+		},
+		{
+			"key": "regular_pwd",
+			"value": "{{admin_pwd}}",
+			"type": "string"
+		},
+		{
+			"key": "pa_engine_hostname",
+			"value": "pingaccess",
+			"type": "string"
+		},
+		{
+			"key": "pa_engine_port",
+			"value": "1443",
+			"type": "string"
+		},
+		{
+			"key": "pa_admin_hostname",
+			"value": "pingaccess",
+			"type": "string"
+		},
+		{
+			"key": "pa_admin_port",
+			"value": "9000",
+			"type": "string"
+		},
+		{
+			"key": "pdp_hostname",
+			"value": "pingdirectoryproxy",
+			"type": "string"
+		},
+		{
+			"key": "pdp_port_https",
+			"value": "1443",
+			"type": "string"
+		},
+		{
+			"key": "pdp_port_ldap",
+			"value": "1389",
+			"type": "string"
+		},
+		{
+			"key": "pdp_port_ldaps",
+			"value": "1636",
+			"type": "string"
+		}
+	]
+}

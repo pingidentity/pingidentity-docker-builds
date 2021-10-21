@@ -1,0 +1,56 @@
+###############################################################################
+# Ping Identity Test - PingFederate Smoke Test
+#
+#
+###############################################################################
+pingfederate-admin:
+  enabled: true
+  container:
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+
+pingfederate-engine:
+  enabled: true
+  container:
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+  testConfigMaps:
+    files:
+      - pf-helm-test.postman-collection.json
+      - generated.postman-environment.json
+
+  testSteps:
+    - name: 01-wait-for
+      waitFor:
+        pingfederate-admin:
+          service: https
+        pingfederate-engine:
+          service: https
+
+    - name: 02-postman-pf-helm-test
+      image: ${DEPS_REGISTRY}arnaudlacour/newman
+      command:
+        - newman
+        - run
+        - /var/run/pf-helm-test.postman-collection.json
+        - --environment
+        - /var/run/generated.postman-environment.json
+        - --insecure
+        - --ignore-redirects
+

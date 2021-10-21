@@ -1,0 +1,61 @@
+###############################################################################
+# Ping Identity Test - PingAccess Smoke Test
+#
+#
+###############################################################################
+pingaccess-admin:
+  enabled: true
+  privateCert:
+    generate: true
+  container:
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+
+pingaccess-engine:
+  enabled: true
+  container:
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+  testConfigMaps:
+    # DEFAULTS (found in helm chart values.yaml)
+    # prefix: ping-devops-test-
+    # volumeMountPath: /var/run/
+    files:
+      - global-init-test.sh
+      - pa-helm-test.postman-collection.json
+      - generated.postman-environment.json
+
+  testSteps:
+    - name: 01-wait-for
+      waitFor:
+        pingaccess-admin:
+          service: https
+        pingaccess-engine:
+          service: https
+
+    - name: 02-postman-pa-helm-test
+      image: ${DEPS_REGISTRY}arnaudlacour/newman
+      command:
+        - newman
+        - run
+        - /var/run/pa-helm-test.postman-collection.json
+        - --environment
+        - /var/run/generated.postman-environment.json
+        - --insecure
+        - --ignore-redirects

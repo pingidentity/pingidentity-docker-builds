@@ -1,5 +1,5 @@
 ################################################
-#                  BUILD 
+#                  BUILD
 ################################################
 
 intel.b.pingauthorizepap:
@@ -30,6 +30,11 @@ arm.b.pingauthorizepap:
     - platform=aarch64
   script:
     - ci_scripts/build_product.sh --product pingauthorizepap
+  variables:
+    KUBERNETES_CPU_REQUEST: 950m
+    KUBERNETES_CPU_LIMIT: 3800m
+    KUBERNETES_MEMORY_REQUEST: 1900000000
+    KUBERNETES_MEMORY_LIMIT: 1900000000
   only:
     changes:
       - pingauthorizepap/**/*
@@ -54,7 +59,7 @@ arm.b.pingauthorizepap:
 intel.t.pingauthorizepap:
   stage: test.smoke
   script:
-    - ci_scripts/run_smoke.sh --product pingauthorizepap
+    - ci_scripts/run_helm_smoke.sh --product pingauthorizepap
   only:
     changes:
       - pingcommon/**/*
@@ -86,7 +91,7 @@ arm.t.pingauthorizepap:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_smoke.sh --product pingauthorizepap
+    - ci_scripts/run_helm_smoke.sh --product pingauthorizepap
   only:
     changes:
       - pingcommon/**/*

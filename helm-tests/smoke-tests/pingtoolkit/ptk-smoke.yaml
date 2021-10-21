@@ -1,0 +1,31 @@
+################################################################################
+# pingtoolkit smoke test
+#
+# This test generally tests that a pingtoolkit can come up and perform a couple
+# of basic commands, such as openssl
+################################################################################
+
+#
+# NOTE: Currently not used as pingtoolkit isn't available as a helm product
+#
+pingtoolkit:
+  enabled: true
+
+testFramework:
+  enabled: true
+  testConfigMaps:
+    # DEFAULTS (found in helm chart values.yaml)
+    # prefix: ping-devops-test-
+    # volumeMountPath: /var/run/
+    files: []
+
+  testSteps:
+    - name: 01-pingtoolkit
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit
+      command: ["/bin/sh"]
+      args:
+        - -c
+        - >-
+            echo "                    Image Version: ${IMAGE_VERSION}" &&
+            echo "Testing openssl - random 32 bytes: $(openssl rand -base64 32)" &&
+            exit 0

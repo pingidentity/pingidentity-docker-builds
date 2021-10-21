@@ -1,0 +1,42 @@
+###############################################################################
+# Ping Identity Test - PingDirectoryProxy Smoke Test
+#
+#
+###############################################################################
+pingdirectoryproxy:
+  enabled: true
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+  container:
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+  testConfigMaps:
+    files:
+      - pdp-helm-test.postman-collection.json
+      - generated.postman-environment.json
+
+  testSteps:
+    - name: 01-wait-for-pingdirectoryproxy
+      waitFor:
+        pingdirectoryproxy:
+          service: https
+
+    - name: 02-postman-pdp-helm-test
+      image: ${DEPS_REGISTRY}arnaudlacour/newman
+      command:
+        - newman
+        - run
+        - /var/run/pdp-helm-test.postman-collection.json
+        - --environment
+        - /var/run/generated.postman-environment.json
+        - --insecure
+        - --ignore-redirects

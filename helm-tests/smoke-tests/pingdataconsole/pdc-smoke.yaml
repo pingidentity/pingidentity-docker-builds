@@ -1,0 +1,47 @@
+###############################################################################
+# Ping Identity Test - PingDataConsole Smoke Test
+#
+#
+###############################################################################
+pingdataconsole:
+  enabled: true
+  container:
+    resources:
+      requests:
+        cpu: 1
+        memory: 512Mi
+      limits:
+        cpu: 1
+        memory: 512Mi
+  probes:
+    liveness:
+      initialDelaySeconds: 10
+    readiness:
+      initialDelaySeconds: 10
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+  testConfigMaps:
+    files:
+      - pdc-helm-test.postman-collection.json
+      - generated.postman-environment.json
+
+  testSteps:
+    - name: 01-wait-for
+      waitFor:
+        pingdataconsole:
+          service: https
+
+    - name: 02-postman-pdc-helm-test
+      image: ${DEPS_REGISTRY}arnaudlacour/newman
+      command:
+        - newman
+        - run
+        - /var/run/pdc-helm-test.postman-collection.json
+        - --environment
+        - /var/run/generated.postman-environment.json
+        - --insecure
+        - --ignore-redirects
