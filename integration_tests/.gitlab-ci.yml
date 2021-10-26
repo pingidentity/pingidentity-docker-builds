@@ -77,7 +77,7 @@ arm.pd-repl.latest:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_integration.sh pd-replicated.latest al11
+    - ci_scripts/run_helm_integration.sh --integration-test pd-replicated --image-tag-jvm al11  --image-tag-arch aarch64
   only:
     changes:
       - integration_tests/**/pd-replicated*
@@ -223,7 +223,7 @@ arm.pa-pf-pd.latest:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_integration.sh pa-pf-pd.latest al11
+    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --image-tag-jvm al11  --image-tag-arch aarch64
   only:
     changes:
       - integration_tests/**/pa-pf-pd*
@@ -332,7 +332,7 @@ arm.pds-pd.latest:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_integration.sh pds-pd.latest al11
+    - ci_scripts/run_helm_integration.sh --integration-test pds-pd --image-tag-jvm al11  --image-tag-arch aarch64
   only:
     changes:
       - integration_tests/**/pds-pd*
@@ -440,7 +440,7 @@ arm.pdp-pd.latest:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_integration.sh pdp-pd.latest al11
+    - ci_scripts/run_helm_integration.sh --integration-test pdp-pd --image-tag-jvm al11  --image-tag-arch aarch64
   only:
     changes:
       - integration_tests/**/pdp-pd*
@@ -548,7 +548,7 @@ arm.pdg-pd.latest:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_integration.sh pdg-pd.latest al11
+    - ci_scripts/run_helm_integration.sh --integration-test pdg-pd --image-tag-jvm al11  --image-tag-arch aarch64
   only:
     changes:
       - integration_tests/**/pdg-pd*
@@ -656,7 +656,7 @@ arm.paz-pd.latest:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_integration.sh paz-pd.latest al11
+    - ci_scripts/run_helm_integration.sh --integration-test paz-pd --image-tag-jvm al11 --image-tag-arch aarch64
   only:
     changes:
       - integration_tests/**/pdg-pd*
