@@ -174,6 +174,8 @@ _final() {
 trap _final EXIT
 
 _exitCode=""
+#List of products that will be used to build the images
+declare -a ProductList=("pingaccess" "pingaccess-admin" "pingaccess-engine" "pingcentral" "pingdataconsole" "pingdatagovernance" "pingdatagovernancepap" "pingdatasync" "pingdelegator" "pingdirectory" "pingdirectoryproxy" "pingfederate" "pingfederate-admin" "pingfederate-engine" "pingintelligence" "pingtoolkit" "pingauthorize" "pingauthorizepap")
 
 ################################################################################
 # _create_helm_values
@@ -189,26 +191,57 @@ _create_helm_values() {
     #shellcheck disable=SC2059
     printf "$_imagePattern" "IMAGE" "TAG"
 
-    for _productName in pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdelegator pingdirectory pingdirectoryproxy pingfederate pingintelligence pingtoolkit pingauthorize pingauthorizepap; do
+    for _productName in "${ProductList[@]}"; do
         if test -n "${_image_tag_override}"; then
             _tag="${_image_tag_override}"
         else
             #Get the latest version for each product and export it.
-            _latestVar=$(echo -n "${_productName}_LATEST" | tr '[:lower:]' '[:upper:]')
-            _latestVersion=$(_getLatestVersionForProduct "${_productName}")
-            eval export "${_latestVar}"="${_latestVersion}"
+            if [ "$_productName" == pingaccess-admin ] || [ "$_productName" == pingaccess-engine ]; then
+                _latestVar=$(echo -n "pingaccess_LATEST" | tr '[:lower:]' '[:upper:]')
+                _latestVersion=$(_getLatestVersionForProduct "pingaccess")
+                eval export "${_latestVar}"="${_latestVersion}"
 
-            # If an image-tag-shim is provided use that
-            # else, Get the default shim for each latest product version and export it.
-            _shimVar=$(echo -n "${_productName}_SHIM" | tr '[:lower:]' '[:upper:]')
-            if test -n "${_image_tag_shim}"; then
-                _defaultShimLongTag="${_image_tag_shim}"
+                # If an image-tag-shim is provided use that
+                # else, Get the default shim for each latest product version and export it.
+                _shimVar=$(echo -n "pingaccess_SHIM" | tr '[:lower:]' '[:upper:]')
+                if test -n "${_image_tag_shim}"; then
+                    _defaultShimLongTag="${_image_tag_shim}"
+                else
+                    _defaultShim=$(_getDefaultShimForProductVersion "pingaccess" "${_latestVersion}")
+                    _defaultShimLongTag=$(_getLongTag "${_defaultShim}")
+                fi
+                eval export "${_shimVar}"="${_defaultShimLongTag}"
+            elif [ "$_productName" == pingfederate-admin ] || [ "$_productName" == pingfederate-engine ]; then
+                _latestVar=$(echo -n "pingfederate_LATEST" | tr '[:lower:]' '[:upper:]')
+                _latestVersion=$(_getLatestVersionForProduct "pingfederate")
+                eval export "${_latestVar}"="${_latestVersion}"
+
+                # If an image-tag-shim is provided use that
+                # else, Get the default shim for each latest product version and export it.
+                _shimVar=$(echo -n "pingfederate_SHIM" | tr '[:lower:]' '[:upper:]')
+                if test -n "${_image_tag_shim}"; then
+                    _defaultShimLongTag="${_image_tag_shim}"
+                else
+                    _defaultShim=$(_getDefaultShimForProductVersion "pingfederate" "${_latestVersion}")
+                    _defaultShimLongTag=$(_getLongTag "${_defaultShim}")
+                fi
+                eval export "${_shimVar}"="${_defaultShimLongTag}"
             else
-                _defaultShim=$(_getDefaultShimForProductVersion "${_productName}" "${_latestVersion}")
-                _defaultShimLongTag=$(_getLongTag "${_defaultShim}")
-            fi
-            eval export "${_shimVar}"="${_defaultShimLongTag}"
+                _latestVar=$(echo -n "${_productName}_LATEST" | tr '[:lower:]' '[:upper:]')
+                _latestVersion=$(_getLatestVersionForProduct "${_productName}")
+                eval export "${_latestVar}"="${_latestVersion}"
 
+                # If an image-tag-shim is provided use that
+                # else, Get the default shim for each latest product version and export it.
+                _shimVar=$(echo -n "${_productName}_SHIM" | tr '[:lower:]' '[:upper:]')
+                if test -n "${_image_tag_shim}"; then
+                    _defaultShimLongTag="${_image_tag_shim}"
+                else
+                    _defaultShim=$(_getDefaultShimForProductVersion "${_productName}" "${_latestVersion}")
+                    _defaultShimLongTag=$(_getLongTag "${_defaultShim}")
+                fi
+                eval export "${_shimVar}"="${_defaultShimLongTag}"
+            fi
             # Start out the tag with the latestVersion of the product being built
             _tag="${_latestVersion}"
 

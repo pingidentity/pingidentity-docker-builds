@@ -151,27 +151,6 @@ _final() {
 }
 
 ################################################################################
-# _getPingTooklitImage
-#
-# Because of current tag conventions (as of 2108), the tag for the pingtoolkit
-# needs to be modified depending on ARCH.
-#
-# TODO: We should eventually remove this once we have a stable build for arm
-#       and x86 with similar tag.
-################################################################################
-_getPingToolkitImage() {
-    case "${ARCH}" in
-        x86_64)
-            echo "${DEPS_REGISTRY}pingidentity/pingtoolkit:2109"
-            ;;
-        aarch64)
-            echo "${DEPS_REGISTRY}pingidentity/pingtoolkit:2109-1.0.0-alpine_3.14-al11"
-            ;;
-        *) ;;
-    esac
-}
-
-################################################################################
 # _run_helm_test
 #
 # Parameters
@@ -187,9 +166,6 @@ _run_helm_test() {
 
     banner "Running with image  ${FOUNDATION_REGISTRY}/$(basename "${_test_name}"):${_test_tag}"
 
-    local _pingToolkitImage
-    _pingToolkitImage="$(_getPingToolkitImage)"
-
     #shellcheck disable=SC2086
     local _cmd="${CI_SCRIPTS_DIR}/run_helm_tests.sh \
         --namespace-suffix -${_test_number} \
@@ -197,7 +173,6 @@ _run_helm_test() {
         --helm-set-values global.image.repository=${FOUNDATION_REGISTRY} \
         --helm-set-values global.image.tag=${_test_tag} \
         --helm-set-values global.image.pullPolicy=Always \
-        --helm-set-values global.externalImage.pingtoolkit.image=${_pingToolkitImage} \
         --helm-set-values testFramework.finalStep.image=${DEPS_REGISTRY}busybox \
         ${NS_OPT}"
 
