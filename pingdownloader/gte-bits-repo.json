@@ -1,8 +1,8 @@
 {
     "defaultURL": "https://bits.pingidentity.com/",
     "gpg": {
-        "server": "pgpkeys.mit.edu",
-        "key": "F98F0E3F",
+        "server": "keys.openpgp.org",
+        "key": "0x45E764CA099D3220",
         "file": "signing-key-public.gpg"
     },
     "products": [
@@ -95,7 +95,7 @@
         },
         {
             "name": "pingintelligence",
-            "mapping": "PingIntelligence-ASE-rhel-${version}.zip",
+            "mapping": "pi-api-ase-rhel-${version}.tar.gz",
             "latestVersion": "5.0.1"
         }
     ]
