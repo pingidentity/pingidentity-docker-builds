@@ -46,7 +46,7 @@ RUN /get-bits.sh --product delegator \
         --devops-key ${DEVOPS_KEY} \
         --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
         ${PING_IDENTITY_SNAPSHOT} \
-        --snapshot-url ${SNAPSHOT_URL} \
+        ${SNAPSHOT_URL:+--snapshot-url ${SNAPSHOT_URL}} \
         --verify-gpg-signature \
     && unzip -q /tmp/product.zip -d /tmp \
     && mkdir -p /opt/server/html \

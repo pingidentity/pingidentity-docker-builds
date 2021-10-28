@@ -48,13 +48,13 @@ RUN /get-bits.sh --product ${PRODUCT} \
         --devops-key ${DEVOPS_KEY} \
         --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
         --verify-gpg-signature \
-    && unzip -q /tmp/product.zip -d /tmp/ \
-        -x *.example \
-        -x *.conf \
-        -x *_rhel7.sh \
-        -x start_aws.sh \
-        -x start.sh \
-    && mv /tmp/ase /opt/server
+    && tar -xzvf /tmp/product.zip -C /tmp/ \
+        --exclude 'pingidentity/ase/config/api/*.example' \
+        --exclude 'pingidentity/ase/config/*.conf' \
+        --exclude 'pingidentity/ase/bin/*_rhel7.sh' \
+        --exclude 'pingidentity/ase/bin/start_aws.sh' \
+        --exclude 'pingidentity/ase/bin/start.sh' \
+    && mv /tmp/pingidentity/ase /opt/server/
 
 FROM scratch
 # Get the product staged above into one layer

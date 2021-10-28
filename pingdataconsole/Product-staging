@@ -81,7 +81,7 @@ RUN /get-bits.sh \
         --devops-key ${DEVOPS_KEY} \
         --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
         ${PING_IDENTITY_SNAPSHOT} \
-        --snapshot-url ${SNAPSHOT_URL} \
+        ${SNAPSHOT_URL:+--snapshot-url ${SNAPSHOT_URL}} \
         --verify-gpg-signature \
     && unzip -q -d /tmp/ /tmp/product.zip PingDirectory/resource/admin-console.zip \
 	&& unzip -q -d /tmp/ /tmp/PingDirectory/resource/admin-console.zip admin-console.war \

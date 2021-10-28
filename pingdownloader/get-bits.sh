@@ -345,35 +345,35 @@ output="product.zip"
 while test -n "${1}"; do
     case "${1}" in
         -a | --devops-app)
+            test -z "${2}" && usage "You must specify a Ping DevOps AppName if you specify the ${1} option"
             shift
-            test -z "${1}" && usage "Ping DevOps AppName missing"
             devopsApp="${1}"
             ;;
         -c | --conserve-name)
             conserveName=true
             ;;
         -p | --product)
+            test -z "${2}" && usage "You must specify a Product name if you specify the ${1} option"
             shift
-            test -z "${1}" && usage "Product argument missing"
             # lowercase the argument value (the product name )
             product=$(echo "${1}" | tr '[:upper:]' '[:lower:]')
             ;;
         -f | --file-name)
+            test -z "${2}" && usage "You must specify a file name if you specify the ${1} option"
             shift
-            test -z "${1}" && usage "Missing file name"
             output="${1%.zip}.zip"
             ;;
         -k | --devops-key)
+            test -z "${2}" && usage "You must specify a Ping DevOps Key if you specify the ${1} option"
             shift
-            test -z "${1}" && usage "Ping DevOps Key missing"
             devopsKey="${1}"
             ;;
         -l | --license)
             pullLicense=true
             ;;
         -m | --metadata-file)
+            test -z "${2}" && usage "You must specify a metadata file name if you specify the ${1} option"
             shift
-            test -z "${1}" && usage "Missing metadata file"
             metadataFile="${1}"
             ;;
         -n | --dry-run)
@@ -383,23 +383,23 @@ while test -n "${1}"; do
             getSnapshot=true
             ;;
         --snapshot-url)
+            test -z "${2}" && usage "You must specify a Snapshot URL if you specify the ${1} option"
             shift
-            test -z "${1}" && usage "Missing snapshot url for provided --snapshot-url flag"
             snapshot_url="${1}"
             ;;
         -r | --repository)
+            test -z "${2}" && usage "You must specify a Repository URL if you specify the ${1} option"
             shift
-            test -z "${1}" && usage "Missing repository URL"
             repositoryURL="${1}"
             ;;
         -u | --devops-user)
+            test -z "${2}" && usage "You must specify a Ping DevOps Username if you specify the ${1} option"
             shift
-            test -z "${1}" && usage "Ping DevOps Username missing"
             devopsUser="${1}"
             ;;
         -v | --version)
+            test -z "${2}" && usage "You must specify a Product version if you specify the ${1} option"
             shift
-            test -z "${1}" && usage "Product version missing"
             version="${1}"
             licenseVersion=$(echo "${version}" | cut -d. -f1,2)
             ;;
@@ -534,13 +534,16 @@ else
         echo curl -sSL -w '%{http_code}' -o "${output}" -H "devops-user: ${devopsUser}" -H "devops-key: ${devopsKey}" -H "devops-app: ${devopsApp}" "${url}"
     else
         if test -n "${verifyGPGSignature}"; then
-            keyFile=$(getGPGKeyFile)
-            if test -n "${keyFile}" && test "${keyFile}" != "null"; then
-                server="${defaultURL}${keyFile}"
-                key="file"
-            else
-                server=$(getGPGKeyServer)
-                key=$(getGPGKeyID)
+            server=$(getGPGKeyServer)
+            key=$(getGPGKeyID)
+            if test -z "${server}" || test "${server}" == "null" || test -z "${key}" || test "${key}" == "null"; then
+                keyFile=$(getGPGKeyFile)
+                if test -n "${keyFile}" && test "${keyFile}" != "null"; then
+                    server="${defaultURL}${keyFile}"
+                    key="file"
+                else
+                    echo_red "Failed to resolve GPG key and key server from gte-bits-repo.json" && exit 1
+                fi
             fi
             if download_and_verify "${url}" "${server}" "${key}" "${output}"; then
                 echo_green "Successful download and verification of ${url}"
