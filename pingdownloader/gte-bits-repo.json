@@ -26,7 +26,7 @@
         {
             "name": "pingcentral",
             "mapping": "ping-central-${version}.zip",
-            "latestVersion": "1.8.0",
+            "latestVersion": "1.9.0",
             "licenseFile": "pingcentral.lic"
         },
         {
