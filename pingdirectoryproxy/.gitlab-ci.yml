@@ -64,6 +64,7 @@ intel.t.pingdirectoryproxy:
   stage: test.smoke
   script:
     - ci_scripts/run_helm_smoke.sh --product pingdirectoryproxy
+  retry: 2
   only:
     changes:
       - pingbase/**/*
@@ -96,6 +97,7 @@ arm.t.pingdirectoryproxy:
     - platform=aarch64
   script:
     - ci_scripts/run_helm_smoke.sh --product pingdirectoryproxy
+  retry: 2
   only:
     changes:
       - pingbase/**/*

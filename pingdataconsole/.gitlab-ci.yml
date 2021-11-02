@@ -60,6 +60,7 @@ intel.t.pingdataconsole:
   stage: test.smoke
   script:
     - ci_scripts/run_helm_smoke.sh --product pingdataconsole
+  retry: 2
   only:
     changes:
       - pingcommon/**/*
@@ -87,6 +88,7 @@ arm.t.pingdataconsole:
     - platform=aarch64
   script:
     - ci_scripts/run_helm_smoke.sh --product pingdataconsole
+  retry: 2
   only:
     changes:
       - pingcommon/**/*
