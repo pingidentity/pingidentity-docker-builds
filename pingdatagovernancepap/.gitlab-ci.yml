@@ -62,6 +62,7 @@ intel.t.pingdatagovernancepap:
   stage: test.smoke
   script:
     - ci_scripts/run_helm_smoke.sh --product pingdatagovernancepap
+  retry: 2
   only:
     changes:
       - pingcommon/**/*
@@ -94,6 +95,7 @@ arm.t.pingdatagovernancepap:
     - platform=aarch64
   script:
     - ci_scripts/run_helm_smoke.sh --product pingdatagovernancepap
+  retry: 2
   only:
     changes:
       - pingcommon/**/*

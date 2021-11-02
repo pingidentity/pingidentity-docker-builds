@@ -71,6 +71,7 @@ intel.t.pingaccess:
   stage: test.smoke
   script:
     - ci_scripts/run_helm_smoke.sh --product pingaccess
+  retry: 2
   only:
     changes:
       - pingcommon/**/*
@@ -98,6 +99,7 @@ arm.t.pingaccess:
     - platform=aarch64
   script:
     - ci_scripts/run_helm_smoke.sh --product pingaccess
+  retry: 2
   variables:
     KUBERNETES_CPU_REQUEST: 950m
     KUBERNETES_CPU_LIMIT: 3800m

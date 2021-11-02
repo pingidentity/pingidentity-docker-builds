@@ -7,6 +7,7 @@ intel.pd-repl:
   stage: test.integration
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pd-replicated
+  retry: 1
   only:
     changes:
       - integration_tests/**/pd-replicated*
@@ -41,6 +42,7 @@ intel.pd-repl.liberica:
   stage: test.integration
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pd-replicated --image-tag-jvm al11
+  retry: 1
   only:
     changes:
       - integration_tests/**/pd-replicated*
@@ -78,6 +80,7 @@ arm.pd-repl.latest:
     - platform=aarch64
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pd-replicated --image-tag-jvm al11  --image-tag-arch aarch64
+  retry: 1
   only:
     changes:
       - integration_tests/**/pd-replicated*
@@ -112,6 +115,7 @@ intel.pa-pf-pd:
   stage: test.integration
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd
+  retry: 1
   only:
     changes:
       - integration_tests/**/pa-pf-pd*
@@ -185,6 +189,7 @@ intel.pa-pf-pd.liberica:
   stage: test.integration
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --image-tag-jvm al11
+  retry: 1
   only:
     changes:
       - integration_tests/**/pa-pf-pd*
@@ -224,6 +229,7 @@ arm.pa-pf-pd.latest:
     - platform=aarch64
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --image-tag-jvm al11  --image-tag-arch aarch64
+  retry: 1
   only:
     changes:
       - integration_tests/**/pa-pf-pd*
@@ -260,6 +266,7 @@ intel.pds-pd:
   stage: test.integration
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pds-pd
+  retry: 1
   only:
     changes:
       - integration_tests/**/pds-pd*
@@ -295,6 +302,7 @@ intel.pds-pd.liberica:
   stage: test.integration
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pds-pd --image-tag-jvm al11
+  retry: 1
   only:
     changes:
       - integration_tests/**/pds-pd*
@@ -333,6 +341,7 @@ arm.pds-pd.latest:
     - platform=aarch64
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pds-pd --image-tag-jvm al11  --image-tag-arch aarch64
+  retry: 1
   only:
     changes:
       - integration_tests/**/pds-pd*
@@ -368,6 +377,7 @@ intel.pdp-pd:
   stage: test.integration
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pdp-pd
+  retry: 1
   only:
     changes:
       - integration_tests/**/pdp-pd*
@@ -403,6 +413,7 @@ intel.pdp-pd.liberica:
   stage: test.integration
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pdp-pd --image-tag-jvm al11
+  retry: 1
   only:
     changes:
       - integration_tests/**/pdp-pd*
@@ -441,6 +452,7 @@ arm.pdp-pd.latest:
     - platform=aarch64
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pdp-pd --image-tag-jvm al11  --image-tag-arch aarch64
+  retry: 1
   only:
     changes:
       - integration_tests/**/pdp-pd*
@@ -476,6 +488,7 @@ intel.pdg-pd:
   stage: test.integration
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pdg-pd
+  retry: 1
   only:
     changes:
       - integration_tests/**/pdg-pd*
@@ -511,6 +524,7 @@ intel.pdg-pd.liberica:
   stage: test.integration
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pdg-pd --image-tag-jvm al11
+  retry: 1
   only:
     changes:
       - integration_tests/**/pdg-pd*
@@ -549,6 +563,7 @@ arm.pdg-pd.latest:
     - platform=aarch64
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pdg-pd --image-tag-jvm al11  --image-tag-arch aarch64
+  retry: 1
   only:
     changes:
       - integration_tests/**/pdg-pd*
@@ -584,6 +599,7 @@ intel.paz-pd:
   stage: test.integration
   script:
     - ci_scripts/run_helm_integration.sh --integration-test paz-pd
+  retry: 1
   only:
     changes:
       - integration_tests/**/pdg-pd*
@@ -619,6 +635,7 @@ intel.paz-pd.liberica:
   stage: test.integration
   script:
     - ci_scripts/run_helm_integration.sh --integration-test paz-pd --image-tag-jvm al11
+  retry: 1
   only:
     changes:
       - integration_tests/**/pdg-pd*
@@ -657,6 +674,7 @@ arm.paz-pd.latest:
     - platform=aarch64
   script:
     - ci_scripts/run_helm_integration.sh --integration-test paz-pd --image-tag-jvm al11 --image-tag-arch aarch64
+  retry: 1
   only:
     changes:
       - integration_tests/**/pdg-pd*

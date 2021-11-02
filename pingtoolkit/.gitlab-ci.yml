@@ -60,6 +60,7 @@ intel.t.pingtoolkit:
   stage: test.smoke
   script:
     - ci_scripts/run_helm_smoke.sh --product pingtoolkit
+  retry: 2
   only:
     changes:
       - pingtoolkit/**/*

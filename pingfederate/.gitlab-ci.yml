@@ -66,6 +66,7 @@ intel.t.pingfederate:
   stage: test.smoke
   script:
     - ci_scripts/run_helm_smoke.sh --product pingfederate
+  retry: 2
   only:
     changes:
       - pingfederate/**/*
@@ -97,6 +98,7 @@ arm.t.pingfederate:
     - platform=aarch64
   script:
     - ci_scripts/run_helm_smoke.sh --product pingfederate
+  retry: 2
   only:
     changes:
       - pingfederate/**/*

@@ -60,6 +60,7 @@ intel.t.pingdelegator:
   stage: test.smoke
   script:
     - ci_scripts/run_helm_smoke.sh --product pingdelegator
+  retry: 2
   only:
     changes:
       - pingdownloader/**/*
@@ -92,6 +93,7 @@ arm.t.pingdelegator:
     - platform=aarch64
   script:
     - ci_scripts/run_helm_smoke.sh --product pingdelegator
+  retry: 2
   only:
     changes:
       - pingdownloader/**/*

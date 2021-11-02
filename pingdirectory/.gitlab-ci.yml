@@ -72,6 +72,7 @@ intel.t.pd.az11:
   stage: test.smoke
   script:
     - ci_scripts/run_helm_smoke.sh --product pingdirectory --jvm az11
+  retry: 2
   only:
     changes:
       - pingdirectory/**/*
@@ -96,6 +97,7 @@ intel.t.pd.al11:
   stage: test.smoke
   script:
     - ci_scripts/run_helm_smoke.sh --product pingdirectory --jvm al11
+  retry: 2
   only:
     changes:
       - pingdirectory/**/*
@@ -133,6 +135,7 @@ arm.t.pingdirectory:
     - platform=aarch64
   script:
     - ci_scripts/run_helm_smoke.sh --product pingdirectory
+  retry: 2
   only:
     changes:
       - pingdirectory/**/*
