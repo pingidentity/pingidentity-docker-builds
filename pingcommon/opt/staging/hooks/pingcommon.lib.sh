@@ -139,6 +139,9 @@ isImageVersionGtEq() {
     echo 0
 }
 
+#check for newline for multi-line colored echo
+nl='
+'
 echo_color() {
     _color="$(toLower "${1}")"
     shift
@@ -148,11 +151,30 @@ echo_color() {
         yellow) _colorCode='\033[0;33m' ;;
     esac
     _endColor='\033[0m'
-    if test "${COLORIZE_LOGS}" = "true"; then
-        printf "%b%s%b\n" "${_colorCode}" "${*}" "${_endColor}"
-    else
-        printf "%s\n" "${*}"
-    fi
+    case "${1}" in
+        *$nl*)
+            if test "${COLORIZE_LOGS}" = "true"; then
+                while IFS= read -r _eachline; do
+                    printf "%b%s%b\n" "${_colorCode}" "${_eachline}" "${_endColor}"
+                done << MLEOF
+${*}
+MLEOF
+            else
+                while IFS= read -r _eachline; do
+                    printf "%s\n" "${_eachline}"
+                done << MLEOF
+${*}
+MLEOF
+            fi
+            ;;
+        *)
+            if test "${COLORIZE_LOGS}" = "true"; then
+                printf "%b%s%b\n" "${_colorCode}" "${*}" "${_endColor}"
+            else
+                printf "%s\n" "${*}"
+            fi
+            ;;
+    esac
 }
 
 ###############################################################################
