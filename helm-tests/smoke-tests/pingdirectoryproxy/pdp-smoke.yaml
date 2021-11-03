@@ -4,6 +4,9 @@
 #
 ###############################################################################
 pingdirectoryproxy:
+  envs:
+    SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
+    SERVER_PROFILE_PATH: baseline/pingdirectoryproxy
   enabled: true
 
 ###############################################################################
