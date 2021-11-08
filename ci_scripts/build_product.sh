@@ -135,16 +135,7 @@ if test -z "${versionsToBuild}"; then
         versionsToBuild=$(_getLatestSnapshotVersionForProduct "${productToBuild}")
         latestVersion=$(_getLatestVersionForProduct "${productToBuild}")
         shimsToBuild=$(_getDefaultShimForProductVersion "${productToBuild}" "${latestVersion}")
-        case "${ARCH}" in
-            x86_64)
-                jvmsToBuild="az11"
-                ;;
-            aarch64)
-                jvmsToBuild="al11"
-                ;;
-            *) ;;
-
-        esac
+        jvmsToBuild="al11"
     else
         versionsToBuild=$(_getAllVersionsToBuildForProduct "${productToBuild}")
     fi
