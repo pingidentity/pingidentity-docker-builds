@@ -12,14 +12,14 @@ if ! type java > /dev/null 2> /dev/null; then
     # _modules="java.base,java.compiler,java.datatransfer,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.jdwp.agent,jdk.httpserver,jdk.jcmd,jdk.localedata,jdk.management,jdk.management.agent,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.rmic,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom,jdk.zipfs"
     _jdkDir="$(mktemp -d)"
     _jdkArchive="${_jdkDir}/jdk.tgz"
-    JDK_VERSION="11.0.12+7"
+    JDK_VERSION="11.0.13+8"
     if test "aarch64" = "${_osArch}"; then
         _arch="${_osArch}"
-        _digest="5633780b728140cc16d73b0a2b6165f4a19afc4f"
+        _digest="626e9ad4cb593533e0a4b51deedb9fd79e14a3cc"
     else
         # on Intel
         _arch="x64"
-        _digest="3ecb384285975e73b841f8cfe829e3cf5aac27ba"
+        _digest="fdb3cae360fef333b1d7be356b773de4b47dc7e5"
     fi
     case "${_osID}" in
         alpine)
@@ -32,7 +32,7 @@ if ! type java > /dev/null 2> /dev/null; then
             _cmd="curl -o"
             _libc=""
             _arch="amd64"
-            _digest="25095da274b159f4233a2b69eb4aea1dbd099e9b"
+            _digest="76c1f7aaf0a2998a312a3ae31fa6b70e3eebdb3a"
             ;;
     esac
     _jdkURL="https://download.bell-sw.com/java/${JDK_VERSION}/bellsoft-jdk${JDK_VERSION}-linux-${_arch}${_libc}.tar.gz"

@@ -58,7 +58,7 @@ for _test in "${CI_PROJECT_DIR}/integration_tests/"${1:-*}.test.yml; do
     export GIT_TAG="${CI_TAG}"
     export REGISTRY="${FOUNDATION_REGISTRY}"
     export DEPS="${DEPS_REGISTRY}"
-    export JVM="${2:-az11}"
+    export JVM="${2:-al11}"
     # `docker pull` has less package dependencies than `docker-compose pull`
     # use docker pull to pull images before running `docker-compose up`
     if test -z "${IS_LOCAL_BUILD}"; then
