@@ -35,6 +35,8 @@ services:
     environment:
       - SERVER_PROFILE_PATH=baseline/pingfederate
       - LDAP_PORT=1389
+      - PF_LDAP_USERNAME=${PF_LDAP_USERNAME}
+      - PF_LDAP_PASSWORD=${PF_LDAP_PASSWORD}
     env_file:
       - /tmp/integration_tests.properties
     ulimits:

@@ -13,6 +13,9 @@ pingfederate-admin:
       limits:
         cpu: 1
         memory: 2Gi
+  envs:
+    PF_LDAP_USERNAME: ${PF_LDAP_USERNAME}
+    PF_LDAP_PASSWORD: ${PF_LDAP_PASSWORD}
 
 pingfederate-engine:
   enabled: true
@@ -24,6 +27,9 @@ pingfederate-engine:
       limits:
         cpu: 1
         memory: 2Gi
+  envs:
+    PF_LDAP_USERNAME: ${PF_LDAP_USERNAME}
+    PF_LDAP_PASSWORD: ${PF_LDAP_PASSWORD}
 
 ###############################################################################
 # Test Steps
@@ -53,4 +59,3 @@ testFramework:
         - /var/run/generated.postman-environment.json
         - --insecure
         - --ignore-redirects
-

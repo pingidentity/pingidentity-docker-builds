@@ -26,6 +26,8 @@ pingfederate-admin:
     SERVER_PROFILE_PATH: baseline/pingfederate
     SERVER_PROFILE_BRANCH: FIPS
     HSM_MODE: BCFIPS
+    PF_LDAP_USERNAME: ${PF_LDAP_USERNAME}
+    PF_LDAP_PASSWORD: ${PF_LDAP_PASSWORD}
 
 pingfederate-engine:
   enabled: true
@@ -34,6 +36,8 @@ pingfederate-engine:
     SERVER_PROFILE_PATH: baseline/pingfederate
     SERVER_PROFILE_BRANCH: FIPS
     HSM_MODE: BCFIPS
+    PF_LDAP_USERNAME: ${PF_LDAP_USERNAME}
+    PF_LDAP_PASSWORD: ${PF_LDAP_PASSWORD}
 
 ###############################################################################
 # Test Steps
