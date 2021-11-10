@@ -476,8 +476,9 @@ elif test -n "${CI_COMMIT_REF_NAME}"; then
 
     #Retreive the vault token to authenticate for vault secrets
     VAULT_TOKEN="$(vault write -field=token auth/jwt/login role=pingdevops jwt="${CI_JOB_JWT}")"
-    export VAULT_TOKEN
+    test -z "${VAULT_TOKEN}" && VAULT_TOKEN="$(vault write -field=token auth/jwt/login role=pingdevops-tag jwt="${CI_JOB_JWT}")"
     test -z "${VAULT_TOKEN}" && echo "Error: Vault token was not retrieved" && exit 1
+    export VAULT_TOKEN
 
     #Retreive the vault secret
     vault kv get -field=Signing_Key_Base64 pingdevops/Base64_key > "${keys_temp_file}"
