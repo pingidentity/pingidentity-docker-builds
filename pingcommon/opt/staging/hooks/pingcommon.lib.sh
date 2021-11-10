@@ -282,14 +282,15 @@ EOF
         _osID="$(getOSID)"
         case "${_osID}" in
             redhat | fedora | centos)
-                # shellcheck disable=SC2086
-                kill -n ${_exitCode} 1
+                kill -n 15 1
+                test $? -ne 0 && kill -n 9 1
                 ;;
             *)
-                # shellcheck disable=SC2086
-                kill -${_exitCode} 1
+                kill -15 1
+                test $? -ne 0 && kill -9 1
                 ;;
         esac
+        #Container should be dead by now, so this exit command should not run.
         exit "${_exitCode}"
     fi
 }
