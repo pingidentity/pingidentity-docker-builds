@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+echo "Pingdatacommon post-build stage - creating JVM option cache file"
+set -x
+
+#- Put the JVM option cache in the right location for the setup process
+#- The PingData setup process expects the option cache file name to match
+#- the sha1 hash of the active Java binary.
+_cacheFilename=$(sha1sum /opt/java/bin/java | cut -d " " -f 1)
+cp /opt/server/logs/option-cache/base "/opt/server/logs/option-cache/${_cacheFilename}"
+
+# delete self
+rm -f "${0}"
+set +x
+echo "Post-build stage done."

@@ -1,8 +1,6 @@
 # This option cache stores the result of tests applied to Java options in order
 # to see if they are supported by the JVM at "/opt/java".
 
-# The filename of this option cache will need to be updated whenever the JVM used by the image is changed
-
 # Empty argument set is checked
 	true
 
