@@ -40,6 +40,17 @@ buildPasswordFileOptions() {
         echo_yellow "         Using 'tmp/secrets' for now."
         _passwordFilesDir="/tmp/secrets"
         mkdir -p "${_passwordFilesDir}"
+    else
+        # Try writing a file to the SECRETS_DIR. If we don't have permissions, /tmp/secrets will have to be used instead
+        touch "${SECRETS_DIR}"/buildPasswordFileOptions-test-file
+        if test ${?} -ne 0; then
+            echo_yellow "WARNING: Unable to write password files to '${SECRETS_DIR}'"
+            echo_yellow "         Using 'tmp/secrets' for now."
+            _passwordFilesDir="/tmp/secrets"
+            mkdir -p "${_passwordFilesDir}"
+        else
+            rm "${SECRETS_DIR}"/buildPasswordFileOptions-test-file
+        fi
     fi
 
     #
@@ -59,26 +70,29 @@ buildPasswordFileOptions() {
 
     export_container_env ROOT_USER_PASSWORD_FILE ADMIN_USER_PASSWORD_FILE ENCRYPTION_PASSWORD_FILE
 
-    # If there is a PING_IDENTITY_PASSWORD, create the possible PASSWORD_FILEs with that value if the
-    # file isn't already there
+    # If PING_IDENTITY_PASSWORD has no value, give it one here. This ensures that we aren't
+    # trying to use password files with no contents.
+    if test -z "${PING_IDENTITY_PASSWORD}"; then
+        PING_IDENTITY_PASSWORD=2FederateM0re
+    fi
+
+    # Create the possible PASSWORD_FILEs if they don't already exist
     #
     #   ROOT_USER_PASSWORD_FILE
     #   ENCRYPTION_PASSWORD_FILE
     #   ADMIN_USER_PASSWORD_FILE
 
-    if test -n "${PING_IDENTITY_PASSWORD}"; then
-        if test -n "${ROOT_USER_PASSWORD_FILE}" && ! test -f "${ROOT_USER_PASSWORD_FILE}"; then
-            mkdir -p "$(dirname "${ROOT_USER_PASSWORD_FILE}")"
-            echo "${PING_IDENTITY_PASSWORD}" > "${ROOT_USER_PASSWORD_FILE}"
-        fi
-        if test -n "${ENCRYPTION_PASSWORD_FILE}" && ! test -f "${ENCRYPTION_PASSWORD_FILE}"; then
-            mkdir -p "$(dirname "${ENCRYPTION_PASSWORD_FILE}")"
-            echo "${PING_IDENTITY_PASSWORD}" > "${ENCRYPTION_PASSWORD_FILE}"
-        fi
-        if test -n "${ADMIN_USER_PASSWORD_FILE}" && ! test -f "${ADMIN_USER_PASSWORD_FILE}"; then
-            mkdir -p "$(dirname "${ADMIN_USER_PASSWORD_FILE}")"
-            echo "${PING_IDENTITY_PASSWORD}" > "${ADMIN_USER_PASSWORD_FILE}"
-        fi
+    if test -n "${ROOT_USER_PASSWORD_FILE}" && ! test -f "${ROOT_USER_PASSWORD_FILE}"; then
+        mkdir -p "$(dirname "${ROOT_USER_PASSWORD_FILE}")"
+        echo "${PING_IDENTITY_PASSWORD}" > "${ROOT_USER_PASSWORD_FILE}"
+    fi
+    if test -n "${ENCRYPTION_PASSWORD_FILE}" && ! test -f "${ENCRYPTION_PASSWORD_FILE}"; then
+        mkdir -p "$(dirname "${ENCRYPTION_PASSWORD_FILE}")"
+        echo "${PING_IDENTITY_PASSWORD}" > "${ENCRYPTION_PASSWORD_FILE}"
+    fi
+    if test -n "${ADMIN_USER_PASSWORD_FILE}" && ! test -f "${ADMIN_USER_PASSWORD_FILE}"; then
+        mkdir -p "$(dirname "${ADMIN_USER_PASSWORD_FILE}")"
+        echo "${PING_IDENTITY_PASSWORD}" > "${ADMIN_USER_PASSWORD_FILE}"
     fi
 }
 
