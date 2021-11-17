@@ -17,6 +17,17 @@ if test ! -d "${SECRETS_DIR}"; then
     echo_yellow "         Using 'tmp/secrets' for now."
     SECRETS_DIR="/tmp/secrets"
     mkdir -p "${SECRETS_DIR}"
+else
+    # Try writing a file to the SECRETS_DIR. If we don't have permissions, /tmp/secrets will have to be used instead
+    touch "${SECRETS_DIR}"/get-remote-server-profile-post-test-file
+    if test ${?} -ne 0; then
+        echo_yellow "WARNING: Unable to write keystore file to '${SECRETS_DIR}'"
+        echo_yellow "         Using 'tmp/secrets' for now."
+        SECRETS_DIR="/tmp/secrets"
+        mkdir -p "${SECRETS_DIR}"
+    else
+        rm "${SECRETS_DIR}"/get-remote-server-profile-post-test-file
+    fi
 fi
 
 # Get the keystore and pin if they are provided
