@@ -89,7 +89,6 @@ intel.t.pingaccess:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i
 
 arm.t.pingaccess:
@@ -100,11 +99,6 @@ arm.t.pingaccess:
   script:
     - ci_scripts/run_helm_smoke.sh --product pingaccess
   retry: 2
-  variables:
-    KUBERNETES_CPU_REQUEST: 950m
-    KUBERNETES_CPU_LIMIT: 3800m
-    KUBERNETES_MEMORY_REQUEST: 1900000000
-    KUBERNETES_MEMORY_LIMIT: 1900000000
   only:
     changes:
       - pingcommon/**/*
@@ -122,7 +116,6 @@ arm.t.pingaccess:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i
 
 ################################################

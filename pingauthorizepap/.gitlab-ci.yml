@@ -71,11 +71,6 @@ intel.t.pingauthorizepap:
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml
-  variables:
-    KUBERNETES_CPU_REQUEST: 2850m
-    KUBERNETES_CPU_LIMIT: 2850m
-    KUBERNETES_MEMORY_REQUEST: 2940000000
-    KUBERNETES_MEMORY_LIMIT: 2940000000
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -83,7 +78,6 @@ intel.t.pingauthorizepap:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorizepap(?:$|,)/i
 
 arm.t.pingauthorizepap:
@@ -104,11 +98,6 @@ arm.t.pingauthorizepap:
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml
-  variables:
-    KUBERNETES_CPU_REQUEST: 2850m
-    KUBERNETES_CPU_LIMIT: 2850m
-    KUBERNETES_MEMORY_REQUEST: 2940000000
-    KUBERNETES_MEMORY_LIMIT: 2940000000
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -116,7 +105,6 @@ arm.t.pingauthorizepap:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorizepap(?:$|,)/i
 
 ################################################

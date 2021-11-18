@@ -38,6 +38,11 @@ COPY --from=jvm ["/opt/java","/opt/java"]
 # apply product-specific hooks and patches
 COPY ["/opt","/opt"]
 
+# Use correct application.yaml.subst file based on $VERSION
+# in the build.sh.post script.
+# This should be removed upon deprecation of PDC 8.3.x.x
+ARG VERSION
+
 # Run build
 RUN ["/opt/build.sh"]
 

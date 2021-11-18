@@ -1,0 +1,30 @@
+# This application.yml file is used with the following product and product dependency versions :
+#   PingDataConsole: 9.0.0.0-EA and earlier
+#   Sprint Boot: 1.5.22.RELEASE
+#   Spring Core: 4.3.29.RELEASE
+
+# see http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#common-application-properties
+spring:
+  profiles.active: default
+  main.show-banner: false
+  thymeleaf.cache: true
+  thymeleaf.prefix: classpath:/public/app/
+  resources:
+    cache-period: 31536000 # 1 year
+    add-mappings: false # use our custom mappings instead of the defaults
+  mvc:
+    favicon.enabled: false
+
+#################### WARNING ####################
+# Increasing the log levels may cause sensitive information to be logged.
+#   Appropriate precautions should be taken when doing so.
+#################### WARNING ####################
+logging:
+  level:
+    root: WARN
+    com.unboundid: TRACE
+    org.thymeleaf: WARN
+    ch.qos.logback: WARN
+logging.console: true
+log.file: /opt/out/instance/logs/console.log
+login.hide-server: false

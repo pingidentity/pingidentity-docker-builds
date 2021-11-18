@@ -90,11 +90,6 @@ intel.t.pingdatagovernance:
 arm.t.pingdatagovernance:
   stage: test.smoke
   image: $RUNNER_IMAGE_AARCH64
-  variables:
-    KUBERNETES_CPU_REQUEST: 950m
-    KUBERNETES_CPU_LIMIT: 3800m
-    KUBERNETES_MEMORY_REQUEST: 1900000000
-    KUBERNETES_MEMORY_LIMIT: 1900000000
   tags:
     - platform=aarch64
   script:

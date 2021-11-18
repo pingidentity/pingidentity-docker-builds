@@ -21,8 +21,8 @@ MD="\.md"
 check_if_mds() {
     for CHANGED_FILE in ${CHANGED_FILES}; do
         echo "${CHANGED_FILE}"
-        echo "TESTING - ${CHANGED_FILE#*$MD} != ${CHANGED_FILE}"
-        if test "${CHANGED_FILE#*$MD}" = "${CHANGED_FILE}"; then
+        echo "TESTING - ${CHANGED_FILE#*"${MD}"} != ${CHANGED_FILE}"
+        if test "${CHANGED_FILE#*"${MD}"}" = "${CHANGED_FILE}"; then
             echo "found non-readme"
             ONLY_READMES="False"
             break

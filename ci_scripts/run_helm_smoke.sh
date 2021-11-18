@@ -225,10 +225,13 @@ _pids=()
 _test="${CI_PROJECT_DIR}/helm-tests/smoke-tests/${product}"
 banner "Running smoke test found at: ${_test}"
 
+#If this is a snapshot pipeline, override the image tag to snapshot image tags
+test -n "${PING_IDENTITY_SNAPSHOT}" && _image_tag_override="latest-${ARCH}-$(date "+%m%d%Y")"
+
 #
 # If a tag is passed, then only run the smoke test for that tag
 # otherwise, run for all the tag combinations taking into account
-# versions, shims, jvms and archtectures
+# versions, shims, jvms and architectures
 #
 if test -n "${_image_tag_override}"; then
     _tag="${_image_tag_override}"
