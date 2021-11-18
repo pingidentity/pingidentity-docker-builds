@@ -73,11 +73,6 @@ intel.t.pingdatagovernancepap:
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml
-  variables:
-    KUBERNETES_CPU_REQUEST: 2850m
-    KUBERNETES_CPU_LIMIT: 2850m
-    KUBERNETES_MEMORY_REQUEST: 2940000000
-    KUBERNETES_MEMORY_LIMIT: 2940000000
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -106,11 +101,6 @@ arm.t.pingdatagovernancepap:
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml
-  variables:
-    KUBERNETES_CPU_REQUEST: 2850m
-    KUBERNETES_CPU_LIMIT: 2850m
-    KUBERNETES_MEMORY_REQUEST: 2940000000
-    KUBERNETES_MEMORY_LIMIT: 2940000000
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/

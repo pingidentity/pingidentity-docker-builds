@@ -72,8 +72,18 @@ command_prefix=""
 if ! type shfmt; then
     if test "$(uname -m)" = "x86_64" && test "$(uname -s)" = "Linux"; then
         # Install shfmt
-        curl -O https://gte-bits-repo.s3.amazonaws.com/shfmt
+        shfmt_filename="shfmt"
+
+        # Download the latest version of shfmt for linux x86_64 from GitHub.
+        shfmt_download_url=$(curl --silent https://api.github.com/repos/mvdan/sh/releases/latest | jq -r '.assets[] | select(.name|test("linux_amd64")) | .browser_download_url')
+        test -z "${shfmt_download_url}" && echo "Error: Failed to retrieve shfmt download URL" && exit 1
+        curl --location --silent --output "${shfmt_filename}" "${shfmt_download_url}"
+        test $? -ne 0 && echo "Error: Failed to retrieve shfmt binary from GitHub" && exit 1
+
+        # Give execute permissions to shfmt
         chmod +x shfmt
+        test $? -ne 0 && echo "Error: Failed to exit execute permissions on shfmt binary" && exit 1
+
         command_prefix="./"
     else
         echo "Missing shfmt"

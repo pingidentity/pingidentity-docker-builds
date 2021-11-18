@@ -18,7 +18,7 @@ Usage: ${0} {options}
     --integration-test {integration-test-name}
         The name of the integration test to run.  Should be a directory
         in current directory, relative directory off of helm-tests/integration-tests
-        or absoluate directory.  The directory should contiain yaml files contiaining
+        or absolute directory.  The directory should contain yaml files containing
         helm chart values.
 
         Available tests include (from ${_integration_helm_tests_dir}):
@@ -271,6 +271,9 @@ EO_PROD_TAG
 
     done
 }
+
+#If this is a snapshot pipeline, override the image tag to snapshot image tags
+test -n "${PING_IDENTITY_SNAPSHOT}" && _image_tag_override="latest-${_image_tag_arch}-$(date "+%m%d%Y")"
 
 _helmValues="${_tmpDir}/helmValues.yaml"
 _create_helm_values

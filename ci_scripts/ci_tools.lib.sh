@@ -430,6 +430,23 @@ if test -n "${PING_IDENTITY_SNAPSHOT}"; then
     #
     setupDockerConfigJson
 
+    case "${PIPELINE_BUILD_REGISTRY_VENDOR}" in
+        aws)
+            # shellcheck source=./aws_tools.lib.sh
+            . "${CI_SCRIPTS_DIR}/aws_tools.lib.sh"
+            ;;
+        google)
+            # shellcheck source=./google_tools.lib.sh
+            . "${CI_SCRIPTS_DIR}/google_tools.lib.sh"
+            ;;
+        azure)
+            echo_red "azure not implemented yet"
+            exit 1
+            # shellcheck source=./azure_tools.lib.sh
+            . "${CI_SCRIPTS_DIR}/azure_tools.lib.sh"
+            ;;
+    esac
+
     GIT_REV_SHORT=$(date '+%H%M')
     GIT_REV_LONG=$(date '+%s')
     CI_TAG="$(date '+%Y%m%d')"

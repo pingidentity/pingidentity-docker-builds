@@ -747,7 +747,7 @@ export_container_env() {
 contains() {
     string="$1"
     substring="$2"
-    if test "${string#*$substring}" != "$string"; then
+    if test "${string#*"${substring}"}" != "${string}"; then
         # substring is in string
         return 0
     else

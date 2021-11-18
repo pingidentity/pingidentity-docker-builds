@@ -108,11 +108,6 @@ intel.t.pd.al11:
       - ci_scripts/*
       - pingjvm/*
       - .gitlab-ci.yml
-  variables:
-    KUBERNETES_CPU_REQUEST: 1900m
-    KUBERNETES_CPU_LIMIT: 1900m
-    KUBERNETES_MEMORY_REQUEST: 3920000000
-    KUBERNETES_MEMORY_LIMIT: 3920000000
   except:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^workspace.*/
@@ -120,17 +115,11 @@ intel.t.pd.al11:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
 
 arm.t.pingdirectory:
   stage: test.smoke
   image: $RUNNER_IMAGE_AARCH64
-  variables:
-    KUBERNETES_CPU_REQUEST: 950m
-    KUBERNETES_CPU_LIMIT: 3800m
-    KUBERNETES_MEMORY_REQUEST: 1900000000
-    KUBERNETES_MEMORY_LIMIT: 1900000000
   tags:
     - platform=aarch64
   script:
@@ -153,7 +142,6 @@ arm.t.pingdirectory:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
 
 ################################################

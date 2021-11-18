@@ -82,17 +82,11 @@ intel.t.pingauthorize:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorize(?:$|,)/i
 
 arm.t.pingauthorize:
   stage: test.smoke
   image: $RUNNER_IMAGE_AARCH64
-  variables:
-    KUBERNETES_CPU_REQUEST: 950m
-    KUBERNETES_CPU_LIMIT: 3800m
-    KUBERNETES_MEMORY_REQUEST: 1900000000
-    KUBERNETES_MEMORY_LIMIT: 1900000000
   tags:
     - platform=aarch64
   script:
@@ -115,7 +109,6 @@ arm.t.pingauthorize:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingauthorize(?:$|,)/i
 
 ################################################

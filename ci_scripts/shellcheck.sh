@@ -7,15 +7,31 @@
 #
 test "${VERBOSE}" = "true" && set -x
 
-if test -n "${CI_COMMIT_REF_NAME}"; then
-    #We are in the pipeline
-    # Install shellcheck
-    curl -O https://gte-bits-repo.s3.amazonaws.com/shellcheck
-    chmod +x shellcheck
-    command_prefix="./"
-else
-    #We are on local
-    command_prefix=""
+command_prefix=""
+if ! type shellcheck; then
+    if test "$(uname -m)" = "x86_64" && test "$(uname -s)" = "Linux"; then
+        # Install shellcheck
+        shellcheck_filename="shellcheck.tar.xz"
+
+        # Download the latest version of shellcheck for linux x86_64 from GitHub.
+        shellcheck_download_url=$(curl --silent https://api.github.com/repos/koalaman/shellcheck/releases/latest | jq -r '.assets[] | select(.name|test("linux.x86_64")) | .browser_download_url')
+        test -z "${shellcheck_download_url}" && echo "Error: Failed to retrieve shellcheck download URL" && exit 1
+        curl --location --silent --output "${shellcheck_filename}" "${shellcheck_download_url}"
+        test $? -ne 0 && echo "Error: Failed to retrieve shellcheck tar file from GitHub" && exit 1
+
+        # Extract the binary
+        tar -xf "${shellcheck_filename}" --exclude 'README.txt' --exclude 'LICENSE.txt' --strip-components=1
+        test $? -ne 0 && echo "Error: Failed to extract shellcheck binary" && exit 1
+
+        # Give execute permissions to shellcheck
+        chmod +x shellcheck
+        test $? -ne 0 && echo "Error: Failed to exit execute permissions on shellcheck binary" && exit 1
+
+        command_prefix="./"
+    else
+        echo "Missing shellcheck"
+        exit 99
+    fi
 fi
 
 # For each file in the project, if it starts with a shebang, add it to a list in tmp.

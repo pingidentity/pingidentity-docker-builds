@@ -65,7 +65,6 @@ intel.pd-repl.liberica:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
 
 ################################################
@@ -79,7 +78,7 @@ arm.pd-repl.liberica:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pd-replicated --image-tag-jvm al11  --image-tag-arch aarch64
+    - ci_scripts/run_helm_integration.sh --integration-test pd-replicated --image-tag-jvm al11 --image-tag-arch aarch64
   retry: 1
   only:
     changes:
@@ -103,7 +102,6 @@ arm.pd-repl.liberica:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
 
 ################################################
@@ -214,7 +212,6 @@ intel.pa-pf-pd.liberica:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i
 
 ################################################
@@ -228,7 +225,7 @@ arm.pa-pf-pd.liberica:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --image-tag-jvm al11  --image-tag-arch aarch64
+    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --image-tag-jvm al11 --image-tag-arch aarch64
   retry: 1
   only:
     changes:
@@ -254,7 +251,6 @@ arm.pa-pf-pd.liberica:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i
 
 ################################################
@@ -326,7 +322,6 @@ intel.pds-pd.liberica:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatasync(?:$|,)/i
 
 ################################################
@@ -340,7 +335,7 @@ arm.pds-pd.liberica:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pds-pd --image-tag-jvm al11  --image-tag-arch aarch64
+    - ci_scripts/run_helm_integration.sh --integration-test pds-pd --image-tag-jvm al11 --image-tag-arch aarch64
   retry: 1
   only:
     changes:
@@ -365,7 +360,6 @@ arm.pds-pd.liberica:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatasync(?:$|,)/i
 
 ################################################
@@ -437,7 +431,6 @@ intel.pdp-pd.liberica:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatasync(?:$|,)/i
 
 ################################################
@@ -451,7 +444,7 @@ arm.pdp-pd.liberica:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pdp-pd --image-tag-jvm al11  --image-tag-arch aarch64
+    - ci_scripts/run_helm_integration.sh --integration-test pdp-pd --image-tag-jvm al11 --image-tag-arch aarch64
   retry: 1
   only:
     changes:
@@ -476,7 +469,6 @@ arm.pdp-pd.liberica:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatasync(?:$|,)/i
 
 ################################################
@@ -659,7 +651,6 @@ intel.paz-pd.liberica:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingauthorize(?:$|,)/i
 
 ################################################
@@ -698,7 +689,6 @@ arm.paz-pd.liberica:
       - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
       - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
       - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingauthorize(?:$|,)/i
 
 ################################################
