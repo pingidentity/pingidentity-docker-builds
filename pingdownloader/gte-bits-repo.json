@@ -80,13 +80,13 @@
         {
             "name": "pingfederate",
             "mapping": "pingfederate-${version}.zip",
-            "latestVersion": "10.3.3",
+            "latestVersion": "10.3.4",
             "licenseFile": "pingfederate.lic"
         },
         {
             "name": "apache-tomcat",
             "mapping": "apache-tomcat-${version}.zip",
-            "latestVersion": "9.0.54"
+            "latestVersion": "9.0.55"
         },
         {
             "name": "apache-jmeter",
