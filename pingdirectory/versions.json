@@ -3,10 +3,10 @@
     "versions":[
         {
             "version": "9.0.0.0-EA",
-            "preferredShim": "alpine:3.14",
+            "preferredShim": "alpine:3.15",
             "shims":[
                 {
-                    "shim": "alpine:3.14",
+                    "shim": "alpine:3.15",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
@@ -38,7 +38,7 @@
                     ]
                 },
                 {
-                    "shim": "redhat/ubi/ubi8:8.3",
+                    "shim": "redhat/ubi/ubi8:8.5",
                     "preferredJVM": "rl11",
                     "jvms": [
                         {
@@ -56,10 +56,10 @@
         },
         {
             "version": "8.3.0.3",
-            "preferredShim": "alpine:3.14",
+            "preferredShim": "alpine:3.15",
             "shims":[
                 {
-                    "shim": "alpine:3.14",
+                    "shim": "alpine:3.15",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
@@ -91,7 +91,7 @@
                     ]
                 },
                 {
-                    "shim": "redhat/ubi/ubi8:8.3",
+                    "shim": "redhat/ubi/ubi8:8.5",
                     "preferredJVM": "rl11",
                     "jvms": [
                         {
@@ -109,10 +109,10 @@
         },
         {
             "version": "8.2.0.6",
-            "preferredShim": "alpine:3.14",
+            "preferredShim": "alpine:3.15",
             "shims":[
                 {
-                    "shim": "alpine:3.14",
+                    "shim": "alpine:3.15",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
@@ -136,7 +136,7 @@
                     ]
                 },
                 {
-                    "shim": "redhat/ubi/ubi8:8.3",
+                    "shim": "redhat/ubi/ubi8:8.5",
                     "preferredJVM": "rl11",
                     "jvms": [
                         {
