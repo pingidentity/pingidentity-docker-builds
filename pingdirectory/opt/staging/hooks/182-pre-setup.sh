@@ -23,7 +23,7 @@ test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib
 #  required to ensure that the pingdirectory service isn't available until after all the
 #  required replication has been setup.  If we don't check for this here then the
 #  setup process here will fail.
-_podHostName=$(hostname -f)
+_podHostName=$(getHostName)
 if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" &&
     test "$(isImageVersionGtEq 8.2.0)" -eq 0 &&
     test -z "$(getIP "${_podHostName}")"; then
