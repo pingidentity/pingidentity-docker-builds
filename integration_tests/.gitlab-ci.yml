@@ -150,7 +150,7 @@ intel.pa-pf-pd.azul:
 intel.pf-pd-fips.liberica:
   stage: test.integration
   script:
-    - SHIM=redhat_ubi_ubi8_8.3 ci_scripts/run_integration.sh pa-pf-pd-FIPS.latest rl11
+    - SHIM=redhat_ubi_ubi8_8.5 ci_scripts/run_integration.sh pa-pf-pd-FIPS.latest rl11
   only:
     changes:
       - integration_tests/**/pa-pf-pd*
