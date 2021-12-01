@@ -112,6 +112,9 @@ download_and_verify() {
 }
 
 set -x
+#update all installed packages
+apk -U upgrade
+#add required packages
 apk --no-cache --update add curl jq zip gnupg
 
 BASE="${BASE:-/opt}"

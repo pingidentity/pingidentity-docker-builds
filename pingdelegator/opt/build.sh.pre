@@ -25,17 +25,36 @@ set -x
 
 _osID=$(awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' < /etc/os-release 2> /dev/null)
 
+# cause a failure if anything below raises an error
+set -e
+
 case "${_osID}" in
     alpine)
-        # cause a failure if anything below raises an error
-        set -e
         apk --update add nginx openssl
         mkdir -p /run/nginx
-        set +e
         ;;
-    *) ;;
+    centos | rhel)
+        #add nginx repo
+        echo "[nginx]" > /etc/yum.repos.d/nginx.repo
+        echo "name=nginx repo" >> /etc/yum.repos.d/nginx.repo
+        echo "baseurl=https://nginx.org/packages/rhel/8/x86_64/" >> /etc/yum.repos.d/nginx.repo
+        echo "gpgcheck=0" >> /etc/yum.repos.d/nginx.repo
+        echo "enabled=1" >> /etc/yum.repos.d/nginx.repo
+        yum update -y
+        #install nginx
+        yum -y install nginx
+        #restrict tls versions and set allowed cipher suites
+        sed -i -e 's/#ssl_ciphers/ssl_ciphers/g' -e 's/#ssl_dhparam/ssl_dhparam/g' -e 's/#ssl_protocols/ssl_protocols/g' -e 's/#ssl_prefer_server_ciphers/ssl_prefer_server_ciphers/g' /opt/staging/instance/etc/conf.d/default.conf.subst
+        #cleanup
+        yum -y clean all
+        #fix permission for ping user
+        chown -R 9031:0 /var/log/nginx
+        chmod -R 755 /var/log/nginx
+        mkdir -p /opt/out/instance/logs
+        ;;
 
 esac
+set +e
 # delete self
 rm -f "${0}"
 set +x

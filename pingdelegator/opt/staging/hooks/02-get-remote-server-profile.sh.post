@@ -15,6 +15,9 @@
 _legacyCertificateFile="${STAGING_DIR}/.sec/nginx.crt"
 _legacyCertificateKeyFile="${STAGING_DIR}/.sec/nginx.key"
 
+#used for FIPS purposes
+_osID=$(awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' < /etc/os-release 2> /dev/null)
+
 if test ! -r "${SECRETS_DIR}"; then
     echo_yellow "WARNING: Important that the orchestration environment create a tmpfs for '${SECRETS_DIR}'"
     echo_yellow "         Using '/tmp/secrets' for now."
@@ -28,6 +31,7 @@ if test -n "${CERTIFICATE_FILE}"; then
         container_failure 2 "CERTIFICATE_FILE value [${CERTIFICATE_FILE}] is invalid: the specified file does not exist"
     else
         _nginxCrt="${CERTIFICATE_FILE}"
+
     fi
 else
     if test -f "${_legacyCertificateFile}"; then
@@ -76,10 +80,39 @@ if ! test -f "${_nginxCrt}"; then
         -out ${_nginxCrt}
 fi
 
+#FIPS generate for ECDSA for testing.
+_ECDSAnginxCrt=$(echo ${_nginxCrt} | sed -e 's/nginx.crt/ECDSA_nginx.crt/')
+_ECDSAnginxKey=$(echo ${_nginxKey} | sed -e 's/nginx.key/ECDSA_nginx.key/')
+if test "${_osID}" = "rhel" && ! test -f "${_ECDSAnginxCrt}"; then
+    echo "Creating ECDSA Cert for FEDRAMP Purposes."
+    _ECDSAnginxCrt=$(echo ${_nginxCrt} | sed -e 's/nginx.crt/ECDSA_nginx.crt/')
+    _ECDSAnginxKey=$(echo ${_nginxKey} | sed -e 's/nginx.key/ECDSA_nginx.key/')
+    sed -i -e 's/#ssl_certificate_key/ssl_certificate_key/g' -e 's/#ssl_certificate/ssl_certificate/g' "${STAGING_DIR}/instance/etc/conf.d/default.conf.subst"
+    openssl req \
+        -x509 \
+        -nodes \
+        -days 365 \
+        -subj "/C=us/ST=co/O=pingidentity/OU=docker/CN=dev" \
+        -newkey ec -pkeyopt ec_paramgen_curve:secp384r1 \
+        -keyout "${_ECDSAnginxKey}" \
+        -out "${_ECDSAnginxCrt}"
+fi
+
 CERTIFICATE_FILE="${_nginxCrt}"
 CERTIFICATE_KEY_FILE="${_nginxKey}"
 
 echo "Using CERTIFICATE_FILE=${CERTIFICATE_FILE}"
 echo "Using CERTIFICATE_KEY_FILE=${CERTIFICATE_KEY_FILE}"
 
-export_container_env SECRETS_DIR CERTIFICATE_FILE CERTIFICATE_KEY_FILE
+#used for FIPS purposes
+if test "${_osID}" = "rhel" && test -f "${_nginxCrt}"; then
+    ECDSA_CERTIFICATE_FILE=${_ECDSAnginxCrt}
+    ECDSA_CERTIFICATE_KEY_FILE="${_ECDSAnginxKey}"
+
+    echo "Using ECDSA CERTIFICATE_FILE=${ECDSA_CERTIFICATE_FILE}"
+    echo "Using ECDSA CERTIFICATE_KEY_FILE=${ECDSA_CERTIFICATE_KEY_FILE}"
+
+    export_container_env SECRETS_DIR CERTIFICATE_FILE CERTIFICATE_KEY_FILE ECDSA_CERTIFICATE_FILE ECDSA_CERTIFICATE_KEY_FILE
+else
+    export_container_env SECRETS_DIR CERTIFICATE_FILE CERTIFICATE_KEY_FILE
+fi

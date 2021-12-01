@@ -40,6 +40,21 @@
                             ]
                         }
                     ]
+                },
+                {
+                    "shim": "redhat/ubi/ubi8:8.3",
+                    "preferredJVM": "rl11",
+                    "jvms": [
+                        {
+                            "jvm": "rl11",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "Artifactory",
+                                "Fedramp"
+                            ]
+                        }
+                    ]
                 }
             ]
         },
