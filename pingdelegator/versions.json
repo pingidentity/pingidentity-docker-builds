@@ -21,7 +21,7 @@
                     ]
                 },
                 {
-                    "shim": "redhat/ubi/ubi8:8.3",
+                    "shim": "redhat/ubi/ubi8:8.5",
                     "preferredJVM": "rl11",
                     "jvms": [
                         {
@@ -52,21 +52,6 @@
                             "registries": [
                                 "DockerHub",
                                 "Artifactory"
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "shim": "redhat/ubi/ubi8:8.5",
-                    "preferredJVM": "rl11",
-                    "jvms": [
-                        {
-                            "jvm": "rl11",
-                            "build": true,
-                            "deploy": true,
-                            "registries": [
-                                "Artifactory",
-                                "Fedramp"
                             ]
                         }
                     ]
