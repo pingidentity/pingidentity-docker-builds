@@ -8,16 +8,6 @@
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-if test -z "${PF_LDAP_USERNAME}"; then
-    echo_red "PF_LDAP_USERNAME variable not set: ${PF_LDAP_USERNAME}"
-    kill 1
-fi
-
-if test -z "${PF_LDAP_PASSWORD}"; then
-    echo_red "PF_LDAP_PASSWORD variable not set: ${PF_LDAP_PASSWORD}"
-    kill 1
-fi
-
 if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" -o "${OPERATIONAL_MODE}" = "STANDALONE"; then
     echo "INFO: waiting for healthy admin before post-start.."
 
