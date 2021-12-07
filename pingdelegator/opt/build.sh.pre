@@ -35,14 +35,15 @@ case "${_osID}" in
         ;;
     centos | rhel)
         #add nginx repo
+        _osVER=$(rpm -q --queryformat '%{RELEASE}' rpm | grep -o "[[:digit:]]*\$")
         echo "[nginx]" > /etc/yum.repos.d/nginx.repo
         echo "name=nginx repo" >> /etc/yum.repos.d/nginx.repo
-        echo "baseurl=https://nginx.org/packages/rhel/8/x86_64/" >> /etc/yum.repos.d/nginx.repo
+        echo "baseurl=https://nginx.org/packages/rhel/${_osVER}/x86_64/" >> /etc/yum.repos.d/nginx.repo
         echo "gpgcheck=0" >> /etc/yum.repos.d/nginx.repo
         echo "enabled=1" >> /etc/yum.repos.d/nginx.repo
         yum update -y
-        #install nginx
-        yum -y install nginx
+        #install nginx from nginx repo
+        yum --disablerepo="*" --enablerepo="nginx" -y install nginx
         #restrict tls versions and set allowed cipher suites
         sed -i -e 's/#ssl_ciphers/ssl_ciphers/g' -e 's/#ssl_dhparam/ssl_dhparam/g' -e 's/#ssl_protocols/ssl_protocols/g' -e 's/#ssl_prefer_server_ciphers/ssl_prefer_server_ciphers/g' /opt/staging/instance/etc/conf.d/default.conf.subst
         #cleanup
@@ -50,7 +51,7 @@ case "${_osID}" in
         #fix permission for ping user
         chown -R 9031:0 /var/log/nginx
         chmod -R 755 /var/log/nginx
-        mkdir -p /opt/out/instance/logs
+        chown -R 9031:0 /var/cache/nginx
         ;;
 
 esac
