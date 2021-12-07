@@ -350,7 +350,7 @@ if test -n "${_namespace_to_use}"; then
 else
     export NAMESPACE_PREFIX="${NAMESPACE_PREFIX:-$TEST_PREFIX}"
 
-    NS=$(toLower "${NAMESPACE_PREFIX}${CI_COMMIT_REF_NAME:-$USER}-${CI_PIPELINE_ID}-${CI_JOB_ID}${_namespace_suffix}")
+    NS=$(toLower "${NAMESPACE_PREFIX}${CI_COMMIT_REF_SLUG:-$USER}-${CI_PIPELINE_ID}-${CI_JOB_ID}${_namespace_suffix}")
     export NS
 
     #
