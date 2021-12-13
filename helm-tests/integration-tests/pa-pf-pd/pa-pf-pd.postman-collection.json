@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "4dbf277f-16e8-4b7d-9ca7-6a6a36fc2cea",
-		"name": "pa-pf-pd",
+		"_postman_id": "0b4c02f7-6309-4091-8810-117ce475eccb",
+		"name": "pa-pf-pd Copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -1422,7 +1422,7 @@
 			"response": []
 		},
 		{
-			"name": "PD REST API get user afet becoming member of group",
+			"name": "PD REST API get user after becoming member of group",
 			"event": [
 				{
 					"listen": "test",

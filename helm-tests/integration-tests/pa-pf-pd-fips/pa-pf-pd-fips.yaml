@@ -1,5 +1,5 @@
 ###############################################################################
-# Ping Identity Test - PingAccess/PingFederate/PingDirectory Integration Test
+# Ping Identity Test - PingAccess/PingFederate/PingDirectory FIPS Integration Test
 #
 #
 ###############################################################################
@@ -7,8 +7,8 @@ pingdirectory:
   enabled: true
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
-    SERVER_PROFILE_PATH: baseline/pingdirectory
-    SERVER_PROFILE_BRANCH: FIPS
+    SERVER_PROFILE_PATH: FIPS-integration/pingdirectory
+    SERVER_PROFILE_BRANCH: FIPS-helm
     MAX_HEAP_SIZE: 1g
     FIPS_MODE_ON: "true"
     KEYSTORE_FILE: /opt/staging/.sec/private-key.pem
@@ -19,25 +19,54 @@ pingdirectory:
 
 pingfederate-admin:
   enabled: true
-  privateCert:
-    generate: true
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
-    SERVER_PROFILE_PATH: baseline/pingfederate
-    SERVER_PROFILE_BRANCH: FIPS
+    SERVER_PROFILE_PATH: FIPS-integration/pingfederate
+    SERVER_PROFILE_BRANCH: FIPS-helm
     HSM_MODE: BCFIPS
     PF_LDAP_USERNAME: ${PF_LDAP_USERNAME}
     PF_LDAP_PASSWORD: ${PF_LDAP_PASSWORD}
+  container:
+    waitFor:
+      pingdirectory:
+        service: ldaps
 
 pingfederate-engine:
   enabled: true
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
-    SERVER_PROFILE_PATH: baseline/pingfederate
-    SERVER_PROFILE_BRANCH: FIPS
+    SERVER_PROFILE_PATH: FIPS-integration/pingfederate
+    SERVER_PROFILE_BRANCH: FIPS-helm
     HSM_MODE: BCFIPS
     PF_LDAP_USERNAME: ${PF_LDAP_USERNAME}
     PF_LDAP_PASSWORD: ${PF_LDAP_PASSWORD}
+
+pingaccess-admin:
+  enabled: true
+  privateCert:
+    generate: true
+  envs:
+    SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
+    SERVER_PROFILE_PATH: FIPS-integration/pingaccess
+    SERVER_PROFILE_BRANCH: FIPS-helm
+    FIPS_MODE_ON: "true"
+  container:
+    waitFor:
+      pingfederate-engine:
+        service: https
+        timeoutSeconds: 300
+
+pingaccess-engine:
+  enabled: true
+  envs:
+    SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
+    SERVER_PROFILE_PATH: FIPS-integration/pingaccess
+    SERVER_PROFILE_BRANCH: FIPS-helm
+    FIPS_MODE_ON: "true"
+  container:
+    waitFor:
+      pingdirectory:
+        service: ldaps
 
 ###############################################################################
 # Test Steps
@@ -49,7 +78,7 @@ testFramework:
     # prefix: ping-devops-test-
     # volumeMountPath: /var/run/
     files:
-      - pf-pd-fips.postman-collection.json
+      - pa-pf-pd-fips-helm.postman-collection.json
       - generated.postman-environment.json
 
   testSteps:
@@ -59,15 +88,19 @@ testFramework:
           service: https
         pingfederate-engine:
           service: https
+        pingaccess-admin:
+          service: https
+        pingaccess-engine:
+          service: https
         pingdirectory:
           service: https
 
-    - name: 02-check-pf-pd-fips
+    - name: 02-check-pa-pf-pd-fips
       image: ${DEPS_REGISTRY}arnaudlacour/newman
       command:
         - newman
         - run
-        - /var/run/pf-pd-fips.postman-collection.json
+        - /var/run/pa-pf-pd-fips-helm.postman-collection.json
         - --environment
         - /var/run/generated.postman-environment.json
         - --insecure
