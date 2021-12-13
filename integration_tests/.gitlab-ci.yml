@@ -147,10 +147,10 @@ intel.pa-pf-pd.azul:
 # integrate together into an end to end test
 # for the liberica x86 JVM on a RHEL shim in
 # FIPS mode
-intel.pf-pd-fips.liberica:
+intel.pa-pf-pd-fips.liberica:
   stage: test.integration
   script:
-    - SHIM=redhat_ubi_ubi8_8.5 ci_scripts/run_integration.sh pa-pf-pd-FIPS.latest rl11
+    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --image-tag-jvm rl11 --image-tag-shim redhat_ubi_ubi8_8.5
   only:
     changes:
       - integration_tests/**/pa-pf-pd*
