@@ -91,7 +91,7 @@
         {
             "name": "pingfederate-log4j2-updates",
             "mapping": "pingfederate-log4j2-updates-${version}.zip",
-            "latestVersion": "12132021"
+            "latestVersion": "12142021"
         },
         {
             "name": "apache-tomcat",
