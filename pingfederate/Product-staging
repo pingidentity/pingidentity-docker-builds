@@ -37,6 +37,10 @@ ARG SNAPSHOT_URL
 # All executed commands are printed to the console
 ARG VERBOSE
 
+# pingfederate-log4j2-update dependency variables
+ARG DEPENDENCY_0_PRODUCT
+ARG DEPENDENCY_0_VERSION
+
 # MODE could be standalone, engine, upgrade
 # the idea is to produce images with just-enough for their intended use
 # to improve bootstrap time and reduce pressure on backhaul 
@@ -62,8 +66,31 @@ RUN /get-bits.sh --product ${PRODUCT} \
         -x *.bat \
         -x *.dll \
         -x *.exe \
+  && rm /tmp/product.zip \
   && mv /tmp/${PRODUCT}-*/${PRODUCT} /opt/server \
-  && mkdir -p /opt/out/instance/server/default/data
+  && rm -rf /tmp/pingfederate-* \
+  && mkdir -p /opt/out/instance/server/default/data \
+  && ( \
+      test -n "${DEPENDENCY_0_PRODUCT}" \
+      && test -n "${DEPENDENCY_0_VERSION}" \
+      && /get-bits.sh --product ${DEPENDENCY_0_PRODUCT} \
+          --version ${DEPENDENCY_0_VERSION} \
+          --devops-user ${DEVOPS_USER} \
+          --devops-key ${DEVOPS_KEY} \
+          --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
+          --verify-gpg-signature \
+      && rm /opt/server/server/default/lib/log4j-jcl.jar \
+      /opt/server/server/default/lib/log4j-*-api.jar \
+      /opt/server/server/default/lib/log4j-slf4j-impl.jar \
+      /opt/server/server/default/lib/log4j-core.jar \
+      /opt/server/server/default/lib/log4j-api.jar \
+      /opt/server/server/default/lib/log4j-jul.jar \
+      /opt/server/server/default/lib/disruptor.jar \
+      && unzip -q /tmp/product.zip -d /tmp/ \
+          -x README.txt \
+      && mv /tmp/dist/pingfederate/server/default/lib/* /opt/server/server/default/lib \
+      || : \
+      )
 
 FROM scratch
 # Get the product staged above into one layer
