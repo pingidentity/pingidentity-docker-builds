@@ -14,7 +14,7 @@
         {
             "name": "ldapsdk",
             "mapping": "unboundid-ldapsdk-${version}.zip",
-            "latestVersion": "6.0.2",
+            "latestVersion": "6.0.3",
             "url": "https://github.com/pingidentity/ldapsdk/releases/download/${version}/"
         },
         {
