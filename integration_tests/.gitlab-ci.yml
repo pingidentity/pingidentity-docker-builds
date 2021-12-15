@@ -151,6 +151,7 @@ intel.pa-pf-pd-fips.liberica:
   stage: test.integration
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --image-tag-jvm rl11 --image-tag-shim redhat_ubi_ubi8_8.5
+  retry: 1
   only:
     changes:
       - integration_tests/**/pa-pf-pd*

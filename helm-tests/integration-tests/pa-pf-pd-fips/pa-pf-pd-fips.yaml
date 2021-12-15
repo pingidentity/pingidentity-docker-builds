@@ -8,7 +8,6 @@ pingdirectory:
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
     SERVER_PROFILE_PATH: FIPS-integration/pingdirectory
-    SERVER_PROFILE_BRANCH: FIPS-helm
     MAX_HEAP_SIZE: 1g
     FIPS_MODE_ON: "true"
     KEYSTORE_FILE: /opt/staging/.sec/private-key.pem
@@ -22,7 +21,6 @@ pingfederate-admin:
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
     SERVER_PROFILE_PATH: FIPS-integration/pingfederate
-    SERVER_PROFILE_BRANCH: FIPS-helm
     HSM_MODE: BCFIPS
     PF_LDAP_USERNAME: ${PF_LDAP_USERNAME}
     PF_LDAP_PASSWORD: ${PF_LDAP_PASSWORD}
@@ -36,7 +34,6 @@ pingfederate-engine:
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
     SERVER_PROFILE_PATH: FIPS-integration/pingfederate
-    SERVER_PROFILE_BRANCH: FIPS-helm
     HSM_MODE: BCFIPS
     PF_LDAP_USERNAME: ${PF_LDAP_USERNAME}
     PF_LDAP_PASSWORD: ${PF_LDAP_PASSWORD}
@@ -48,7 +45,6 @@ pingaccess-admin:
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
     SERVER_PROFILE_PATH: FIPS-integration/pingaccess
-    SERVER_PROFILE_BRANCH: FIPS-helm
     FIPS_MODE_ON: "true"
   container:
     waitFor:
@@ -61,7 +57,6 @@ pingaccess-engine:
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
     SERVER_PROFILE_PATH: FIPS-integration/pingaccess
-    SERVER_PROFILE_BRANCH: FIPS-helm
     FIPS_MODE_ON: "true"
   container:
     waitFor:
