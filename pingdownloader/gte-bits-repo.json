@@ -20,7 +20,7 @@
         {
             "name": "pingaccess",
             "mapping": "pingaccess-${version}.zip",
-            "latestVersion": "6.3.2",
+            "latestVersion": "7.0.1",
             "licenseFile": "pingaccess.lic"
         },
         {
@@ -85,7 +85,7 @@
         {
             "name": "pingfederate",
             "mapping": "pingfederate-${version}.zip",
-            "latestVersion": "10.3.4",
+            "latestVersion": "11.0.0",
             "licenseFile": "pingfederate.lic"
         },
         {
