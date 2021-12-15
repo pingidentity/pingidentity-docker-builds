@@ -19,7 +19,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 
 # Delete all namespaces with dbt-branch-pipeline-id-*
 
-K8S_NS_PREFIX="dbt-${CI_COMMIT_REF_NAME}-${CI_PIPELINE_ID}"
+K8S_NS_PREFIX="dbt-${CI_COMMIT_REF_SLUG:-$USER}-${CI_PIPELINE_ID}"
 
 banner "Cleaning any kubernetes namespaces starting with '${K8S_NS_PREFIX}'"
 
