@@ -96,57 +96,6 @@
                     "version": "12132021"
                 }
             ]
-        },
-        {
-            "version": "6.2.2",
-            "preferredShim": "alpine:3.15",
-            "shims": [
-                {
-                    "shim": "alpine:3.15",
-                    "preferredJVM": "al11",
-                    "jvms": [
-                        {
-                            "jvm": "az11",
-                            "build": true,
-                            "deploy": true,
-                            "registries": [
-                                "DockerHub",
-                                "Artifactory"
-                            ]
-                        },
-                        {
-                            "jvm": "al11",
-                            "build": true,
-                            "deploy": true,
-                            "registries": [
-                                "DockerHub",
-                                "Artifactory"
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "shim": "redhat/ubi/ubi8:8.5",
-                    "preferredJVM": "rl11",
-                    "jvms": [
-                        {
-                            "jvm": "rl11",
-                            "build": true,
-                            "deploy": true,
-                            "registries": [
-                                "Artifactory",
-                                "Fedramp"
-                            ]
-                        }
-                    ]
-                }
-            ],
-            "dependencies": [
-                {
-                    "product": "pingaccess-log4j2-update",
-                    "version": "12132021"
-                }
-            ]
         }
     ]
 }
