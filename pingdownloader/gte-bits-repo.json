@@ -37,13 +37,13 @@
         {
             "name": "pingdatametrics",
             "mapping": "PingDataMetrics-${version}.zip",
-            "latestVersion": "8.3.0.3",
+            "latestVersion": "9.0.0.0",
             "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdatasync",
             "mapping": "PingDataSync-${version}.zip",
-            "latestVersion": "8.3.0.3",
+            "latestVersion": "9.0.0.0",
             "licenseFile": "PingDirectory.lic"
         },
         {
@@ -55,7 +55,7 @@
         {
             "name": "pingauthorize",
             "mapping": "PingAuthorize-${version}.zip",
-            "latestVersion": "8.3.0.3",
+            "latestVersion": "9.0.0.0",
             "licenseFile": "PingAuthorize.lic"
         },
         {
@@ -67,19 +67,19 @@
         {
             "name": "pingauthorizepap",
             "mapping": "PingAuthorize-PAP-${version}.zip",
-            "latestVersion": "8.3.0.3",
+            "latestVersion": "9.0.0.0",
             "licenseFile": "PingAuthorize.lic"
         },
         {
             "name": "pingdirectory",
             "mapping": "PingDirectory-${version}.zip",
-            "latestVersion": "8.3.0.3",
+            "latestVersion": "9.0.0.0",
             "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdirectoryproxy",
             "mapping": "PingDirectoryProxy-${version}.zip",
-            "latestVersion": "8.3.0.3",
+            "latestVersion": "9.0.0.0",
             "licenseFile": "PingDirectory.lic"
         },
         {
