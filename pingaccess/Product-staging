@@ -75,8 +75,14 @@ RUN /get-bits.sh --product ${PRODUCT} \
         /opt/server/lib/log4j-jcl-*.jar \
         /opt/server/lib/log4j-jul-*.jar \
         /opt/server/lib/disruptor-*.jar \
+        /opt/server/upgrade/lib/log4j-core-*.jar \
+        /opt/server/upgrade/lib/log4j-api-*.jar \
+        /opt/server/upgrade/lib/log4j-slf4j-impl-*.jar \
         && unzip -q /tmp/product.zip -d /tmp/ \
             -x README.txt \
+        && cp /tmp/lib/log4j-core-*.jar /opt/server/upgrade/lib/ \
+        && cp /tmp/lib/log4j-api-*.jar /opt/server/upgrade/lib/ \
+        && cp /tmp/lib/log4j-slf4j-impl-*.jar /opt/server/upgrade/lib/ \
         && mv /tmp/lib/* /opt/server/lib \
         || : \
         )

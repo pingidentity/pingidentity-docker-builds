@@ -93,7 +93,7 @@
              "dependencies": [
                  {
                      "product": "pingfederate-log4j2-updates",
-                     "version": "12152021-2.16"
+                     "version": "12202021-2.17"
                  }
              ]
         }

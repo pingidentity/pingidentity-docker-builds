@@ -8,12 +8,22 @@ ${VERBOSE} && set -x
 # shellcheck source=/dev/null
 test -f "${HOOKS_DIR}/pingcommon.lib.sh" && . "${HOOKS_DIR}/pingcommon.lib.sh"
 
+if test -n "${SHOW_LIBS_VER_PRE_PATCH}" && test "${SHOW_LIBS_VER_PRE_PATCH}" = "true"; then
+    show_libs_ver log4j
+fi
+
+echo "Applying patch for CVE-2021-44228"
 _from="${SERVER_BITS_DIR}/lib"
 _toMain="${SERVER_ROOT_DIR}/lib"
 _toUpgrade="${SERVER_ROOT_DIR}/upgrade/lib"
 for _to in ${_toMain} ${_toUpgrade}; do
-    for _prefx in log4j-api log4j-slf4j-impl log4j-core log4j-jcl log4j-jul disruptor; do
+    for _prefx in log4j-1.2-api log4j-api log4j-slf4j-impl log4j-core log4j-jcl log4j-jul disruptor; do
         rm "${_to}"/${_prefx}*.jar
         cp "${_from}"/${_prefx}*.jar "${_to}"
     done
 done
+echo "CVE-2021-44228 patched"
+
+if test -n "${SHOW_LIBS_VER}" && test "${SHOW_LIBS_VER}" = "true"; then
+    show_libs_ver log4j
+fi

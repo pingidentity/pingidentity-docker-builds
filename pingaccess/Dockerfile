@@ -83,6 +83,16 @@ ENV SHIM=${SHIM} \
 #-- set to exactly "true" lowercase to turn on
 #-- set to anything else to turn off
     FIPS_MODE_ON=false \
+
+#-- Defines a variable to allow showing library versions in the output at startup
+#-- default to true
+    SHOW_LIBS_VER="true" \
+
+#-- Defines a variable to allow showing library version prior to patches being applied
+#-- default to false
+#-- This is helpful to ensure that the patch process updates all libraries affected
+    SHOW_LIBS_VER_PRE_PATCH="false" \     
+
 # pingaccess comes ootb listening on 3000 but it is more natural for https traffic to be listened for on 443
     PA_ENGINE_PORT=3000
 #-- Specify a password for administrator user for interaction with admin API
