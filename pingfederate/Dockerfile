@@ -106,6 +106,15 @@ ENV SHIM=${SHIM} \
 #-- Used in run.sh
     PF_DEBUG_PORT=9030 \
 
+#-- Defines a variable to allow showing library versions in the output at startup
+#-- default to true
+    SHOW_LIBS_VER="true" \
+
+#-- Defines a variable to allow showing library version prior to patches being applied
+#-- default to false
+#-- This is helpful to ensure that the patch process updates all libraries affected
+    SHOW_LIBS_VER_PRE_PATCH="false" \ 
+
 #-- Operational Mode
 #-- Indicates the operational mode of the runtime server in run.properties
 #-- Options include STANDALONE, CLUSTERED_CONSOLE, CLUSTERED_ENGINE.

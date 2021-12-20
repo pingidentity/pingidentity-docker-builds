@@ -4,9 +4,13 @@
 #
 ${VERBOSE} && set -x
 
-# shellcheck source=/dev/null
 test -f "${HOOKS_DIR}/pingcommon.lib.sh" && . "${HOOKS_DIR}/pingcommon.lib.sh"
 
+if test -n "${SHOW_LIBS_VER_PRE_PATCH}" && test "${SHOW_LIBS_VER_PRE_PATCH}" = "true"; then
+    show_libs_ver log4j
+fi
+
+echo "Applying patch for CVE-2021-4428"
 _from="${SERVER_BITS_DIR}/server/default/lib"
 _toMain="${SERVER_ROOT_DIR}/server/default/lib"
 _toUpgrade="${SERVER_ROOT_DIR}/upgrade/lib"
@@ -17,3 +21,8 @@ for _to in ${_toMain} ${_toUpgrade}; do
         cp "${_from}"/${_prefx}*.jar ${_to}
     done
 done
+echo "CVE-2021-44228 patched"
+
+if test -n "${SHOW_LIBS_VER}" && test "${SHOW_LIBS_VER}" = "true"; then
+    show_libs_ver log4j
+fi

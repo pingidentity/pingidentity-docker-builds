@@ -800,6 +800,75 @@ clean_staging_dir() {
 }
 
 ###############################################################################
+# make_bar
+#
+# Generate a string composed of the repetition of a single character a
+# number of times
+# $1: the character to repeat
+# $2: the number of times the character is to be repeated
+###############################################################################
+make_bar() {
+    _char="${1}"
+    _length=${2}
+    _result=""
+    while test "${_length}" -gt 0; do
+        _result="${_result}${_char}"
+        _length=$((_length - 1))
+    done
+    printf "%s" "${_result}"
+}
+
+###############################################################################
+# show_libs_ver
+#
+# prints out library versions on the standard output
+# $1: optionally, pass the "log4j" string to print only library versions
+#     relevant to log4j
+###############################################################################
+show_libs_ver() {
+    _tmpDir="$(mktemp -d)"
+    test -z "${_tmpDir}" && exit 1
+    case "${1}" in
+        log4j)
+            find "${SERVER_ROOT_DIR}" -type f \( -name \*log4j\*.jar -o -name disruptor\*.jar \) > "${_tmpDir}"/mf.list 2> /dev/null
+            ;;
+        *)
+            find "${SERVER_ROOT_DIR}" -type f -name \*.jar > "${_tmpDir}"/mf.list 2> /dev/null
+            ;;
+    esac
+    _mfDir="META-INF"
+    _mf="${_mfDir}/MANIFEST.MF"
+    _pomProps="pom.properties"
+    _props="${_mfDir}/*/${_pomProps}"
+    printf "%-60s| %-61s| %-7s\n" "LOCATION" "FILE" "VERSION"
+    printf "%-60s|%-62s|%-8s\n" "$(make_bar _ 60)" "$(make_string _ 62)" "$(make_bar _ 8)"
+    while read -r j; do
+        unzip -oqud "${_tmpDir}" "${j}" "${_mfDir}/*"
+        if test -d "${_tmpDir}/${_mfDir}" && test -f "${_tmpDir}/${_mf}"; then
+            for _keyword in Bundle-Version Specification-Version Implementation-Version; do
+                _ver=$(awk -F: '$1~/^'${_keyword}'$/{gsub(/ */,"",$2);print $2;exit(0);}' "${_tmpDir}/${_mf}")
+                test -n "${_ver}" && break
+            done
+        fi
+        if test -z "${_ver}"; then
+            # Optimistically expect the first properties file to be the right one
+            _file="$(find "${_tmpDir}/${_mfDir}" -type f -name "${_pomProps}" -print -quit 2> /dev/null)"
+            test -n "${_file}" && _ver="$(awk -F= '$1~/version/{print $2;exit(0);}' "${_file}")"
+        fi
+        if test -z "${_ver}"; then
+            # No version could be found so we'll compute the MD5 hash for the file as a fallthrough versioning mechanism
+            _ver="MD5:$(md5sum "${j}" | awk '{print $1;exit(0);}')"
+        fi
+        printf "%-60s| %-61s| %-6s\n" "$(dirname "${j}")" "$(basename "${j}")" "${_ver:-N/A}"
+        rm -rf "${_tmpDir:?}/${_mfDir}"
+        # explicitly unset temporary variable values to avoid issues on next loop
+        _ver=""
+        _file=""
+    done < "${_tmpDir}"/mf.list
+    rm -rf "${_tmpDir}"
+}
+
+###############################################################################
 # main
 ###############################################################################
 echo_green "----- Starting hook: ${CALLING_HOOK}"
