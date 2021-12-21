@@ -841,7 +841,7 @@ show_libs_ver() {
     _pomProps="pom.properties"
     _props="${_mfDir}/*/${_pomProps}"
     printf "%-60s| %-61s| %-7s\n" "LOCATION" "FILE" "VERSION"
-    printf "%-60s|%-62s|%-8s\n" "$(make_bar _ 60)" "$(make_string _ 62)" "$(make_bar _ 8)"
+    printf "%-60s|%-62s|%-8s\n" "$(make_bar _ 60)" "$(make_bar _ 62)" "$(make_bar _ 8)"
     while read -r j; do
         unzip -oqud "${_tmpDir}" "${j}" "${_mfDir}/*"
         if test -d "${_tmpDir}/${_mfDir}" && test -f "${_tmpDir}/${_mf}"; then
