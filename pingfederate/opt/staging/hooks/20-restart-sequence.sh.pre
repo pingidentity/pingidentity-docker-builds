@@ -15,7 +15,7 @@ _from="${SERVER_BITS_DIR}/server/default/lib"
 _toMain="${SERVER_ROOT_DIR}/server/default/lib"
 _toUpgrade="${SERVER_ROOT_DIR}/upgrade/lib"
 for _to in ${_toMain} ${_toUpgrade}; do
-    for _prefx in log4j-api log4j-slf4j-impl log4j-core log4j-jcl log4j-jul disruptor; do
+    for _prefx in log4j-1.2-api log4j-api log4j-slf4j-impl log4j-core log4j-jcl log4j-jul disruptor; do
         rm "${_to}"/${_prefx}*.jar
         #shellcheck disable=SC2086
         cp "${_from}"/${_prefx}*.jar ${_to}
