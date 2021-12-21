@@ -33,7 +33,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.55"
+                    "version": "9.0.56"
                 }
             ]
         },
@@ -69,7 +69,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.55"
+                    "version": "9.0.56"
                 }
             ]
         }
