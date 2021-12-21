@@ -44,6 +44,12 @@
                         }
                     ]
                 }
+            ],
+            "dependencies": [
+                {
+                    "product": "pingfederate-log4j2-updates",
+                    "version": "12202021-2.17"
+                }
             ]
         },
         {
@@ -90,12 +96,12 @@
                     ]
                 }
             ],
-             "dependencies": [
-                 {
-                     "product": "pingfederate-log4j2-updates",
-                     "version": "12202021-2.17"
-                 }
-             ]
+            "dependencies": [
+                {
+                    "product": "pingfederate-log4j2-updates",
+                    "version": "12202021-2.17"
+                }
+            ]
         }
     ]
 }
