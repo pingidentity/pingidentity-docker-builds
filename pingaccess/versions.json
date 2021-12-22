@@ -93,7 +93,7 @@
             "dependencies": [
                 {
                     "product": "pingaccess-log4j2-update",
-                    "version": "12172021-2.12.2"
+                    "version": "12222021-2.12.3"
                 }
             ]
         },
@@ -144,7 +144,7 @@
             "dependencies": [
                 {
                     "product": "pingaccess-log4j2-update",
-                    "version": "12172021-2.12.2"
+                    "version": "12222021-2.12.3"
                 }
             ]
         }
