@@ -48,7 +48,7 @@ ENV IN_DIR=${BASE}/in \
 #-- Path to a manifest of files expected in the staging dir on first image startup
     STAGING_MANIFEST=${BASE}/staging-manifest.txt \
 #-- Whether to clean the staging dir when the image starts
-    CLEAN_STAGING_DIR=true \
+    CLEAN_STAGING_DIR=false \
 #-- Default path to the secrets
     SECRETS_DIR=/run/secrets \
 #-- Path to the topology file

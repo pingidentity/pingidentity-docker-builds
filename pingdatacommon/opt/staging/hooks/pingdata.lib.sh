@@ -42,7 +42,7 @@ buildPasswordFileOptions() {
         mkdir -p "${_passwordFilesDir}"
     else
         # Try writing a file to the SECRETS_DIR. If we don't have permissions, /tmp/secrets will have to be used instead
-        touch "${SECRETS_DIR}"/buildPasswordFileOptions-test-file
+        touch "${SECRETS_DIR}"/buildPasswordFileOptions-test-file 2> /dev/null
         if test ${?} -ne 0; then
             echo_yellow "WARNING: Unable to write password files to '${SECRETS_DIR}'"
             echo_yellow "         Using 'tmp/secrets' for now."
