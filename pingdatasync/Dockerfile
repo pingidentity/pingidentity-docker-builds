@@ -90,7 +90,11 @@ ENV SHIM=${SHIM} \
     ADMIN_USER_PASSWORD_FILE= \
 
 #-- Directory for the profile used by the PingData manage-profile tool
-    PD_PROFILE="${STAGING_DIR}/pd.profile"
+    PD_PROFILE="${STAGING_DIR}/pd.profile" \
+
+#-- Setting this variable to true speeds up server startup time by
+#-- skipping an unnecessary JVM check.
+    UNBOUNDID_SKIP_START_PRECHECK_NODETACH=true
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
