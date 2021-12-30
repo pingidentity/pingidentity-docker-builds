@@ -121,7 +121,11 @@ ENV SHIM=${SHIM} \
 
 #-- Force a rebuild (replace-profile) of a PingDirectoy on restart.
 #-- Used when changes are made outside of the PD_PROFILE
-    PD_REBUILD_ON_RESTART=false
+    PD_REBUILD_ON_RESTART=false \
+
+#-- Setting this variable to true speeds up server startup time by
+#-- skipping an unnecessary JVM check.
+    UNBOUNDID_SKIP_START_PRECHECK_NODETACH=true
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
