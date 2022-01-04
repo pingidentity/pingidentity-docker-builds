@@ -1,18 +1,11 @@
 #!/usr/bin/env sh
 echo "Post-build stage (like fixing permissions)"
 set -x
-osID="unknown"
-test -f "/etc/os-release" && osID="$(awk -F = '$1~/^ID$/{gsub(/"/,"");print $2}' "/etc/os-release")"
-
-if test "${osID}" = "rhel"; then
-    echo "Removing integration kits prone to security scan vioations ..."
-    rm -vf /opt/server/server/default/deploy/PingIDRadiusPCV-*.jar /opt/server/server/default/deploy/pf-pingid-idp-adapter-*.jar
-fi
 
 #- Create the license directory with valid permissions so a license can be mounted via k8s secret.
 #- K8s secrets do not support setting file permissions, so allowing the secret to create these directories
 #- results in them being owned by root. This can lead to issues during 06-copy-product-bits.sh.
-mkdir -p /opt/out/instance/server/default/conf
+mkdir -p /opt/out/instance/conf
 
 # delete self
 rm -f "${0}"
