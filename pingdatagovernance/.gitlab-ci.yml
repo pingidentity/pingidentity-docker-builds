@@ -62,58 +62,58 @@ arm.b.pingdatagovernance:
 #                  SMOKE TESTS
 ################################################
 
-intel.t.pingdatagovernance:
-  stage: test.smoke
-  script:
-    - ci_scripts/run_helm_smoke.sh --product pingdatagovernance
-  retry: 2
-  only:
-    changes:
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingbase/**/*
-      - pingdownloader/**/*
-      - pingdatagovernance/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
-
-arm.t.pingdatagovernance:
-  stage: test.smoke
-  image: $RUNNER_IMAGE_AARCH64
-  tags:
-    - platform=aarch64
-  script:
-    - ci_scripts/run_helm_smoke.sh --product pingdatagovernance
-  retry: 2
-  only:
-    changes:
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingbase/**/*
-      - pingdownloader/**/*
-      - pingdatagovernance/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
+#intel.t.pingdatagovernance:
+#  stage: test.smoke
+#  script:
+#    - ci_scripts/run_helm_smoke.sh --product pingdatagovernance
+#  retry: 2
+#  only:
+#    changes:
+#      - pingcommon/**/*
+#      - pingdatacommon/**/*
+#      - pingbase/**/*
+#      - pingdownloader/**/*
+#      - pingdatagovernance/**/*
+#      - ci_scripts/*
+#      - pingjvm/*
+#      - .gitlab-ci.yml
+#  except:
+#    variables:
+#      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+#      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+#      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
+#
+#arm.t.pingdatagovernance:
+#  stage: test.smoke
+#  image: $RUNNER_IMAGE_AARCH64
+#  tags:
+#    - platform=aarch64
+#  script:
+#    - ci_scripts/run_helm_smoke.sh --product pingdatagovernance
+#  retry: 2
+#  only:
+#    changes:
+#      - pingcommon/**/*
+#      - pingdatacommon/**/*
+#      - pingbase/**/*
+#      - pingdownloader/**/*
+#      - pingdatagovernance/**/*
+#      - ci_scripts/*
+#      - pingjvm/*
+#      - .gitlab-ci.yml
+#  except:
+#    variables:
+#      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
+#      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+#      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
 
 ################################################
 #                  DEPLOY

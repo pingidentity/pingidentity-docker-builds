@@ -11,8 +11,8 @@
                     "jvms": [
                         {
                             "jvm": "az11",
-                            "build": true,
-                            "deploy": true,
+                            "build": false,
+                            "deploy": false,
                             "registries": [
                                 "DockerHub",
                                 "Artifactory"
@@ -20,8 +20,8 @@
                         },
                         {
                             "jvm": "al11",
-                            "build": true,
-                            "deploy": true,
+                            "build": false,
+                            "deploy": false,
                             "registries": [
                                 "DockerHub",
                                 "Artifactory"
