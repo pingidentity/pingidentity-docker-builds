@@ -22,7 +22,7 @@
             "archs": ["x86_64","aarch64"]
         },
         {
-            "shims": ["centos:7.6"],
+            "shims": ["centos:7.9.2009"],
             "id": "conoj",
             "version": "0",
             "from": "scratch",
