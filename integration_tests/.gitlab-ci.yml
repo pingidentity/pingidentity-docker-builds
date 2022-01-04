@@ -477,111 +477,111 @@ arm.pdp-pd.liberica:
 # to verify PingDataGovernance and PingDirectory
 # integrate together into an end to end test
 # for the azul JVM on the x86_64 runner
-intel.pdg-pd.azul:
-  stage: test.integration
-  script:
-    - ci_scripts/run_helm_integration.sh --integration-test pdg-pd --image-tag-jvm az11 --image-tag-arch x86_64
-  retry: 1
-  only:
-    changes:
-      - integration_tests/**/pdg-pd*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - pingdatagovernance/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
-  variables:
-    KUBERNETES_CPU_REQUEST: 1900m
-    KUBERNETES_CPU_LIMIT: 1900m
-    KUBERNETES_MEMORY_REQUEST: 3920000000
-    KUBERNETES_MEMORY_LIMIT: 3920000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
+#intel.pdg-pd.azul:
+#  stage: test.integration
+#  script:
+#    - ci_scripts/run_helm_integration.sh --integration-test pdg-pd --image-tag-jvm az11 --image-tag-arch x86_64
+#  retry: 1
+#  only:
+#    changes:
+#      - integration_tests/**/pdg-pd*
+#      - pingbase/**/*
+#      - pingcommon/**/*
+#      - pingdatacommon/**/*
+#      - pingdirectory/**/*
+#      - pingdatagovernance/**/*
+#      - ci_scripts/*
+#      - pingjvm/*
+#      - .gitlab-ci.yml
+#  variables:
+#    KUBERNETES_CPU_REQUEST: 1900m
+#    KUBERNETES_CPU_LIMIT: 1900m
+#    KUBERNETES_MEMORY_REQUEST: 3920000000
+#    KUBERNETES_MEMORY_LIMIT: 3920000000
+#  except:
+#    variables:
+#      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+#      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+#      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
 
 ################################################
 # The purpose of the integration test below is
 # to verify PingDataGovernance and PingDirectory
 # integrate together into an end to end test
 # for the liberica JVM on the x86_64 runner
-intel.pdg-pd.liberica:
-  stage: test.integration
-  script:
-    - ci_scripts/run_helm_integration.sh --integration-test pdg-pd --image-tag-jvm al11 --image-tag-arch x86_64
-  retry: 1
-  only:
-    changes:
-      - integration_tests/**/pdg-pd*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - pingdatagovernance/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
-  variables:
-    KUBERNETES_CPU_REQUEST: 1900m
-    KUBERNETES_CPU_LIMIT: 1900m
-    KUBERNETES_MEMORY_REQUEST: 3920000000
-    KUBERNETES_MEMORY_LIMIT: 3920000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
+#intel.pdg-pd.liberica:
+#  stage: test.integration
+#  script:
+#    - ci_scripts/run_helm_integration.sh --integration-test pdg-pd --image-tag-jvm al11 --image-tag-arch x86_64
+#  retry: 1
+#  only:
+#    changes:
+#      - integration_tests/**/pdg-pd*
+#      - pingbase/**/*
+#      - pingcommon/**/*
+#      - pingdatacommon/**/*
+#      - pingdirectory/**/*
+#      - pingdatagovernance/**/*
+#      - ci_scripts/*
+#      - pingjvm/*
+#      - .gitlab-ci.yml
+#  variables:
+#    KUBERNETES_CPU_REQUEST: 1900m
+#    KUBERNETES_CPU_LIMIT: 1900m
+#    KUBERNETES_MEMORY_REQUEST: 3920000000
+#    KUBERNETES_MEMORY_LIMIT: 3920000000
+#  except:
+#    variables:
+#      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+#      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+#      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
 
 ################################################
 # The purpose of the integration test below is
 # to verify PingDataGovernance and PingDirectory
 # integrate together into an end to end test
 # for the liberica JVM on the aarch64 runner
-arm.pdg-pd.liberica:
-  stage: test.integration
-  image: $RUNNER_IMAGE_AARCH64
-  tags:
-    - platform=aarch64
-  script:
-    - ci_scripts/run_helm_integration.sh --integration-test pdg-pd --image-tag-jvm al11  --image-tag-arch aarch64
-  retry: 1
-  only:
-    changes:
-      - integration_tests/**/pdg-pd*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - pingdatagovernance/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
-  variables:
-    KUBERNETES_CPU_REQUEST: 1900m
-    KUBERNETES_CPU_LIMIT: 1900m
-    KUBERNETES_MEMORY_REQUEST: 3920000000
-    KUBERNETES_MEMORY_LIMIT: 5880000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
+#arm.pdg-pd.liberica:
+#  stage: test.integration
+#  image: $RUNNER_IMAGE_AARCH64
+#  tags:
+#    - platform=aarch64
+#  script:
+#    - ci_scripts/run_helm_integration.sh --integration-test pdg-pd --image-tag-jvm al11  --image-tag-arch aarch64
+#  retry: 1
+#  only:
+#    changes:
+#      - integration_tests/**/pdg-pd*
+#      - pingbase/**/*
+#      - pingcommon/**/*
+#      - pingdatacommon/**/*
+#      - pingdirectory/**/*
+#      - pingdatagovernance/**/*
+#      - ci_scripts/*
+#      - pingjvm/*
+#      - .gitlab-ci.yml
+#  variables:
+#    KUBERNETES_CPU_REQUEST: 1900m
+#    KUBERNETES_CPU_LIMIT: 1900m
+#    KUBERNETES_MEMORY_REQUEST: 3920000000
+#    KUBERNETES_MEMORY_LIMIT: 5880000000
+#  except:
+#    variables:
+#      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
+#      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
+#      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+#      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatagovernance(?:$|,)/i
 
 ################################################
 # The purpose of the integration test below is
