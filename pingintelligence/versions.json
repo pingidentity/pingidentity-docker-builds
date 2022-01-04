@@ -1,12 +1,12 @@
 {
-    "latest":"5.0.1",
+    "latest":"5.1",
     "versions":[
         {
-            "version": "5.0.1",
-            "preferredShim": "centos:7.6.1810",
+            "version": "5.1",
+            "preferredShim": "centos:7.9.2009",
             "shims":[
                 {
-                    "shim": "centos:7.6.1810",
+                    "shim": "centos:7.9.2009",
                     "preferredJVM": "conoj",
                     "jvms": [
                         {
@@ -23,11 +23,11 @@
             ]
         },
         {
-            "version": "4.4.1",
-            "preferredShim": "centos:7.6.1810",
+            "version": "5.0.1",
+            "preferredShim": "centos:7.9.2009",
             "shims":[
                 {
-                    "shim": "centos:7.6.1810",
+                    "shim": "centos:7.9.2009",
                     "preferredJVM": "conoj",
                     "jvms": [
                         {
