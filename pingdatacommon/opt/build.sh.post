@@ -8,7 +8,7 @@ set -x
 _cacheFilename=$(sha1sum /opt/java/bin/java | cut -d " " -f 1)
 cp /opt/server/logs/option-cache/base "/opt/server/logs/option-cache/${_cacheFilename}"
 
-#- Create a server-root/pre-setup directory with valid permissions so a license can be mounted via k8s secret
+#- Create the license directory with valid permissions so a license can be mounted via k8s secret.
 #- K8s secrets do not support setting file permissions, so allowing the secret to create these directories
 #- results in them being owned by root. This can lead to issues when pulling a server profile.
 mkdir -p /opt/staging/pd.profile/server-root/pre-setup
