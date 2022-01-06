@@ -165,14 +165,6 @@ ENV IN_DIR=${BASE}/in \
     PDS_ENGINE_PUBLIC_HOSTNAME="localhost" \
 #-- PDS (PingDataSync) private hostname
     PDS_ENGINE_PRIVATE_HOSTNAME="pingdatasync" \
-#-- PDG (PingDataGovernance) public hostname that may be used in redirects
-    PDG_ENGINE_PUBLIC_HOSTNAME="localhost" \
-#-- PDG (PingDataGovernance) private hostname
-    PDG_ENGINE_PRIVATE_HOSTNAME="pingdatagovernance" \
-#-- PDGP (PingDataGovernance-PAP) public hostname that may be used in redirects
-    PDGP_ENGINE_PUBLIC_HOSTNAME="localhost" \
-#-- PDGP (PingDataGovernance-PAP) private hostname
-    PDGP_ENGINE_PRIVATE_HOSTNAME="pingdatagovernancepap" \
 #-- PAZ (PingAuthorize) public hostname that may be used in redirects
     PAZ_ENGINE_PUBLIC_HOSTNAME="localhost" \
 #-- PAZ (PingAuthorize) private hostname

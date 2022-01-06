@@ -16,7 +16,6 @@ intel.b.pingdirectory:
       - pingdatasync/**/*
       - pingdirectory/**/*
       - pingfederate/**/*
-      - pingdatagovernance/**/*
       - pingauthorize/**/*
       - integration_tests/**/*
       - ci_scripts/*
@@ -51,7 +50,6 @@ arm.b.pingdirectory:
       - pingdatasync/**/*
       - pingdirectory/**/*
       - pingfederate/**/*
-      - pingdatagovernance/**/*
       - pingauthorize/**/*
       - integration_tests/**/*
       - ci_scripts/*

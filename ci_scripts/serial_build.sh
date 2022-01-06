@@ -113,7 +113,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck disable=SC2086
 "${CI_SCRIPTS_DIR}/build_foundation.sh" ${jvmsToBuild} ${shimsToBuild}
 
-test -z "${_products}" && _products="apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingdirectoryproxy pingdelegator pingfederate pingtoolkit pingauthorize pingauthorizepap"
+test -z "${_products}" && _products="apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatasync pingdirectory pingdirectoryproxy pingdelegator pingfederate pingtoolkit pingauthorize pingauthorizepap"
 
 for p in ${_products}; do
     # Word-split is expected behavior for $buildOptions, $versionsToBuild, $jvmsToBuild, and $shimsToBuild. Disable shellcheck.

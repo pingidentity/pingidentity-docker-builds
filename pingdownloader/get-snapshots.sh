@@ -152,10 +152,10 @@ case "${1}" in
     pingdatasync)
         _product=sync
         ;;
-    pingdatagovernance | pingauthorize)
+    pingauthorize)
         _product=broker
         ;;
-    pingdatagovernancepap | pingauthorizepap)
+    pingauthorizepap)
         _product=symphonic-pap-packaged
         ;;
     delegator)
