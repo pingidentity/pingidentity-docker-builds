@@ -116,7 +116,7 @@ if test -n "${PING_IDENTITY_SNAPSHOT}"; then
         pingdelegator)
             snapshot_url="${SNAPSHOT_DELEGATOR_URL}"
             ;;
-        pingauthorize | pingauthorizepap | pingdataconsole | pingdatasync | pingdatagovernance | pingdatagovernancepap | pingdirectory | pingdirectoryproxy)
+        pingauthorize | pingauthorizepap | pingdataconsole | pingdatasync | pingdirectory | pingdirectoryproxy)
             snapshot_url="${SNAPSHOT_NEXUS_URL}"
             ;;
         pingdownloader)

@@ -6,8 +6,6 @@ include:
   - local: pingauthorizepap/.gitlab-ci.yml
   - local: pingcentral/.gitlab-ci.yml
   - local: pingdataconsole/.gitlab-ci.yml
-  - local: pingdatagovernance/.gitlab-ci.yml
-  - local: pingdatagovernancepap/.gitlab-ci.yml
   - local: pingdatasync/.gitlab-ci.yml
   - local: pingdelegator/.gitlab-ci.yml
   - local: pingdirectory/.gitlab-ci.yml

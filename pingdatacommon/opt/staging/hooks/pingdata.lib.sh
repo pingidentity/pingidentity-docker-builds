@@ -349,7 +349,7 @@ getJvmOptions() {
 generateSetupArguments() {
     # Create product specific setup arguments and manage-profile setup arguments
     case "${PING_PRODUCT}" in
-        PingDataSync | PingDataGovernance | PingDirectoryProxy | PingAuthorize)
+        PingDataSync | PingDirectoryProxy | PingAuthorize)
             _pingDataSetupArguments=""
             PING_DATA_MANAGE_PROFILE_SETUP_ARGS=""
             ;;

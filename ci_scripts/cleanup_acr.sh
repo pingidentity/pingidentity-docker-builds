@@ -18,7 +18,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
 while read -r _registry; do
-    for _product in apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatagovernance pingdatagovernancepap pingdatasync pingdirectory pingdirectoryproxy pingdownloader pingfederate pingtoolkit pingauthorize pingauthorizepap; do
+    for _product in apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatasync pingdirectory pingdirectoryproxy pingdownloader pingfederate pingtoolkit pingauthorize pingauthorizepap; do
         while read -r _sha; do
             az acr repository delete --name "${_registry}" --image "${_product}@${_sha}" --yes
         done < <(az acr repository show-manifests --name "${_registry}" --repository "${_product}" --query "[?tags[0]==null].digest" -o tsv)
