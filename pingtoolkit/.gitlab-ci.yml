@@ -86,7 +86,7 @@ arm.t.pingtoolkit:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_smoke.sh --product pingtoolkit
+    - ci_scripts/run_helm_smoke.sh --product pingtoolkit
   only:
     changes:
       - pingtoolkit/**/*
