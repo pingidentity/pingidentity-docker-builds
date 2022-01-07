@@ -4,10 +4,6 @@
 # This test generally tests that a pingtoolkit can come up and perform a couple
 # of basic commands, such as openssl
 ################################################################################
-
-#
-# NOTE: Currently not used as pingtoolkit isn't available as a helm product
-#
 pingtoolkit:
   enabled: true
 
