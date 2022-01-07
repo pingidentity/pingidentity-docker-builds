@@ -13,7 +13,7 @@ if ! test -d "/dev/shm"; then
     _sharedMemoryCheckFailed=true
 fi
 
-_availableSharedMemory="$(df /dev/shm | awk '/^shm/ {print $2/1024}')"
+_availableSharedMemory="$(df /dev/shm | awk '/\/dev\/shm$/ {print int($2/1024)}')"
 if test "${_availableSharedMemory:-0}" -lt "256"; then
     echo_red "Not enough Shared Memory available in /dev/shm"
     echo_red "${_availableSharedMemory}MB available."
