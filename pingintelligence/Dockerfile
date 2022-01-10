@@ -89,6 +89,10 @@ ENV SHIM=${SHIM} \
     PING_INTELLIGENCE_ASE_MGMT_PORT=8010 \
 #-- The timezone the ASE container is operating in
     PING_INTELLIGENCE_ASE_TIMEZONE="utc" \
+#-- Whether the ASE should poll the ABS service that publishes discovered APIs
+    PING_INTELLIGENCE_ASE_ABS_PUBLISH=true \
+#-- The interval in minute to poll the API discovery list
+    PING_INTELLIGENCE_ASE_ABS_PUBLISH_REQUEST_MINUTES=10 \
 #-- Defines running mode for API Security Enforcer (Allowed values are inline or sideband).
     PING_INTELLIGENCE_ASE_MODE="sideband" \
 #-- Enable client-side authentication with tokens in sideband mode
