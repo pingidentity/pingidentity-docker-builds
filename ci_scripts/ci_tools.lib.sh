@@ -381,6 +381,20 @@ requirePipelineVar() {
 }
 
 ################################################################################
+# Kill the passed in process and all of the child processes.
+################################################################################
+_kill_pid() {
+
+    ppid="${1}"
+    cpids=$(pgrep -P "${ppid}" | xargs)
+    for cpid in $cpids; do
+        _kill_pid "$cpid"
+    done
+    echo "killing ${ppid}"
+    kill "${ppid}" 2> /dev/null
+}
+
+################################################################################
 # This function does the following:
 # 1) Perform a docker login to docker hub.  This is required to properly authenticate and
 # sign images with docker as well as avoid rate limiting from Dockers new policies.

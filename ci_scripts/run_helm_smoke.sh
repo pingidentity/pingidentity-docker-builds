@@ -115,20 +115,6 @@ fi
 _tmpDir=$(mktemp -d)
 
 ################################################################################
-# _kill_pid
-################################################################################
-_kill_pid() {
-
-    ppid="${1}"
-    cpids=$(pgrep -P "${ppid}" | xargs)
-    for cpid in $cpids; do
-        _kill_pid "$cpid"
-    done
-    echo "killing ${ppid}"
-    kill "${ppid}" 2> /dev/null
-}
-
-################################################################################
 # _final
 ################################################################################
 _final() {
@@ -328,7 +314,7 @@ sleep 2
 
 #
 # Loop through the background PIDs running, waiting on each one to finish and upon
-# completing, cat the ouptut from that smoke test
+# completing, cat the output from that smoke test
 #
 for ((i = "${_smoke_cnt}"; i >= 1; i--)); do
     pid=${_pids[${i}]}
