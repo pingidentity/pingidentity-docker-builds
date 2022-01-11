@@ -41,13 +41,13 @@ log.console: true
 #     - cn
 # log.file: /home/console/console.log
 # login.hide-server: false
-# ldap:
+ldap:
 #   server: localhost:1636
 #   init-user: cn=directory manager
 #   init-password: password
 #   trust-store-file: /home/console/truststore
 #   file-servlet-name: Instance Root File
-#   csd-task-enabled: true
+    csd-task-enabled: false
 #   csd-destination-folder: csd-files
 #   #Note: this setting should not be changed at the moment.
 #   profile-destination-folder: profile-files
