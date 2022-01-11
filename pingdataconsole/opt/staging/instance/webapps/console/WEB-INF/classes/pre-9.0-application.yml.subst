@@ -28,3 +28,5 @@ logging:
 logging.console: true
 log.file: /opt/out/instance/logs/console.log
 login.hide-server: false
+ldap:
+    csd-task-enabled: false
