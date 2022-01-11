@@ -20,7 +20,7 @@ Usage: ${0} {options}
         The name of the helm test to run.
         If single helm values yaml file, then that that file will be used
         If directory with testFramework values yaml file(s), then all those will
-        be run as seperate tests.
+        be run as separate tests.
 
         Available tests include (from ${_helm_tests_dir}):
 $(cd "${_helm_tests_dir}" && find ./* -type d -maxdepth 2 | grep "\/" | sed 's/^/          /')
@@ -193,10 +193,10 @@ _final() {
             banner "CleanUp: Deleting namespace ${NS}"
             kubectl delete namespace "${NS}" --wait=true
         else
-            echo_red "Warning: Keeping aftifacts created (i.e. pvcs, configmaps, secrets)"
+            echo_red "Warning: Keeping artifacts created (i.e. pvcs, configmaps, secrets)"
         fi
     else
-        echo_red "Warning: Keeping aftifacts created (i.e. pvcs, configmaps, secrets)"
+        echo_red "Warning: Keeping artifacts created (i.e. pvcs, configmaps, secrets)"
     fi
 
     #
@@ -318,7 +318,7 @@ processContainerResults() {
 }
 
 #
-# Reporting Formating
+# Reporting Formatting
 #
 _totalStart=$(date '+%s')
 _resultsFile="${_tmpDir}/$$.results"
@@ -495,7 +495,7 @@ for _helmTest in ${_helmTests}; do
     if test ${_returnCode} -eq 0; then
         #
         # Allow a bit of time to allow for configmaps to be created so we can generate
-        # the postman enviornment variables in next step
+        # the postman environment variables in next step
         #
         sleep 5
         #
@@ -533,14 +533,79 @@ for _helmTest in ${_helmTests}; do
         banner "Resources available before test"
         kubectl get cm,pod,service,pvc "${NS_OPT[@]}"
 
-        banner "Starting test..."
-        helm test "${_helmRelease}" "${NS_OPT[@]}" --timeout 25m
+        # Start the helm test in the background and capture the PID
+        banner "Starting test ${_helmRelease}..."
+        helm test "${_helmRelease}" "${NS_OPT[@]}" --timeout 25m &
+        _test_pid=${!}
 
+        # The purpose of this while loop is to
+        # 1) Check to see if the helm test has failed, and kill the process earlier than the timeout length
+        # 2) Output logs of any terminated states. e.g. Hook failure on startup
+        _poll_helm_test=true
+        while test "${_poll_helm_test}" = true; do
+            echo "Polling pods for terminated states..."
+
+            # Get the names of all pods in the namespace
+            podsList=$(kubectl get pods "${NS_OPT[@]}" -o json | jq -r ".items[].metadata.name")
+
+            # Loop through each pod to check statuses for terminated states.
+            for podName in ${podsList}; do
+                #Get specific pod status information
+                pod_status_json="$(kubectl get pod "${podName}" -o json "${NS_OPT[@]}")"
+                #Sometimes the `kubectl get pod` command fails as BAD REQUEST when the pod is in the `PodInitializing` state.
+                test ${?} -ne 0 && continue
+
+                # If the pod has a terminated state, jq will return a json object, else null
+                terminated_state_json="$(jq -er ".status.containerStatuses[].lastState.terminated" <<< "${pod_status_json}")"
+                #If jq returns non-zero exitcode, the output is null or false
+                test ${?} -ne 0 && continue
+
+                # Exitcode and reason for termination does not exist in all termination states, so continue if not present
+                termination_exitcode="$(jq -er ".exitCode" <<< "${terminated_state_json}")"
+                test ${?} -ne 0 && continue
+                termination_reason="$(jq -er ".reason" <<< "${terminated_state_json}")"
+                test ${?} -ne 0 && continue
+
+                # If failed terminated container exists, print the logs
+                if test "${termination_exitcode}" != 0; then
+                    banner "Output logs for terminated pod: ${podName}"
+                    echo_red "Reason for termination: ${termination_reason}"
+                    echo_red "Exit code: ${termination_exitcode}"
+                    kubectl logs "${podName}" "${NS_OPT[@]}"
+                    _poll_helm_test=false
+                    _pod_terminated_with_failure=true
+                fi
+            done
+
+            # Check to see if helm test command is still running
+            if ! ps -p ${_test_pid} > /dev/null; then
+                # The helm test has completed, stop the while loop
+                echo "Helm test ${_helmRelease} has completed. Stop polling pods..."
+                _poll_helm_test=false
+            fi
+
+            # Poll statuses every 5 seconds
+            test ${_poll_helm_test} = true && sleep 5
+        done
+
+        # If a pod failed via terminated state the while loop has exited early.
+        if ps -p ${_test_pid} > /dev/null; then
+            # Kill the helm test process as it is still running.
+            echo "A pod has terminated with a non-zero exit code. Killing helm test ${_helmRelease}..."
+            _kill_pid ${_test_pid}
+        fi
+
+        #Either the helm test command completed or was killed. Either way, wait captures and returns the exit code of the process.
+        wait ${_test_pid}
         _returnCode=${?}
 
-        test ${_returnCode} -ne 0 && echo_red "helm test Failed"
+        # Handle the edge case where a failed pod was found, yet the helm test process completed with an exit code of 0 (success)
+        # before it could be manually killed. Here we still want to report a failed return code.
+        test ${_returnCode} -eq 0 && test ${_pod_terminated_with_failure:-false} = true && _returnCode=1
+
+        test ${_returnCode} -ne 0 && echo_red "Helm Test ${_helmRelease} Failed"
     else
-        echo_red "helm install was unsucessful (_returnCode=${_returnCode})"
+        echo_red "Helm install was unsuccessful (_returnCode=${_returnCode})"
 
         kubectl get cm,pod,service,pvc "${NS_OPT[@]}"
     fi
