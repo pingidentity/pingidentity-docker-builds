@@ -81,14 +81,9 @@ case "${_osID}" in
         ;;
     centos | rhel)
         _versionID=$(awk '$0~/^VERSION_ID=/{split($1,version,"=");gsub(/"/,"",version[2]);print version[2];}' /etc/os-release)
-        _packages="gettext bind-utils git git-lfs unzip openssh-clients nmap-ncat zip"
+        _packages="bind-utils cronie gettext git git-lfs jq net-tools nmap-ncat openssh-clients procps-ng unzip zip"
 
-        if test "${_osID}" = "rhel"; then
-            #Install EPEL Repository which contains jq
-            yum -y install --releasever "${_versionID}" https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-            yum -y update --releasever "${_versionID}"
-            yum -y install --releasever "${_versionID}" jq
-        else #centos
+        if test "${_osID}" = "centos"; then
             rm -rf /var/lib/rpm
             rpmdb -v --rebuilddb
             rm -fr /var/cache/yum/*
@@ -96,8 +91,8 @@ case "${_osID}" in
             yum -y update --releasever "${_versionID}"
             yum -y install --releasever "${_versionID}" epel-release
             curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | bash
-            _packages="${_packages} jq"
         fi
+        yum -y update --releasever "${_versionID}"
         # Word-splitting expected in listing yum packages to install
         # shellcheck disable=SC2086
         yum -y install --releasever "${_versionID}" ${_packages}
