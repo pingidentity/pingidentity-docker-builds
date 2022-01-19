@@ -89,11 +89,13 @@ RUN /get-bits.sh --product ${PRODUCT} \
       /opt/server/upgrade/lib/log4j-core.jar \
       /opt/server/upgrade/lib/log4j-api.jar \
       /opt/server/upgrade/lib/log4j-slf4j-impl.jar \
+      /opt/server/upgrade/lib/log4j-jcl.jar \
       && unzip -q /tmp/product.zip -d /tmp/ \
           -x README.txt \
       && cp /tmp/dist/pingfederate/server/default/lib/log4j-core*.jar /opt/server/upgrade/lib/ \
       && cp /tmp/dist/pingfederate/server/default/lib/log4j-api*.jar /opt/server/upgrade/lib/ \
       && cp /tmp/dist/pingfederate/server/default/lib/log4j-slf4j-impl*.jar /opt/server/upgrade/lib/ \
+      && cp /tmp/dist/pingfederate/server/default/lib/log4j-jcl*.jar /opt/server/upgrade/lib/ \
       && mv /tmp/dist/pingfederate/server/default/lib/* /opt/server/server/default/lib \
       || : \
       )
