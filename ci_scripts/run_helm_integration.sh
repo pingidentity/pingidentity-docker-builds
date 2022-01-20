@@ -45,7 +45,7 @@ $(cd "${_integration_helm_tests_dir}" && find ./* -type d -maxdepth 1 | sed 's/^
         image tag.
         Default: x86_64
 
-    --image-tag-jvm {az11 | al11 | rl11}
+    --image-tag-jvm {al11 | rl11}
         Tests for a specific image jvm tag.  This will be added to the end of the
         image tag.
         Default: al11

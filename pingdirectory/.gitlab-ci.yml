@@ -66,31 +66,6 @@ arm.b.pingdirectory:
 #                  SMOKE TESTS
 ################################################
 
-intel.t.pd.az11:
-  stage: test.smoke
-  script:
-    - ci_scripts/run_helm_smoke.sh --product pingdirectory --jvm az11
-  retry: 2
-  only:
-    changes:
-      - pingdirectory/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingbase/**/*
-      - pingdownloader/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
-
 intel.t.pd.al11:
   stage: test.smoke
   script:
