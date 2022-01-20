@@ -10,15 +10,6 @@
                     "preferredJVM": "al11",
                     "jvms": [
                         {
-                            "jvm": "az11",
-                            "build": true,
-                            "deploy": true,
-                            "registries": [
-                                "DockerHub",
-                                "Artifactory"
-                            ]
-                        },
-                        {
                             "jvm": "al11",
                             "build": true,
                             "deploy": true,
