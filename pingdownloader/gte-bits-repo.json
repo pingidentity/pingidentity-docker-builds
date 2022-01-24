@@ -96,7 +96,7 @@
         {
             "name": "apache-tomcat",
             "mapping": "apache-tomcat-${version}.zip",
-            "latestVersion": "9.0.55"
+            "latestVersion": "9.0.58"
         },
         {
             "name": "apache-jmeter",
