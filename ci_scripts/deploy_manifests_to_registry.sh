@@ -94,15 +94,10 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
-#
-# Determine whether the commit is associated with a sprint tag
-# a print tag ends with 4 digits, YYMM
-for tag in $(git tag --points-at "${GIT_REV_LONG}"); do
-    if test -z "${tag##2[0-9][0-9][0-9]*}"; then
-        sprint="${tag}"
-        break
-    fi
-done
+# Grab the YYMM sprint tag from current commit if present
+# If PIPELINE_VERSIONS_JSON_OVERRIDE is set, grab most recent
+# tag on current git branch.
+sprint="$(_getSprintTagIfAvailable)"
 
 #Define docker config file locations based on different image registry providers
 docker_config_hub_dir="/root/.docker-hub"
@@ -160,25 +155,29 @@ for version in ${versions_to_deploy}; do
 
                 #This builds pushes manifests to the target registry that contain the images in $images_list
                 banner "Creating Multi-Arch Manifests in ${target_registry} for: ${product_to_deploy} ${shim} ${jvm} ${version}"
-                if test -n "${sprint}"; then
-                    create_manifest_and_push_and_sign "${version}-${shim_long_tag}-${jvm}-latest"
-                    create_manifest_and_push_and_sign "${sprint}-${version}-${shim_long_tag}-${jvm}"
-                    if test "${shim}" = "${default_shim}" && test "${jvm}" = "${default_jvm}"; then
-                        create_manifest_and_push_and_sign "${version}-latest"
-                        create_manifest_and_push_and_sign "${sprint}-${version}"
-                        if test "${version}" = "${latest_version}"; then
-                            create_manifest_and_push_and_sign "latest"
-                            create_manifest_and_push_and_sign "${sprint}"
+                if test -n "${PIPELINE_VERSIONS_JSON_OVERRIDE}"; then
+                    create_manifest_and_push_and_sign "${sprint}-${version}"
+                else
+                    if test -n "${sprint}"; then
+                        create_manifest_and_push_and_sign "${version}-${shim_long_tag}-${jvm}-latest"
+                        create_manifest_and_push_and_sign "${sprint}-${version}-${shim_long_tag}-${jvm}"
+                        if test "${shim}" = "${default_shim}" && test "${jvm}" = "${default_jvm}"; then
+                            create_manifest_and_push_and_sign "${version}-latest"
+                            create_manifest_and_push_and_sign "${sprint}-${version}"
+                            if test "${version}" = "${latest_version}"; then
+                                create_manifest_and_push_and_sign "latest"
+                                create_manifest_and_push_and_sign "${sprint}"
+                            fi
                         fi
                     fi
-                fi
-                if test "${shim}" = "${default_shim}" && test "${jvm}" = "${default_jvm}"; then
-                    create_manifest_and_push_and_sign "${version}-edge"
-                    if test "${version}" = "${latest_version}"; then
-                        create_manifest_and_push_and_sign "edge"
+                    if test "${shim}" = "${default_shim}" && test "${jvm}" = "${default_jvm}"; then
+                        create_manifest_and_push_and_sign "${version}-edge"
+                        if test "${version}" = "${latest_version}"; then
+                            create_manifest_and_push_and_sign "edge"
+                        fi
                     fi
+                    create_manifest_and_push_and_sign "${version}-${shim_long_tag}-${jvm}-edge"
                 fi
-                create_manifest_and_push_and_sign "${version}-${shim_long_tag}-${jvm}-edge"
 
                 # Delete images of type ${version}-${shim_long_tag}-${jvm}-${arch}-edge from target registry
                 # These images are no longer needed, as they should be accessible in multi-arch manifest images formed above

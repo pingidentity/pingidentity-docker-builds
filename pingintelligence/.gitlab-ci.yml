@@ -6,22 +6,27 @@ intel.b.pingintelligence:
   stage: products
   script:
     - ci_scripts/build_product.sh --product pingintelligence
-  only:
-    changes:
-      - integration_tests/pi-*
-      - pingintelligence/**/*
-      - pingcommon/**/*
-      - pingbase/**/*
-      - pingdownloader/**/*
-      - ci_scripts/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingintelligence(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - integration_tests/pi-*
+        - pingintelligence/**/*
+        - pingcommon/**/*
+        - pingbase/**/*
+        - pingdownloader/**/*
+        - ci_scripts/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 ################################################
 #                  SMOKE TESTS
@@ -31,24 +36,27 @@ intel.t.pingintelligence:
   stage: test.smoke
   script:
     - ci_scripts/run_smoke.sh --product pingintelligence
-  only:
-    changes:
-      - integration_tests/pi-*
-      - pingintelligence/**/*
-      - pingcommon/**/*
-      - pingbase/**/*
-      - pingdownloader/**/*
-      - ci_scripts/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingintelligence(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - integration_tests/pi-*
+        - pingintelligence/**/*
+        - pingcommon/**/*
+        - pingbase/**/*
+        - pingdownloader/**/*
+        - ci_scripts/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 ################################################
 #                  DEPLOY
@@ -59,21 +67,22 @@ d.pingintelligence:
   script:
     - ci_scripts/deploy_product_to_registry.sh --product pingintelligence
     - ci_scripts/deploy_manifests_to_registry.sh --product pingintelligence
-  only:
-    refs:
-      - master
-      - tags
-    changes:
-      - pingintelligence/**/*
-      - pingcommon/**/*
-      - pingbase/**/*
-      - ci_scripts/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingintelligence(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip deploy\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME =~ /^master$/'
+      changes:
+        - pingintelligence/**/*
+        - pingcommon/**/*
+        - pingbase/**/*
+        - ci_scripts/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_COMMIT_TAG =~ /^\d{4}$/'
+      when: on_success
