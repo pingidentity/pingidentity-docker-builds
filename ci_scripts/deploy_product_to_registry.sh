@@ -123,6 +123,9 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 docker_config_hub_dir="/root/.docker-hub"
 docker_config_default_dir="/root/.docker"
 
+# Do PIPELINE_VERSIONS_JSON_OVERRIDE validation
+_getSprintTagIfAvailable
+
 #Pull down Docker Trust JSON on signature data
 signed_tags=$(docker trust inspect "${DOCKER_HUB_REGISTRY}/${product_to_deploy}" | jq "[.[0].SignedTags[].SignedTag]")
 

@@ -11,160 +11,303 @@ set -o history
 HISTTIMEFORMAT='%T'
 export HISTTIMEFORMAT
 
-# get all versions (from versions.json) for a product to build
-_getAllVersionsToBuildForProduct() {
-    _jvmFilter=$(_getJVMFilterArray)
-    _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.build==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|$v.version]|unique|.[]' "${_file}"
-}
-
-# get all versions (from versions.json) for a product to deploy
-_getAllVersionsToDeployForProduct() {
-    _jvmFilter=$(_getJVMFilterArray)
-    _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '.|.versions[]|[. as $v |.shims[]|.jvms[]|select(.deploy==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|$v.version]|unique|.[]' "${_file}"
-}
-
-# get the latest (from versions.json) version of a product to build
-_getLatestVersionForProduct() {
-    _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r 'if (.latest) then .latest else "" end' "${_file}"
-}
-
-# get the default shim (from versions.json) for a product version
-_getDefaultShimForProductVersion() {
-    _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '.|.versions[]| select(.version == "'"${2}"'") | .preferredShim' "${_file}"
-}
-
-# get all the shims (from versions.json) for a product version
-_getShimsToBuildForProductVersion() {
-    _jvmFilter=$(_getJVMFilterArray)
-    _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '[.|.versions[]| select(.version == "'"${2}"'")|.shims[]|. as $v|.jvms[]|select(.build==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|$v.shim]|unique|.[]' "${_file}"
-}
-
-# get all shims for JVM
-_getShimsToBuildForJVM() {
-    _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    test -f "${_file}" && jq -r '[.|.versions[]|select(.id=="'"${1}"'")|.shims[]]|unique|.[]' "${_file}"
-}
-
-# get all the shims (from versions.json) for a product version
-_getShimsToDeployForProductVersion() {
-    _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '[.|.versions[]| select(.version == "'"${2}"'")|.shims[]|. as $v|.jvms[]|select(.deploy==true)|$v.shim]|unique|.[]' "${_file}"
-}
-
-# get all the shims (from versions.json) for a product
-_getAllShimsForProduct() {
-    _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '[.|.versions[]|.shims[]|.shim]|unique|.[]' "${_file}"
-}
-
-# get all the jvms (from versions.json) for a product to build
-_getJVMsToBuildForProductVersionShim() {
-    _jvmFilter=$(_getJVMFilterArray)
-    _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'"${2}"'").shims[]|select(.shim=="'"${3}"'")|.jvms[]|select(.build==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|.jvm' "${_file}"
-}
-
-_getJVMsForArch() {
-    # treat as a singleton
-    if test -z "${_JVMS}"; then
-        _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-        _JVMS=$(jq -r '[.versions[]|select(.archs[]|contains("'"${ARCH}"'"))|.id]|.[]' "${_file}")
-        export _JVMS
-    fi
-    printf "%s" "${_JVMS}"
-}
-
-_getAllArchsForJVM() {
-    _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    test -f "${_file}" && jq -r '.versions[]|select(.id == "'"${1}"'")|.archs|.[]' "${_file}"
-}
-
-_isJVMMultiArch() {
-    _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    if test -f "${_file}"; then
-        _numArchs=$(jq -r '.versions[]|select(.id == "'"${1}"'")|.archs|length' "${_file}")
-        test "${_numArchs}" -gt 1 && return 0
-    fi
-    return 1
-}
-
-_getJVMFilterArray() {
-    # treat as a singleton
-    if test -z "${_JVM_FILTER_ARRAY}"; then
-        for _j in $(_getJVMsForArch); do
-            # shellcheck disable=SC2089
-            _v=${_v}${_v:+,}'"'${_j}'"'
-        done
-        _JVM_FILTER_ARRAY="[${_v}]"
-        # shellcheck disable=SC2090
-        export _JVM_FILTER_ARRAY
-    fi
-    printf "%s" "${_JVM_FILTER_ARRAY}"
-}
-
-_filterJVMForArch() {
-    _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    test -f "${_file}" && jq -r '[.versions[]|select(.id=="'"${1}"'")|select(.archs[]|contains("'"${ARCH}"'"))|.id]|.[]' "${_file}"
-}
-
-# get all the jvms (from versions.json) for a product to deploy
-_getJVMsToDeployForProductVersionShim() {
-    _jvmFilter=$(_getJVMFilterArray)
-    _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'"${2}"'").shims[]|select(.shim=="'"${3}"'")|.jvms[]|select(.deploy==true)|select(.jvm as $j|'"${_jvmFilter}"'|index($j))|.jvm' "${_file}"
-}
-
-# get the preferred (from versions.json) for a product, version and shim
-_getPreferredJVMForProductVersionShim() {
-    _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'"${2}"'").shims[]|select(.shim=="'"${3}"'")|.preferredJVM' "${_file}"
-}
-
-# get the target image registries for a product, version, shim, and jvm
-_getTargetRegistriesForProductVersionShimJVM() {
-    _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -r '.|.versions[]|select(.version=="'"${2}"'").shims[]|select(.shim=="'"${3}"'")|.jvms[]|select(.jvm=="'"${4}"'")|.registries[]' "${_file}"
-}
-
-# get the jvm versions (from versions.json) for an ID
-_getJVMVersionForID() {
-    _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    test -f "${_file}" && jq -r '.|.versions[]|select(.id=="'"${1}"'")|.version' "${_file}"
-}
-
-# get the jvm IDs (from versions.json) for a shim
-_getAllJVMIDsForShim() {
-    _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    test -f "${_file}" && jq -r '[.versions[]|select(.archs[]|contains("'"${ARCH}"'"))|select(.shims[]|contains("'"${1}"'"))|.id]|unique|.[]' "${_file}"
-}
-
-# get the jvms (from versions.json) to build for a shim
-_getAllJVMsToBuildForShim() {
-    for _jvm in $(find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|select(.shim=="'"${1}"'")|.jvms[]|select(.build==true)|.jvm' {} + 2> /dev/null | sort | uniq); do
-        _filterJVMForArch "${_jvm}"
+# Retrieve the tag on the commit, or the most recent tag for the branch.
+# If PIPELINE_VERSIONS_JSON_OVERRIDE is set, strongly validate YYMM format
+# as well as validate the tag is 2201 or newer.
+_getSprintTagIfAvailable() {
+    # Determine whether the commit is associated with a sprint tag
+    # a sprint tag is exactly 4 digits, YYMM
+    for tag in $(git tag --points-at "${GIT_REV_LONG}"); do
+        if test -z "${tag##[0-9][0-9][0-9][0-9]}"; then
+            sprint="${tag}"
+            break
+        fi
     done
+
+    # If PIPELINE_VERSIONS_JSON_OVERRIDE is set and a sprint tag does not point at the current commit,
+    # grab the most recent sprint tag of the current branch
+    # Then verify it is a sprint version that supports versions.json override.
+    if test -n "${PIPELINE_VERSIONS_JSON_OVERRIDE}"; then
+        if test -z "${sprint}"; then
+            most_recent_tag="$(git describe --tags --abbrev=0)"
+            test -n "${most_recent_tag##[0-9][0-9][0-9][0-9]}" && echo_red "ERROR: Most recent tag ${most_recent_tag} for branch ${CI_COMMIT_BRANCH} does not match form YYMM." && exit 1
+            sprint="${most_recent_tag}"
+        fi
+        test "${sprint}" -lt 2201 && echo_red "ERROR: The sprint release ${sprint} does not support versions.json override. Use 2201 or newer." && exit 1
+    fi
+
+    printf "%s" "${sprint}"
 }
 
-# get the jvms (from versions.json) to build
-_getAllJVMsToBuild() {
-    find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '.|.versions[]|.shims[]|.jvms[]|select(.build==true)|.jvm' {} + 2> /dev/null | sort | uniq
+# Get the versions.json file path for a specified product name.
+# If PIPELINE_VERSIONS_JSON_OVERRIDE is set, use that versions.json instead.
+_getVersionsFilePath() {
+    test -z "${1}" && echo_red "ERROR: The function _getVersionsFilePath requires a product name input." && exit 1
+
+    product_versions_file="${PIPELINE_VERSIONS_JSON_OVERRIDE:-${CI_PROJECT_DIR}/${1}/versions.json}"
+    # As pingdownloader is always built, even when PIPELINE_VERSIONS_JSON_OVERRIDE exists, do not override its versions.json
+    if test "${1}" = "pingdownloader"; then
+        product_versions_file="${CI_PROJECT_DIR}/${1}/versions.json"
+    fi
+
+    # Ensure that the file exists before returning the file path.
+    ! test -f "${product_versions_file}" && echo_red "ERROR: File ${product_versions_file} not found." && exit 1
+
+    # Ensure that the file contains valid json.
+    jq empty "${product_versions_file}"
+    test "${?}" -ne 0 && echo_red "ERROR: The JSON supplied in ${product_versions_file} is not valid JSON." && exit 1
+
+    printf "%s" "${product_versions_file}"
 }
 
-# get the jvm images (from versions.json) for a shim ID
-_getJVMImageForShimID() {
-    _file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    test -f "${_file}" && jq -r '[.versions[]|select(.shims[]|contains("'"${1}"'"))| select(.id=="'"${2}"'")|.from]|unique|.[]' "${_file}"
+# Get all versions from versions.json file for a specified product name.
+# Only versions with valid jvms for ARCH that have build=true are returned.
+_getAllVersionsToBuildForProduct() {
+    test -z "${1}" && echo_red "ERROR: The function _getAllVersionsToBuildForProduct requires a product name input." && exit 1
+
+    product_versions_file="$(_getVersionsFilePath "${1}")"
+    jq -r --arg regex "$(_getJVMFilterRegex)" \
+        '[.versions[] | . as $v | .shims[] | .jvms[] | select(.build==true) | select(.jvm | test($regex)) | $v.version] | unique | .[]' \
+        "${product_versions_file}"
 }
 
-# get the dependencies (from versions.json) for product version
+# Get all versions from versions.json file for a specified product name.
+# Only versions with valid jvms for ARCH that have deploy=true are returned.
+_getAllVersionsToDeployForProduct() {
+    test -z "${1}" && echo_red "ERROR: The function _getAllVersionsToDeployForProduct requires a product name input." && exit 1
+
+    product_versions_file="$(_getVersionsFilePath "${1}")"
+    jq -r --arg regex "$(_getJVMFilterRegex)" \
+        '[.versions[] | . as $v | .shims[] | .jvms[] | select(.deploy==true) | select(.jvm | test($regex)) | $v.version] | unique | .[]' \
+        "${product_versions_file}"
+}
+
+# Get the latest version from versions.json file for a specified product name.
+_getLatestVersionForProduct() {
+    test -z "${1}" && echo_red "ERROR: The function _getLatestVersionForProduct requires a product name input." && exit 1
+
+    product_versions_file="$(_getVersionsFilePath "${1}")"
+    jq -r '.latest' "${product_versions_file}"
+}
+
+# Get the default shim from versions.json file for a specified product name and version.
+_getDefaultShimForProductVersion() {
+    test -z "${1}" && echo_red "ERROR: The function _getDefaultShimForProductVersion requires a product name input." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getDefaultShimForProductVersion requires a version input." && exit 1
+
+    product_versions_file="$(_getVersionsFilePath "${1}")"
+    jq -r --arg version "${2}" \
+        '.versions[]| select(.version == $version) | .preferredShim' \
+        "${product_versions_file}"
+}
+
+# Get the all shims from versions.json file for a specified product name and version.
+# Only shims with valid jvms for ARCH that have build=true are returned.
+_getShimsToBuildForProductVersion() {
+    test -z "${1}" && echo_red "ERROR: The function _getShimsToBuildForProductVersion requires a product name input." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getShimsToBuildForProductVersion requires a version input." && exit 1
+
+    product_versions_file="$(_getVersionsFilePath "${1}")"
+    jq -r --arg regex "$(_getJVMFilterRegex)" \
+        --arg version "${2}" \
+        '[.versions[] | select(.version == $version) | .shims[] | . as $v | .jvms[] | select(.build==true) | select(.jvm | test($regex)) | $v.shim] | unique | .[]' \
+        "${product_versions_file}"
+}
+
+# Get the all shims from versions.json file for a specified product name and version.
+# Only shims that have deploy=true are returned.
+# This is ARCH agnostic as we loop through architectures to deploy in the deploy scripts.
+_getShimsToDeployForProductVersion() {
+    test -z "${1}" && echo_red "ERROR: The function _getShimsToDeployForProductVersion requires a product name input." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getShimsToDeployForProductVersion requires a version input." && exit 1
+
+    product_versions_file="$(_getVersionsFilePath "${1}")"
+    jq -r --arg version "${2}" \
+        '[.versions[] | select(.version == $version) | .shims[] | . as $v | .jvms[] | select(.deploy==true) | $v.shim] | unique | .[]' \
+        "${product_versions_file}"
+}
+
+# Get the all shims from pingjvm/versions.json file for a specified jvm ID.
+_getShimsToBuildForJVM() {
+    test -z "${1}" && echo_red "ERROR: The function _getShimsToBuildForJVM requires a jvm ID input." && exit 1
+
+    jvm_versions_file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+    ! test -f "${jvm_versions_file}" && echo_red "ERROR: File ${jvm_versions_file} not found." && exit 1
+
+    jq -r --arg jvm_id \
+        "${1}" '[.versions[] | select(.id == $jvm_id) | .shims[] ] | unique | .[]' \
+        "${jvm_versions_file}"
+}
+
+# Get the all shims from versions.json file for a specified product name.
+_getAllShimsForProduct() {
+    test -z "${1}" && echo_red "ERROR: The function _getAllShimsForProduct requires a product name input." && exit 1
+
+    product_versions_file="$(_getVersionsFilePath "${1}")"
+    jq -r '[.versions[] | .shims[] | .shim] | unique | .[]' "${product_versions_file}"
+}
+
+# Get all the jvm IDs from versions.json file for a specified product name, version, and shim.
+# Only jvm IDs valid for ARCH that have build=true are returned.
+_getJVMsToBuildForProductVersionShim() {
+    test -z "${1}" && echo_red "ERROR: The function _getJVMsToBuildForProductVersionShim requires a product name input." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getJVMsToBuildForProductVersionShim requires a version input." && exit 1
+    test -z "${3}" && echo_red "ERROR: The function _getJVMsToBuildForProductVersionShim requires a shim input." && exit 1
+
+    product_versions_file="$(_getVersionsFilePath "${1}")"
+    jq -r --arg regex "$(_getJVMFilterRegex)" \
+        --arg version "${2}" \
+        --arg shim "${3}" \
+        '[.versions[] | select(.version == $version) | .shims[] | select(.shim == $shim) | .jvms[] | select(.build==true) | select(.jvm | test($regex)) | .jvm] | unique | .[]' \
+        "${product_versions_file}"
+}
+
+# Get all the jvm IDs from versions.json file for a specified product name, version, and shim.
+# Only jvm IDs valid for ARCH that have deploy=true are returned.
+_getJVMsToDeployForProductVersionShim() {
+    test -z "${1}" && echo_red "ERROR: The function _getJVMsToDeployForProductVersionShim requires a product name input." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getJVMsToDeployForProductVersionShim requires a version input." && exit 1
+    test -z "${3}" && echo_red "ERROR: The function _getJVMsToDeployForProductVersionShim requires a shim input." && exit 1
+
+    product_versions_file="$(_getVersionsFilePath "${1}")"
+    jq -r --arg regex "$(_getJVMFilterRegex)" \
+        --arg version "${2}" \
+        --arg shim "${3}" \
+        '[.versions[] | select(.version == $version) | .shims[] | select(.shim == $shim) | .jvms[] | select(.deploy==true) | select(.jvm | test($regex)) | .jvm] | unique | .[]' \
+        "${product_versions_file}"
+}
+
+# Get the all architectures from pingjvm/versions.json file for a specified jvm ID.
+_getAllArchsForJVM() {
+    test -z "${1}" && echo_red "ERROR: The function _getAllArchsForJVM requires a jvm ID input." && exit 1
+
+    jvm_versions_file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+    ! test -f "${jvm_versions_file}" && echo_red "ERROR: File ${jvm_versions_file} not found." && exit 1
+
+    jq -r --arg jvm_id "${1}" \
+        '.versions[] | select(.id == $jvm_id) | .archs | .[]' \
+        "${jvm_versions_file}"
+}
+
+# Return all jvm IDs from pingjvm/versions.json that contain an architecture mapping to $ARCH's value.
+_getJVMsForArch() {
+    # Compute JVMS_FOR_ARCH once based on ARCH value
+    if test -z "${JVMS_FOR_ARCH}"; then
+        jvm_versions_file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+        ! test -f "${jvm_versions_file}" && echo_red "ERROR: File ${jvm_versions_file} not found." && exit 1
+        JVMS_FOR_ARCH=$(jq -r --arg arch "${ARCH}" '.versions[] | select(.archs[] | contains($arch)) | .id' "${jvm_versions_file}")
+        export JVMS_FOR_ARCH
+    fi
+    printf "%s" "${JVMS_FOR_ARCH}"
+}
+
+# Take each jvm ID from _getJVMsForArch() and parse them into a jq regex of the form "al11|rl11|az11"
+_getJVMFilterRegex() {
+    # Compute JVM_FILTER_REGEX once based on JVMS_FOR_ARCH
+    if test -z "${JVM_FILTER_REGEX}"; then
+        for cur_jvm in $(_getJVMsForArch); do
+            JVM_FILTER_REGEX="${JVM_FILTER_REGEX}${JVM_FILTER_REGEX:+|}${cur_jvm}"
+        done
+        export JVM_FILTER_REGEX
+    fi
+    printf "%s" "${JVM_FILTER_REGEX:-null}"
+}
+
+# Get the default jvm from versions.json files for a specified product name, version, and shim.
+_getPreferredJVMForProductVersionShim() {
+    test -z "${1}" && echo_red "ERROR: The function _getPreferredJVMForProductVersionShim requires a product name input." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getPreferredJVMForProductVersionShim requires a version input." && exit 1
+    test -z "${3}" && echo_red "ERROR: The function _getPreferredJVMForProductVersionShim requires a shim input." && exit 1
+
+    product_versions_file="$(_getVersionsFilePath "${1}")"
+    jq -r --arg version "${2}" \
+        --arg shim "${3}" \
+        '.versions[] | select(.version == $version) | .shims[] | select(.shim == $shim) | .preferredJVM' \
+        "${product_versions_file}"
+}
+
+# Get the deploy image repositories from versions.json files for a specified product name, version, shim, and jvm ID.
+_getTargetRegistriesForProductVersionShimJVM() {
+    test -z "${1}" && echo_red "ERROR: The function _getTargetRegistriesForProductVersionShimJVM requires a product name input." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getTargetRegistriesForProductVersionShimJVM requires a version input." && exit 1
+    test -z "${3}" && echo_red "ERROR: The function _getTargetRegistriesForProductVersionShimJVM requires a shim input." && exit 1
+    test -z "${4}" && echo_red "ERROR: The function _getTargetRegistriesForProductVersionShimJVM requires a jvm ID input." && exit 1
+
+    product_versions_file="$(_getVersionsFilePath "${1}")"
+    jq -r --arg version "${2}" \
+        --arg shim "${3}" \
+        --arg jvm_id "${4}" \
+        '.versions[] | select(.version == $version) | .shims[] | select(.shim == $shim) | .jvms[] | select(.jvm == $jvm_id) | .registries[]' \
+        "${product_versions_file}"
+}
+
+# Get the jvm version from pingjvm/versions.json file for a specified jvm ID.
+# TODO: Remove this function upon the removal of run_smoke.sh once fully testing in helm
+_getJVMVersionForID() {
+    test -z "${1}" && echo_red "ERROR: The function _getJVMVersionForID requires a jvm ID input." && exit 1
+
+    jvm_versions_file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+    ! test -f "${jvm_versions_file}" && echo_red "ERROR: File ${jvm_versions_file} not found." && exit 1
+
+    jq -r --arg jvm_id "${1}" '.versions[] | select(.id == $jvm_id) | .version' "${jvm_versions_file}"
+}
+
+# Get all the jvm IDs from all product versions.json files for a specified shim.
+# Only jvm IDs valid for ARCH that have build=true are returned.
+_getAllJVMsToBuildForShim() {
+    test -z "${1}" && echo_red "ERROR: The function _getAllJVMsToBuildForShim requires a shim input." && exit 1
+
+    find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json > version_files
+    while IFS= read -r version_file; do
+        new_ids="$(jq -r --arg regex "$(_getJVMFilterRegex)" \
+            --arg shim "${1}" \
+            '.versions[] | .shims[] | select(.shim == $shim) | .jvms[] | select(.build==true)| select(.jvm | test($regex)) | .jvm' \
+            "${version_file}")"
+        jvm_ids="${jvm_ids}${jvm_ids:+\n}${new_ids}"
+    done < version_files
+    rm version_files
+
+    jvm_ids="$(echo -e "${jvm_ids}" | sort | uniq)"
+    printf "%s" "${jvm_ids}"
+}
+
+# Get the jvm image from pingjvm/versions.json file for a specified shim and jvm ID.
+_getJVMImageForShimJVM() {
+    test -z "${1}" && echo_red "ERROR: The function _getJVMImageForShimJVM requires a shim input." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getJVMImageForShimJVM requires a jvm ID input." && exit 1
+
+    jvm_versions_file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+    ! test -f "${jvm_versions_file}" && echo_red "ERROR: File ${jvm_versions_file} not found." && exit 1
+
+    jq -r --arg shim "${1}" \
+        --arg jvm_id "${2}" \
+        '[.versions[] | select(.shims[] | contains($shim)) | select(.id == $jvm_id) | .from] | unique | .[]' \
+        "${jvm_versions_file}"
+}
+
+# Get the docker build arguments for any dependencies with a specified product name and version.
 _getDependenciesForProductVersion() {
-    _file="${CI_PROJECT_DIR}/${1}/versions.json"
-    test -f "${_file}" && jq -jr '.versions[]|select( .version == "'"${2}"'" )|if (.dependencies) then .dependencies[]|.product," ",.version,"\n" else "" end' "${_file}" | awk 'BEGIN{i=0} {print "--build-arg DEPENDENCY_"i"_PRODUCT="$1" --build-arg DEPENDENCY_"i"_VERSION="$2; i++}'
+    test -z "${1}" && echo_red "ERROR: The function _getDependenciesForProductVersion requires a product name input." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getDependenciesForProductVersion requires a dependency check version input." && exit 1
+
+    product_versions_file="$(_getVersionsFilePath "${1}")"
+    jq -jr --arg version "${2}" \
+        '.versions[] | select(.version == $version) | if (.dependencies) then .dependencies[]|.product," ",.version,"\n" else "" end' \
+        "${product_versions_file}" |
+        awk 'BEGIN{i=0} {print "--build-arg DEPENDENCY_"i"_PRODUCT="$1" --build-arg DEPENDENCY_"i"_VERSION="$2; i++}'
+}
+
+# get the the shims (from versions.json)
+_getAllShims() {
+    find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json > version_files
+    while IFS= read -r version_file; do
+        new_shims="$(jq -r '[.versions[] | .shims[] | .shim] | unique | .[]' "${version_file}")"
+        shims="${shims}${shims:+\n}${new_shims}"
+    done < version_files
+    rm version_files
+
+    shims="$(echo -e "${shims}" | sort | uniq)"
+    printf "%s" "${shims}"
 }
 
 # get the long tag
@@ -175,11 +318,6 @@ _getLongTag() {
 # get the short tag
 _getShortTag() {
     echo "${1}" | awk '{gsub(/:.*/,"");print}'
-}
-
-# get the the shims (from versions.json)
-_getAllShims() {
-    find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json -exec jq -r '[.|.versions[]|.shims[]|.shim]|unique|.[]' {} + 2> /dev/null | sort | uniq
 }
 
 # returns the license version from the full product version
@@ -207,9 +345,9 @@ banner_bar() {
     printf "\n"
 }
 
-banner_pad=$(printf '%0.1s' " "{1..80})
 # echos banner contents centering argument passed
 banner_head() {
+    banner_pad=$(printf '%0.1s' " "{1..80})
     # line is divided like so # <- a -> b <- c ->#
     # b is the string to display centered
     # a and c are whitespace padding to center the string

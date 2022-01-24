@@ -75,37 +75,39 @@ intel.i.checks:
   stage: initialization
   script:
     - ci_scripts/if_readme_only.sh
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      # - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  rules:
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
+      when: on_success
 
 intel.i.unmerged:
   stage: initialization
   script:
     - ci_scripts/unmerged_changes.sh
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]/i'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
+      when: on_success
 
 intel.i.shellcheck:
   stage: initialization
   script:
     - ci_scripts/shellcheck.sh
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]/i'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
+      when: on_success
 
 intel.i.shfmt:
   stage: initialization
   script:
     - ci_scripts/shfmt.sh --diff
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]/i'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
+      when: on_success
 
 #####################################################################
 #   ______ ____  _    _ _   _ _____       _______ _____ ____  _   _
@@ -121,10 +123,11 @@ intel.f.pingfoundation:
   script:
     - ci_scripts/cleanup_docker.sh full
     - ci_scripts/build_foundation.sh
-  when: always
-  except:
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]/i'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
+      when: on_success
 
 arm.f.pingfoundation:
   stage: foundation
@@ -134,10 +137,11 @@ arm.f.pingfoundation:
   script:
     - ci_scripts/cleanup_docker.sh full
     - ci_scripts/build_foundation.sh
-  when: always
-  except:
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]/i'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
+      when: on_success
 
 intel.f.pingdownloader:
   stage: foundation
@@ -145,10 +149,11 @@ intel.f.pingdownloader:
     - jq . pingdownloader/gte-bits-repo.json
     - ci_scripts/build_product.sh -p pingdownloader
     - ci_scripts/run_smoke.sh --product pingdownloader
-  when: always
-  except:
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]/i'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
+      when: on_success
 
 arm.f.pingdownloader:
   stage: foundation
@@ -159,10 +164,11 @@ arm.f.pingdownloader:
     - jq . pingdownloader/gte-bits-repo.json
     - ci_scripts/build_product.sh -p pingdownloader
     - ci_scripts/run_smoke.sh --product pingdownloader
-  when: always
-  except:
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]/i'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
+      when: on_success
 
 
 ################################################
@@ -180,16 +186,17 @@ p.github:
     - git --version
     - ci_scripts/push_to_github.sh
     - ci_scripts/deploy_docs.sh
-  only:
-    refs:
-      - master
-      - tags
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_REF_NAME =~ /^\[skip deploy\]*/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip products\]/i'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME =~ /\[skip deploy\]/i'
+      when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME =~ /^master$/'
+      when: on_success
+    - if: '$CI_COMMIT_TAG =~ /^\d{4}$/'
+      when: on_success
 
 ################################################
 #   ______ _____ _   _          _

@@ -218,7 +218,7 @@ for _shim in ${shims}; do
         banner "Building pingjvm for JDK ${_jvm} for ${_shim}"
         _start=$(date '+%s')
         _image="${FOUNDATION_REGISTRY}/pingjvm:${_jvm}-${_shimTag}-${CI_TAG}-${ARCH}"
-        _jvm_from=$(_getJVMImageForShimID "${_shim}" "${_jvm}")
+        _jvm_from=$(_getJVMImageForShimJVM "${_shim}" "${_jvm}")
 
         # Word-Split is expected behavior for $progress. Disable shellcheck.
         # shellcheck disable=SC2086

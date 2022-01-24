@@ -6,22 +6,26 @@ intel.b.pingdelegator:
   stage: products
   script:
     - ci_scripts/build_product.sh --product pingdelegator
-  only:
-    changes:
-      - pingdownloader/**/*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - pingdelegator/**/*
-      - ci_scripts/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdelegator(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdelegator(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - pingdownloader/**/*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingdirectory/**/*
+        - pingdelegator/**/*
+        - ci_scripts/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 arm.b.pingdelegator:
   stage: products
@@ -30,27 +34,26 @@ arm.b.pingdelegator:
     - platform=aarch64
   script:
     - ci_scripts/build_product.sh --product pingdelegator
-  variables:
-    KUBERNETES_CPU_REQUEST: 950m
-    KUBERNETES_CPU_LIMIT: 3800m
-    KUBERNETES_MEMORY_REQUEST: 1900000000
-    KUBERNETES_MEMORY_LIMIT: 1900000000
-  only:
-    changes:
-      - pingdownloader/**/*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - pingdelegator/**/*
-      - ci_scripts/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdelegator(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdelegator(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - pingdownloader/**/*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingdirectory/**/*
+        - pingdelegator/**/*
+        - ci_scripts/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 ################################################
 #                  SMOKE TESTS
@@ -61,24 +64,26 @@ intel.t.pingdelegator:
   script:
     - ci_scripts/run_helm_smoke.sh --product pingdelegator
   retry: 2
-  only:
-    changes:
-      - pingdownloader/**/*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - pingdelegator/**/*
-      - ci_scripts/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdelegator(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdelegator(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - pingdownloader/**/*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingdirectory/**/*
+        - pingdelegator/**/*
+        - ci_scripts/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 arm.t.pingdelegator:
   stage: test.smoke
@@ -88,24 +93,26 @@ arm.t.pingdelegator:
   script:
     - ci_scripts/run_helm_smoke.sh --product pingdelegator
   retry: 2
-  only:
-    changes:
-      - pingdownloader/**/*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - pingdelegator/**/*
-      - ci_scripts/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip smoke\]/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdelegator(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdelegator(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - pingdownloader/**/*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingdirectory/**/*
+        - pingdelegator/**/*
+        - ci_scripts/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 ################################################
 #                  DEPLOY
@@ -116,21 +123,22 @@ d.pingdelegator:
   script:
     - ci_scripts/deploy_product_to_registry.sh --product pingdelegator
     - ci_scripts/deploy_manifests_to_registry.sh --product pingdelegator
-  only:
-    refs:
-      - master
-      - tags
-    changes:
-      - pingdelegator/**/*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - ci_scripts/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip deploy\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdelegator(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip deploy\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdelegator(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME =~ /^master$/'
+      changes:
+        - pingdelegator/**/*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - ci_scripts/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_COMMIT_TAG =~ /^\d{4}$/'
+      when: on_success

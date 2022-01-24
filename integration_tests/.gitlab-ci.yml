@@ -8,29 +8,31 @@ intel.pd-repl.liberica:
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pd-replicated --image-tag-jvm al11 --image-tag-arch x86_64
   retry: 1
-  only:
-    changes:
-      - integration_tests/**/pd-replicated*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
     KUBERNETES_CPU_LIMIT: 1900m
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 3920000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - integration_tests/**/pd-replicated*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingdirectory/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -45,29 +47,31 @@ arm.pd-repl.liberica:
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pd-replicated --image-tag-jvm al11 --image-tag-arch aarch64
   retry: 1
-  only:
-    changes:
-      - integration_tests/**/pd-replicated*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
     KUBERNETES_CPU_LIMIT: 1900m
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 5880000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - integration_tests/**/pd-replicated*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingdirectory/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -80,32 +84,35 @@ intel.pa-pf-pd-fips.liberica:
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --image-tag-jvm rl11 --image-tag-shim redhat_ubi_ubi8_8.5
   retry: 1
-  only:
-    changes:
-      - integration_tests/**/pa-pf-pd*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingaccess/**/*
-      - pingdirectory/**/*
-      - pingfederate/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
   variables:
     KUBERNETES_CPU_REQUEST: 2850m
     KUBERNETES_CPU_LIMIT: 2850m
     KUBERNETES_MEMORY_REQUEST: 1960000000
     KUBERNETES_MEMORY_LIMIT: 1960000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - integration_tests/**/pa-pf-pd*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingaccess/**/*
+        - pingdirectory/**/*
+        - pingfederate/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -117,31 +124,33 @@ intel.pa-pf-pd.liberica:
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --image-tag-jvm al11 --image-tag-arch x86_64
   retry: 1
-  only:
-    changes:
-      - integration_tests/**/pa-pf-pd*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingaccess/**/*
-      - pingdirectory/**/*
-      - pingfederate/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
   variables:
     KUBERNETES_CPU_REQUEST: 2850m
     KUBERNETES_CPU_LIMIT: 2850m
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 3920000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - integration_tests/**/pa-pf-pd*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingaccess/**/*
+        - pingdirectory/**/*
+        - pingfederate/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -156,31 +165,33 @@ arm.pa-pf-pd.liberica:
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --image-tag-jvm al11 --image-tag-arch aarch64
   retry: 1
-  only:
-    changes:
-      - integration_tests/**/pa-pf-pd*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingaccess/**/*
-      - pingdirectory/**/*
-      - pingfederate/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
     KUBERNETES_CPU_LIMIT: 1900m
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 5880000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingfederate(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - integration_tests/**/pa-pf-pd*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingaccess/**/*
+        - pingdirectory/**/*
+        - pingfederate/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -192,30 +203,33 @@ intel.pds-pd.liberica:
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pds-pd --image-tag-jvm al11 --image-tag-arch x86_64
   retry: 1
-  only:
-    changes:
-      - integration_tests/**/pds-pd*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - pingdatasync/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
     KUBERNETES_CPU_LIMIT: 1900m
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 3920000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatasync(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdatasync(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - integration_tests/**/pds-pd*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingdirectory/**/*
+        - pingdatasync/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
+
 
 ################################################
 # The purpose of the integration test below is
@@ -230,30 +244,32 @@ arm.pds-pd.liberica:
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pds-pd --image-tag-jvm al11 --image-tag-arch aarch64
   retry: 1
-  only:
-    changes:
-      - integration_tests/**/pds-pd*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - pingdatasync/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
     KUBERNETES_CPU_LIMIT: 1900m
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 5880000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatasync(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdatasync(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - integration_tests/**/pds-pd*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingdirectory/**/*
+        - pingdatasync/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -265,30 +281,32 @@ intel.pdp-pd.liberica:
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pdp-pd --image-tag-jvm al11 --image-tag-arch x86_64
   retry: 1
-  only:
-    changes:
-      - integration_tests/**/pdp-pd*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - pingdirectoryproxy/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
     KUBERNETES_CPU_LIMIT: 1900m
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 5880000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatasync(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectoryproxy(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - integration_tests/**/pdp-pd*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingdirectory/**/*
+        - pingdirectoryproxy/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -303,30 +321,32 @@ arm.pdp-pd.liberica:
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pdp-pd --image-tag-jvm al11 --image-tag-arch aarch64
   retry: 1
-  only:
-    changes:
-      - integration_tests/**/pdp-pd*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - pingdirectoryproxy/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
     KUBERNETES_CPU_LIMIT: 1900m
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 3920000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingdatasync(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectoryproxy(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - integration_tests/**/pdp-pd*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingdirectory/**/*
+        - pingdirectoryproxy/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -338,30 +358,32 @@ intel.paz-pd.liberica:
   script:
     - ci_scripts/run_helm_integration.sh --integration-test paz-pd --image-tag-jvm al11 --image-tag-arch x86_64
   retry: 1
-  only:
-    changes:
-      - integration_tests/**/paz-pd*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - pingauthorize/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
     KUBERNETES_CPU_LIMIT: 1900m
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 3920000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingauthorize(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingauthorize(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - integration_tests/**/paz-pd*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingdirectory/**/*
+        - pingauthorize/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -376,30 +398,32 @@ arm.paz-pd.liberica:
   script:
     - ci_scripts/run_helm_integration.sh --integration-test paz-pd --image-tag-jvm al11 --image-tag-arch aarch64
   retry: 1
-  only:
-    changes:
-      - integration_tests/**/paz-pd*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingdatacommon/**/*
-      - pingdirectory/**/*
-      - pingauthorize/**/*
-      - ci_scripts/*
-      - pingjvm/*
-      - .gitlab-ci.yml
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
     KUBERNETES_CPU_LIMIT: 1900m
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 5880000000
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT !~ /(?:^|,)pingauthorize(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingauthorize(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - integration_tests/**/paz-pd*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingdirectory/**/*
+        - pingauthorize/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -410,20 +434,23 @@ intel.pi-basic.latest:
   stage: test.integration
   script:
     - ci_scripts/run_integration.sh pi-basic
-  only:
-    changes:
-      - integration_tests/**/pi-basic*
-      - pingbase/**/*
-      - pingcommon/**/*
-      - pingintelligence/**/*
-      - ci_scripts/*
-      - .gitlab-ci.yml
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^workspace.*/
-      - $CI_COMMIT_MESSAGE =~ /\[skip build\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip products\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip tests\]/
-      - $CI_COMMIT_MESSAGE =~ /\[skip integration\]/
-      - $PING_IDENTITY_SNAPSHOT =~ /--snapshot/
-      - $BUILD_PRODUCT && $BUILD_PRODUCT !~ /(?:^|,)pingintelligence(?:$|,)/i
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - integration_tests/**/pi-basic*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingintelligence/**/*
+        - ci_scripts/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
