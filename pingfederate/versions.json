@@ -1,8 +1,8 @@
 {
-    "latest": "11.0.0",
+    "latest": "11.0.1",
     "versions": [
         {
-            "version": "11.0.0",
+            "version": "11.0.1",
             "preferredShim": "alpine:3.15",
             "shims": [
                 {
@@ -34,17 +34,11 @@
                             ]
                         }
                     ]
-                }
-            ],
-            "dependencies": [
-                {
-                    "product": "pingfederate-log4j2-updates",
-                    "version": "12202021-2.17"
                 }
             ]
         },
         {
-            "version": "10.3.4",
+            "version": "10.3.5",
             "preferredShim": "alpine:3.15",
             "shims": [
                 {
@@ -76,12 +70,6 @@
                             ]
                         }
                     ]
-                }
-            ],
-            "dependencies": [
-                {
-                    "product": "pingfederate-log4j2-updates",
-                    "version": "12202021-2.17"
                 }
             ]
         }
