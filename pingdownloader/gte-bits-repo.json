@@ -24,11 +24,6 @@
             "licenseFile": "pingaccess.lic"
         },
         {
-            "name": "pingaccess-log4j2-update",
-            "mapping": "pingaccess-log4j2-update-${version}.zip",
-            "latestVersion": "12132021"
-        },
-        {
             "name": "pingcentral",
             "mapping": "ping-central-${version}.zip",
             "latestVersion": "1.9.2",
@@ -87,11 +82,6 @@
             "mapping": "pingfederate-${version}.zip",
             "latestVersion": "11.0.1",
             "licenseFile": "pingfederate.lic"
-        },
-        {
-            "name": "pingfederate-log4j2-updates",
-            "mapping": "pingfederate-log4j2-updates-${version}.zip",
-            "latestVersion": "12142021"
         },
         {
             "name": "apache-tomcat",

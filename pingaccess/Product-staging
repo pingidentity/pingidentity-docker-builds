@@ -37,10 +37,6 @@ ARG SNAPSHOT_URL
 # All executed commands are printed to the console
 ARG VERBOSE
 
-# pingaccess-log4j2-update dependency variables
-ARG DEPENDENCY_0_PRODUCT
-ARG DEPENDENCY_0_VERSION
-
 COPY tmp /tmp
 
 # copy your product zip file into the staging image
@@ -57,35 +53,7 @@ RUN /get-bits.sh --product ${PRODUCT} \
         -x *.bat \
         -x *.dll \
         -x *.exe \
-    && rm /tmp/product.zip \
-	&& mv /tmp/pingaccess-* /opt/server \
-	&& rm -rf /tmp/pingaccess-* \
-	&& ( \
-        test -n "${DEPENDENCY_0_PRODUCT}" \
-        && test -n "${DEPENDENCY_0_VERSION}" \
-        && /get-bits.sh --product ${DEPENDENCY_0_PRODUCT} \
-            --version ${DEPENDENCY_0_VERSION} \
-            --devops-user ${DEVOPS_USER} \
-            --devops-key ${DEVOPS_KEY} \
-            --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
-            --verify-gpg-signature \
-        && rm /opt/server/lib/log4j-api-*.jar \
-        /opt/server/lib/log4j-slf4j-impl-*.jar \
-        /opt/server/lib/log4j-core-*.jar \
-        /opt/server/lib/log4j-jcl-*.jar \
-        /opt/server/lib/log4j-jul-*.jar \
-        /opt/server/lib/disruptor-*.jar \
-        /opt/server/upgrade/lib/log4j-core-*.jar \
-        /opt/server/upgrade/lib/log4j-api-*.jar \
-        /opt/server/upgrade/lib/log4j-slf4j-impl-*.jar \
-        && unzip -q /tmp/product.zip -d /tmp/ \
-            -x README.txt \
-        && cp /tmp/lib/log4j-core-*.jar /opt/server/upgrade/lib/ \
-        && cp /tmp/lib/log4j-api-*.jar /opt/server/upgrade/lib/ \
-        && cp /tmp/lib/log4j-slf4j-impl-*.jar /opt/server/upgrade/lib/ \
-        && mv /tmp/lib/* /opt/server/lib \
-        || : \
-        )
+	&& mv /tmp/pingaccess-* /opt/server
 
 FROM scratch
 # Get the product staged above into one layer
