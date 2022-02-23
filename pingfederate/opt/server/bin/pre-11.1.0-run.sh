@@ -37,11 +37,13 @@ PF_SERVER_LIB="${PF_SERVER_HOME}/lib"
 PF_HOME_ESC=$(echo "${SERVER_ROOT_DIR}" | awk '{gsub(/ /,"%20");print;}')
 
 # Setup the classpath
+run_jar="${PF_BIN}/run.jar"
 pf_run_jar="${PF_BIN}/pf-startup.jar"
+jetty_starter_jar="${PF_BIN}/jetty-start.jar"
 xmlbeans="${PF_SERVER_LIB}/xmlbeans.jar"
 pf_xml="${PF_SERVER_LIB}/pf-xml.jar"
-PF_BOOT_CLASSPATH="${PF_HOME_ESC}/startup/*"
-for requiredFile in ${pf_run_jar} ${xmlbeans} ${pf_xml}; do
+PF_BOOT_CLASSPATH=""
+for requiredFile in ${run_jar} ${pf_run_jar} ${jetty_starter_jar} ${xmlbeans} ${pf_xml}; do
     require "${requiredFile}"
     PF_BOOT_CLASSPATH="${PF_BOOT_CLASSPATH}${PF_BOOT_CLASSPATH:+:}${requiredFile}"
 done
@@ -50,7 +52,7 @@ pf_console_util="${PF_BIN}/pf-consoleutils.jar"
 pf_crypto_luna="${PF_SERVER_LIB}/pf-crypto-luna.jar"
 pf_fips="${SERVER_ROOT_DIR}/lib/bc-fips-1.0.2.jar"
 
-PF_BOOT_CLASSPATH="${PF_BOOT_CLASSPATH}${PF_BOOT_CLASSPATH:+:}${pf_console_util}:${pf_crypto_luna}:${pf_fips}"
+PF_BOOT_CLASSPATH="${PF_BOOT_CLASSPATH}${PF_BOOT_CLASSPATH:+:}${pf_console_util}:${xmlbeans}:${pf_xml}:${pf_crypto_luna}:${pf_fips}"
 
 PF_CLASSPATH="${PF_CLASSPATH}${PF_CLASSPATH:+:}${PF_BOOT_CLASSPATH}"
 
@@ -95,6 +97,5 @@ exec "${JAVA_HOME}"/bin/java ${JAVA_OPTS} ${JVM_OPTS} \
     -Dpf.java="${JAVA}" \
     -Dpf.java.opts="-Drun.properties=${run_props}" \
     -Dpf.classpath="${PF_CLASSPATH}" \
-    -Djava.library.path="${PF_HOME_ESC}/startup" \
     -classpath "${PF_CLASSPATH}" \
     org.pingidentity.RunPF "${@}"
