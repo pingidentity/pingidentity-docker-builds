@@ -65,18 +65,19 @@ case "${_osID}" in
         cp /usr/bin/jq /usr/local/bin/jq
         # wipe the jq from the apk installed list
         apk --no-cache del jq
-        # altogether remove the package manager
+
+        apk --no-cache --update add fontconfig ttf-dejavu
+
+        #Upgrade all packages
+        apk -U upgrade
 
         # Removing apk installed file, removing false positive CVEs
         rm /lib/apk/db/installed
 
-        # rm -rf /sbin/apk /etc/apk /lib/apk /usr/share/apk /var/lib/apk
-
-        apk --no-cache --update add fontconfig ttf-dejavu
-
         # Create user in root group
         adduser --uid 9031 --ingroup root --disabled-password --shell /bin/false ping
 
+        # altogether remove the package manager
         removePackageManager_alpine
         ;;
     centos | rhel)
