@@ -282,7 +282,15 @@ getCertificateOptions() {
 
     # get the CERTIFICATE_NICKNAME.
     #
-    # Look in the keystore file for a single cert of type PrivateKeyEntry
+    SELF_CERT_GEN="--generateSelfSignedCertificate"
+    case "${SELF_CERT_GEN}" in
+        "${certificateOptions}")
+            # Must either unset CERTIFICATE_NICKNAME or set to server-cert if generateSelfSignedCertificate is set.
+            echo_yellow 'Using self signed certificate, CERTIFICATE_NICKNAME set to "server-cert".' >&2
+            CERTIFICATE_NICKNAME="server-cert"
+            ;;
+    esac
+
     if test -z "${CERTIFICATE_NICKNAME}"; then
         CERTIFICATE_NICKNAME=$(
             keytool -list \
