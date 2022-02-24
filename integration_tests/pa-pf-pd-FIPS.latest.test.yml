@@ -41,8 +41,6 @@ services:
       #    JCEManager         => com.pingidentity.crypto.BCFIPSJCEManager
       #    CertificateService => com.pingidentity.crypto.BCFIPSCertificateServiceImpl
       - HSM_MODE=BCFIPS
-      - PF_LDAP_USERNAME=${PF_LDAP_USERNAME}
-      - PF_LDAP_PASSWORD=${PF_LDAP_PASSWORD}
     env_file:
       - /tmp/integration_tests.properties
     ulimits:
