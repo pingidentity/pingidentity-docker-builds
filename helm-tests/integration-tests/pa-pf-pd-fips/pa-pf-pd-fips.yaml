@@ -22,8 +22,6 @@ pingfederate-admin:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
     SERVER_PROFILE_PATH: FIPS-integration/pingfederate
     HSM_MODE: BCFIPS
-    PF_LDAP_USERNAME: ${PF_LDAP_USERNAME}
-    PF_LDAP_PASSWORD: ${PF_LDAP_PASSWORD}
   container:
     waitFor:
       pingdirectory:
@@ -35,8 +33,6 @@ pingfederate-engine:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
     SERVER_PROFILE_PATH: FIPS-integration/pingfederate
     HSM_MODE: BCFIPS
-    PF_LDAP_USERNAME: ${PF_LDAP_USERNAME}
-    PF_LDAP_PASSWORD: ${PF_LDAP_PASSWORD}
 
 pingaccess-admin:
   enabled: true

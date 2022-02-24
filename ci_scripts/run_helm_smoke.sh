@@ -162,6 +162,10 @@ _run_helm_test() {
         --helm-set-values testFramework.finalStep.image=${DEPS_REGISTRY}busybox \
         ${NS_OPT}"
 
+    if [ "${product}" == "pingaccess" ]; then
+        _cmd="${_cmd} --helm-set-values global.envs.PING_IDENTITY_PASSWORD=${PA_DEFAULT_PASSWORD}"
+    fi
+
     echo "Running: $_cmd"
 
     local _start
