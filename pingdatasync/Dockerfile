@@ -89,6 +89,33 @@ ENV SHIM=${SHIM} \
 #-- Defaults to /SECRETS_DIR/admin-user-password
     ADMIN_USER_PASSWORD_FILE= \
 
+#-- Location of the keystore file containing the server certificate.
+#-- If left undefined, the SECRETS_DIR will be checked for a keystore.
+#-- If that keystore does not exist, the server will generate a self-signed certificate.
+    KEYSTORE_FILE= \
+#-- Location of the pin file for the keystore defined in KEYSTORE_FILE.
+#-- If left undefined, the SECRETS_DIR will be checked for a pin file.
+#-- This value does not need to be defined when allowing the server to generate a
+#-- self-signed certificate.
+    KEYSTORE_PIN_FILE= \
+#-- Format of the keystore defined in KEYSTORE_FILE. One of "jks", "pkcs12",
+#-- "pem", or "bcfks" (in FIPS mode). If not defined, the keystore format will
+#-- be inferred based on the file extension of the KEYSTORE_FILE, defaulting to "jks".
+    KEYSTORE_TYPE= \
+#-- Location of the truststore file for the server.
+#-- If left undefined, the SECRETS_DIR will be checked for a truststore.
+#-- If that truststore does not exist, the server will generate a truststore, containing
+#-- its own certificate.
+    TRUSTSTORE_FILE= \
+#-- Location of the pin file for the truststore defined in TRUSTSTORE_FILE.
+#-- If left undefined, the SECRETS_DIR will be checked for a pin file.
+#-- This value does not need to be defined when allowing the server to generate a truststore.
+    TRUSTSTORE_PIN_FILE= \
+#-- Format of the truststore defined in TRUSTSTORE_FILE. One of "jks", "pkcs12",
+#-- "pem", or "bcfks" (in FIPS mode). If not defined, the truststore format will
+#-- be inferred based on the file extension of the TRUSTSTORE_FILE, defaulting to "jks".
+    TRUSTSTORE_TYPE= \
+
 #-- Directory for the profile used by the PingData manage-profile tool
     PD_PROFILE="${STAGING_DIR}/pd.profile" \
 
