@@ -91,12 +91,12 @@
         {
             "name": "apache-tomcat",
             "mapping": "apache-tomcat-${version}.zip",
-            "latestVersion": "9.0.58"
+            "latestVersion": "9.0.59"
         },
         {
             "name": "apache-jmeter",
             "mapping": "apache-jmeter-${version}.zip",
-            "latestVersion": "5.4.1"
+            "latestVersion": "5.4.3"
         },
         {
             "name": "pingintelligence",
