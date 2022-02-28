@@ -7,10 +7,10 @@ _osArch=$(uname -m)
 # If there is no Java, we'll pull down Liberica Standard JDK
 if ! type java > /dev/null 2> /dev/null; then
     #Modify the following variables to update Alpine and RHEL image's JDK.
-    JDK_VERSION="11.0.14+9"
-    alpine_x86_64_checksum="6b34e49e15d082b356553180294220498c3b26e7"
-    alpine_aarch64_checksum="e85baada70db5ff59a762bfd1481cf4c06b4f0b8"
-    redhat_x86_64_checksum="c81986621551d46ffa97da5147e3acc1d6923234"
+    JDK_VERSION="11.0.14.1+1"
+    alpine_x86_64_checksum="48427d73a51b0954c903cf51eeaa25179eeff263"
+    alpine_aarch64_checksum="7870df394b872321d2f8049f5a6b090143417b8d"
+    redhat_x86_64_checksum="ddc7896d7002acdcfe1753612232090dcc6329f8"
 
     #Use pruned modules list for Liberica Standard JDK
     modules_list="java.base,java.compiler,java.datatransfer,java.desktop,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml.crypto,java.xml,jdk.accessibility,jdk.aot,jdk.attach,jdk.charsets,jdk.compiler,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.dynalink,jdk.editpad,jdk.hotspot.agent,jdk.httpserver,jdk.internal.ed,jdk.internal.jvmstat,jdk.internal.le,jdk.internal.opt,jdk.internal.vm.ci,jdk.internal.vm.compiler,jdk.internal.vm.compiler.management,jdk.jartool,jdk.javadoc,jdk.jcmd,jdk.jconsole,jdk.jdeps,jdk.jdi,jdk.jdwp.agent,jdk.jfr,jdk.jlink,jdk.jshell,jdk.jsobject,jdk.jstatd,jdk.localedata,jdk.management.agent,jdk.management.jfr,jdk.management,jdk.naming.dns,jdk.naming.ldap,jdk.naming.rmi,jdk.net,jdk.pack,jdk.rmic,jdk.scripting.nashorn,jdk.scripting.nashorn.shell,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported.desktop,jdk.unsupported,jdk.xml.dom,jdk.zipfs"
