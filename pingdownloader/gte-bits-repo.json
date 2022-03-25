@@ -14,7 +14,7 @@
         {
             "name": "ldapsdk",
             "mapping": "unboundid-ldapsdk-${version}.zip",
-            "latestVersion": "6.0.3",
+            "latestVersion": "6.0.4",
             "url": "https://github.com/pingidentity/ldapsdk/releases/download/${version}/"
         },
         {
@@ -32,13 +32,13 @@
         {
             "name": "pingdatametrics",
             "mapping": "PingDataMetrics-${version}.zip",
-            "latestVersion": "9.0.0.0",
+            "latestVersion": "9.0.0.1",
             "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdatasync",
             "mapping": "PingDataSync-${version}.zip",
-            "latestVersion": "9.0.0.0",
+            "latestVersion": "9.0.0.1",
             "licenseFile": "PingDirectory.lic"
         },
         {
@@ -50,7 +50,7 @@
         {
             "name": "pingauthorize",
             "mapping": "PingAuthorize-${version}.zip",
-            "latestVersion": "9.0.0.0",
+            "latestVersion": "9.0.0.1",
             "licenseFile": "PingAuthorize.lic"
         },
         {
@@ -62,19 +62,19 @@
         {
             "name": "pingauthorizepap",
             "mapping": "PingAuthorize-PAP-${version}.zip",
-            "latestVersion": "9.0.0.0",
+            "latestVersion": "9.0.0.1",
             "licenseFile": "PingAuthorize.lic"
         },
         {
             "name": "pingdirectory",
             "mapping": "PingDirectory-${version}.zip",
-            "latestVersion": "9.0.0.0",
+            "latestVersion": "9.0.0.1",
             "licenseFile": "PingDirectory.lic"
         },
         {
             "name": "pingdirectoryproxy",
             "mapping": "PingDirectoryProxy-${version}.zip",
-            "latestVersion": "9.0.0.0",
+            "latestVersion": "9.0.0.1",
             "licenseFile": "PingDirectory.lic"
         },
         {
@@ -91,7 +91,7 @@
         {
             "name": "apache-tomcat",
             "mapping": "apache-tomcat-${version}.zip",
-            "latestVersion": "9.0.59"
+            "latestVersion": "9.0.60"
         },
         {
             "name": "apache-jmeter",

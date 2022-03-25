@@ -3,10 +3,10 @@
     "versions": [
         {
             "version": "11.1.0-Beta",
-            "preferredShim": "alpine:3.15",
+            "preferredShim": "alpine:3.15.2",
             "shims": [
                 {
-                    "shim": "alpine:3.15",
+                    "shim": "alpine:3.15.2",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
@@ -39,10 +39,10 @@
         },
         {
             "version": "11.0.1",
-            "preferredShim": "alpine:3.15",
+            "preferredShim": "alpine:3.15.2",
             "shims": [
                 {
-                    "shim": "alpine:3.15",
+                    "shim": "alpine:3.15.2",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
@@ -80,11 +80,11 @@
             ]
         },
         {
-            "version": "10.3.5",
-            "preferredShim": "alpine:3.15",
+            "version": "10.3.6",
+            "preferredShim": "alpine:3.15.2",
             "shims": [
                 {
-                    "shim": "alpine:3.15",
+                    "shim": "alpine:3.15.2",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
