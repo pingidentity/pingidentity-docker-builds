@@ -83,7 +83,9 @@ ENV SHIM=${SHIM} \
     REST_API_HOSTNAME="localhost" \
 
 #-- Define shared secret between PAZ and the Policy Editor
-    DECISION_POINT_SHARED_SECRET="2FederateM0re"
+    DECISION_POINT_SHARED_SECRET="2FederateM0re" \
+#-- When set to `false`, disables default HTTP API caching in the Policy Manager, Trust Framework and Test Suite
+    PING_ENABLE_API_HTTP_CACHE=true
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
