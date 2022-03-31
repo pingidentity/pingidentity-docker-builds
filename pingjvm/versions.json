@@ -1,10 +1,10 @@
 {
     "versions":[
         {
-            "shims": ["alpine","alpine:latest","alpine:3.15.2"],
+            "shims": ["alpine","alpine:latest","alpine:3.15.3"],
             "id": "al11",
             "version": "11",
-            "from": "alpine:3.15.2",
+            "from": "alpine:3.15.3",
             "archs": ["x86_64","aarch64"]
         },
         {
@@ -15,7 +15,7 @@
             "archs": ["x86_64"]
         },
         {
-            "shims": ["alpine","alpine:latest","alpine:3.15.2"],
+            "shims": ["alpine","alpine:latest","alpine:3.15.3"],
             "id": "alnoj",
             "version": "0",
             "from": "scratch",
