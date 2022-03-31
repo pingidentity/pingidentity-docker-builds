@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "0b4c02f7-6309-4091-8810-117ce475eccb",
-		"name": "pa-pf-pd Copy",
+		"_postman_id": "d6648ab2-dcc9-469a-815b-889e78ca9c15",
+		"name": "pa-pf-pd redirectless Copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -1474,121 +1474,25 @@
 			"response": []
 		},
 		{
-			"name": "PF Admin API CHECK PingFederate has PingID adapter",
+			"name": "PF OAuth code-flow leg-1 Copy",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"// Checks to see if the server actually responded",
-							"console.log(\"connection successful\");",
 							"pm.test(\"response is ok\", function(){",
 							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"response is not empty\", function(){",
-							"    pm.response.to.have.body();",
 							"});",
 							"",
 							"pm.test(\"response is JSON\", function(){",
 							"    pm.response.to.be.json;",
 							"});",
 							"",
-							"var jsonData = JSON.parse(responseBody);",
-							"",
-							"pm.test(\"id key is present\",function(){",
-							"    pm.expect(jsonData[\"id\"]).to.exist;",
-							"});",
-							"",
-							"pm.test(\"ID is as expected\",function(){",
-							"    pm.expect(jsonData[\"id\"]).to.be.equal(\"com.pingidentity.adapters.pingid.PingIDAdapter\");",
-							"});",
-							"",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"var _host = pm.variables.get(\"PF_ADMIN_PRIVATE_HOSTNAME\");",
-							"var _port = pm.variables.get(\"PF_ADMIN_PRIVATE_PORT_HTTPS\");",
-							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "basic",
-					"basic": [
-						{
-							"key": "password",
-							"value": "{{admin_pwd}}",
-							"type": "string"
-						},
-						{
-							"key": "username",
-							"value": "{{admin_user}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [
-					{
-						"key": "X-XSRF-Header",
-						"value": "pingfederate",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "https://{{PF_ADMIN_PRIVATE_HOSTNAME}}:{{PF_ADMIN_PRIVATE_PORT_HTTPS}}/pf-admin-api/v1/idp/adapters/descriptors/com.pingidentity.adapters.pingid.PingIDAdapter",
-					"protocol": "https",
-					"host": [
-						"{{PF_ADMIN_PRIVATE_HOSTNAME}}"
-					],
-					"port": "{{PF_ADMIN_PRIVATE_PORT_HTTPS}}",
-					"path": [
-						"pf-admin-api",
-						"v1",
-						"idp",
-						"adapters",
-						"descriptors",
-						"com.pingidentity.adapters.pingid.PingIDAdapter"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "PF OAuth code-flow leg-1",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"response is ok\", function(){",
-							"    pm.response.to.have.status(302);",
-							"});",
-							"",
-							"pm.test(\"response is empty\", function(){",
-							"    pm.response.to.not.have.body();",
-							"});",
-							"",
+							"var jsonData = pm.response.json();",
 							"pm.test(\"OIDC AuthZ Code returned\", function () {",
-							"    var loc = pm.response.headers.get(\"location\").split(\"=\");",
-							"    var _authzCode = loc[1];",
-							"    pm.expect(_authzCode).to.not.equal(undefined);",
-							"    pm.expect(_authzCode).to.not.equal(null);",
-							"    pm.expect(_authzCode).to.not.be.empty;",
-							"",
+							"    pm.environment.set(\"flowid\",jsonData[\"id\"]);",
 							"    // Parse out the Code value",
-							"    pm.environment.set(\"_authzCode\", _authzCode);",
+							"    //pm.environment.set(\"_authzCode\", _authzCode);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1596,7 +1500,7 @@
 				}
 			],
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [
 					{
 						"key": "Content-Type",
@@ -1605,23 +1509,8 @@
 						"type": "text"
 					}
 				],
-				"body": {
-					"mode": "urlencoded",
-					"urlencoded": [
-						{
-							"key": "pf.username",
-							"value": "{{regular_user}}",
-							"type": "text"
-						},
-						{
-							"key": "pf.pass",
-							"value": "{{regular_pwd}}",
-							"type": "text"
-						}
-					]
-				},
 				"url": {
-					"raw": "https://{{PF_ENGINE_PRIVATE_HOSTNAME}}:{{PF_ENGINE_PRIVATE_PORT_HTTPS}}/as/authorization.oauth2?response_type=code&client_id=ac_client&redirect_uri=https://{{PF_ENGINE_PUBLIC_HOSTNAME}}:{{PF_ENGINE_PUBLIC_PORT_HTTPS}}/OAuthPlayground/authorization_code/callback",
+					"raw": "https://{{PF_ENGINE_PRIVATE_HOSTNAME}}:{{PF_ENGINE_PRIVATE_PORT_HTTPS}}/as/authorization.oauth2?client_id=ac_client&response_type=token&response_mode=pi.flow",
 					"protocol": "https",
 					"host": [
 						"{{PF_ENGINE_PRIVATE_HOSTNAME}}"
@@ -1633,16 +1522,16 @@
 					],
 					"query": [
 						{
-							"key": "response_type",
-							"value": "code"
-						},
-						{
 							"key": "client_id",
 							"value": "ac_client"
 						},
 						{
-							"key": "redirect_uri",
-							"value": "https://{{PF_ENGINE_PUBLIC_HOSTNAME}}:{{PF_ENGINE_PUBLIC_PORT_HTTPS}}/OAuthPlayground/authorization_code/callback"
+							"key": "response_type",
+							"value": "token"
+						},
+						{
+							"key": "response_mode",
+							"value": "pi.flow"
 						}
 					]
 				}
@@ -1650,7 +1539,7 @@
 			"response": []
 		},
 		{
-			"name": "PF OAuth code-flow leg-2",
+			"name": "PF OAuth code-flow leg-2 Copy",
 			"event": [
 				{
 					"listen": "test",
@@ -1674,17 +1563,24 @@
 							"    pm.response.to.be.json;",
 							"});",
 							"",
+							"responseJson = JSON.parse(responseBody);",
 							"var jsonData = pm.response.json();",
 							"pm.test(\"Tokens returned\", function () {",
-							"    pm.expect(jsonData[\"access_token\"]).not.equal(null);",
-							"    pm.expect(jsonData[\"access_token\"]).not.empty;",
-							"     pm.environment.set(\"accessToken\",jsonData[\"access_token\"]);",
+							"    pm.expect(responseJson.authorizeResponse.access_token).not.equal(null);",
+							"    pm.expect(responseJson.authorizeResponse.access_token).not.equal(null);",
+							"    pm.expect(responseJson.authorizeResponse.access_token).not.empty;",
+							"     pm.environment.set(\"accessToken\",responseJson.authorizeResponse.access_token);",
 							"});"
 						],
 						"type": "text/javascript"
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
 			"request": {
 				"auth": {
 					"type": "basic",
@@ -1702,31 +1598,39 @@
 					]
 				},
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "X-XSRF-Header",
+						"value": "PingFederate",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/vnd.pingidentity.checkUsernamePassword+json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"{{regular_user}}\",\n  \"password\": \"{{regular_pwd}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "https://{{PF_ENGINE_PRIVATE_HOSTNAME}}:{{PF_ENGINE_PRIVATE_PORT_HTTPS}}/as/token.oauth2?grant_type=authorization_code&redirect_uri=https://{{PF_ENGINE_PUBLIC_HOSTNAME}}:{{PF_ENGINE_PUBLIC_PORT_HTTPS}}/OAuthPlayground/authorization_code/callback&code={{_authzCode}}",
+					"raw": "https://{{PF_ENGINE_PRIVATE_HOSTNAME}}:{{PF_ENGINE_PRIVATE_PORT_HTTPS}}/pf-ws/authn/flows/{{flowid}}",
 					"protocol": "https",
 					"host": [
 						"{{PF_ENGINE_PRIVATE_HOSTNAME}}"
 					],
 					"port": "{{PF_ENGINE_PRIVATE_PORT_HTTPS}}",
 					"path": [
-						"as",
-						"token.oauth2"
-					],
-					"query": [
-						{
-							"key": "grant_type",
-							"value": "authorization_code"
-						},
-						{
-							"key": "redirect_uri",
-							"value": "https://{{PF_ENGINE_PUBLIC_HOSTNAME}}:{{PF_ENGINE_PUBLIC_PORT_HTTPS}}/OAuthPlayground/authorization_code/callback"
-						},
-						{
-							"key": "code",
-							"value": "{{_authzCode}}"
-						}
+						"pf-ws",
+						"authn",
+						"flows",
+						"{{flowid}}"
 					]
 				}
 			},
@@ -1792,6 +1696,75 @@
 					"path": [
 						"anything",
 						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PA GET  through PD REST API Copy 2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var _runId = Math.floor(Math.random()*100000);",
+							"pm.variables.set(\"_runId\",_runId);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"",
+							"    pm.test(\"response is JSON\", function(){",
+							"        pm.response.to.be.json;",
+							"    });",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Ping-Build-Run-Id",
+						"type": "text",
+						"value": "{{_runId}}"
+					}
+				],
+				"url": {
+					"raw": "https://{{PA_ENGINE_PRIVATE_HOSTNAME}}:{{PA_ENGINE_PRIVATE_PORT_HTTPS}}/directory/v1/uid=postman.user.0,ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{PA_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PA_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=postman.user.0,ou=People,{{_base_dn}}"
 					]
 				}
 			},

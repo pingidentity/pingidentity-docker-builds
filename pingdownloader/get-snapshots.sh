@@ -61,7 +61,7 @@ _getURLForProduct() {
 _getLatestSnapshotVersionForProduct() {
     case "${1}" in
         pingfederate)
-            _curl "$(_getURLForProduct "${1}")/artifact/pf-server/HuronPeak/assembly/complete/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
+            _curl "$(_getURLForProduct "${1}")/artifact/pf-server/HuronPeak/assembly/base/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
             ;;
         pingaccess | pingcentral)
             _curl "$(_getURLForProduct "${1}")/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/metadata/versioning/latest)' -
@@ -100,7 +100,7 @@ _getLatestSnapshotImageForProductVersionID() {
             _curlSafeFile ${TARGET_FILE} -H "PRIVATE-TOKEN: ${PING_IDENTITY_GITLAB_TOKEN}" "https://${INTERNAL_GITLAB_URL}/api/v4/projects/2990/jobs/artifacts/master/raw/distribution/target/ping-central-${2}.zip?job=verify-master-job"
             ;;
         pingfederate)
-            _curlSafeFile "${TARGET_FILE}" "$(_getURLForProduct "${1}")/artifact/pf-server/HuronPeak/assembly/complete/target/${1}-${2}-${3}.zip"
+            _curlSafeFile "${TARGET_FILE}" "$(_getURLForProduct "${1}")/artifact/pf-server/HuronPeak/assembly/base/target/${1}-base-${2}.zip"
             ;;
         pingaccess)
             _curlSafeFile "${TARGET_FILE}" "$(_getURLForProduct "${1}")/${2}/${1}-${2%-SNAPSHOT}-${3}.zip"
