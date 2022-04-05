@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "87e8d868-9b4c-4a19-9674-6d78f3414d55",
+		"_postman_id": "06d376ca-6d3c-4d2f-84d4-63539f4c82ef",
 		"name": "pa-pf-pd-fips-helm",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1477,23 +1477,18 @@
 					"script": {
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
-							"    pm.response.to.have.status(302);",
+							"    pm.response.to.have.status(200);",
 							"});",
 							"",
-							"pm.test(\"response is empty\", function(){",
-							"    pm.response.to.not.have.body();",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
 							"});",
 							"",
+							"var jsonData = pm.response.json();",
 							"pm.test(\"OIDC AuthZ Code returned\", function () {",
-							"    var loc = pm.response.headers.get(\"location\").split(\"=\");",
-							"    var _authzCode = loc[1];",
-							"    pm.expect(_authzCode).to.not.equal(undefined);",
-							"    pm.expect(_authzCode).to.not.equal(null);",
-							"    pm.expect(_authzCode).to.not.be.empty;",
-							"",
+							"    pm.environment.set(\"flowid\",jsonData[\"id\"]);",
 							"    // Parse out the Code value",
-							"    pm.environment.set(\"_authzCode\", _authzCode);",
-							"    console.log(\"AuthZ Code:\", _authzCode);",
+							"    //pm.environment.set(\"_authzCode\", _authzCode);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1501,7 +1496,7 @@
 				}
 			],
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [
 					{
 						"key": "Content-Type",
@@ -1510,23 +1505,8 @@
 						"type": "text"
 					}
 				],
-				"body": {
-					"mode": "urlencoded",
-					"urlencoded": [
-						{
-							"key": "pf.username",
-							"value": "{{regular_user}}",
-							"type": "text"
-						},
-						{
-							"key": "pf.pass",
-							"value": "{{regular_pwd}}",
-							"type": "text"
-						}
-					]
-				},
 				"url": {
-					"raw": "https://{{PF_ENGINE_PRIVATE_HOSTNAME}}:{{PF_ENGINE_PRIVATE_PORT_HTTPS}}/as/authorization.oauth2?response_type=code&client_id=ac_client&redirect_uri=https://{{PF_ENGINE_PUBLIC_HOSTNAME}}:{{PF_ENGINE_PUBLIC_PORT_HTTPS}}/OAuthPlayground/authorization_code/callback",
+					"raw": "https://{{PF_ENGINE_PRIVATE_HOSTNAME}}:{{PF_ENGINE_PRIVATE_PORT_HTTPS}}/as/authorization.oauth2?client_id=ac_client&response_type=token&response_mode=pi.flow",
 					"protocol": "https",
 					"host": [
 						"{{PF_ENGINE_PRIVATE_HOSTNAME}}"
@@ -1538,16 +1518,16 @@
 					],
 					"query": [
 						{
-							"key": "response_type",
-							"value": "code"
-						},
-						{
 							"key": "client_id",
 							"value": "ac_client"
 						},
 						{
-							"key": "redirect_uri",
-							"value": "https://{{PF_ENGINE_PUBLIC_HOSTNAME}}:{{PF_ENGINE_PUBLIC_PORT_HTTPS}}/OAuthPlayground/authorization_code/callback"
+							"key": "response_type",
+							"value": "token"
+						},
+						{
+							"key": "response_mode",
+							"value": "pi.flow"
 						}
 					]
 				}
@@ -1579,20 +1559,24 @@
 							"    pm.response.to.be.json;",
 							"});",
 							"",
+							"responseJson = JSON.parse(responseBody);",
 							"var jsonData = pm.response.json();",
 							"pm.test(\"Tokens returned\", function () {",
-							"    pm.expect(jsonData[\"access_token\"]).not.equal(null);",
-							"    pm.expect(jsonData[\"access_token\"]).not.empty;",
-							"     pm.environment.set(\"accessToken\",jsonData[\"access_token\"]);",
-							"    console.log(\"Access Token: \", parseJwt(jsonData.access_token));",
-							"    console.log(\"--------------\");",
-							"});",
-							""
+							"    pm.expect(responseJson.authorizeResponse.access_token).not.equal(null);",
+							"    pm.expect(responseJson.authorizeResponse.access_token).not.equal(null);",
+							"    pm.expect(responseJson.authorizeResponse.access_token).not.empty;",
+							"     pm.environment.set(\"accessToken\",responseJson.authorizeResponse.access_token);",
+							"});"
 						],
 						"type": "text/javascript"
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
 			"request": {
 				"auth": {
 					"type": "basic",
@@ -1610,31 +1594,39 @@
 					]
 				},
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "X-XSRF-Header",
+						"value": "PingFederate",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/vnd.pingidentity.checkUsernamePassword+json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"{{regular_user}}\",\n  \"password\": \"{{regular_pwd}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "https://{{PF_ENGINE_PRIVATE_HOSTNAME}}:{{PF_ENGINE_PRIVATE_PORT_HTTPS}}/as/token.oauth2?grant_type=authorization_code&redirect_uri=https://{{PF_ENGINE_PUBLIC_HOSTNAME}}:{{PF_ENGINE_PUBLIC_PORT_HTTPS}}/OAuthPlayground/authorization_code/callback&code={{_authzCode}}",
+					"raw": "https://{{PF_ENGINE_PRIVATE_HOSTNAME}}:{{PF_ENGINE_PRIVATE_PORT_HTTPS}}/pf-ws/authn/flows/{{flowid}}",
 					"protocol": "https",
 					"host": [
 						"{{PF_ENGINE_PRIVATE_HOSTNAME}}"
 					],
 					"port": "{{PF_ENGINE_PRIVATE_PORT_HTTPS}}",
 					"path": [
-						"as",
-						"token.oauth2"
-					],
-					"query": [
-						{
-							"key": "grant_type",
-							"value": "authorization_code"
-						},
-						{
-							"key": "redirect_uri",
-							"value": "https://{{PF_ENGINE_PUBLIC_HOSTNAME}}:{{PF_ENGINE_PUBLIC_PORT_HTTPS}}/OAuthPlayground/authorization_code/callback"
-						},
-						{
-							"key": "code",
-							"value": "{{_authzCode}}"
-						}
+						"pf-ws",
+						"authn",
+						"flows",
+						"{{flowid}}"
 					]
 				}
 			},
@@ -1700,6 +1692,75 @@
 					"path": [
 						"anything",
 						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PA GET  through PD REST API",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var _runId = Math.floor(Math.random()*100000);",
+							"pm.variables.set(\"_runId\",_runId);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"",
+							"    pm.test(\"response is JSON\", function(){",
+							"        pm.response.to.be.json;",
+							"    });",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Ping-Build-Run-Id",
+						"type": "text",
+						"value": "{{_runId}}"
+					}
+				],
+				"url": {
+					"raw": "https://{{PA_ENGINE_PRIVATE_HOSTNAME}}:{{PA_ENGINE_PRIVATE_PORT_HTTPS}}/directory/v1/uid=postman.user.0,ou=People,{{_base_dn}}",
+					"protocol": "https",
+					"host": [
+						"{{PA_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PA_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"directory",
+						"v1",
+						"uid=postman.user.0,ou=People,{{_base_dn}}"
 					]
 				}
 			},
