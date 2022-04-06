@@ -71,12 +71,6 @@
                         }
                     ]
                 }
-            ],
-            "dependencies": [
-                {
-                    "product": "pf-pingone-mfa-integration-kit",
-                    "version": "1.6"
-                }
             ]
         },
         {

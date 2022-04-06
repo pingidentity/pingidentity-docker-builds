@@ -84,11 +84,6 @@
             "licenseFile": "pingfederate.lic"
         },
         {
-            "name": "pf-pingone-mfa-integration-kit",
-            "mapping": "pf-pingone-mfa-integration-kit-${version}.zip",
-            "latestVersion": "1.6"
-        },
-        {
             "name": "apache-tomcat",
             "mapping": "apache-tomcat-${version}.zip",
             "latestVersion": "9.0.60"
