@@ -42,11 +42,6 @@ ARG VERBOSE
 # to improve bootstrap time and reduce pressure on backhaul 
 ARG MODE=standalone
 
-# pf-pingone-mfa-integration-kit dependency variables
-ARG DEPENDENCY_0_PRODUCT
-ARG DEPENDENCY_0_VERSION
-
-
 COPY tmp /tmp
 
 # Adding the line below to the unzip command avoids extracting the upgrade utility
@@ -67,23 +62,8 @@ RUN /get-bits.sh --product ${PRODUCT} \
         -x *.bat \
         -x *.dll \
         -x *.exe \
-    && rm /tmp/product.zip \
-    && mkdir -p /opt/out/instance/server/default/data \
-    && ( \
-        test -n "${DEPENDENCY_0_PRODUCT}" \
-        && test -n "${DEPENDENCY_0_VERSION}" \
-        && /get-bits.sh --product ${DEPENDENCY_0_PRODUCT} \
-            --version ${DEPENDENCY_0_VERSION} \
-            --devops-user ${DEVOPS_USER} \
-            --devops-key ${DEVOPS_KEY} \
-            --devops-app "pipeline-build-${PRODUCT}-${VERSION}" \
-            --verify-gpg-signature \
-        && rm /tmp/${PRODUCT}-*/${PRODUCT}/server/default/deploy/pf-pingone-mfa-adapter-*.jar \
-        && unzip -q /tmp/product.zip -d /tmp/ \
-        && cp -R /tmp/pf-pingone-mfa-integration-kit/dist/pingfederate/server/default/ /tmp/${PRODUCT}-*/${PRODUCT}/server/ \
-        || : \
-        ) \
-    && mv /tmp/${PRODUCT}-*/${PRODUCT} /opt/server
+    && mv /tmp/${PRODUCT}-*/${PRODUCT} /opt/server \
+    && mkdir -p /opt/out/instance/server/default/data
 
 FROM scratch
 # Get the product staged above into one layer
