@@ -199,6 +199,14 @@ _validateCertificateOptions() {
 }
 
 #
+# Checks if the product is PingAuthorize-PAP, which requires
+# slightly different certificate options.
+#
+_isPingAuthorizePap() {
+    test "${PING_PRODUCT}" = "PingAuthorize-PAP"
+}
+
+#
 # Creates a set of certificate options used during the setup and restart of a
 # PingData product
 #
@@ -221,34 +229,60 @@ _validateCertificateOptions() {
 #   certificate nickname used in keystore
 #     --certNickname {nickname}
 getCertificateOptions() {
+
     # Validate keystore options
     _validateCertificateOptions keystore
-    _validateCertificateOptions truststore
+
+    # pingauthorizepap does not consume truststore options
+    if ! _isPingAuthorizePap; then
+        _validateCertificateOptions truststore
+    fi
 
     # Create the certificate options
     if test -z "${KEYSTORE_FILE}"; then
         certificateOptions="--generateSelfSignedCertificate"
     else
-        case "$(toLower "${KEYSTORE_TYPE}")" in
-            pkcs12)
-                certificateOptions="--usePkcs12KeyStore ${KEYSTORE_FILE}"
-                ;;
-            jks)
-                certificateOptions="--useJavaKeyStore ${KEYSTORE_FILE}"
-                ;;
-            bcfks)
-                certificateOptions="--useBCFKSKeystore ${KEYSTORE_FILE}"
-                ;;
-            pem)
-                certificateOptions="--certificatePrivateKeyPEMFile ${KEYSTORE_FILE}"
-                ;;
-            *)
-                echo_red "The provided value [${KEYSTORE_TYPE}] for variable KEYSTORE_TYPE is not supported"
-                exit 75
-                ;;
-        esac
+        if _isPingAuthorizePap; then
+            case "$(toLower "${KEYSTORE_TYPE}")" in
+                pkcs12)
+                    certificateOptions="--pkcs12KeyStorePath ${KEYSTORE_FILE}"
+                    ;;
+                jks)
+                    certificateOptions="--javaKeyStorePath ${KEYSTORE_FILE}"
+                    ;;
+                *)
+                    echo_red "The provided value [${KEYSTORE_TYPE}] for variable KEYSTORE_TYPE is not supported"
+                    exit 75
+                    ;;
+            esac
+        else
+            case "$(toLower "${KEYSTORE_TYPE}")" in
+                pkcs12)
+                    certificateOptions="--usePkcs12KeyStore ${KEYSTORE_FILE}"
+                    ;;
+                jks)
+                    certificateOptions="--useJavaKeyStore ${KEYSTORE_FILE}"
+                    ;;
+                bcfks)
+                    certificateOptions="--useBCFKSKeystore ${KEYSTORE_FILE}"
+                    ;;
+                pem)
+                    certificateOptions="--certificatePrivateKeyPEMFile ${KEYSTORE_FILE}"
+                    ;;
+                *)
+                    echo_red "The provided value [${KEYSTORE_TYPE}] for variable KEYSTORE_TYPE is not supported"
+                    exit 75
+                    ;;
+            esac
+        fi
         if test -n "${KEYSTORE_PIN_FILE}"; then
-            certificateOptions="${certificateOptions} --keyStorePasswordFile ${KEYSTORE_PIN_FILE}"
+
+            # pingauthorizepap consumes the keystore pin file through an environment variable in start-server.
+            if _isPingAuthorizePap; then
+                certificateOptions="${certificateOptions} --keystorePassword 2FederateM0re"
+            else
+                certificateOptions="${certificateOptions} --keyStorePasswordFile ${KEYSTORE_PIN_FILE}"
+            fi
         elif test "$(toLower "${KEYSTORE_TYPE}")" != "pem"; then
             echo_red "KEYSTORE_PIN_FILE is required if a KEYSTORE_FILE is provided."
             exit 75
@@ -256,7 +290,7 @@ getCertificateOptions() {
     fi
 
     # Add the truststore certificate options
-    if test -n "${TRUSTSTORE_FILE}"; then
+    if test -n "${TRUSTSTORE_FILE}" && ! _isPingAuthorizePap; then
         case "$(toLower "${TRUSTSTORE_TYPE}")" in
             pkcs12)
                 certificateOptions="${certificateOptions} --usePkcs12TrustStore ${TRUSTSTORE_FILE}"
@@ -276,7 +310,7 @@ getCertificateOptions() {
                 ;;
         esac
     fi
-    if test -n "${TRUSTSTORE_PIN_FILE}"; then
+    if test -n "${TRUSTSTORE_PIN_FILE}" && ! _isPingAuthorizePap; then
         certificateOptions="${certificateOptions} --trustStorePasswordFile ${TRUSTSTORE_PIN_FILE}"
     fi
 
@@ -288,6 +322,11 @@ getCertificateOptions() {
             # Must either unset CERTIFICATE_NICKNAME or set to server-cert if generateSelfSignedCertificate is set.
             echo_yellow 'Using self signed certificate, CERTIFICATE_NICKNAME set to "server-cert".' >&2
             CERTIFICATE_NICKNAME="server-cert"
+            ;;
+        *)
+            if _isPingAuthorizePap; then
+                certificateOptions="${certificateOptions} --certNickname ${CERTIFICATE_NICKNAME}"
+            fi
             ;;
     esac
 
@@ -306,7 +345,9 @@ getCertificateOptions() {
         test -z "${CERTIFICATE_NICKNAME}" && CERTIFICATE_NICKNAME="server-cert"
     fi
 
-    certificateOptions="${certificateOptions} --certNickname ${CERTIFICATE_NICKNAME}"
+    if ! _isPingAuthorizePap; then
+        certificateOptions="${certificateOptions} --certNickname ${CERTIFICATE_NICKNAME}"
+    fi
     echo "${certificateOptions}"
 }
 
