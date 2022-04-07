@@ -22,3 +22,11 @@ check_external_url_oidc() {
         echo_yellow "Current PING_EXTERNAL_BASE_URL value: ${PING_EXTERNAL_BASE_URL}"
     fi
 }
+
+# Check if the provided argument contains uppercase letters.
+contains_uppercase() {
+    test "$(echo "${1}" | awk \
+        'BEGIN {found=1}
+$0~/[A-Z]/ {found=0}
+END {printf "%d",found}')" -eq 0
+}
