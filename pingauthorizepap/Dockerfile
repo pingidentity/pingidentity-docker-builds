@@ -76,19 +76,27 @@ ENV SHIM=${SHIM} \
 #-- the container starts with the server in the background. This is the
 #-- debug start flow for the container
     STARTUP_BACKGROUND_OPTS="" \
-#-- Location of the keystore file containing the server certificate.
-#-- If left undefined, the SECRETS_DIR will be checked for a keystore.
-#-- If that keystore does not exist, the server will generate a self-signed certificate.
-    KEYSTORE_FILE= \
-#-- Location of the pin file for the keystore defined in KEYSTORE_FILE.
-#-- If left undefined, the SECRETS_DIR will be checked for a pin file.
-#-- This value does not need to be defined when allowing the server to generate a
-#-- self-signed certificate.
-    KEYSTORE_PIN_FILE= \
-#-- Format of the keystore defined in KEYSTORE_FILE. One of "jks" or "pkcs12".
-#-- If not defined, the keystore format will be inferred based on the file
-#-- extension of the KEYSTORE_FILE, defaulting to "jks".
-    KEYSTORE_TYPE= \
+#
+# The following environment variables should be uncommented when the
+# PingAuthorize 9.1-GA release occurs. That release includes some
+# setup and start-server changes enabling KEYSTORE_FILE, KEYSTORE_PIN_FILE
+# and KEYSTORE_TYPE. The commentary should also be updated to include the
+# document generation markup, similar to the rest of the environment
+# variables.
+#
+# Location of the keystore file containing the server certificate.
+# If left undefined, the SECRETS_DIR will be checked for a keystore.
+# If that keystore does not exist, the server will generate a self-signed certificate.
+#    KEYSTORE_FILE= \
+# Location of the pin file for the keystore defined in KEYSTORE_FILE.
+# If left undefined, the SECRETS_DIR will be checked for a pin file.
+# This value does not need to be defined when allowing the server to generate a
+# self-signed certificate.
+#    KEYSTORE_PIN_FILE= \
+# Format of the keystore defined in KEYSTORE_FILE. One of "jks" or "pkcs12".
+# If not defined, the keystore format will be inferred based on the file
+# extension of the KEYSTORE_FILE, defaulting to "jks".
+#    KEYSTORE_TYPE= \
 #-- Files tailed once container has started
     TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/pingauthorize-pap.log ${SERVER_ROOT_DIR}/logs/setup.log ${SERVER_ROOT_DIR}/logs/start-server.log ${SERVER_ROOT_DIR}/logs/stop-server.log" \
 
