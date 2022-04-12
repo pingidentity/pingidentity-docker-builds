@@ -60,15 +60,13 @@ arm.b.pingcentral:
 intel.t.pingcentral:
   stage: test.smoke
   script:
-    - ci_scripts/run_smoke.sh --product pingcentral
+    - ci_scripts/run_helm_smoke.sh --product pingcentral
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingcentral(?:$|,)/i'
       when: on_success
     - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/' #TODO Remove this when this job uses run_helm_smoke.sh
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
@@ -89,15 +87,13 @@ arm.t.pingcentral:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_smoke.sh --product pingcentral
+    - ci_scripts/run_helm_smoke.sh --product pingcentral
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingcentral(?:$|,)/i'
       when: on_success
     - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/' #TODO Remove this when this job uses run_helm_smoke.sh
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
