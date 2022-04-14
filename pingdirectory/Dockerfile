@@ -131,10 +131,6 @@ ENV SHIM=${SHIM} \
 #-- remove-defunct-server
     RETRY_TIMEOUT_SECONDS=180 \
 
-#-- Flag to disable schema replication. In a DevOps environment, schema
-#-- comes from configuration. So it does not need to be replicated.
-    DISABLE_SCHEMA_REPLICATION=false \
-
 #-- Directory for the profile used by the PingData manage-profile tool
     PD_PROFILE="${STAGING_DIR}/pd.profile" \
 
@@ -152,7 +148,12 @@ ENV SHIM=${SHIM} \
 
 #-- Setting this variable to true speeds up server startup time by
 #-- skipping an unnecessary JVM check.
-    UNBOUNDID_SKIP_START_PRECHECK_NODETACH=true
+    UNBOUNDID_SKIP_START_PRECHECK_NODETACH=true \
+
+#-- Base DNs to include when enabling replication, in addition to the
+#-- always-included USER_BASE_DN. Multiple base DNs can be specified here,
+#-- separated by a `;` character
+    REPLICATION_BASE_DNS=
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
