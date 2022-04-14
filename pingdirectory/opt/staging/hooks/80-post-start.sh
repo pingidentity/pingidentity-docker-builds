@@ -41,6 +41,19 @@ printf "
 #############################################
 " "Topology Master Server" "POD Server" "${MASTER_TOPOLOGY_HOSTNAME}:${MASTER_TOPOLOGY_LDAPS_PORT}" "${POD_HOSTNAME}:${_podReplicationPort:?}"
 
+# Use positional arguments to build --baseDN args for dsreplication
+set -- --baseDN "${USER_BASE_DN}"
+if test -n "${REPLICATION_BASE_DNS}"; then
+    while test "${REPLICATION_BASE_DNS}" != "${_iter}"; do
+        # Extract the base DN from start of string up to ';' delimiter.
+        _iter=${REPLICATION_BASE_DNS%%;*}
+        # Delete the first base DN and the ';' from REPLICATION_BASE_DNS
+        REPLICATION_BASE_DNS="${REPLICATION_BASE_DNS#"${_iter}";}"
+        # Add the --baseDN argument for the extracted base DN
+        set -- "$@" --baseDN "${_iter}"
+    done
+fi
+
 dsreplication enable \
     --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
     --trustAll \
@@ -61,7 +74,7 @@ dsreplication enable \
     --adminUID "${ADMIN_USER_NAME}" \
     --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
     --no-prompt --ignoreWarnings \
-    --baseDN "${USER_BASE_DN}" \
+    "$@" \
     --noSchemaReplication \
     --enableDebug --globalDebugLevel verbose
 
@@ -99,7 +112,7 @@ dsreplication initialize \
     \
     --hostDestination "${POD_HOSTNAME}" --portDestination "${POD_LDAPS_PORT}" --useSSLDestination \
     \
-    --baseDN "${USER_BASE_DN}" \
+    "$@" \
     --adminUID "${ADMIN_USER_NAME}" \
     --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
     --no-prompt \
