@@ -47,12 +47,14 @@ FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
+ARG VERSION
 # PingIdentity license version
 ARG LICENSE_VERSION
 
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    PING_PRODUCT_VERSION=${VERSION} \
 #-- Ping product name
     PING_PRODUCT=PingAuthorize-PAP \
 #-- PD License directory. This value is set from the pingbase dockerfile

@@ -49,12 +49,14 @@ FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
+ARG VERSION
 # PingIdentity license version
 ARG LICENSE_VERSION
 
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    PING_PRODUCT_VERSION=${VERSION} \
 #-- Files tailed once container has started
     TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/sync" \
 #-- PD License directory. This value is set from the pingbase docker file

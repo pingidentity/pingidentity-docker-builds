@@ -366,7 +366,7 @@ getEncryptionOption() {
 # returns the jvm option used during the setup of a PingData product
 getJvmOptions() {
     jvmOptions=""
-    if test "$(isImageVersionGtEq 8.1.0)" -eq 0 && test "${PING_PRODUCT}" = "PingDirectory"; then
+    if test "${PING_PRODUCT}" = "PingDirectory"; then
         # If PingDirectory 8.1.0.0 or greater is run and the MAX_HEAP_SIZE is 384m, then it's
         # assumed to have never been set so it'll update it to the minimum needed
         # for version 8.1.0.0 or greater.
@@ -1381,34 +1381,27 @@ prepareToJoinTopology() {
             --exportFilePath "${_currentTopoFile}"
         # Check if this server knows about the seed server.
         if test -z "$(jq -r ".serverInstances[] | select(.instanceName==\"${_seedInstanceName}\") | .instanceName" "${_currentTopoFile}")"; then
-            if is_version_ge "8.2.0.0-EA"; then
-                # If this instance does not think it is in the seed server's topology, then it may have lost its volume.
-                # Remove the remnants of this server from the seed server's topology so it can be re-added below.
-                echo_yellow "Seed server topology and local topology are out of sync. Running remove-defunct-server before re-adding this server to the topology."
-                remove-defunct-server --no-prompt \
-                    --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
-                    --topologyFilePath "${_priorTopoFile}" \
-                    --serverInstanceName "${_podInstanceName}" \
-                    --ignoreOnline \
-                    --bindDN "${ROOT_USER_DN}" \
-                    --bindPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
-                    --enableDebug --globalDebugLevel verbose
-                _returnCode=$?
+            # If this instance does not think it is in the seed server's topology, then it may have lost its volume.
+            # Remove the remnants of this server from the seed server's topology so it can be re-added below.
+            echo_yellow "Seed server topology and local topology are out of sync. Running remove-defunct-server before re-adding this server to the topology."
+            remove-defunct-server --no-prompt \
+                --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
+                --topologyFilePath "${_priorTopoFile}" \
+                --serverInstanceName "${_podInstanceName}" \
+                --ignoreOnline \
+                --bindDN "${ROOT_USER_DN}" \
+                --bindPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
+                --enableDebug --globalDebugLevel verbose
+            _returnCode=$?
 
-                if test ${_returnCode} -ne 0; then
-                    echo_red "**********"
-                    echo_red "Failed to run the remove-defunct-server tool while setting up the topology"
-                    echo_red "Contents of remove-defunct-server.log file:"
-                    cat "${SERVER_ROOT_DIR}"/logs/tools/remove-defunct-server.log
-                    return ${_returnCode}
-                fi
-                _priorNumInstances=$((_priorNumInstances - 1))
-            else
-                # Due to a bug in PD versions before 8.2.0.0-EA (see DS-42438), we can't run remove-defunct-server here.
-                # The command must be run on the seed server itself without using the topologyFilePath argument.
-                echo_red "Seed server topology and local topology are out of sync. May need to run remove-defunct-server on the seed server and restart this container."
-                return 1
+            if test ${_returnCode} -ne 0; then
+                echo_red "**********"
+                echo_red "Failed to run the remove-defunct-server tool while setting up the topology"
+                echo_red "Contents of remove-defunct-server.log file:"
+                cat "${SERVER_ROOT_DIR}"/logs/tools/remove-defunct-server.log
+                return ${_returnCode}
             fi
+            _priorNumInstances=$((_priorNumInstances - 1))
         else
             # If the server knows about the seed server's topology locally, then everything is good.
             if test "${PING_PRODUCT}" = "PingDirectory"; then
@@ -1561,29 +1554,27 @@ get_dsconfig_options() {
 set_server_unavailable() {
     _status="${1:=not ready}"
 
-    if test "$(isImageVersionGtEq 8.2.0)" -eq 0; then
-        _jsonMsg="{ \"status\":\"${_status}\", \"source\":\"${0}\", \"updated\":\"$(date)\" }"
+    _jsonMsg="{ \"status\":\"${_status}\", \"source\":\"${0}\", \"updated\":\"$(date)\" }"
 
-        _dsconfigOptions=$(get_dsconfig_options "$2")
-        _batchFile=$(mktemp)
+    _dsconfigOptions=$(get_dsconfig_options "$2")
+    _batchFile=$(mktemp)
 
-        echo "Setting Server to Unavailable - ${_jsonMsg}"
+    echo "Setting Server to Unavailable - ${_jsonMsg}"
 
-        echo "dsconfig set-http-servlet-extension-prop \\
-            --extension-name \"Available or Degraded State\" \\
-            --set override-status-code:503 \\
-            --set 'additional-response-contents:${_jsonMsg}'
+    echo "dsconfig set-http-servlet-extension-prop \\
+        --extension-name \"Available or Degraded State\" \\
+        --set override-status-code:503 \\
+        --set 'additional-response-contents:${_jsonMsg}'
 
-        dsconfig set-http-servlet-extension-prop \\
-            --extension-name \"Available State\" \\
-            --set override-status-code:503 \\
-            --set 'additional-response-contents:${_jsonMsg}'" > "${_batchFile}"
+    dsconfig set-http-servlet-extension-prop \\
+        --extension-name \"Available State\" \\
+        --set override-status-code:503 \\
+        --set 'additional-response-contents:${_jsonMsg}'" > "${_batchFile}"
 
-        # Word-split is expected behavior for $_dsconfigOptions. Disable shellcheck.
-        # shellcheck disable=SC2086
-        eval "dsconfig ${_dsconfigOptions} --batch-file \"${_batchFile}\""
-        rm "${_batchFile}"
-    fi
+    # Word-split is expected behavior for $_dsconfigOptions. Disable shellcheck.
+    # shellcheck disable=SC2086
+    eval "dsconfig ${_dsconfigOptions} --batch-file \"${_batchFile}\""
+    rm "${_batchFile}"
 }
 
 # Set the Availability of the server to AVAILABLE.
@@ -1593,27 +1584,25 @@ set_server_unavailable() {
 #             the server is online or not.
 #
 set_server_available() {
-    if test "$(isImageVersionGtEq 8.2.0)" -eq 0; then
-        _dsconfigOptions=$(get_dsconfig_options "${1}")
-        _batchFile=$(mktemp)
+    _dsconfigOptions=$(get_dsconfig_options "${1}")
+    _batchFile=$(mktemp)
 
-        echo "Setting Server to Available"
+    echo "Setting Server to Available"
 
-        echo "dsconfig set-http-servlet-extension-prop \\
-            --extension-name \"Available or Degraded State\" \\
-            --reset override-status-code \\
-            --reset additional-response-contents
+    echo "dsconfig set-http-servlet-extension-prop \\
+        --extension-name \"Available or Degraded State\" \\
+        --reset override-status-code \\
+        --reset additional-response-contents
 
-        dsconfig set-http-servlet-extension-prop \\
-            --extension-name \"Available State\" \\
-            --reset override-status-code \\
-            --reset additional-response-contents" > "${_batchFile}"
+    dsconfig set-http-servlet-extension-prop \\
+        --extension-name \"Available State\" \\
+        --reset override-status-code \\
+        --reset additional-response-contents" > "${_batchFile}"
 
-        # Word-split is expected behavior for $_dsconfigOptions. Disable shellcheck.
-        # shellcheck disable=SC2086
-        eval "dsconfig ${_dsconfigOptions} --batch-file \"${_batchFile}\""
-        rm "${_batchFile}"
-    fi
+    # Word-split is expected behavior for $_dsconfigOptions. Disable shellcheck.
+    # shellcheck disable=SC2086
+    eval "dsconfig ${_dsconfigOptions} --batch-file \"${_batchFile}\""
+    rm "${_batchFile}"
 }
 
 # Save the current java version and jvm options to files in the state directory,
