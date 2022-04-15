@@ -38,10 +38,12 @@ FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
+ARG VERSION
 
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION}  \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    PING_PRODUCT_VERSION=${VERSION} \
 
 #-- Percentage of the container memory to allocate to PingFederate JVM
 #-- DO NOT set to 100% or your JVM will exit with OutOfMemory errors and the container will terminate

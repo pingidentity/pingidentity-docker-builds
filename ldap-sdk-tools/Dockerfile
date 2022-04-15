@@ -47,9 +47,11 @@ FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
+ARG VERSION
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    PING_PRODUCT_VERSION=${VERSION} \
     PATH=/opt/tools:${PATH}
 
 # the method by which the framework can assess whether the container is viable or not

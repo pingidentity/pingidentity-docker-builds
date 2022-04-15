@@ -16,7 +16,6 @@ test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib
 #
 # If we are:
 #  - kubernetes
-#  - version 8.2 or greater
 #  - no IP is found for the $POD_HOSTNAME
 # then
 #  This implies that a headless service allowing for unready hosts isn't setup which is
@@ -25,11 +24,9 @@ test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib
 #  setup process here will fail.
 _podHostName=$(getHostName)
 if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" &&
-    test "$(isImageVersionGtEq 8.2.0)" -eq 0 &&
     test -z "$(getIP "${_podHostName}")"; then
     echo_red "Detected:
-      - Container running in Kubernetes 
-      - Running version 8.2 or higher 
+      - Container running in Kubernetes
       - The Kubernetes service providing IP for '${_podHostName}' isn't returning any value
    
         This implies that the Kubernetes service isn't providing the annotations allowing for 

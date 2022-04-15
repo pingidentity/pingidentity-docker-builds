@@ -48,10 +48,12 @@ COPY --from=final-staging ["/","/"]
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
+ARG VERSION
 
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    PING_PRODUCT_VERSION=${VERSION} \
 
     PD_DELEGATOR_PUBLIC_HOSTNAME=localhost \
     PD_DELEGATOR_HTTP_PORT=6080 \

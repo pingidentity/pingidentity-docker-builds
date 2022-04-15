@@ -116,10 +116,9 @@ getDomainName() {
 }
 
 getSemanticImageVersion() {
-    version=$(echo "${IMAGE_VERSION}" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]")
-    major=$(echo "${version}" | awk -F"." '{ print $1 }')
-    minor=$(echo "${version}" | awk -F"." '{ print $2 }')
-    patch=$(echo "${version}" | awk -F"." '{ print $3 }')
+    major=$(echo "${PING_PRODUCT_VERSION}" | awk -F"." '{ print $1 }')
+    minor=$(echo "${PING_PRODUCT_VERSION}" | awk -F"." '{ print $2 }')
+    patch=$(echo "${PING_PRODUCT_VERSION}" | awk -F"." '{ print $3 }')
 }
 
 # send desired semantic version to be compared to image version.

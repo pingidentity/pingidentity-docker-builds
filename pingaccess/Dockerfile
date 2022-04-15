@@ -52,10 +52,12 @@ FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
 ARG LICENSE_VERSION
+ARG VERSION
 
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    PING_PRODUCT_VERSION=${VERSION} \
 #-- Ping product name
     PING_PRODUCT="PingAccess" \
 #-- License directory
