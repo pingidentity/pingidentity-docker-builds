@@ -1,31 +1,27 @@
 {
     "versions":[
         {
-            "shims": ["alpine","alpine:latest","alpine:3.15.4"],
+            "shims": ["alpine"],
             "id": "al11",
             "version": "11",
-            "from": "alpine:3.15.4",
             "archs": ["x86_64","aarch64"]
         },
         {
-            "shims": ["centos:7.9.2009"],
+            "shims": ["centos"],
             "id": "conoj",
             "version": "0",
-            "from": "scratch",
             "archs": ["x86_64"]
         },
         {
-            "shims": ["alpine","alpine:latest","alpine:3.15.4"],
+            "shims": ["alpine"],
             "id": "alnoj",
             "version": "0",
-            "from": "scratch",
             "archs": ["x86_64","aarch64"]
         },
         {
-            "shims": ["redhat/ubi/ubi8:8.5"],
+            "shims": ["redhat/ubi/ubi8"],
             "id": "rl11",
             "version": "11",
-            "from": "redhat/ubi/ubi8:8.5",
             "archs": ["x86_64"]
         }
     ]

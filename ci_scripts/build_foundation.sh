@@ -211,21 +211,41 @@ for _shim in ${shims}; do
         _jvms=${jvmsToBuild}
     fi
 
+    # If no jvm is resolved here, there was no -j flag provided and the resolved or provided shim does not match
+    # any shims in any versions.json files.
+    test -z "${_jvms}" &&
+        echo_yellow "ERROR: No JVMs to build specified for ${_shim} on ${ARCH} in versions.json file." &&
+        echo_yellow "Please update the product versions.json file or specify the desired jvm with the '-j' flag if this is not expected." &&
+        break
+
     for _jvm in ${_jvms}; do
+        # Check that the resolved JVM id is valid
+        valid_jvms="$(_getAllJVMs)"
+        jvm_is_valid="false"
+        for valid_jvm in ${valid_jvms}; do
+            if test "${_jvm}" = "${valid_jvm}"; then
+                jvm_is_valid="true"
+            fi
+        done
+
+        test "${jvm_is_valid}" = "false" &&
+            echo_red "ERROR: The JVM ${_jvm} is not valid. The following IDs can be specified: " &&
+            echo_red "${valid_jvms}" &&
+            exit 1
+
         if test "${_jvm}" = "conoj" || test "${_jvm}" = "alnoj"; then
             continue
         fi
         banner "Building pingjvm for JDK ${_jvm} for ${_shim}"
         _start=$(date '+%s')
         _image="${FOUNDATION_REGISTRY}/pingjvm:${_jvm}-${_shimTag}-${CI_TAG}-${ARCH}"
-        _jvm_from=$(_getJVMImageForShimJVM "${_shim}" "${_jvm}")
 
         # Word-Split is expected behavior for $progress. Disable shellcheck.
         # shellcheck disable=SC2086
         DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
             ${progress} ${noCache} \
             ${VERBOSE:+--build-arg VERBOSE="true"} \
-            --build-arg SHIM="${_jvm_from}" \
+            --build-arg SHIM="${_shim}" \
             --build-arg DEPS="${DEPS_REGISTRY}" \
             -t "${_image}" "${CI_PROJECT_DIR}/pingjvm"
         _returnCode=${?}

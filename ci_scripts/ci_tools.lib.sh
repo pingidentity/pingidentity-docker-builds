@@ -189,16 +189,20 @@ _getAllArchsForJVM() {
         "${jvm_versions_file}"
 }
 
+# Return all jvm IDs from pingjvm/versions.json.
+_getAllJVMs() {
+    jvm_versions_file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+    ! test -f "${jvm_versions_file}" && echo_red "ERROR: File ${jvm_versions_file} not found." && exit 1
+
+    jq -r '.versions[] | .id' "${jvm_versions_file}"
+}
+
 # Return all jvm IDs from pingjvm/versions.json that contain an architecture mapping to $ARCH's value.
 _getJVMsForArch() {
-    # Compute JVMS_FOR_ARCH once based on ARCH value
-    if test -z "${JVMS_FOR_ARCH}"; then
-        jvm_versions_file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-        ! test -f "${jvm_versions_file}" && echo_red "ERROR: File ${jvm_versions_file} not found." && exit 1
-        JVMS_FOR_ARCH=$(jq -r --arg arch "${ARCH}" '.versions[] | select(.archs[] | contains($arch)) | .id' "${jvm_versions_file}")
-        export JVMS_FOR_ARCH
-    fi
-    printf "%s" "${JVMS_FOR_ARCH}"
+    jvm_versions_file="${CI_PROJECT_DIR}/pingjvm/versions.json"
+    ! test -f "${jvm_versions_file}" && echo_red "ERROR: File ${jvm_versions_file} not found." && exit 1
+
+    jq -r --arg arch "${ARCH}" '.versions[] | select(.archs[] | contains($arch)) | .id' "${jvm_versions_file}"
 }
 
 # Take each jvm ID from _getJVMsForArch() and parse them into a jq regex of the form "al11|rl11|az11"
@@ -269,20 +273,6 @@ _getAllJVMsToBuildForShim() {
 
     jvm_ids="$(echo -e "${jvm_ids}" | sort | uniq)"
     printf "%s" "${jvm_ids}"
-}
-
-# Get the jvm image from pingjvm/versions.json file for a specified shim and jvm ID.
-_getJVMImageForShimJVM() {
-    test -z "${1}" && echo_red "ERROR: The function _getJVMImageForShimJVM requires a shim input." && exit 1
-    test -z "${2}" && echo_red "ERROR: The function _getJVMImageForShimJVM requires a jvm ID input." && exit 1
-
-    jvm_versions_file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    ! test -f "${jvm_versions_file}" && echo_red "ERROR: File ${jvm_versions_file} not found." && exit 1
-
-    jq -r --arg shim "${1}" \
-        --arg jvm_id "${2}" \
-        '[.versions[] | select(.shims[] | contains($shim)) | select(.id == $jvm_id) | .from] | unique | .[]' \
-        "${jvm_versions_file}"
 }
 
 # Get the docker build arguments for any dependencies with a specified product name and version.

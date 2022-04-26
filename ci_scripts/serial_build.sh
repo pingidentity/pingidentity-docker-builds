@@ -108,10 +108,13 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
 "${CI_SCRIPTS_DIR}/cleanup_docker.sh" full
+test "${?}" -ne 0 && exit 1
 "${CI_SCRIPTS_DIR}/build_product.sh" -p pingdownloader
+test "${?}" -ne 0 && exit 1
 # Word-split is expected behavior for $jvmsToBuild and $shimsToBuild. Disable shellcheck.
 # shellcheck disable=SC2086
 "${CI_SCRIPTS_DIR}/build_foundation.sh" ${jvmsToBuild} ${shimsToBuild}
+test "${?}" -ne 0 && exit 1
 
 test -z "${_products}" && _products="apache-jmeter ldap-sdk-tools pingaccess pingcentral pingdataconsole pingdatasync pingdirectory pingdirectoryproxy pingdelegator pingfederate pingtoolkit pingauthorize pingauthorizepap"
 
