@@ -96,7 +96,7 @@
         {
             "name": "pingintelligence",
             "mapping": "pi-api-ase-rhel-${version}.tar.gz",
-            "latestVersion": "5.1"
+            "latestVersion": "5.1.1"
         }
     ]
 }
