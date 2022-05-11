@@ -63,14 +63,12 @@ dsreplication enable \
     --replicationPort1 "${MASTER_TOPOLOGY_REPLICATION_PORT}" \
     --bindDN1 "${ROOT_USER_DN}" \
     --bindPasswordFile1 "${ROOT_USER_PASSWORD_FILE}" \
-    \
     --host2 "${POD_HOSTNAME}" \
     --port2 "${POD_LDAPS_PORT}" \
     --useSSL2 \
     --replicationPort2 "${_podReplicationPort}" \
     --bindDN2 "${ROOT_USER_DN}" \
     --bindPasswordFile2 "${ROOT_USER_PASSWORD_FILE}" \
-    \
     --adminUID "${ADMIN_USER_NAME}" \
     --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
     --no-prompt --ignoreWarnings \
@@ -107,11 +105,8 @@ echo "Initializing replication on POD Server"
 dsreplication initialize \
     --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
     --trustAll \
-    \
     --topologyFilePath "${TOPOLOGY_FILE}" \
-    \
     --hostDestination "${POD_HOSTNAME}" --portDestination "${POD_LDAPS_PORT}" --useSSLDestination \
-    \
     "$@" \
     --adminUID "${ADMIN_USER_NAME}" \
     --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
