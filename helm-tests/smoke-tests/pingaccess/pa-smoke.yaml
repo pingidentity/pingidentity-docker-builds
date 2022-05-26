@@ -7,6 +7,8 @@ pingaccess-admin:
   enabled: true
   privateCert:
     generate: true
+  envs:
+    OPERATIONAL_MODE: "STANDALONE"
   container:
     resources:
       requests:
@@ -18,6 +20,8 @@ pingaccess-admin:
 
 pingaccess-engine:
   enabled: true
+  envs:
+    OPERATIONAL_MODE: "STANDALONE"
   container:
     resources:
       requests:
