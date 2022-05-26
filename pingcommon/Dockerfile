@@ -8,7 +8,7 @@
 # This substrate layer will gather common bits for all images
 #  like tini
 ARG DEPS
-FROM ${DEPS}alpine:3.15.4 as substrate
+FROM ${DEPS}alpine:3.16.0 as substrate
 COPY ["common-build.sh","/"]
 RUN ["/common-build.sh"]
 
