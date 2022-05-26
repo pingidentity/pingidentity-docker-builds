@@ -82,7 +82,7 @@ arm.pd-repl.liberica:
 intel.pa-pf-pd-fips.liberica:
   stage: test.integration
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --image-tag-jvm rl11 --image-tag-shim redhat_ubi_ubi8_8.5
+    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --image-tag-jvm rl11 --image-tag-shim redhat_ubi_ubi8_8.6
   retry: 1
   variables:
     KUBERNETES_CPU_REQUEST: 2850m
