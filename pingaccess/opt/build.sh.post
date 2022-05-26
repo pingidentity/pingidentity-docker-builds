@@ -7,6 +7,13 @@ set -x
 #- results in them being owned by root. This can lead to issues during 06-copy-product-bits.sh.
 mkdir -p /opt/out/instance/conf
 
+# Copy the default run.properties into the /opt/staging directory to serve as a default when
+# no server profile is provided. Variable values will be inserted to allow configuration to be
+# pulled from environment variables when there is no server profile.
+cp /opt/server/conf/run.properties "/opt/staging/instance/conf/run.properties.subst.default"
+# shellcheck disable=SC2016
+sed -i 's/^pa\.operational\.mode=.*$/pa.operational.mode=${OPERATIONAL_MODE}/' "/opt/staging/instance/conf/run.properties.subst.default"
+
 # delete self
 rm -f "${0}"
 set +x
