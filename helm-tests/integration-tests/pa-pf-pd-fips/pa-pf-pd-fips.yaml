@@ -36,8 +36,6 @@ pingfederate-engine:
 
 pingaccess-admin:
   enabled: true
-  privateCert:
-    generate: true
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
     SERVER_PROFILE_PATH: FIPS-integration/pingaccess
