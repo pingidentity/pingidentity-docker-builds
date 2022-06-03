@@ -484,7 +484,8 @@ for _helmTest in ${_helmTests}; do
         --set "testFramework.enabled=true" \
         --set "testFramework.testConfigMaps.prefix=${TEST_PREFIX}" \
         --set "testFramework.finalStep.image=${DEPS_REGISTRY}busybox" \
-        --set "global.externalImage.pingtoolkit.image=${DEPS_REGISTRY}pingidentity/pingtoolkit:2109-1.0.0-alpine_3.14-al11" \
+        --set "global.externalImage.pingtoolkit.image.repositoryFqn=${DEPS_REGISTRY}pingidentity/pingtoolkit" \
+        --set "global.externalImage.pingtoolkit.image.tag=2109-1.0.0-alpine_3.14-al11" \
         --set "global.addReleaseNameToResource=prepend"
 
     _returnCode=${?}

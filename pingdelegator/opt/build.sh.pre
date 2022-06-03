@@ -42,6 +42,9 @@ case "${_osID}" in
         echo "gpgcheck=0" >> /etc/yum.repos.d/nginx.repo
         echo "enabled=1" >> /etc/yum.repos.d/nginx.repo
         yum update -y
+        #install openssl
+        _versionID=$(awk '$0~/^VERSION_ID=/{split($1,version,"=");gsub(/"/,"",version[2]);print version[2];}' /etc/os-release)
+        yum -y install --releasever "${_versionID}" openssl
         #install nginx from nginx repo
         yum --disablerepo="*" --enablerepo="nginx" -y install nginx
         #restrict tls versions and set allowed cipher suites
