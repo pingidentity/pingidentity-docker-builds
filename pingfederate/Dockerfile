@@ -8,27 +8,61 @@
 #- - `pingidentity/pingbase` - Parent Image
 #- > This image inherits, and can use, Environment Variables from [pingidentity/pingbase](https://devops.pingidentity.com/docker-images/pingbase/)
 #- - `pingidentity/pingcommon` - Common Ping files (i.e. hook scripts)
-#- - `pingidentity/pingdownloader` - Used to download product bits
 
-#
-# Staging product to a seperate image saves us the download + staging
-# for each shim a product version is built for
-#
-ARG PRODUCT
-ARG SHIM
-ARG SHIM_TAG
-ARG VERSION
-ARG JVM
-ARG REGISTRY
+#################################################################################
+
+# Top level ARGS used in all FROM commands
+ARG ARCH
 ARG DEPS
 ARG GIT_TAG
-ARG ARCH
+ARG JVM
+ARG LATEST_ALPINE_VERSION
+ARG REGISTRY
+ARG SHIM
+ARG SHIM_TAG
 
-FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
+#################################################################################
+
 FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} as common
 FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
 
+#################################################################################
+
+# Always use alpine to download product bits
+FROM ${DEPS}alpine:${LATEST_ALPINE_VERSION} as product-staging
+
+# ARGS used in get-product-bits.sh RUN command
+ARG ARTIFACTORY_URL
+ARG PRODUCT
+ARG SNAPSHOT_URL
+ARG VERBOSE
+ARG VERSION
+
+# Get local filesystem product bits if present
+COPY ["tmp/", "/tmp/"]
+
+# Download the product bits
+# TODO Remove the `-x` options in the unzip commands after PF 11.2 GA and use of min zip files.
+COPY --from=common ["/opt/get-product-bits.sh","/opt/get-product-bits.sh"]
+RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
+    && unzip -q /tmp/product.zip -d /tmp/ \
+        -x */pingfederate-service-installer.jar \
+        -x pingfederate-*/pingfederate/sdk/* \
+        -x *.bat \
+        -x *.dll \
+        -x *.exe \
+    && mv /tmp/${PRODUCT}-*/${PRODUCT} /opt/server \
+    && mkdir -p /opt/out/instance/server/default/data
+
+#################################################################################
+
 FROM ${DEPS}${SHIM} as final-staging
+
+# ARGS used in build.sh RUN command
+# Use correct run.sh file based on $VERSION
+# in the build.sh.post script.
+# TODO This should be removed upon deprecation of PF 11.0.x
+ARG VERSION
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
@@ -44,18 +78,12 @@ COPY --from=jvm ["/opt/java","/opt/java"]
 # apply product-specific hooks and patches
 COPY ["/opt","/opt"]
 
-# Use correct run.sh file based on $VERSION
-# in the build.sh.post script.
-# This should be removed upon deprecation of PF 11.0.x
-ARG VERSION
-
 # Run build
 RUN ["/opt/build.sh"]
 
+#################################################################################
 
-#
 # The final image
-#
 FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"

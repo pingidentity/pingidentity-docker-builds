@@ -19,7 +19,6 @@ intel.b.pingauthorizepap:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - ci_scripts/*
         - pingjvm/*
         - .gitlab-ci.yml
@@ -47,7 +46,6 @@ arm.b.pingauthorizepap:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - ci_scripts/*
         - pingjvm/*
         - .gitlab-ci.yml
@@ -76,7 +74,6 @@ intel.t.pingauthorizepap:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - pingauthorizepap/**/*
         - ci_scripts/*
         - pingjvm/*
@@ -105,7 +102,6 @@ arm.t.pingauthorizepap:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - pingauthorizepap/**/*
         - ci_scripts/*
         - pingjvm/*

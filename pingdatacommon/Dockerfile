@@ -7,9 +7,17 @@
 #- ## Related Docker Images
 #- - `pingidentity/pingcommon` - Parent Image
 #-
+
+#################################################################################
+
+# # Top level ARGS used in all FROM commands
 ARG REGISTRY
 ARG GIT_TAG
 ARG ARCH
+
+#################################################################################
+
+# The final image
 FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH}
 COPY [ "/opt/","/opt/"]
 

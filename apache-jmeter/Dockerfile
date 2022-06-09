@@ -1,16 +1,51 @@
-ARG PRODUCT
-ARG SHIM
-ARG SHIM_TAG
-ARG VERSION
-ARG JVM
-ARG REGISTRY
+#################################################################################
+
+# Top level ARGS used in all FROM commands
+ARG ARCH
 ARG DEPS
 ARG GIT_TAG
-ARG ARCH
+ARG JVM
+ARG LATEST_ALPINE_VERSION
+ARG REGISTRY
+ARG SHIM
+ARG SHIM_TAG
 
-FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
+#################################################################################
+
 FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} as common
 FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
+
+#################################################################################
+
+# Always use alpine to download product bits
+FROM ${DEPS}alpine:${LATEST_ALPINE_VERSION} as product-staging
+
+# ARGS used in get-product-bits.sh RUN command
+ARG PRODUCT
+ARG VERSION
+ARG ARTIFACTORY_URL
+ARG VERBOSE
+
+# Get gnupg for get-product-bits.sh
+RUN apk --no-cache --update add gnupg
+
+# Get public signing keys for Apache JMeter
+COPY ["keys.gpg", "/tmp"]
+
+# Download the product bits
+COPY --from=common ["/opt/get-product-bits.sh","/opt/get-product-bits.sh"]
+RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
+    && unzip -q /tmp/product.zip \
+        -d /tmp \
+        -x *.bat \
+        -x *.dll \
+        -x *.exe \
+        -x *.ini \
+        -x */printable_docs/* \
+        -x */docs/* \
+   && mv /tmp/${PRODUCT}-${VERSION} /opt/server
+
+#################################################################################
 
 FROM ${DEPS}${SHIM} as final-staging
 
@@ -31,9 +66,9 @@ COPY ["/opt","/opt"]
 # Run build
 RUN ["/opt/build.sh"]
 
-#
+#################################################################################
+
 # the final image
-#
 FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"

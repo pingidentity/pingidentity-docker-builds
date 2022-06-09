@@ -4,23 +4,84 @@
 #- deployed to be used in configuration of the PingData products.
 #-
 #- ## Related Docker Images
-#- - `pingidentity/pingdownloader` - Image used to download ping product
-#- - `tomcat:8-jre8-alpine` - Tomcat engine to serve PingDataConsole .war file
+#- - `tomcat:9-jre8` - Tomcat engine to serve PingDataConsole .war file
 #-
 
-ARG PRODUCT
-ARG SHIM
-ARG SHIM_TAG
-ARG VERSION
-ARG JVM
-ARG REGISTRY
+#################################################################################
+
+# Top level ARGS used in all FROM commands
+ARG ARCH
 ARG DEPS
 ARG GIT_TAG
-ARG ARCH
+ARG JVM
+ARG LATEST_ALPINE_VERSION
+ARG REGISTRY
+ARG SHIM
+ARG SHIM_TAG
 
-FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
+#################################################################################
+
 FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} as common
 FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
+
+#################################################################################
+
+# Always use alpine to download product bits
+FROM ${DEPS}alpine:${LATEST_ALPINE_VERSION} as product-staging
+
+# ARGS used in get-product-bits.sh RUN command
+ARG ARTIFACTORY_URL
+ARG DEPENDENCY_0_PRODUCT
+ARG DEPENDENCY_0_VERSION
+ARG PRODUCT
+ARG SNAPSHOT_URL
+ARG VERBOSE
+ARG VERSION
+
+# Get gnupg and libxml2-utils for get-product-bits.sh
+RUN apk --no-cache --update add gnupg libxml2-utils
+
+# Get public signing keys for Apache Tomcat
+COPY ["keys.gpg", "/tmp"]
+
+# Get local filesystem product bits if present
+COPY ["tmp/", "/tmp/"]
+
+# Download the product bits
+COPY --from=common ["/opt/get-product-bits.sh","/opt/get-product-bits.sh"]
+RUN /opt/get-product-bits.sh --product ${DEPENDENCY_0_PRODUCT} --version ${DEPENDENCY_0_VERSION} --output "appserver.zip" \
+    && unzip -q /tmp/appserver.zip \
+        -d /tmp \
+        -x *.bat \
+        -x *.dll \
+        -x *.exe \
+        -x */temp/* \
+        -x */webapps/docs/* \
+        -x */webapps/examples/* \
+        -x */webapps/*manager/* \
+        -x */bin/commons-daemon* \
+        -x */bin/tomcat-native.tar.gz \
+        -x */webapps/ROOT/*.svg \
+        -x */webapps/ROOT/*.png \
+        -x */webapps/ROOT/*.gif \
+        -x */webapps/ROOT/*.css \
+        -x */webapps/ROOT/*.jsp \
+        -x */webapps/ROOT/*.ico \
+        -x */webapps/ROOT/*.txt \
+        -x */conf/server.xml \
+        -x */conf/tomcat-users.xml \
+    && mv /tmp/${DEPENDENCY_0_PRODUCT}-${DEPENDENCY_0_VERSION} /opt/server \
+    && rm -f /tmp/appserver.zip
+RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
+    && unzip -q -d /tmp/ /tmp/product.zip PingDirectory/resource/admin-console.zip \
+    && unzip -q -d /tmp/ /tmp/PingDirectory/resource/admin-console.zip admin-console.war \
+    && mkdir /opt/server/webapps/console \
+    && unzip -q /tmp/admin-console.war \
+        -d /opt/server/webapps/console \
+        -x *-sources.jar \
+        -x *unboundid-ldapsdk-*.jar
+
+#################################################################################
 
 FROM ${DEPS}${SHIM} as final-staging
 
@@ -46,9 +107,9 @@ ARG VERSION
 # Run build
 RUN ["/opt/build.sh"]
 
-#
-# the final image
-#
+#################################################################################
+
+# The final image
 FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"

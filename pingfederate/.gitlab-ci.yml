@@ -21,7 +21,6 @@ intel.b.pingfederate:
         - pingdatacommon/**/*
         - pingaccess/**/*
         - pingdirectory/**/*
-        - pingdownloader/**/*
         - integration_tests/**/*
         - ci_scripts/*
         - pingjvm/*
@@ -52,7 +51,6 @@ arm.b.pingfederate:
         - pingdatacommon/**/*
         - pingaccess/**/*
         - pingdirectory/**/*
-        - pingdownloader/**/*
         - integration_tests/**/*
         - ci_scripts/*
         - pingjvm/*
@@ -82,7 +80,6 @@ intel.t.pingfederate:
         - pingfederate/**/*
         - pingcommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - ci_scripts/*
         - pingjvm/*
         - .gitlab-ci.yml
@@ -110,7 +107,6 @@ arm.t.pingfederate:
         - pingfederate/**/*
         - pingcommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - ci_scripts/*
         - pingjvm/*
         - .gitlab-ci.yml

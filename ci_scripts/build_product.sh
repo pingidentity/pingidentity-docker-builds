@@ -119,10 +119,6 @@ if test -n "${PING_IDENTITY_SNAPSHOT}"; then
         pingauthorize | pingauthorizepap | pingdataconsole | pingdatasync | pingdirectory | pingdirectoryproxy)
             snapshot_url="${SNAPSHOT_NEXUS_URL}"
             ;;
-        pingdownloader)
-            #Build pingdownloader normally in a snapshot pipeline as there is no "snapshot bits" for downloader.
-            unset PING_IDENTITY_SNAPSHOT
-            ;;
         *)
             echo "Snapshot not supported"
             exit 0
@@ -162,64 +158,24 @@ for _version in ${versionsToBuild}; do
 
     _buildVersion="${_version}"
 
-    if test -f "${CI_PROJECT_DIR}/${productToBuild}/Product-staging"; then
-        # Check if a file named product.zip is present within the product directory.
-        # If so, use a different buildVersion to differentiate the build from regular
-        # builds that use the pingdownloader. It is up to the product specific
-        # Product-staging file to copy the product.zip into the build container.
-        _overrideProductFile="${productToBuild}/tmp/product.zip"
-        if test -f "${_overrideProductFile}"; then
-            banner "Using file system location ${_overrideProductFile}"
-            _buildVersion="${_version}-fsoverride"
-        fi
-        _start=$(date '+%s')
-        # In the snapshot pipeline, provide the latest version in the product's version.json
-        # for the dependency check, as the snapshot version is not present in the versions.json
-        if test -n "${PING_IDENTITY_SNAPSHOT}"; then
-            dependency_check_version="${latestVersion}"
-        else
-            dependency_check_version="${_version}"
-        fi
-        _dependencies=$(_getDependenciesForProductVersion "${productToBuild}" "${dependency_check_version}")
-        _image="${FOUNDATION_REGISTRY}/${productToBuild}:staging-${_buildVersion}-${CI_TAG}"
-        # build the staging for each product so we don't need to download and stage the product each time
-        # Word-split is expected behavior for $progress and $_dependencies. Disable shellcheck.
-        # shellcheck disable=SC2086
-        DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
-            -f "${CI_PROJECT_DIR}/${productToBuild}/Product-staging" \
-            -t "${_image}" \
-            ${progress} ${noCache} \
-            --build-arg FOUNDATION_REGISTRY="${FOUNDATION_REGISTRY}" \
-            --build-arg DEPS="${DEPS_REGISTRY}" \
-            --build-arg GIT_TAG="${CI_TAG}" \
-            --build-arg ARCH="${ARCH}" \
-            --build-arg DEVOPS_USER="${PING_IDENTITY_DEVOPS_USER}" \
-            --build-arg DEVOPS_KEY="${PING_IDENTITY_DEVOPS_KEY}" \
-            --build-arg PRODUCT="${productToBuild}" \
-            --build-arg VERSION="${_buildVersion}" \
-            ${PING_IDENTITY_SNAPSHOT:+--build-arg PING_IDENTITY_SNAPSHOT="${PING_IDENTITY_SNAPSHOT}"} \
-            ${PING_IDENTITY_SNAPSHOT:+--build-arg PING_IDENTITY_GITLAB_TOKEN="${PING_IDENTITY_GITLAB_TOKEN}"} \
-            ${PING_IDENTITY_SNAPSHOT:+--build-arg INTERNAL_GITLAB_URL="${INTERNAL_GITLAB_URL}"} \
-            ${PING_IDENTITY_SNAPSHOT:+--build-arg SNAPSHOT_URL="${snapshot_url}"} \
-            ${VERBOSE:+--build-arg VERBOSE="true"} \
-            ${_dependencies} \
-            "${CI_PROJECT_DIR}/${productToBuild}"
-        _returnCode=${?}
-        _stop=$(date '+%s')
-        _duration=$((_stop - _start))
-        if test ${_returnCode} -ne 0; then
-            returnCode=${_returnCode}
-            _result=FAIL
-            if test -n "${failFast}"; then
-                banner "Build break for ${productToBuild} staging for version ${_buildVersion}"
-                exit ${_returnCode}
-            fi
-        else
-            _result=PASS
-        fi
-        append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${productToBuild}" "${_buildVersion}" "Staging" "N/A" "${_duration}" "${_result}"
-        imagesToClean="${imagesToClean} ${_image}"
+    # Check if a file named product.zip is present within the product directory.
+    # If so, use a different buildVersion to differentiate the build from regular
+    # builds that source from Artifactory. It is up to the product specific
+    # Dockerfile to copy the product.zip into the build container.
+    _overrideProductFile="${productToBuild}/tmp/product.zip"
+    if test -f "${_overrideProductFile}"; then
+        banner "Using file system location ${_overrideProductFile}"
+        _buildVersion="${_version}-fsoverride"
     fi
+
+    # In the snapshot pipeline, provide the latest version in the product's version.json
+    # for the dependency check, as the snapshot version is not present in the versions.json
+    if test -n "${PING_IDENTITY_SNAPSHOT}"; then
+        dependency_check_version="${latestVersion}"
+    else
+        dependency_check_version="${_version}"
+    fi
+    _dependencies=$(_getDependenciesForProductVersion "${productToBuild}" "${dependency_check_version}")
 
     # iterate over the shims (default to alpine)
     for _shim in ${_shimsToBuild:-alpine}; do
@@ -245,6 +201,7 @@ for _version in ${versionsToBuild}; do
                 --build-arg PRODUCT="${productToBuild}" \
                 --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
                 --build-arg DEPS="${DEPS_REGISTRY}" \
+                --build-arg ARTIFACTORY_URL="${ARTIFACTORY_URL}" \
                 --build-arg GIT_TAG="${CI_TAG}" \
                 --build-arg JVM="${_jvm}" \
                 --build-arg ARCH="${ARCH}" \
@@ -254,7 +211,12 @@ for _version in ${versionsToBuild}; do
                 --build-arg IMAGE_VERSION="${imageVersion}" \
                 --build-arg IMAGE_GIT_REV="${GIT_REV_LONG}" \
                 --build-arg LICENSE_VERSION="${licenseVersion}" \
+                --build-arg LATEST_ALPINE_VERSION="3.16.0" \
                 ${VERBOSE:+--build-arg VERBOSE="true"} \
+                ${PING_IDENTITY_SNAPSHOT:+--build-arg PING_IDENTITY_GITLAB_TOKEN="${PING_IDENTITY_GITLAB_TOKEN}"} \
+                ${PING_IDENTITY_SNAPSHOT:+--build-arg SNAPSHOT_URL="${snapshot_url}"} \
+                ${PING_IDENTITY_SNAPSHOT:+--build-arg INTERNAL_GITLAB_URL="${INTERNAL_GITLAB_URL}"} \
+                ${_dependencies} \
                 "${CI_PROJECT_DIR}/${productToBuild}"
 
             _returnCode=${?}

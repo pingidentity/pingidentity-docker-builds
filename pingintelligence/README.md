@@ -2,7 +2,7 @@
 
 ## Documentation
 
-* [PingDownloader Docker Image](https://devops.pingidentity.com/docker-images/pingintelligence/) - Information on this image
+* [PingIntelligence Docker Image](https://devops.pingidentity.com/docker-images/pingintelligence/) - Information on this image
 
 * [DevOps Program Documentation](https://devops.pingidentity.com/) - Getting started with Ping Identity DevOps Program
 

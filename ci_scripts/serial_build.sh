@@ -5,7 +5,6 @@
 # This build a set of images running through the steps of:
 #
 #     cleanup_docker.sh   - Cleaning up a docker environment
-#     build_downloader.sh - Build the Ping Downloader Image
 #     build_foundation.sh - Build the foundation images (pingbase, pingcommon, ...)
 #     build_product.sh    - Build the product image itself
 #
@@ -108,8 +107,6 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
 "${CI_SCRIPTS_DIR}/cleanup_docker.sh" full
-test "${?}" -ne 0 && exit 1
-"${CI_SCRIPTS_DIR}/build_product.sh" -p pingdownloader
 test "${?}" -ne 0 && exit 1
 # Word-split is expected behavior for $jvmsToBuild and $shimsToBuild. Disable shellcheck.
 # shellcheck disable=SC2086

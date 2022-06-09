@@ -20,7 +20,6 @@ intel.b.pingauthorize:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - integration_tests/**/*
         - ci_scripts/*
         - pingjvm/*
@@ -50,7 +49,6 @@ arm.b.pingauthorize:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - integration_tests/**/*
         - ci_scripts/*
         - pingjvm/*
@@ -80,7 +78,6 @@ intel.t.pingauthorize:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - pingauthorize/**/*
         - ci_scripts/*
         - pingjvm/*
@@ -109,7 +106,6 @@ arm.t.pingauthorize:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - pingauthorize/**/*
         - ci_scripts/*
         - pingjvm/*

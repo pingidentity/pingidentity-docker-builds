@@ -18,7 +18,6 @@ intel.b.pingdirectory:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - pingaccess/**/*
         - pingdatasync/**/*
         - pingdirectory/**/*
@@ -51,7 +50,6 @@ arm.b.pingdirectory:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - pingaccess/**/*
         - pingdatasync/**/*
         - pingdirectory/**/*
@@ -87,7 +85,6 @@ intel.t.pd.al11:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - ci_scripts/*
         - pingjvm/*
         - .gitlab-ci.yml
@@ -116,7 +113,6 @@ arm.t.pingdirectory:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - ci_scripts/*
         - pingjvm/*
         - .gitlab-ci.yml

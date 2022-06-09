@@ -18,7 +18,6 @@ intel.b.pingdirectoryproxy:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - pingdirectory/**/*
         - pingdirectoryproxy/**/*
         - integration_tests/**/*
@@ -48,7 +47,6 @@ arm.b.pingdirectoryproxy:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - pingdirectory/**/*
         - pingdirectoryproxy/**/*
         - integration_tests/**/*
@@ -78,7 +76,6 @@ intel.t.pingdirectoryproxy:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - pingbase/**/*
-        - pingdownloader/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingdirectoryproxy/**/*
@@ -107,7 +104,6 @@ arm.t.pingdirectoryproxy:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - pingbase/**/*
-        - pingdownloader/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingdirectoryproxy/**/*

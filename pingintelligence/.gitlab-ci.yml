@@ -21,7 +21,6 @@ intel.b.pingintelligence:
         - pingintelligence/**/*
         - pingcommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - ci_scripts/*
         - .gitlab-ci.yml
       when: on_success
@@ -51,7 +50,6 @@ intel.t.pingintelligence:
         - pingintelligence/**/*
         - pingcommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - ci_scripts/*
         - .gitlab-ci.yml
       when: on_success
