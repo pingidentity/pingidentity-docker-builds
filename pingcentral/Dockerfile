@@ -7,21 +7,53 @@
 #- - `pingidentity/pingbase` - Parent Image
 #- > This image inherits, and can use, Environment Variables from [pingidentity/pingbase](https://devops.pingidentity.com/docker-images/pingbase/)
 #- - `pingidentity/pingcommon` - Common Ping files (i.e. hook scripts)
-#- - `pingidentity/pingdownloader` - Used to download product bits
 #-
-ARG PRODUCT
-ARG SHIM
-ARG SHIM_TAG
-ARG VERSION
-ARG JVM
-ARG REGISTRY
+
+#################################################################################
+
+# Top level ARGS used in all FROM commands
+ARG ARCH
 ARG DEPS
 ARG GIT_TAG
-ARG ARCH
+ARG JVM
+ARG LATEST_ALPINE_VERSION
+ARG REGISTRY
+ARG SHIM
+ARG SHIM_TAG
 
-FROM ${REGISTRY}/${PRODUCT}:staging-${VERSION}-${GIT_TAG} as product-staging
+#################################################################################
+
 FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} as common
 FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
+
+#################################################################################
+
+# Always use alpine to download product bits
+FROM ${DEPS}alpine:${LATEST_ALPINE_VERSION} as product-staging
+
+# ARGS used in get-product-bits.sh RUN command
+ARG ARTIFACTORY_URL
+ARG INTERNAL_GITLAB_URL
+ARG PING_IDENTITY_GITLAB_TOKEN
+ARG PRODUCT
+ARG SNAPSHOT_URL
+ARG VERBOSE
+ARG VERSION
+
+# Get libxml2-utils for get-product-bits.sh
+RUN apk --no-cache --update add libxml2-utils
+
+# Get local filesystem product bits if present
+COPY ["tmp/", "/tmp/"]
+
+# Download the product bits
+COPY --from=common ["/opt/get-product-bits.sh","/opt/get-product-bits.sh"]
+RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
+    && unzip -q /tmp/product.zip -d /tmp/ \
+    && find /tmp -type f \( -iname \*.bat -o -iname \*.dll -o -iname \*.exe \) -exec rm -f {} \; \
+    && mv /tmp/ping-central-* /opt/server
+
+#################################################################################
 
 FROM ${DEPS}${SHIM} as final-staging
 
@@ -42,9 +74,9 @@ COPY ["/opt","/opt"]
 # Run build
 RUN ["/opt/build.sh"]
 
-#
+#################################################################################
+
 # The final image
-#
 FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"

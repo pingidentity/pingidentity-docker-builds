@@ -128,6 +128,9 @@ done
 # Do we need this ?
 # chmod -Rf a+rwx /opt
 
+# Remove get-product-bits.sh. It is not needed at runtime.
+rm -f "/opt/get-product-bits.sh"
+
 test -f "/opt/build.sh.post" && sh /opt/build.sh.post
 
 # generate the staging manifest

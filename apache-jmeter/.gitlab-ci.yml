@@ -17,7 +17,6 @@ intel.b.apache-jmeter:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingdownloader/**/*
         - apache-jmeter/**/*
         - ci_scripts/*
         - pingjvm/*
@@ -44,7 +43,6 @@ arm.b.apache-jmeter:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingdownloader/**/*
         - apache-jmeter/**/*
         - ci_scripts/*
         - pingjvm/*
@@ -72,7 +70,6 @@ intel.t.apache-jmeter:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingdownloader/**/*
         - apache-jmeter/**/*
         - ci_scripts/*
         - pingjvm/*
@@ -99,7 +96,6 @@ arm.t.apache-jmeter:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingdownloader/**/*
         - apache-jmeter/**/*
         - ci_scripts/*
         - pingjvm/*

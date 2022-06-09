@@ -45,10 +45,6 @@ _getVersionsFilePath() {
     test -z "${1}" && echo_red "ERROR: The function _getVersionsFilePath requires a product name input." && exit 1
 
     product_versions_file="${PIPELINE_VERSIONS_JSON_OVERRIDE:-${CI_PROJECT_DIR}/${1}/versions.json}"
-    # As pingdownloader is always built, even when PIPELINE_VERSIONS_JSON_OVERRIDE exists, do not override its versions.json
-    if test "${1}" = "pingdownloader"; then
-        product_versions_file="${CI_PROJECT_DIR}/${1}/versions.json"
-    fi
 
     # Ensure that the file exists before returning the file path.
     ! test -f "${product_versions_file}" && echo_red "ERROR: File ${product_versions_file} not found." && exit 1
@@ -559,7 +555,7 @@ setupDockerConfigJson() {
 docker_config_hub_dir="/root/.docker-hub"
 docker_config_default_dir="/root/.docker"
 
-if test -n "${PING_IDENTITY_SNAPSHOT}"; then
+if test -n "${PING_IDENTITY_SNAPSHOT}" && test -n "${CI_COMMIT_REF_NAME}"; then
     #we are in building snapshot
     FOUNDATION_REGISTRY="${PIPELINE_BUILD_REGISTRY}/${PIPELINE_BUILD_REPO}"
     # we terminate to DEPS registry with a slash so it can be omitted to revert to implicit

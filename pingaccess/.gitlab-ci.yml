@@ -18,7 +18,6 @@ intel.b.pingaccess:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - pingaccess/**/*
         - pingdirectory/**/*
         - pingfederate/**/*
@@ -49,7 +48,6 @@ arm.b.pingaccess:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - pingaccess/**/*
         - pingdirectory/**/*
         - pingfederate/**/*
@@ -82,7 +80,6 @@ intel.t.pingaccess:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - pingaccess/**/*
         - pingjvm/*
         - ci_scripts/*
@@ -111,7 +108,6 @@ arm.t.pingaccess:
         - pingcommon/**/*
         - pingdatacommon/**/*
         - pingbase/**/*
-        - pingdownloader/**/*
         - pingaccess/**/*
         - pingjvm/*
         - ci_scripts/*

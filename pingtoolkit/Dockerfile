@@ -10,24 +10,29 @@
 #- > This image inherits, and can use, Environment Variables from [pingidentity/pingbase](https://devops.pingidentity.com/docker-images/pingbase/)
 #- - `pingidentity/pingcommon` - Common Ping files (i.e. hook scripts)
 #-
-ARG PRODUCT
-ARG SHIM
-ARG SHIM_TAG
-# ARG VERSION
-ARG JVM
-ARG REGISTRY
+
+#################################################################################
+
+# Top level ARGS used in all FROM commands
+ARG ARCH
 ARG DEPS
 ARG GIT_TAG
-ARG ARCH
+ARG JVM
+ARG LATEST_ALPINE_VERSION
+ARG REGISTRY
+ARG SHIM
+ARG SHIM_TAG
+
+#################################################################################
 
 FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} as common
 FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
 
+#################################################################################
+
 FROM ${DEPS}${SHIM} as final-staging
 
 # get Ping-wide common scripts
-#   this needs to happen after the bits have been laid down
-#   so they can be patched
 COPY --from=common ["/opt/","/opt/"]
 
 # get the jvm
@@ -39,9 +44,9 @@ COPY ["/opt","/opt"]
 # Run build
 RUN ["/opt/build.sh"]
 
-#
+#################################################################################
+
 # The final image
-#
 FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"

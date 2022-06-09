@@ -14,7 +14,6 @@ include:
   - local: pingintelligence/.gitlab-ci.yml
   - local: pingtoolkit/.gitlab-ci.yml
   - local: integration_tests/.gitlab-ci.yml
-  - local: pingdownloader/.gitlab-ci.yml
 
 stages:
   - initialization
@@ -142,34 +141,6 @@ arm.f.pingfoundation:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
       when: on_success
-
-intel.f.pingdownloader:
-  stage: foundation
-  script:
-    - jq . pingdownloader/gte-bits-repo.json
-    - ci_scripts/build_product.sh -p pingdownloader
-    - ci_scripts/run_smoke.sh --product pingdownloader
-  rules:
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]/i'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
-      when: on_success
-
-arm.f.pingdownloader:
-  stage: foundation
-  image: $RUNNER_IMAGE_AARCH64
-  tags:
-    - platform=aarch64
-  script:
-    - jq . pingdownloader/gte-bits-repo.json
-    - ci_scripts/build_product.sh -p pingdownloader
-    - ci_scripts/run_smoke.sh --product pingdownloader
-  rules:
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]/i'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
-      when: on_success
-
 
 ################################################
 #   _____       _     _ _     _

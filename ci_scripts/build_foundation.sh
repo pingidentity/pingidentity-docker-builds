@@ -135,6 +135,9 @@ _image="${FOUNDATION_REGISTRY}/pingcommon:${CI_TAG}-${ARCH}"
 DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
     ${progress} ${noCache} \
     --build-arg DEPS="${DEPS_REGISTRY}" \
+    --build-arg ARTIFACTORY_URL="${ARTIFACTORY_URL}" \
+    --build-arg LATEST_ALPINE_VERSION="3.16.0" \
+    ${VERBOSE:+--build-arg VERBOSE="true"} \
     -t "${_image}" "${CI_PROJECT_DIR}/pingcommon"
 _returnCode=${?}
 _stop=$(date '+%s')

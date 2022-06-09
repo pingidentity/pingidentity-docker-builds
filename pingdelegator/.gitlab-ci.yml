@@ -15,7 +15,6 @@ intel.b.pingdelegator:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingdownloader/**/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
@@ -43,7 +42,6 @@ arm.b.pingdelegator:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingdownloader/**/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
@@ -73,7 +71,6 @@ intel.t.pingdelegator:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingdownloader/**/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
@@ -102,7 +99,6 @@ arm.t.pingdelegator:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingdownloader/**/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
