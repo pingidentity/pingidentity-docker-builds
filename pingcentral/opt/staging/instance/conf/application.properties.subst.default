@@ -5,3 +5,6 @@ server.port=${PING_CENTRAL_SERVER_PORT}
 server.ssl.trust-any=${PING_CENTRAL_BLIND_TRUST}
 server.ssl.https.verify-hostname=${PING_CENTRAL_VERIFY_HOSTNAME}
 spring.thymeleaf.check-template-location=false
+management.endpoints.enabled-by-default=false
+management.endpoint.health.enabled=true
+management.endpoint.info.enabled=true
