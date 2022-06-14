@@ -278,7 +278,6 @@ processContainerResults() {
     _testPodName="${_helmRelease}-${TEST_SUFFIX}"
 
     for _icName in $(kubectl get pods "${_testPodName}" "${NS_OPT[@]}" -o json | jq -r ".status.${_contType}Statuses[] | .name"); do
-        banner "Logs: ${_icName}"
         _icStatus=$(kubectl get pods "${_testPodName}" "${NS_OPT[@]}" -o json | jq -r ".status.${_contType}Statuses[] | select(.name | test(\"${_icName}\"))")
 
         _icExit=$(jq -r .state.terminated.exitCode <<< "${_icStatus}")
@@ -307,13 +306,18 @@ processContainerResults() {
             test "${_icReason}" == "null" && _icReason="-"
         fi
 
-        if test "${_contType}" == "initContainer"; then
-            kubectl logs "${_testPodName}" "${NS_OPT[@]}" -c "${_icName}" 2> /dev/null
-        else
-            kubectl logs "${_testPodName}" "${NS_OPT[@]}" 2> /dev/null
-        fi
-
         append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "  ${_icName}" "${_duration}" "${_icReason}"
+    done
+}
+
+################################################################################
+# printContainerLogs
+################################################################################
+printContainerLogs() {
+    find "${_podLogsDir}" -type f -print0 | while IFS= read -r -d '' file; do
+        _podFilename=$(basename "${file}")
+        banner "Pod logs for ${_podFilename}:"
+        cat "${file}"
     done
 }
 
@@ -539,6 +543,10 @@ for _helmTest in ${_helmTests}; do
         helm test "${_helmRelease}" "${NS_OPT[@]}" --timeout 25m &
         _test_pid=${!}
 
+        # Create a directory to save pod logs during the test
+        _podLogsDir="${_tmpDir}/test-logs-dir"
+        mkdir "${_podLogsDir}"
+
         # The purpose of this while loop is to
         # 1) Check to see if the helm test has failed, and kill the process earlier than the timeout length
         # 2) Output logs of any terminated states. e.g. Hook failure on startup
@@ -556,6 +564,19 @@ for _helmTest in ${_helmTests}; do
                 #Sometimes the `kubectl get pod` command fails as BAD REQUEST when the pod is in the `PodInitializing` state.
                 test ${?} -ne 0 && continue
 
+                # Wait for the pod to be initialized
+                jq -er '.status.conditions[] | select(.type == "Initialized") | .status | test("True")' <<< "${pod_status_json}" > /dev/null
+                test ${?} -ne 0 && continue
+
+                # Wait for containers to be running
+                jq -er '.status.containerStatuses[] | select(.state.running != null)' <<< "${pod_status_json}" > /dev/null
+                test ${?} -ne 0 && continue
+
+                # Start tailing logs for the pod if we haven't already
+                if ! test -f "${_podLogsDir}/${podName}"; then
+                    kubectl logs "${podName}" "${NS_OPT[@]}" -f > "${_podLogsDir}/${podName}" &
+                fi
+
                 # If the pod has a terminated state, jq will return a json object, else null
                 terminated_state_json="$(jq -er ".status.containerStatuses[].lastState.terminated" <<< "${pod_status_json}")"
                 #If jq returns non-zero exitcode, the output is null or false
@@ -564,15 +585,9 @@ for _helmTest in ${_helmTests}; do
                 # Exitcode and reason for termination does not exist in all termination states, so continue if not present
                 termination_exitcode="$(jq -er ".exitCode" <<< "${terminated_state_json}")"
                 test ${?} -ne 0 && continue
-                termination_reason="$(jq -er ".reason" <<< "${terminated_state_json}")"
-                test ${?} -ne 0 && continue
 
                 # If failed terminated container exists, print the logs
                 if test "${termination_exitcode}" != 0; then
-                    banner "Output logs for terminated pod: ${podName}"
-                    echo_red "Reason for termination: ${termination_reason}"
-                    echo_red "Exit code: ${termination_exitcode}"
-                    kubectl logs "${podName}" "${NS_OPT[@]}"
                     _poll_helm_test=false
                     _pod_terminated_with_failure=true
                 fi
@@ -624,4 +639,8 @@ for _helmTest in ${_helmTests}; do
 
     processContainerResults "initContainer"
     processContainerResults "container"
+
+    if test ${_returnCode} -ne 0; then
+        printContainerLogs
+    fi
 done
