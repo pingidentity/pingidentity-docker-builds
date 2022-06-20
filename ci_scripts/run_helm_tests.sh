@@ -477,7 +477,6 @@ for _helmTest in ${_helmTests}; do
 
     # Word-split is expected behavior for helm variables. Disable shellcheck.
     # shellcheck disable=SC2086
-    # TODO: change pingtoolkit to latest
     helm install "${_helmRelease}" "${HELM_CHART_NAME}" \
         ${_versionOpt} \
         "${NS_OPT[@]}" \
@@ -489,7 +488,7 @@ for _helmTest in ${_helmTests}; do
         --set "testFramework.testConfigMaps.prefix=${TEST_PREFIX}" \
         --set "testFramework.finalStep.image=${DEPS_REGISTRY}busybox" \
         --set "global.externalImage.pingtoolkit.image.repositoryFqn=${DEPS_REGISTRY}pingidentity/pingtoolkit" \
-        --set "global.externalImage.pingtoolkit.image.tag=2109-1.0.0-alpine_3.14-al11" \
+        --set "global.externalImage.pingtoolkit.image.tag=latest" \
         --set "global.addReleaseNameToResource=prepend"
 
     _returnCode=${?}

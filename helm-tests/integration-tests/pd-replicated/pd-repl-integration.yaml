@@ -29,10 +29,9 @@ testFramework:
       - pd-replicated.postman-collection.json
       - generated.postman-environment.json
       - global-init-test.sh
-  # TODO: change pingtoolkit to latest after 2110 release
   testSteps:
     - name: 01-wait-for-pingdirectory-0
-      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:2109-1.0.0-alpine_3.14-al11
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
       command:
         - /bin/sh
         - /var/run/wait-for-url.sh
@@ -40,7 +39,7 @@ testFramework:
         - "900"
 
     - name: 01-wait-for-pingdirectory-1
-      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:2109-1.0.0-alpine_3.14-al11
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
       command:
         - /bin/sh
         - /var/run/wait-for-url.sh
