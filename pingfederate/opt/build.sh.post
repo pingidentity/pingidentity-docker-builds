@@ -46,8 +46,6 @@ sed -i -e 's/^pf\.admin\.https\.port=.*$/pf.admin.https.port=${PF_ADMIN_PORT}/' 
 # Append values not set in the default run.properties
 echo "
 pf.admin.hostname=\${PF_ADMIN_PUBLIC_HOSTNAME}
-#### Keep the below around only until we stop pushing 10.3 images
-org.bouncycastle.fips.approved_only=\${PF_BC_FIPS_APPROVED_ONLY}
 # com.unboundid.ldap.sdk.debug.type=LDAP
 " >> "/opt/staging/instance/bin/run.properties.subst.default"
 
