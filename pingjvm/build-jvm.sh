@@ -7,10 +7,23 @@ _osArch=$(uname -m)
 # If there is no Java, we'll pull down Liberica Standard JDK
 if ! type java > /dev/null 2> /dev/null; then
     #Modify the following variables to update Alpine and RHEL image's JDK.
-    JDK_VERSION="11.0.15.1+2"
-    alpine_x86_64_checksum="1eb2be9da8323ffaae45e9e3b80067390057d82b"
-    alpine_aarch64_checksum="8b1faaaae519e6c707316791877b53100c927a9e"
-    redhat_x86_64_checksum="fe041f6fbbd883a421817c4368d2203dc75200a3"
+    case "${JVM_ID}" in
+        al11 | rl11)
+            JDK_VERSION="11.0.15.1+2"
+            alpine_x86_64_checksum="1eb2be9da8323ffaae45e9e3b80067390057d82b"
+            alpine_aarch64_checksum="8b1faaaae519e6c707316791877b53100c927a9e"
+            redhat_x86_64_checksum="fe041f6fbbd883a421817c4368d2203dc75200a3"
+            ;;
+        al17)
+            JDK_VERSION="17.0.3.1+2"
+            alpine_x86_64_checksum="d8a49af7780c8b7ad5bd896456a725245d955b4d"
+            alpine_aarch64_checksum="0e900d45a7bcb22d61d22a623d13d1e5941e8901"
+            redhat_x86_64_checksum="451ac65f0e25c33a2edf16b477bc027379bfce79"
+            ;;
+        *)
+            echo "ERROR: Unrecognized JVM_ID: ${JVM_ID}" && exit 1
+            ;;
+    esac
 
     case "${_osID}" in
         alpine)
@@ -31,6 +44,9 @@ if ! type java > /dev/null 2> /dev/null; then
             esac
             download_libc="-musl"
             download_cmd="wget -O"
+
+            # Get binutils for jlinking with Liberica JDK 17 on alpine
+            apk --no-cache --update add binutils
             ;;
         rhel)
             case "${_osArch}" in
