@@ -1,9 +1,15 @@
+# Top level ARGS used in all FROM commands
 ARG SHIM
 ARG DEPS
-ARG VERBOSE
+
 FROM ${DEPS}${SHIM} as jvm-staging
-ENV VERBOSE=${VERBOSE}
+
+# Arguments used in build-jvm.sh
+ARG VERBOSE
+ARG JVM_ID
+
 COPY ["build-jvm.sh","/"]
+
 RUN ["/build-jvm.sh"]
 
 FROM scratch

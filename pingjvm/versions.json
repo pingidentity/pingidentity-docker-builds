@@ -7,6 +7,12 @@
             "archs": ["x86_64","aarch64"]
         },
         {
+            "shims": ["alpine"],
+            "id": "al17",
+            "version": "17",
+            "archs": ["x86_64","aarch64"]
+        },
+        {
             "shims": ["centos"],
             "id": "conoj",
             "version": "0",

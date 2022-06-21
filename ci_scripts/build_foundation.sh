@@ -250,6 +250,7 @@ for _shim in ${shims}; do
             ${VERBOSE:+--build-arg VERBOSE="true"} \
             --build-arg SHIM="${_shim}" \
             --build-arg DEPS="${DEPS_REGISTRY}" \
+            --build-arg JVM_ID="${_jvm}" \
             -t "${_image}" "${CI_PROJECT_DIR}/pingjvm"
         _returnCode=${?}
         _stop=$(date '+%s')
