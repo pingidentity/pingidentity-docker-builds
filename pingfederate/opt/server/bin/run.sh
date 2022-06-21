@@ -72,6 +72,21 @@ if ! test -r "${run_props}"; then
     run_props=""
 fi
 
+JAVA_VERSION=$("${JAVA_HOME}/bin/java" -version 2>&1 | grep "version" | head -n 1 | cut -d\" -f 2)
+JAVA_MAJOR_VERSION=$(echo "${JAVA_VERSION}" | sed -e 's/_/./' | cut -d. -f 1)
+
+# java 17 support
+if test "${JAVA_MAJOR_VERSION}" = "17"; then
+    JAVA_OPTS="${JAVA_OPTS} --add-opens=java.base/java.lang=ALL-UNNAMED"
+    JAVA_OPTS="${JAVA_OPTS} --add-opens=java.base/java.util=ALL-UNNAMED"
+    JAVA_OPTS="${JAVA_OPTS} --add-exports=java.base/sun.security.x509=ALL-UNNAMED"
+    JAVA_OPTS="${JAVA_OPTS} --add-exports=java.base/sun.security.util=ALL-UNNAMED"
+    JAVA_OPTS="${JAVA_OPTS} --add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED"
+    JAVA_OPTS="${JAVA_OPTS} --add-exports=java.base/sun.net.util=ALL-UNNAMED"
+    JAVA_OPTS="${JAVA_OPTS} --add-exports=java.base/sun.security.pkcs=ALL-UNNAMED"
+    JAVA_OPTS="${JAVA_OPTS} --add-exports=java.base/sun.security.pkcs10=ALL-UNNAMED"
+fi
+
 # Word-split is expected behavior for $JAVA_OPTS and $JVM_OPTS. Disable Shellcheck
 # shellcheck disable=SC2086
 exec "${JAVA_HOME}"/bin/java ${JAVA_OPTS} ${JVM_OPTS} \
