@@ -24,6 +24,7 @@ intel.b.pingdatasync:
         - ci_scripts/*
         - pingjvm/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingdatasync/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
@@ -53,6 +54,7 @@ arm.b.pingdatasync:
         - ci_scripts/*
         - pingjvm/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingdatasync/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
@@ -82,6 +84,7 @@ intel.t.pingdatasync:
         - ci_scripts/*
         - pingjvm/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingdatasync/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
@@ -110,6 +113,7 @@ arm.t.pingdatasync:
         - ci_scripts/*
         - pingjvm/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingdatasync/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success

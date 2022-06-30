@@ -22,7 +22,7 @@ intel.pd-repl.liberica:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - integration_tests/**/pd-replicated*
+        - helm-tests/integration-tests/pd-replicated/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
@@ -61,7 +61,7 @@ arm.pd-repl.liberica:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - integration_tests/**/pd-replicated*
+        - helm-tests/integration-tests/pd-replicated/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
@@ -100,7 +100,7 @@ intel.pa-pf-pd-fips.liberica:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - integration_tests/**/pa-pf-pd*
+        - helm-tests/integration-tests/pa-pf-pd-fips/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
@@ -138,7 +138,7 @@ intel.pa-pf-pd.liberica:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - integration_tests/**/pa-pf-pd*
+        - helm-tests/integration-tests/pa-pf-pd/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
@@ -179,7 +179,7 @@ arm.pa-pf-pd.liberica:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - integration_tests/**/pa-pf-pd*
+        - helm-tests/integration-tests/pa-pf-pd/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
@@ -217,7 +217,7 @@ intel.pds-pd.liberica:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - integration_tests/**/pds-pd*
+        - helm-tests/integration-tests/pds-pd/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
@@ -258,7 +258,7 @@ arm.pds-pd.liberica:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - integration_tests/**/pds-pd*
+        - helm-tests/integration-tests/pds-pd/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
@@ -295,7 +295,7 @@ intel.pdp-pd.liberica:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - integration_tests/**/pdp-pd*
+        - helm-tests/integration-tests/pdp-pd/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
@@ -335,7 +335,7 @@ arm.pdp-pd.liberica:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - integration_tests/**/pdp-pd*
+        - helm-tests/integration-tests/pdp-pd/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
@@ -372,7 +372,7 @@ intel.paz-pd.liberica:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - integration_tests/**/paz-pd*
+        - helm-tests/integration-tests/paz-pd/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
@@ -412,7 +412,7 @@ arm.paz-pd.liberica:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - integration_tests/**/paz-pd*
+        - helm-tests/integration-tests/paz-pd/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingdatacommon/**/*
