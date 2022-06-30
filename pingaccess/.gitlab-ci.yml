@@ -25,6 +25,7 @@ intel.b.pingaccess:
         - pingjvm/*
         - ci_scripts/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingaccess/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
@@ -55,6 +56,7 @@ arm.b.pingaccess:
         - pingjvm/*
         - ci_scripts/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingaccess/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
@@ -84,6 +86,7 @@ intel.t.pingaccess:
         - pingjvm/*
         - ci_scripts/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingaccess/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
@@ -112,6 +115,7 @@ arm.t.pingaccess:
         - pingjvm/*
         - ci_scripts/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingaccess/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success

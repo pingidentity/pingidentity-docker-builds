@@ -22,6 +22,7 @@ intel.b.pingdelegator:
         - pingdelegator/**/*
         - ci_scripts/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingdelegator/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
@@ -49,6 +50,7 @@ arm.b.pingdelegator:
         - pingdelegator/**/*
         - ci_scripts/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingdelegator/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
@@ -78,6 +80,7 @@ intel.t.pingdelegator:
         - pingdelegator/**/*
         - ci_scripts/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingdelegator/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
@@ -106,6 +109,7 @@ arm.t.pingdelegator:
         - pingdelegator/**/*
         - ci_scripts/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingdelegator/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
