@@ -23,6 +23,7 @@ intel.b.pingintelligence:
         - pingbase/**/*
         - ci_scripts/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingintelligence/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
@@ -34,7 +35,7 @@ intel.b.pingintelligence:
 intel.t.pingintelligence:
   stage: test.smoke
   script:
-    - ci_scripts/run_smoke.sh --product pingintelligence
+    - ci_scripts/run_helm_smoke.sh --product pingintelligence
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
@@ -52,6 +53,7 @@ intel.t.pingintelligence:
         - pingbase/**/*
         - ci_scripts/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingintelligence/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success

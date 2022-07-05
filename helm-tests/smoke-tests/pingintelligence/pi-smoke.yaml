@@ -1,0 +1,35 @@
+###############################################################################
+# Ping Identity Test - PingIntelligence Smoke Test
+#
+#
+###############################################################################
+pingintelligence:
+  enabled: true
+  envs:
+    PING_INTELLIGENCE_ABS_DEPLOYMENT_TYPE: "onprem"
+    PING_INTELLIGENCE_ASE_ENABLE_ABS: "false"
+  container:
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+  testConfigMaps:
+    files:
+      - global-init-test.sh
+      - pi-smoke.postman-collection.json
+      - generated.postman-environment.json
+
+  testSteps:
+    - name: 01-wait-for
+      waitFor:
+        pingintelligence:
+          service: https
