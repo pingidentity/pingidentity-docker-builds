@@ -1,0 +1,401 @@
+{
+	"info": {
+		"_postman_id": "11a43168-5cbc-4ba8-897d-b6d657899774",
+		"name": "pi-smoke",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13718494"
+	},
+	"item": [
+		{
+			"name": "List API",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"function _isContains(json, keyname, value) {",
+							"return Object.keys(json).some(key => {",
+							"        return typeof json[key] === 'object' ? ",
+							"        _isContains(json[key], keyname, value) : key === keyname && json[key] === value;",
+							"    });",
+							"}",
+							"",
+							"pm.test(\"api_id is present\", function(){",
+							"    pm.expect(_isContains(jsonData.api, \"api_id\", \"root\")).to.be.true;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "{{Access_Key_Header}}",
+						"value": "{{Access_Key}}"
+					},
+					{
+						"key": "{{Secret_Key_Header}}",
+						"value": "{{Secret_key}}"
+					}
+				],
+				"url": {
+					"raw": "{{List_API}}",
+					"host": [
+						"{{List_API}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create API",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"status is present\", function(){",
+							"    pm.expect(jsonData[\"status\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"status is success\", function(){",
+							"    pm.expect(jsonData[\"status\"]).to.be.equal(\"success\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "{{Access_Key_Header}}",
+						"value": "{{Access_Key}}"
+					},
+					{
+						"key": "{{Secret_Key_Header}}",
+						"value": "{{Secret_key}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"api_metadata\": {\n        \"protocol\": \"http\",\n        \"url\": \"/shopapi\",\n        \"cookie\": \"JSESSIONID\",\n        \"hostname\": \"*\",\n        \"cookie_idle_timeout\": \"200m\",\n        \"logout_api_enabled\": false,\n        \"cookie_persistence_enabled\": false,\n        \"login_url\": \"/shopapi/login\",\n        \"oauth2_access_token\": false,\n        \"apikey_qs\": \"\",\n        \"apikey_header\": \"MyAPIKey\",\n        \"enable_blocking\": true,\n        \"api_mapping\": {\n            \"internal_url\": \"/app\"\n        },\n        \"api_pattern_enforcement\": {\n            \"protocol_allowed\": \"\",\n            \"http_redirect\": {\n                \"response_code\": \"\",\n                \"response_def\": \"\",\n                \"https_url\": \"\"\n            },\n            \"methods_allowed\": [\n                \"GET\",\n                \"PUT\",\n                \"POST\",\n                \"DELETE\",\n                \"HEAD\"\n            ],\n            \"content_type_allowed\": \"application/text\",\n            \"error_code\": \"401\",\n            \"error_def\": \"Unauthorized\",\n            \"error_message_body\": \"401 Unauthorized\"\n        },\n        \"flow_control\": {\n            \"client_spike_threshold\": \"500/second\",\n            \"server_connection_queueing\": false\n        },\n        \"api_memory_size\": \"128mb\",\n        \"health_check\": true,\n        \"health_check_interval\": 60,\n        \"health_retry_count\": 4,\n        \"health_url\": \"/app/home\",\n        \"server_ssl\": false,\n        \"servers\": [\n            {\n                \"host\": \"3.85.169.62\",\n                \"port\": 4100,\n                \"server_connection_quota\": 4500,\n                \"server_spike_threshold\": \"200/second\"\n            },\n            {\n                \"host\": \"10.96.2.31\",\n                \"port\": 4200,\n                \"server_connection_quota\": 4500,\n                \"server_spike_threshold\": \"200/second\"\n            }\n        ],\n        \"decoy_config\": {\n            \"decoy_enabled\": true,\n            \"response_code\": 200,\n            \"response_def\": \"200 OK\",\n            \"response_message\": \"200 OK\",\n            \"decoy_subpaths\": [\n                \"/shopapi/online\",\n                \"/shopapi/offline\"\n            ]\n         },\n        \"username_header\": \"x-username-header\"\n    }\n}"
+				},
+				"url": {
+					"raw": "{{API}}=shopapi",
+					"host": [
+						"{{API}}=shopapi"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read API",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "{{Access_Key_Header}}",
+						"value": "{{Access_Key}}"
+					},
+					{
+						"key": "{{Secret_Key_Header}}",
+						"value": "{{Secret_key}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{API}}=shopapi",
+					"host": [
+						"{{API}}=shopapi"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update API",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"status is present\", function(){",
+							"    pm.expect(jsonData[\"status\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"status is success\", function(){",
+							"    pm.expect(jsonData[\"status\"]).to.be.equal(\"success\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "{{Access_Key_Header}}",
+						"value": "{{Access_Key}}"
+					},
+					{
+						"key": "{{Secret_Key_Header}}",
+						"value": "{{Secret_key}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"api_metadata\": {\n        \"protocol\": \"https\",\n        \"url\": \"/shopapi\",\n        \"cookie\": \"JSESSIONID\",\n        \"hostname\": \"*\",\n        \"cookie_idle_timeout\": \"200m\",\n        \"logout_api_enabled\": false,\n        \"cookie_persistence_enabled\": false,\n        \"login_url\": \"/shopapi/login\",\n        \"oauth2_access_token\": false,\n        \"apikey_qs\": \"\",\n        \"apikey_header\": \"MyAPIKey\",\n        \"enable_blocking\": true,\n        \"api_mapping\": {\n            \"internal_url\": \"/app\"\n        },\n        \"api_pattern_enforcement\": {\n            \"protocol_allowed\": \"\",\n            \"http_redirect\": {\n                \"response_code\": \"\",\n                \"response_def\": \"\",\n                \"https_url\": \"\"\n            },\n            \"methods_allowed\": [\n                \"GET\",\n                \"PUT\",\n                \"POST\",\n                \"DELETE\",\n                \"HEAD\"\n            ],\n            \"content_type_allowed\": \"application/text\",\n            \"error_code\": \"401\",\n            \"error_def\": \"Unauthorized\",\n            \"error_message_body\": \"401 Unauthorized\"\n        },\n        \"flow_control\": {\n            \"client_spike_threshold\": \"500/second\",\n            \"server_connection_queueing\": false\n        },\n        \"api_memory_size\": \"128mb\",\n        \"health_check\": true,\n        \"health_check_interval\": 60,\n        \"health_retry_count\": 4,\n        \"health_url\": \"/app/home\",\n        \"server_ssl\": false,\n        \"servers\": [\n            {\n                \"host\": \"3.85.169.62\",\n                \"port\": 4100,\n                \"server_connection_quota\": 4500,\n                \"server_spike_threshold\": \"200/second\"\n            },\n            {\n                \"host\": \"10.96.2.31\",\n                \"port\": 4200,\n                \"server_connection_quota\": 4500,\n                \"server_spike_threshold\": \"200/second\"\n            }\n        ],\n        \"decoy_config\": {\n            \"decoy_enabled\": true,\n            \"response_code\": 200,\n            \"response_def\": \"200 OK\",\n            \"response_message\": \"200 OK\",\n            \"decoy_subpaths\": [\n                \"/shopapi/online\",\n                \"/shopapi/offline\"\n            ]\n         },\n        \"username_header\": \"x-username-header\"\n    }\n}"
+				},
+				"url": {
+					"raw": "{{API}}=shopapi",
+					"host": [
+						"{{API}}=shopapi"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete API",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"status is present\", function(){",
+							"    pm.expect(jsonData[\"status\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"status is success\", function(){",
+							"    pm.expect(jsonData[\"status\"]).to.be.equal(\"success\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "{{Access_Key_Header}}",
+						"value": "{{Access_Key}}"
+					},
+					{
+						"key": "{{Secret_Key_Header}}",
+						"value": "{{Secret_key}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{API}}=shopapi",
+					"host": [
+						"{{API}}=shopapi"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "ASE_IP",
+			"value": "{{PI_ASE_PRIVATE_HOSTNAME}}",
+			"type": "string"
+		},
+		{
+			"key": "Port",
+			"value": "8010"
+		},
+		{
+			"key": "Access_Key_Header",
+			"value": "x-ase-access-key"
+		},
+		{
+			"key": "Secret_Key_Header",
+			"value": "x-ase-secret-key"
+		},
+		{
+			"key": "Access_Key",
+			"value": "admin"
+		},
+		{
+			"key": "Secret_key",
+			"value": "admin"
+		},
+		{
+			"key": "API_Name",
+			"value": "pubatmapp"
+		},
+		{
+			"key": "System_URL",
+			"value": "https://{{ASE_IP}}:{{Port}}/v5/ase"
+		},
+		{
+			"key": "List_API",
+			"value": "{{System_URL}}/api"
+		},
+		{
+			"key": "API",
+			"value": "{{List_API}}?api_id"
+		},
+		{
+			"key": "Cluster",
+			"value": "{{System_URL}}/cluster"
+		},
+		{
+			"key": "PersistentConnection",
+			"value": "{{System_URL}}/persistentconnection?api_id"
+		},
+		{
+			"key": "FireWall",
+			"value": "{{System_URL}}/firewall"
+		},
+		{
+			"key": "UpdateFireWall",
+			"value": "{{FireWall}}?status"
+		},
+		{
+			"key": "Blacklist",
+			"value": "{{FireWall}}/blacklist?tag"
+		},
+		{
+			"key": "Whitelist",
+			"value": "{{FireWall}}/whitelist?tag"
+		},
+		{
+			"key": "SideBandAuthentication",
+			"value": "{{System_URL}}/sideband/authentication"
+		},
+		{
+			"key": "Tokens",
+			"value": "{{System_URL}}/sideband/token"
+		}
+	]
+}
