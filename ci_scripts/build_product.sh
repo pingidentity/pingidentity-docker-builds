@@ -148,6 +148,21 @@ _totalStart=$(date '+%s')
 _date=$(date +"%y%m%d")
 
 returnCode=0
+
+# Check if the given dryRun executes successfully
+exec_cmd_or_fail() {
+    eval "${dryRun} ${*}"
+    result_code=${?}
+    if test ${result_code} -ne 0; then
+        echo_red "The following command resulted in an error: ${*}"
+        returnCode=${result_code}
+        _result=FAIL
+        if test -n "${failFast}"; then
+            exit ${result_code}
+        fi
+    fi
+}
+
 for _version in ${versionsToBuild}; do
     # if the list of shims was not provided as arguments, get the list from the versions file
     if test -z "${shimsToBuild}"; then
@@ -232,21 +247,21 @@ for _version in ${versionsToBuild}; do
             else
                 _result=PASS
                 if test -z "${IS_LOCAL_BUILD}"; then
-                    ${dryRun} docker push "${_image}"
+                    exec_cmd_or_fail docker push "${_image}"
                     if test -n "${PING_IDENTITY_SNAPSHOT}"; then
-                        ${dryRun} docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
-                        ${dryRun} docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
-                        ${dryRun} docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
-                        ${dryRun} docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-$(date "+%m%d%Y")"
-                        ${dryRun} docker push "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-$(date "+%m%d%Y")"
-                        ${dryRun} docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-$(date "+%m%d%Y")"
+                        exec_cmd_or_fail docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
+                        exec_cmd_or_fail docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
+                        exec_cmd_or_fail docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
+                        exec_cmd_or_fail docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-$(date "+%m%d%Y")"
+                        exec_cmd_or_fail docker push "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-$(date "+%m%d%Y")"
+                        exec_cmd_or_fail docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-$(date "+%m%d%Y")"
                         if test "${ARCH}" = "x86_64"; then
-                            ${dryRun} docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
-                            ${dryRun} docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
-                            ${dryRun} docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
+                            exec_cmd_or_fail docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
+                            exec_cmd_or_fail docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
+                            exec_cmd_or_fail docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
                         fi
                     fi
-                    ${dryRun} docker image rm -f "${_image}"
+                    exec_cmd_or_fail docker image rm -f "${_image}"
                 fi
             fi
             append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${productToBuild}" "${_buildVersion}" "${_shim}" "${_jvm}" "${_duration}" "${_result}"
@@ -259,11 +274,11 @@ if test -z "${IS_LOCAL_BUILD}"; then
     imagesToClean=$(docker image ls -qf "reference=*/*/*${CI_TAG}*" | sort | uniq)
     # Word-split is expected behavior for $imagesToClean. Disable shellcheck.
     # shellcheck disable=SC2086
-    test -n "${imagesToClean}" && ${dryRun} docker image rm -f ${imagesToClean}
+    test -n "${imagesToClean}" && exec_cmd_or_fail docker image rm -f ${imagesToClean}
     imagesToClean=$(docker image ls -qf "dangling=true")
     # Word-split is expected behavior for $imagesToClean. Disable shellcheck.
     # shellcheck disable=SC2086
-    test -n "${imagesToClean}" && ${dryRun} docker image rm -f ${imagesToClean}
+    test -n "${imagesToClean}" && exec_cmd_or_fail docker image rm -f ${imagesToClean}
 fi
 
 cat ${_resultsFile}

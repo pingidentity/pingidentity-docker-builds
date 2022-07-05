@@ -89,6 +89,16 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
+exec_cmd_or_fail() {
+    eval "${*}"
+    result_code=${?}
+    if test ${result_code} -ne 0; then
+        returnCode=${result_code}
+        echo_red "The following command resulted in an error: ${*}"
+        _result=FAIL
+    fi
+}
+
 if test -z "${IS_LOCAL_BUILD}"; then
     banner "CI FOUNDATION BUILD"
     # get the list of running containers.
@@ -96,24 +106,24 @@ if test -z "${IS_LOCAL_BUILD}"; then
     # stop all running containers
     # Word-split is expected behavior for $_containersList. Disable shellcheck.
     # shellcheck disable=SC2086
-    test -n "${_containersList}" && docker container stop ${_containersList}
+    test -n "${_containersList}" && exec_cmd_or_fail docker container stop ${_containersList}
 
     # get list of all stopped containers lingering
     _containersList="$(docker container ls -aq | sort | uniq)"
     # remove all containers
     # Word-split is expected behavior for $_containersList. Disable shellcheck.
     # shellcheck disable=SC2086
-    test -n "${_containersList}" && docker container rm -f ${_containersList}
+    test -n "${_containersList}" && exec_cmd_or_fail docker container rm -f ${_containersList}
 
     # get the list of all images in the local repo
     _imagesList="$(docker image ls -q | sort | uniq)"
     # Word-split is expected behavior for $_imagesList. Disable shellcheck.
     # shellcheck disable=SC2086
-    test -n "${_imagesList}" && docker image rm -f ${_imagesList}
+    test -n "${_imagesList}" && exec_cmd_or_fail docker image rm -f ${_imagesList}
 
     # wipe everything clean
-    docker image prune -f
-    docker network prune -f
+    exec_cmd_or_fail docker image prune -f
+    exec_cmd_or_fail docker network prune -f
 else
     banner "LOCAL FOUNDATION BUILD"
 fi
@@ -149,7 +159,7 @@ else
     _result="PASS"
     if test -z "${IS_LOCAL_BUILD}"; then
         banner "Pushing ${_image}"
-        docker push "${_image}"
+        exec_cmd_or_fail docker push "${_image}"
     fi
     append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingcommon" "${_duration}" "${_result}"
 fi
@@ -177,7 +187,7 @@ else
     _result="PASS"
     if test -z "${IS_LOCAL_BUILD}"; then
         banner "Pushing ${_image}"
-        docker push "${_image}"
+        exec_cmd_or_fail docker push "${_image}"
     fi
     append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingdatacommon" "${_duration}" "${_result}"
 fi
@@ -262,7 +272,7 @@ for _shim in ${shims}; do
             _result="PASS"
             if test -z "${IS_LOCAL_BUILD}"; then
                 banner "Pushing ${_image}"
-                docker push "${_image}"
+                exec_cmd_or_fail docker push "${_image}"
             fi
         fi
         append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingjvm:${_jvm}-${_shimTag}" "${_duration}" "${_result}"
@@ -289,7 +299,7 @@ else
     _result="PASS"
     if test -z "${IS_LOCAL_BUILD}"; then
         banner "Pushing ${_image}"
-        docker push "${_image}"
+        exec_cmd_or_fail docker push "${_image}"
     fi
 fi
 append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingbase" "${_duration}" "${_result}"
@@ -298,7 +308,7 @@ imagesToCleanup="${imagesToCleanup} ${_image}"
 # leave runner without clutter
 # Word-Split is expected behavior for $imagesToCleanup. Disable shellcheck.
 # shellcheck disable=SC2086
-test -z "${IS_LOCAL_BUILD}" && docker image rm -f ${imagesToCleanup}
+test -z "${IS_LOCAL_BUILD}" && exec_cmd_or_fail docker image rm -f ${imagesToCleanup}
 
 cat ${_resultsFile}
 rm ${_resultsFile}
