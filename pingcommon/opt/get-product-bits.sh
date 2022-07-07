@@ -94,13 +94,13 @@ case "${product_name}" in
             product_version_metadata_url="${SNAPSHOT_URL}/com/unboundid/product/ds/broker/${product_version}/maven-metadata.xml"
             product_snapshot_id="$(wget -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
 
-            bits_file_name="broker-${product_snapshot_id}-image.zip"
+            bits_file_name="broker-${product_snapshot_id}-docker-image.zip"
             bits_download_url="${SNAPSHOT_URL}/com/unboundid/product/ds/broker/${product_version}/${bits_file_name}"
         else
             bits_file_name="PingAuthorize-${product_version}.zip"
             # Remove `-EA` or similar from PingData zip file names
             bits_file_name="$(echo "${bits_file_name}" | sed -e "s/-[^0-9\.]*\.zip/\.zip/")"
-            bits_download_url="${ARTIFACTORY_URL}/installs/com/pingidentity/${product_name}/${product_name}/${product_version}/${bits_file_name}"
+            bits_download_url="${ARTIFACTORY_URL}/installs/com/pingidentity/${product_name}/${product_name}/${product_version}/docker/${bits_file_name}"
         fi
         ;;
     pingauthorizepap)
@@ -137,13 +137,13 @@ case "${product_name}" in
             product_version_metadata_url="${SNAPSHOT_URL}/com/unboundid/product/ds/sync/${product_version}/maven-metadata.xml"
             product_snapshot_id="$(wget -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
 
-            bits_file_name="sync-${product_snapshot_id}-image.zip"
+            bits_file_name="sync-${product_snapshot_id}-docker-image.zip"
             bits_download_url="${SNAPSHOT_URL}/com/unboundid/product/ds/sync/${product_version}/${bits_file_name}"
         else
             bits_file_name="PingDataSync-${product_version}.zip"
             # Remove `-EA` or similar from PingData zip file names
             bits_file_name="$(echo "${bits_file_name}" | sed -e "s/-[^0-9\.]*\.zip/\.zip/")"
-            bits_download_url="${ARTIFACTORY_URL}/installs/com/pingidentity/${product_name}/${product_version}/${bits_file_name}"
+            bits_download_url="${ARTIFACTORY_URL}/installs/com/pingidentity/${product_name}/${product_version}/docker/${bits_file_name}"
         fi
         ;;
     pingdelegator)
@@ -165,13 +165,13 @@ case "${product_name}" in
             product_version_metadata_url="${SNAPSHOT_URL}/com/unboundid/product/ds/directory/${product_version}/maven-metadata.xml"
             product_snapshot_id="$(wget -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
 
-            bits_file_name="directory-${product_snapshot_id}-image.zip"
+            bits_file_name="directory-${product_snapshot_id}-docker-image.zip"
             bits_download_url="${SNAPSHOT_URL}/com/unboundid/product/ds/directory/${product_version}/${bits_file_name}"
         else
             bits_file_name="PingDirectory-${product_version}.zip"
             # Remove `-EA` or similar from PingData zip file names
             bits_file_name="$(echo "${bits_file_name}" | sed -e "s/-[^0-9\.]*\.zip/\.zip/")"
-            bits_download_url="${ARTIFACTORY_URL}/installs/com/pingidentity/pingdirectory/${product_version}/${bits_file_name}"
+            bits_download_url="${ARTIFACTORY_URL}/installs/com/pingidentity/pingdirectory/${product_version}/docker/${bits_file_name}"
         fi
         ;;
     pingdirectoryproxy)
@@ -180,13 +180,13 @@ case "${product_name}" in
             product_version_metadata_url="${SNAPSHOT_URL}/com/unboundid/product/ds/proxy/${product_version}/maven-metadata.xml"
             product_snapshot_id="$(wget -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
 
-            bits_file_name="proxy-${product_snapshot_id}-image.zip"
+            bits_file_name="proxy-${product_snapshot_id}-docker-image.zip"
             bits_download_url="${SNAPSHOT_URL}/com/unboundid/product/ds/proxy/${product_version}/${bits_file_name}"
         else
             bits_file_name="PingDirectoryProxy-${product_version}.zip"
             # Remove `-EA` or similar from PingData zip file names
             bits_file_name="$(echo "${bits_file_name}" | sed -e "s/-[^0-9\.]*\.zip/\.zip/")"
-            bits_download_url="${ARTIFACTORY_URL}/installs/com/pingidentity/${product_name}/${product_version}/${bits_file_name}"
+            bits_download_url="${ARTIFACTORY_URL}/installs/com/pingidentity/${product_name}/${product_version}/docker/${bits_file_name}"
         fi
         ;;
     pingfederate)

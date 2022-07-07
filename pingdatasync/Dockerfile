@@ -48,17 +48,6 @@ COPY ["tmp/", "/tmp/"]
 COPY --from=common ["/opt/get-product-bits.sh","/opt/get-product-bits.sh"]
 RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
     && unzip -q /tmp/product.zip -d /tmp/ \
-        -x *.bat \
-        -x *.dll \
-        -x *.exe \
-        -x */start-ds \
-        -x */stop-ds \
-        -x */docs/* \
-        -x */uninstall \
-        -x */webapps/* \
-        -x */resource/*.zip \
-        -x */_script-util.sh \
-        -x */lib/wrapper.jar \
     && mv /tmp/PingDataSync /opt/server
 
 #################################################################################

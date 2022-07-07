@@ -56,7 +56,6 @@ RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
         -x */docs/* \
         -x */uninstall \
         -x */webapps/* \
-        -x */resource/*.zip \
         -x */_script-util.sh \
     && mv /tmp/PingAuthorize-PAP /opt/server
 

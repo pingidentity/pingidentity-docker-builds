@@ -50,23 +50,6 @@ COPY --from=common ["/opt/get-product-bits.sh","/opt/get-product-bits.sh"]
 RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
     && unzip -q /tmp/product.zip \
         -d /tmp/ \
-        -x *.bat \
-        -x *.dll \
-        -x *.exe \
-        -x */start-ds \
-        -x */stop-ds \
-        -x */uninstall \
-        -x */webapps/* \
-        -x */resource/*.zip \
-        -x */_script-util.sh \
-        -x */config/MakeLDIF/* \
-        -x */bin/make-ldif \
-        -x */lib/wrapper.jar \
-    && find /tmp/PingDirectoryProxy/docs -type f \
-        ! -iname "unboundid.css" \
-        ! -path "/tmp/PingDirectoryProxy/docs/images/*" \
-        ! -path "/tmp/PingDirectoryProxy/docs/rest-api-specs/*" \
-        -delete \
     && mv /tmp/PingDirectoryProxy /opt/server
 
 #################################################################################
