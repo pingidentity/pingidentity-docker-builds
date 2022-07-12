@@ -249,7 +249,11 @@ _create_helm_values() {
             test -n "${_defaultShimLongTag}" && _tag="${_tag:+${_tag}-}${_defaultShimLongTag}"
 
             # Add the jvm to the tag.  Example: al11
-            test -n "${_image_tag_jvm}" && _tag="${_tag:+${_tag}-}${_image_tag_jvm}"
+            if [ "$_productName" == pingintelligence ]; then
+                test -n "${_image_tag_jvm}" && _tag="${_tag:+${_tag}-}conoj"
+            else
+                test -n "${_image_tag_jvm}" && _tag="${_tag:+${_tag}-}${_image_tag_jvm}"
+            fi
 
             # CI_TAG is assigned when we source ci_tools.lib.sh (i.e. run in pipeline)
             test -n "${CI_TAG}" && _tag="${_tag:+${_tag}-}${CI_TAG}"

@@ -278,6 +278,7 @@ processContainerResults() {
     _testPodName="${_helmRelease}-${TEST_SUFFIX}"
 
     for _icName in $(kubectl get pods "${_testPodName}" "${NS_OPT[@]}" -o json | jq -r ".status.${_contType}Statuses[] | .name"); do
+        banner "Logs: ${_icName}"
         _icStatus=$(kubectl get pods "${_testPodName}" "${NS_OPT[@]}" -o json | jq -r ".status.${_contType}Statuses[] | select(.name | test(\"${_icName}\"))")
 
         _icExit=$(jq -r .state.terminated.exitCode <<< "${_icStatus}")
@@ -304,6 +305,10 @@ processContainerResults() {
             _result="FAIL"
             _duration="-"
             test "${_icReason}" == "null" && _icReason="-"
+        fi
+
+        if test "${_contType}" == "initContainer"; then
+            kubectl logs "${_testPodName}" "${NS_OPT[@]}" -c "${_icName}" 2> /dev/null
         fi
 
         append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "  ${_icName}" "${_duration}" "${_icReason}"

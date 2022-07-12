@@ -433,7 +433,8 @@ arm.paz-pd.liberica:
 intel.pi-basic.latest:
   stage: test.integration
   script:
-    - ci_scripts/run_integration.sh pi-basic
+    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pi
+  retry: 1
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
@@ -445,7 +446,7 @@ intel.pi-basic.latest:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - integration_tests/**/pi-basic*
+        - helm-tests/integration-tests/pa-pf-pi/*
         - pingbase/**/*
         - pingcommon/**/*
         - pingintelligence/**/*
