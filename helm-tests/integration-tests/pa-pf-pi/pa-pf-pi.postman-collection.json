@@ -1,0 +1,595 @@
+{
+	"info": {
+		"_postman_id": "3b0ecf3b-e2c3-4473-967f-e25373550985",
+		"name": "pa-pf-pi",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13718494"
+	},
+	"item": [
+		{
+			"name": "PF CHECK PingFederate engine honors requests",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var _retries = pm.environment.get(\"_retries\");",
+							"// Checks to see if the server actually responded and is valid JSON",
+							"var isResponseBodyJson = false;",
+							"try {",
+							"  JSON.parse(responseBody);",
+							"  isResponseBodyJson = true;",
+							"} catch (e) {",
+							"  console.log(\"Invalid: \" + responseBody);",
+							"  // try again",
+							"}",
+							"if (pm.response.code == 200 && isResponseBodyJson) {",
+							"    pm.environment.unset(\"_retries\");",
+							"    console.log(\"connection successful\");",
+							"",
+							"    pm.test(\"response is ok\", function () {",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"",
+							"    pm.test(\"response is not empty\", function () {",
+							"        pm.response.to.have.body();",
+							"    });",
+							"",
+							"    pm.test(\"response is JSON\", function(){",
+							"        pm.response.to.be.json;",
+							"    });",
+							"",
+							"    var jsonData = JSON.parse(responseBody);",
+							"",
+							"    pm.test(\"cpu.load key is present\", function () {",
+							"        pm.expect(jsonData.hasOwnProperty(\"cpu.load\")).to.be.true;",
+							"    });",
+							"",
+							"    var schema = pm.response.json();",
+							"    var data1 = [true, false];",
+							"    var data2 = [true, 123];",
+							"",
+							"    pm.test('Schema is valid', function() {",
+							"    pm.expect(tv4.validate(data1, schema)).to.be.true;",
+							"    pm.expect(tv4.validate(data2, schema)).to.be.true;",
+							"    });",
+							"} else {",
+							"    if (!_retries) {",
+							"        _retries = 10;",
+							"    }",
+							"",
+							"    if (_retries > 0) {",
+							"        _retries--;",
+							"        pm.environment.set(\"_retries\", _retries);",
+							"        var timeout = _.random(1000, 15000);",
+							"        console.log(\"Attempting next connection in \" + timeout + \"ms ...\");",
+							"        // loop back to this request (request.name) after the timeout elapses",
+							"        setTimeout(function () { postman.setNextRequest(request.name); }, timeout);",
+							"    } else {",
+							"        postman.setNextRequest(null);",
+							"    }",
+							"}",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var _host = pm.variables.get(\"PF_ENGINE_PRIVATE_HOSTNAME\");",
+							"var _port = pm.variables.get(\"PF_ENGINE_PRIVATE_PORT_HTTPS\");",
+							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{PF_ENGINE_PRIVATE_HOSTNAME}}:{{PF_ENGINE_PRIVATE_PORT_HTTPS}}/pf/heartbeat.ping",
+					"protocol": "https",
+					"host": [
+						"{{PF_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PF_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"pf",
+						"heartbeat.ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PF CHECK PingFederate admin honors requests",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var _retries = pm.environment.get(\"_retries\");",
+							"",
+							"// Checks to see if the server actually responded",
+							"if (pm.response.code == 200 ) {",
+							"    pm.environment.unset(\"_retries\");",
+							"    console.log(\"connection successful\");",
+							"",
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"} else {",
+							"    if (!_retries){",
+							"        _retries=10;",
+							"    }",
+							"    ",
+							"    if ( _retries > 0 ) {",
+							"        _retries--;",
+							"        pm.environment.set(\"_retries\", _retries);",
+							"        var timeout=_.random(1000,15000);",
+							"        console.log(\"Attempting next connection in \"+timeout+\"ms ...\");",
+							"        // loop back to this request (request.name) after the timeout elapses",
+							"        setTimeout(function() {postman.setNextRequest(request.name);}, timeout);",
+							"    } else { ",
+							"        postman.setNextRequest(null);",
+							"    }",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var _host = pm.variables.get(\"PF_ADMIN_PRIVATE_HOSTNAME\");",
+							"var _port = pm.variables.get(\"PF_ADMIN_PRIVATE_PORT_HTTPS\");",
+							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{admin_pwd}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{admin_user}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{PF_ADMIN_PRIVATE_HOSTNAME}}:{{PF_ADMIN_PRIVATE_PORT_HTTPS}}/pingfederate/app",
+					"protocol": "https",
+					"host": [
+						"{{PF_ADMIN_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PF_ADMIN_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"pingfederate",
+						"app"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PA CHECK PingAccess engine honors requests",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var _host = pm.variables.get(\"PA_ENGINE_PRIVATE_HOSTNAME\");",
+							"var _port = pm.variables.get(\"PA_ENGINE_PRIVATE_PORT_HTTPS\");",
+							"console.log(\"Attempting connection to https://\"+_host+\":\" +_port+ \" ...\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"cpu.load key is present\", function () {",
+							"    pm.expect(jsonData.hasOwnProperty(\"cpu.load\")).to.be.true;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{PA_ENGINE_PRIVATE_HOSTNAME}}:{{PA_ENGINE_PRIVATE_PORT_HTTPS}}/pa/heartbeat.ping",
+					"protocol": "https",
+					"host": [
+						"{{PA_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PA_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"pa",
+						"heartbeat.ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List API",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"function _isContains(json, keyname, value) {",
+							"return Object.keys(json).some(key => {",
+							"        return typeof json[key] === 'object' ? ",
+							"        _isContains(json[key], keyname, value) : key === keyname && json[key] === value;",
+							"    });",
+							"}",
+							"",
+							"pm.test(\"api_id is present\", function(){",
+							"    pm.expect(_isContains(jsonData.api, \"api_id\", \"root\")).to.be.true;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "{{Access_Key_Header}}",
+						"value": "{{Access_Key}}"
+					},
+					{
+						"key": "{{Secret_Key_Header}}",
+						"value": "{{Secret_key}}"
+					}
+				],
+				"url": {
+					"raw": "{{List_API}}",
+					"host": [
+						"{{List_API}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create API",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"status is present\", function(){",
+							"    pm.expect(jsonData[\"status\"]).to.exist;",
+							"});",
+							"",
+							"pm.test(\"status is success\", function(){",
+							"    pm.expect(jsonData[\"status\"]).to.be.equal(\"success\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "{{Access_Key_Header}}",
+						"value": "{{Access_Key}}"
+					},
+					{
+						"key": "{{Secret_Key_Header}}",
+						"value": "{{Secret_key}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"api_metadata\": {\n        \"protocol\": \"http\",\n        \"url\": \"/shopapi\",\n        \"cookie\": \"JSESSIONID\",\n        \"hostname\": \"*\",\n        \"cookie_idle_timeout\": \"200m\",\n        \"logout_api_enabled\": false,\n        \"cookie_persistence_enabled\": false,\n        \"login_url\": \"/shopapi/login\",\n        \"oauth2_access_token\": false,\n        \"apikey_qs\": \"\",\n        \"apikey_header\": \"MyAPIKey\",\n        \"enable_blocking\": true,\n        \"api_mapping\": {\n            \"internal_url\": \"/app\"\n        },\n        \"api_pattern_enforcement\": {\n            \"protocol_allowed\": \"\",\n            \"http_redirect\": {\n                \"response_code\": \"\",\n                \"response_def\": \"\",\n                \"https_url\": \"\"\n            },\n            \"methods_allowed\": [\n                \"GET\",\n                \"PUT\",\n                \"POST\",\n                \"DELETE\",\n                \"HEAD\"\n            ],\n            \"content_type_allowed\": \"application/text\",\n            \"error_code\": \"401\",\n            \"error_def\": \"Unauthorized\",\n            \"error_message_body\": \"401 Unauthorized\"\n        },\n        \"flow_control\": {\n            \"client_spike_threshold\": \"500/second\",\n            \"server_connection_queueing\": false\n        },\n        \"api_memory_size\": \"128mb\",\n        \"health_check\": true,\n        \"health_check_interval\": 60,\n        \"health_retry_count\": 4,\n        \"health_url\": \"/app/home\",\n        \"server_ssl\": false,\n        \"servers\": [\n        ],\n        \"decoy_config\": {\n            \"decoy_enabled\": true,\n            \"response_code\": 200,\n            \"response_def\": \"200 OK\",\n            \"response_message\": \"200 OK\",\n            \"decoy_subpaths\": [\n                \"/shopapi/online\",\n                \"/shopapi/offline\"\n            ]\n         },\n        \"username_header\": \"x-username-header\"\n    }\n}"
+				},
+				"url": {
+					"raw": "{{API}}=shopapi",
+					"host": [
+						"{{API}}=shopapi"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read API",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is not empty\", function(){",
+							"    pm.response.to.have.body();",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function(){",
+							"    pm.response.to.be.json;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "{{Access_Key_Header}}",
+						"value": "{{Access_Key}}"
+					},
+					{
+						"key": "{{Secret_Key_Header}}",
+						"value": "{{Secret_key}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{API}}=shopapi",
+					"host": [
+						"{{API}}=shopapi"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PA GET  anything without auth",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var _runId = Math.floor(Math.random()*100000);",
+							"pm.variables.set(\"_runId\",_runId);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"    pm.test(\"response is ok\", function(){",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    pm.test(\"response is not empty\", function(){",
+							"        pm.response.to.have.body();",
+							"    });",
+							"",
+							"    pm.test(\"response is JSON\", function(){",
+							"        pm.response.to.be.json;",
+							"    });",
+							"",
+							"    pm.test(\"response has correct run ID\", function(){",
+							"        var jsonData = pm.response.json();",
+							"        pm.expect(jsonData.headers[\"X-Ping-Build-Run-Id\"]).to.equal(\"\"+pm.variables.get(\"_runId\"));",
+							"    });    "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Ping-Build-Run-Id",
+						"value": "{{_runId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://{{PA_ENGINE_PRIVATE_HOSTNAME}}:{{PA_ENGINE_PRIVATE_PORT_HTTPS}}/anything/get",
+					"protocol": "https",
+					"host": [
+						"{{PA_ENGINE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PA_ENGINE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"anything",
+						"get"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "{{pd_admin_pwd}}",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "{{pd_admin_user}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "ASE_IP",
+			"value": "{{PI_ASE_PRIVATE_HOSTNAME}}",
+			"type": "string"
+		},
+		{
+			"key": "Port",
+			"value": "8010"
+		},
+		{
+			"key": "Access_Key_Header",
+			"value": "x-ase-access-key"
+		},
+		{
+			"key": "Secret_Key_Header",
+			"value": "x-ase-secret-key"
+		},
+		{
+			"key": "Access_Key",
+			"value": "admin"
+		},
+		{
+			"key": "Secret_key",
+			"value": "2FederateM0re"
+		},
+		{
+			"key": "API_Name",
+			"value": "pubatmapp"
+		},
+		{
+			"key": "System_URL",
+			"value": "https://{{ASE_IP}}:{{Port}}/v5/ase"
+		},
+		{
+			"key": "List_API",
+			"value": "{{System_URL}}/api"
+		},
+		{
+			"key": "API",
+			"value": "{{List_API}}?api_id"
+		},
+		{
+			"key": "admin_user",
+			"value": "administrator",
+			"type": "string"
+		},
+		{
+			"key": "admin_pwd",
+			"value": "2FederateM0re",
+			"type": "string"
+		},
+		{
+			"key": "pd_admin_user",
+			"value": "cn={{admin_user}}",
+			"type": "string"
+		},
+		{
+			"key": "pd_admin_pwd",
+			"value": "{{admin_pwd}}",
+			"type": "string"
+		}
+	]
+}

@@ -33,3 +33,14 @@ testFramework:
       waitFor:
         pingintelligence:
           service: https
+
+    - name: 02-postman-pi-helm-test
+      image: ${DEPS_REGISTRY}arnaudlacour/newman
+      command:
+        - newman
+        - run
+        - /var/run/pi-smoke.postman-collection.json
+        - --environment
+        - /var/run/generated.postman-environment.json
+        - --insecure
+        - --ignore-redirects

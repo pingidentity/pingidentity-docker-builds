@@ -13,7 +13,7 @@ include:
   - local: pingfederate/.gitlab-ci.yml
   - local: pingintelligence/.gitlab-ci.yml
   - local: pingtoolkit/.gitlab-ci.yml
-  - local: integration_tests/.gitlab-ci.yml
+  - local: helm-tests/integration-tests/.gitlab-ci.yml
 
 stages:
   - initialization
