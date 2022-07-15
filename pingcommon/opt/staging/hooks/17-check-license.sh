@@ -129,7 +129,7 @@ if test "${licenseFound}" != "true"; then
 #
 #
 # More info on obtaining your DevOps User and Key can be found at:
-#      https://devops.pingidentity.com/get-started/devopsRegistration/
+#      https://devops.pingidentity.com/how-to/devopsRegistration/
 #
 ##################################################################################"
     container_failure 17 "License File absent"
