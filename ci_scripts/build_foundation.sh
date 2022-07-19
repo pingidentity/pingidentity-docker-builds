@@ -27,10 +27,10 @@ Usage: ${0} {options}
     -v, --version
         the version of the product for which to build a docker image
         this setting overrides the versions in the version file of the target product
-    --verbose-build
-        verbose docker build using plain progress output
     --no-cache
         no docker cache
+    --verbose-build
+        verbose docker build using plain progress output
     --help
         Display general usage information
 END_USAGE
@@ -89,6 +89,7 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
+# Check if the given command executes successfully
 exec_cmd_or_fail() {
     eval "${*}"
     result_code=${?}
@@ -192,6 +193,13 @@ else
     append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingdatacommon" "${_duration}" "${_result}"
 fi
 imagesToCleanup="${imagesToCleanup} ${_image}"
+
+if test -n "${PING_IDENTITY_SNAPSHOT}"; then
+    jvmsToBuild="al11"
+    jvmsToBuild="${jvmsToBuild:+${jvmsToBuild} }al17"
+    # TODO: Fix artifactory caching issue. Shim is hardcoded to avoid incorrect arch pull from artifactory.
+    shimsToBuild="alpine:3.16.0"
+fi
 
 if test -n "${shimsToBuild}"; then
     shims=${shimsToBuild}

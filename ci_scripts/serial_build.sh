@@ -19,8 +19,6 @@ Usage: ${0} {options}
     where {options} include:
     -p, --product
         The name of the product for which to build a docker image
-    --with-tests
-        Execute smoke tests
     -s, --shim
         the name of the operating system for which to build a docker image
     -j, --jvm
@@ -28,10 +26,18 @@ Usage: ${0} {options}
     -v, --version
         the version of the product for which to build a docker image
         this setting overrides the versions in the version file of the target product
-    --verbose-build
-        verbose docker build not using docker buildkit
     --dry-run
         does everything except actually call the docker command and prints it instead
+    --fail-fast
+        exit and report failure when an error occurs
+    --no-cache
+        no docker cache
+    --snapshot
+        create snapshot image
+    --verbose-build
+        verbose docker build not using docker buildkit
+    --with-tests
+        Execute smoke tests
     --help
         Display general usage information
 END_USAGE
