@@ -23,10 +23,16 @@ Usage: ${0} {options}
     -v, --version
         the version of the product for which to build a docker image
         this setting overrides the versions in the version file of the target product
-    --verbose-build
-        verbose docker build not using docker buildkit
     --dry-run
         does everything except actually call the docker command and prints it instead
+    --fail-fast
+        exit and report failure when an error occurs
+    --no-cache
+        no docker cache
+    --snapshot
+        create snapshot image
+    --verbose-build
+        verbose docker build not using docker buildkit
     --help
         Display general usage information
 END_USAGE
@@ -131,7 +137,18 @@ if test -z "${versionsToBuild}"; then
         versionsToBuild=$(_getLatestSnapshotVersionForProduct "${productToBuild}")
         latestVersion=$(_getLatestVersionForProduct "${productToBuild}")
         shimsToBuild=$(_getDefaultShimForProductVersion "${productToBuild}" "${latestVersion}")
-        jvmsToBuild="al11"
+        # Build JDK 17 snapshot images for PA and PF
+        if test -z "${jvmsToBuild}"; then
+            case "${productToBuild}" in
+                pingaccess | pingfederate)
+                    jvmsToBuild="${jvmsToBuild:+${jvmsToBuild} }al11"
+                    jvmsToBuild="${jvmsToBuild:+${jvmsToBuild} }al17"
+                    ;;
+                *)
+                    jvmsToBuild="${jvmsToBuild:+${jvmsToBuild} }al11"
+                    ;;
+            esac
+        fi
     else
         versionsToBuild=$(_getAllVersionsToBuildForProduct "${productToBuild}")
     fi
