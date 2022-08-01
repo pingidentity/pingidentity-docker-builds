@@ -11,8 +11,22 @@
 if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" || test "${OPERATIONAL_MODE}" = "STANDALONE"; then
     echo "INFO: waiting for PingAccess to start before importing configuration"
 
-    # using 127.0.0.1 (rather than localhost) until nc (part ob busybox) supports ipv4/ipv6
-    wait-for "127.0.0.1:${PA_ADMIN_PORT}" -t 200 -- echo PingAccess is up
+    # using 127.0.0.1 (rather than localhost) until nc (part of busybox) supports ipv4/ipv6
+    # using heartbeat for continuation rather than a fixed timeout
+    # fixed timeout ${ADMIN_WAITFOR_TIMEOUT} is a hard backstop for a startup that might hang
+    # --retry-connrefused is necessary to use that failure as a retry condition (otherwise, the command fails the first attempt with exit code 7)
+    # --retry default value is 0, but this parameter is required to use --retry-delay & --retry-max-time
+    # with --retry at 9999, the actual limiting factor for retries is the ADMIN_WAITFOR_TIMEOUT variable
+    curl --retry-connrefused --retry 9999 --retry-delay 5 --retry-max-time "${ADMIN_WAITFOR_TIMEOUT}" -ss -k -o /dev/null "https://127.0.0.1:${PA_ADMIN_PORT}/pa/heartbeat.ping"
+
+    # check output of the curl command & act accordingly
+    if test ${?} -ne 0; then
+        echo "PingAccess did not respond to the heartbeat before ADMIN_WAITFOR_TIMEOUT=${ADMIN_WAITFOR_TIMEOUT} seconds elapsed"
+        exit 1
+    else
+        echo "PingAccess is up"
+    fi
+
     "${HOOKS_DIR}/81-after-start-process.sh"
     test ${?} -ne 0 && kill 1
 

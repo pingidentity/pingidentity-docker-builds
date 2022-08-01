@@ -125,9 +125,10 @@ ENV IN_DIR=${BASE}/in \
 #-- Set the server in debug mode, with increased output
     PING_DEBUG=false \
 
-#-- The name of Ping product.  Should be overridden by child images.
+#-- The name of Ping product, i.e. PingFederate, PingDirectory - must be a valid Ping product type.
+#-- This variable should be overridden by child images. 
     PING_PRODUCT="" \
-    PING_PRODUCT_VALIDATION="true|i.e. PingFederate,PingDirectory|Must be a valid Ping prouduct type" \
+    PING_PRODUCT_VALIDATION="true|i.e. PingFederate,PingDirectory|Must be a valid Ping product type" \
 
 #-- List of setup arguments passed to Ping Data setup-arguments.txt file
     ADDITIONAL_SETUP_ARGS="" \
