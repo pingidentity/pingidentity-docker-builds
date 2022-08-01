@@ -128,7 +128,12 @@ ENV SHIM=${SHIM} \
     SHOW_LIBS_VER_PRE_PATCH="false" \     
 
 # pingaccess comes ootb listening on 3000 but it is more natural for https traffic to be listened for on 443
-    PA_ENGINE_PORT=3000
+    PA_ENGINE_PORT=3000 \
+
+#-- wait-for timeout for 80-post-start.sh hook script
+#-- How long to wait for the PA Admin console to be available
+    ADMIN_WAITFOR_TIMEOUT=300
+
 #-- Specify a password for administrator user for interaction with admin API
 ENV PING_IDENTITY_PASSWORD=${PA_ADMIN_PASSWORD}
 
