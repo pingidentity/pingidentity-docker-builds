@@ -171,7 +171,9 @@ case "${product_name}" in
             bits_file_name="PingDirectory-${product_version}.zip"
             # Remove `-EA` or similar from PingData zip file names
             bits_file_name="$(echo "${bits_file_name}" | sed -e "s/-[^0-9\.]*\.zip/\.zip/")"
-            bits_download_url="${ARTIFACTORY_URL}/installs/com/pingidentity/pingdirectory/${product_version}/docker/${bits_file_name}"
+            # TODO Re-add reduced size docker zip file retrieval here once FEDRAMP images have been updated to PD version 9.0 or newer
+            # bits_download_url="${ARTIFACTORY_URL}/installs/com/pingidentity/pingdirectory/${product_version}/docker/${bits_file_name}"
+            bits_download_url="${ARTIFACTORY_URL}/installs/com/pingidentity/pingdirectory/${product_version}/${bits_file_name}"
         fi
         ;;
     pingdirectoryproxy)

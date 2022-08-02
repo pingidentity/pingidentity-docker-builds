@@ -19,21 +19,6 @@
                             ]
                         }
                     ]
-                },
-                {
-                    "shim": "redhat/ubi/ubi8:8.6",
-                    "preferredJVM": "rl11",
-                    "jvms": [
-                        {
-                            "jvm": "rl11",
-                            "build": true,
-                            "deploy": true,
-                            "registries": [
-                                "Artifactory",
-                                "Fedramp"
-                            ]
-                        }
-                    ]
                 }
             ]
         },
@@ -55,9 +40,15 @@
                             ]
                         }
                     ]
-                },
+                }
+            ]
+        },
+        {
+            "version": "6.3.3",
+            "preferredShim": "redhat/ubi/ubi8:8.5",
+            "shims": [
                 {
-                    "shim": "redhat/ubi/ubi8:8.6",
+                    "shim": "redhat/ubi/ubi8:8.5",
                     "preferredJVM": "rl11",
                     "jvms": [
                         {
