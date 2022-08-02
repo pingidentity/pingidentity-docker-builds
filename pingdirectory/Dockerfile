@@ -47,9 +47,24 @@ COPY ["tmp/", "/tmp/"]
 
 # Download the product bits
 COPY --from=common ["/opt/get-product-bits.sh","/opt/get-product-bits.sh"]
+# TODO Remove "unzip" and "find" logic once FEDRAMP images have been updated to PD version 9.0 or newer using docker zip files
 RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
     && unzip -q /tmp/product.zip -d /tmp/ \
+        -x *.bat \
+        -x *.dll \
+        -x *.exe \
+        -x */start-ds \
+        -x */stop-ds \
+        -x */uninstall \
+        -x */webapps/* \
         -x */resource/*.zip \
+        -x */_script-util.sh \
+        -x */lib/wrapper.jar \
+    && find /tmp/PingDirectory/docs -type f \
+        ! -iname "unboundid.css" \
+        ! -path "/tmp/PingDirectory/docs/images/*" \
+        ! -path "/tmp/PingDirectory/docs/rest-api-specs/*" \
+        -delete \
     && mv /tmp/PingDirectory /opt/server
 
 #################################################################################

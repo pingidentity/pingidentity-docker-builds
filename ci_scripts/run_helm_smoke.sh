@@ -67,7 +67,7 @@ while test -n "${1}"; do
         -s | --shim)
             test -z "${2}" && usage "You must provide an OS shim if you specify the ${1} option"
             shift
-            shimList="${shimList:+${shimList} }${1}"
+            shimListOverride="${shimListOverride:+${shimListOverride} }${1}"
             ;;
         -j | --jvm)
             test -z "${2}" && usage "You must provide a JVM id if you specify the ${1} option"
@@ -251,7 +251,9 @@ else
         # get a list of all shims to build for the product from the versions.json file
         #
         test "${_version}" = "none" && _version=""
-        if test -z "${shimList}"; then
+        if test -n "${shimListOverride}"; then
+            shimList="${shimListOverride}"
+        else
             shimList=$(_getShimsToBuildForProductVersion "${product}" "${_version}")
         fi
 
