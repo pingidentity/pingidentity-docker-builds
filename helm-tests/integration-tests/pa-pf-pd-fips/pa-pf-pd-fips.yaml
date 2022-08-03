@@ -16,11 +16,14 @@ pingdirectory:
     TRUSTSTORE_TYPE: pem
     CERTIFICATE_NICKNAME: server-cert
 
+# TODO Use "FIPS-integration/pingfederate" for SERVER_PROFILE_PATH after FEDRAMP image is built on PF 11.0 or newer
+# And remove "FIPS-integration/pingfederate-10.3" path from server-profiles GitHub
+# This applies to pingfederate-engine as well.
 pingfederate-admin:
   enabled: true
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
-    SERVER_PROFILE_PATH: FIPS-integration/pingfederate
+    SERVER_PROFILE_PATH: FIPS-integration/pingfederate-10.3
     HSM_MODE: BCFIPS
   container:
     waitFor:
@@ -31,7 +34,7 @@ pingfederate-engine:
   enabled: true
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
-    SERVER_PROFILE_PATH: FIPS-integration/pingfederate
+    SERVER_PROFILE_PATH: FIPS-integration/pingfederate-10.3
     HSM_MODE: BCFIPS
 
 pingaccess-admin:
@@ -63,6 +66,10 @@ pingaccess-engine:
 ###############################################################################
 # Test Steps
 ###############################################################################
+
+# TODO Use "pa-pf-pd-fips-helm.postman-collection.json" for files after FEDRAMP image is built on PF 11.0 or newer
+# And remove "pa-pf-10.3-pd-fips-helm.postman-collection.json" file from docker-builds repository.
+# Be sure to update the "02-check-pa-pf-pd-fips" stage of this test as well.
 testFramework:
   enabled: true
   testConfigMaps:
@@ -70,7 +77,7 @@ testFramework:
     # prefix: ping-devops-test-
     # volumeMountPath: /var/run/
     files:
-      - pa-pf-pd-fips-helm.postman-collection.json
+      - pa-pf-10-pd-fips-helm.postman-collection.json
       - generated.postman-environment.json
 
   testSteps:
@@ -92,7 +99,7 @@ testFramework:
       command:
         - newman
         - run
-        - /var/run/pa-pf-pd-fips-helm.postman-collection.json
+        - /var/run/pa-pf-10-pd-fips-helm.postman-collection.json
         - --environment
         - /var/run/generated.postman-environment.json
         - --insecure

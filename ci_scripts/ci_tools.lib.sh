@@ -86,6 +86,28 @@ _getLatestVersionForProduct() {
     jq -r '.latest' "${product_versions_file}"
 }
 
+# Get all shims from versions.json file for a specified product name and JVM ID.
+# Note, we are assuming a couple things here. Our JVM ids should be matched to one
+# shim only, and therefore, it is okay to return the first match here. Since the integration
+# tests only test the newest version possible, even if the product is using different versions
+# of a shim per product version, we only care about the first shim listed here.
+_getFirstShimForProductJVM() {
+    test -z "${1}" && echo_red "ERROR: The function _getFirstShimForProductJVM requires a product name input." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getFirstShimForProductJVM requires a JVM ID input." && exit 1
+
+    product_versions_file="$(_getVersionsFilePath "${1}")"
+    jq -r --arg jvm_id "${2}" '[.versions[] | .shims[] | select(.jvms[].jvm == $jvm_id) | .shim][0]' "${product_versions_file}"
+}
+
+# Get the latest version from versions.json file for a specified product name and JVM ID.
+_getLatestVersionForProductShim() {
+    test -z "${1}" && echo_red "ERROR: The function _getLatestVersionForProductShim requires a product name input." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getLatestVersionForProductShim requires a shim input." && exit 1
+
+    product_versions_file="$(_getVersionsFilePath "${1}")"
+    jq -r --arg shim "${2}" '[.versions[] | select(.shims[].shim == $shim) | .version] | max' "${product_versions_file}"
+}
+
 # Get the default shim from versions.json file for a specified product name and version.
 _getDefaultShimForProductVersion() {
     test -z "${1}" && echo_red "ERROR: The function _getDefaultShimForProductVersion requires a product name input." && exit 1
