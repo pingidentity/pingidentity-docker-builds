@@ -256,7 +256,7 @@ ENV SHIM=${SHIM} \
     JAVA_RAM_PERCENTAGE=75.0 \
 
     BULK_CONFIG_DIR="${OUT_DIR}/instance/bulk-config" \
-    BULK_CONFIG_FILE=data.json\
+    BULK_CONFIG_FILE=data.json \
 
     #-- wait-for timeout for 80-post-start.sh hook script
     #-- How long to wait for the PF Admin console to be available
