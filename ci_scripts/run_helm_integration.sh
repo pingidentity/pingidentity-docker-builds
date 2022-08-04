@@ -192,11 +192,10 @@ _create_helm_values() {
     printf "$_imagePattern" "IMAGE" "TAG"
 
     for _productName in "${ProductList[@]}"; do
+        short_product_name="$(echo "${_productName}" | sed -e "s/-admin//" -e "s/-engine//")"
         if test -n "${_image_tag_override}"; then
             _tag="${_image_tag_override}"
         else
-            short_product_name="$(echo "${_productName}" | sed -e "s/-admin//" -e "s/-engine//")"
-
             # Get the defined JVM ID for the product.
             # This exception is required for integration test pa-pf-pi, as separate products are using
             # differing JVM IDs in that case.
