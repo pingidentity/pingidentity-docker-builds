@@ -263,17 +263,6 @@ _getTargetRegistriesForProductVersionShimJVM() {
         "${product_versions_file}"
 }
 
-# Get the jvm version from pingjvm/versions.json file for a specified jvm ID.
-# TODO: Remove this function upon the removal of run_smoke.sh once fully testing in helm
-_getJVMVersionForID() {
-    test -z "${1}" && echo_red "ERROR: The function _getJVMVersionForID requires a jvm ID input." && exit 1
-
-    jvm_versions_file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    ! test -f "${jvm_versions_file}" && echo_red "ERROR: File ${jvm_versions_file} not found." && exit 1
-
-    jq -r --arg jvm_id "${1}" '.versions[] | select(.id == $jvm_id) | .version' "${jvm_versions_file}"
-}
-
 # Get all the jvm IDs from all product versions.json files for a specified shim.
 # Only jvm IDs valid for ARCH that have build=true are returned.
 _getAllJVMsToBuildForShim() {

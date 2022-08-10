@@ -127,11 +127,5 @@ for p in ${_products}; do
     "${CI_SCRIPTS_DIR}/build_product.sh" -p "${p}" ${buildOptions} ${versionsToBuild} ${jvmsToBuild} ${shimsToBuild}
     test ${?} -ne 0 && failed=true && break
 
-    if test -n "${_smokeTests}"; then
-        # Word-split is expected behavior for $versionsToBuild, $jvmsToBuild, and $shimsToBuild. Disable shellcheck.
-        # shellcheck disable=SC2086
-        "${CI_SCRIPTS_DIR}/run_smoke.sh" -p "${p}" ${versionsToBuild} ${jvmsToBuild} ${shimsToBuild}
-        test ${?} -ne 0 && failed=true && break
-    fi
 done
 test -z "${failed}" && docker images

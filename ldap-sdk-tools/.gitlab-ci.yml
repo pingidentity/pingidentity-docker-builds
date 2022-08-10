@@ -58,7 +58,7 @@ arm.b.ldap-sdk-tools:
 intel.t.ldap-sdk-tools:
   stage: test.smoke
   script:
-    - ci_scripts/run_smoke.sh --product ldap-sdk-tools
+    - ci_scripts/run_helm_smoke.sh --product ldap-sdk-tools
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
@@ -74,6 +74,7 @@ intel.t.ldap-sdk-tools:
         - ci_scripts/*
         - pingjvm/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/ldap-sdk-tools/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
@@ -84,7 +85,7 @@ arm.t.ldap-sdk-tools:
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_smoke.sh --product ldap-sdk-tools
+    - ci_scripts/run_helm_smoke.sh --product ldap-sdk-tools
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
@@ -100,6 +101,7 @@ arm.t.ldap-sdk-tools:
         - ci_scripts/*
         - pingjvm/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/ldap-sdk-tools/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success

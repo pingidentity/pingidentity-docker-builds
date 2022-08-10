@@ -54,55 +54,55 @@ arm.b.apache-jmeter:
 ################################################
 #                  SMOKE TESTS
 ################################################
-
-intel.t.apache-jmeter:
-  stage: test.smoke
-  script:
-    - ci_scripts/run_smoke.sh --product apache-jmeter
-  rules:
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
-      when: never
-    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)apache-jmeter(?:$|,)/i'
-      when: on_success
-    - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
-      changes:
-        - apache-jmeter/**/*
-        - ci_scripts/*
-        - pingjvm/*
-        - .gitlab-ci.yml
-      when: on_success
-    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
-      when: on_success
-
-arm.t.apache-jmeter:
-  stage: test.smoke
-  image: $RUNNER_IMAGE_AARCH64
-  tags:
-    - platform=aarch64
-  script:
-    - ci_scripts/run_smoke.sh --product apache-jmeter
-  rules:
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
-      when: never
-    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)apache-jmeter(?:$|,)/i'
-      when: on_success
-    - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
-      changes:
-        - apache-jmeter/**/*
-        - ci_scripts/*
-        - pingjvm/*
-        - .gitlab-ci.yml
-      when: on_success
-    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
-      when: on_success
+#todo uncommit when jmeter is able to run in kub with helm
+#intel.t.apache-jmeter:
+#  stage: test.smoke
+#  script:
+#    - ci_scripts/run_helm_smoke.sh --product apache-jmeter
+#  rules:
+#    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
+#      when: never
+#    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)apache-jmeter(?:$|,)/i'
+#      when: on_success
+#    - if: '$BUILD_PRODUCT != null'
+#      when: never
+#    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+#      when: never
+#    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+#      changes:
+#        - apache-jmeter/**/*
+#        - ci_scripts/*
+#        - pingjvm/*
+#        - .gitlab-ci.yml
+#      when: on_success
+#    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+#      when: on_success
+#todo uncommit when jmeter is able to run in kub with helm
+#arm.t.apache-jmeter:
+#  stage: test.smoke
+#  image: $RUNNER_IMAGE_AARCH64
+#  tags:
+#    - platform=aarch64
+#  script:
+#    - ci_scripts/run_helm_smoke.sh --product apache-jmeter
+#  rules:
+#    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
+#      when: never
+#    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)apache-jmeter(?:$|,)/i'
+#      when: on_success
+#    - if: '$BUILD_PRODUCT != null'
+#      when: never
+#    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+#      when: never
+#    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+#      changes:
+#        - apache-jmeter/**/*
+#        - ci_scripts/*
+#        - pingjvm/*
+#        - .gitlab-ci.yml
+#      when: on_success
+#    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+#      when: on_success
 
 ################################################
 #                  DEPLOY
