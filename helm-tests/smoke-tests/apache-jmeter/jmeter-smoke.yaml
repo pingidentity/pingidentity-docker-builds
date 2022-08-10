@@ -1,0 +1,30 @@
+###############################################################################
+# Ping Identity Test - apache-jmeter Smoke Test
+#
+#
+###############################################################################
+apache-jmeter:
+  enabled: true
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+  testConfigMaps:
+    # DEFAULTS (found in helm chart values.yaml)
+    # prefix: ping-devops-test-
+    # volumeMountPath: /var/run/
+    files:
+      - global-init-test.sh
+
+  testSteps:
+    - name: 01-apache-jmeter
+      image: ${DEPS_REGISTRY}pingidentity/apache-jmeter
+      command: [ "/bin/sh" ]
+      args:
+        - -c
+        - >-
+          echo "                    Image Version: ${IMAGE_VERSION}" &&
+          echo "Testing openssl - random 32 bytes: $(openssl rand -base64 32)" &&
+          exit 0
