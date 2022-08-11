@@ -88,6 +88,7 @@ if test "${_osID}" = "rhel" && ! test -f "${_ECDSAnginxCrt}"; then
     _ECDSAnginxCrt=$(echo ${_nginxCrt} | sed -e 's/nginx.crt/ECDSA_nginx.crt/')
     _ECDSAnginxKey=$(echo ${_nginxKey} | sed -e 's/nginx.key/ECDSA_nginx.key/')
     sed -i -e 's/#ssl_certificate_key/ssl_certificate_key/g' -e 's/#ssl_certificate/ssl_certificate/g' "${STAGING_DIR}/instance/etc/conf.d/default.conf.subst"
+    sed -i -e 's/#ssl_certificate_key/ssl_certificate_key/g' -e 's/#ssl_certificate/ssl_certificate/g' "${STAGING_DIR}/instance/etc/conf.d/default.conf.subst.default"
     openssl req \
         -x509 \
         -nodes \

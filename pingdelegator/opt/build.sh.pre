@@ -48,7 +48,7 @@ case "${_osID}" in
         #install nginx from nginx repo
         yum --disablerepo="*" --enablerepo="nginx" -y install nginx
         #restrict tls versions and set allowed cipher suites
-        sed -i -e 's/#ssl_ciphers/ssl_ciphers/g' -e 's/#ssl_dhparam/ssl_dhparam/g' -e 's/#ssl_protocols/ssl_protocols/g' -e 's/#ssl_prefer_server_ciphers/ssl_prefer_server_ciphers/g' /opt/staging/instance/etc/conf.d/default.conf.subst
+        sed -i -e 's/#ssl_ciphers/ssl_ciphers/g' -e 's/#ssl_dhparam/ssl_dhparam/g' -e 's/#ssl_protocols/ssl_protocols/g' -e 's/#ssl_prefer_server_ciphers/ssl_prefer_server_ciphers/g' /opt/staging/instance/etc/conf.d/default.conf.subst.default
         #cleanup
         yum -y clean all
         #fix permission for ping user
