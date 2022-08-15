@@ -147,7 +147,7 @@ DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
     ${progress} ${noCache} \
     --build-arg DEPS="${DEPS_REGISTRY}" \
     --build-arg ARTIFACTORY_URL="${ARTIFACTORY_URL}" \
-    --build-arg LATEST_ALPINE_VERSION="3.16.1" \
+    --build-arg LATEST_ALPINE_VERSION="3.16.2" \
     ${VERBOSE:+--build-arg VERBOSE="true"} \
     -t "${_image}" "${CI_PROJECT_DIR}/pingcommon"
 _returnCode=${?}
@@ -198,7 +198,7 @@ if test -n "${PING_IDENTITY_SNAPSHOT}"; then
     jvmsToBuild="al11"
     jvmsToBuild="${jvmsToBuild:+${jvmsToBuild} }al17"
     # TODO: Fix artifactory caching issue. Shim is hardcoded to avoid incorrect arch pull from artifactory.
-    shimsToBuild="alpine:3.16.1"
+    shimsToBuild="alpine:3.16.2"
 fi
 
 if test -n "${shimsToBuild}"; then
