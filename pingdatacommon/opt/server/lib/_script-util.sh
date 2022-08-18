@@ -23,7 +23,7 @@
 # CDDL HEADER END
 #
 #
-#      Portions Copyright 2008-2021 Ping Identity Corporation
+#      Portions Copyright 2008-2022 Ping Identity Corporation
 #      Portions Copyright 2008 Sun Microsystems, Inc.
 
 #

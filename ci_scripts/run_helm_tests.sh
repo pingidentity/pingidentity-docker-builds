@@ -359,7 +359,10 @@ if test -n "${_namespace_to_use}"; then
 else
     export NAMESPACE_PREFIX="${NAMESPACE_PREFIX:-$TEST_PREFIX}"
 
-    NS=$(toLower "${NAMESPACE_PREFIX}${CI_COMMIT_REF_SLUG:-$USER}-${CI_PIPELINE_ID}-${CI_JOB_ID}${_namespace_suffix}")
+    # Truncate the commit ref to prevent hitting the character limit of 63 for Kubernetes namespaces
+    # Truncate the commit ref instead of the final namespace so that we don't lose the namespace suffix
+    _commitRefTruncated=$(echo "${CI_COMMIT_REF_SLUG:-$USER}" | cut -c1-35)
+    NS=$(toLower "${NAMESPACE_PREFIX}${_commitRefTruncated}-${CI_PIPELINE_ID}-${CI_JOB_ID}${_namespace_suffix}")
     export NS
 
     #

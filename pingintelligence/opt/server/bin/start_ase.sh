@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 test "${VERBOSE}" = "true" && set -x
 
-# Copyright 2021 Ping Identity Corporation.
+# Copyright 2022 Ping Identity Corporation.
 # Ping Identity reserves all rights in the program as delivered. Unauthorized use, copying,
 # modification, reverse engineering, disassembling, attempt to discover any source code or
 # underlying ideas or algorithms, creating other works from it, and distribution of this
