@@ -18,10 +18,8 @@ testFramework:
   testSteps:
     - name: 01-pingtoolkit
       image: ${DEPS_REGISTRY}pingidentity/pingtoolkit
-      command: ["/bin/sh"]
+      command: [ "/bin/sh" ]
       args:
         - -c
         - >-
-            echo "                    Image Version: ${IMAGE_VERSION}" &&
-            echo "Testing openssl - random 32 bytes: $(openssl rand -base64 32)" &&
-            exit 0
+          kubectl get pods | grep dbt-ptk-smoke | cut -d ' ' -f 1 | xargs -I{} kubectl exec {} -- [ ! -z $(openssl rand -base64 32) ] && exit 0 || exit 1

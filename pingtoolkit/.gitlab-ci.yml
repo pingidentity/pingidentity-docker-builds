@@ -81,6 +81,7 @@ intel.t.pingtoolkit:
         - ci_scripts/*
         - pingjvm/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingtoolkit/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
@@ -109,6 +110,7 @@ arm.t.pingtoolkit:
         - ci_scripts/*
         - pingjvm/*
         - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingtoolkit/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
