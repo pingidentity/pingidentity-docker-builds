@@ -222,6 +222,9 @@ parse_dockerfile() {
     append_page_meta_title "Ping Identity DevOps Docker Image - \`${_dockerImage}\`"
     append_header
 
+    # Use a flag to determine whether the next environment variable should be documented.
+    _skipNextDoc=""
+
     while read -r line; do
         #
         # Parse the ENV Description
@@ -232,6 +235,13 @@ parse_dockerfile() {
         #
         if [ "$(echo "${line}" | cut -c-3)" = "#--" ]; then
             ENV_DESCRIPTION="${ENV_DESCRIPTION}$(echo "${line}" | cut -c5-) "
+            continue
+        fi
+
+        # A hash followed by two forward slashes indicates that the next uncommented line should
+        # not be documented.
+        if [ "$(echo "${line}" | cut -c-3)" = "#//" ]; then
+            _skipNextDoc="true"
             continue
         fi
 
@@ -249,6 +259,11 @@ parse_dockerfile() {
         # lines, since it can only check for the \ at the end of the line, so variable values should
         # be kept to a single line to ensure the documentation is valid.
         #
+        # Ignore this line if _skipNextDoc is true.
+        if [ -n "$_skipNextDoc" ]; then
+            _skipNextDoc=""
+            continue
+        fi
         if [ "$(echo "${line}" | cut -c-4)" = "ENV " ] ||
             [ "$(echo "${line}" | cut -c-12)" = "ONBUILD ENV " ] ||
             [ "${_envContinuation}" = "true" ] && [ "${line}" ] && [ ! "$(echo "${line}" | cut -c-1)" = "#" ]; then
