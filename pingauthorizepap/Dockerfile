@@ -107,6 +107,10 @@ ENV SHIM=${SHIM} \
     LICENSE_VERSION=${LICENSE_VERSION} \
 #-- Minimal Heap size required for PingAuthorize Policy Editor
     MAX_HEAP_SIZE=384m \
+#// PING_USE_CONTAINER_MESSAGES is a Policy Editor (PAP) specific environment
+#// variable that tells the product to use container-specific messages in
+#// start-server. It is not intended or documented for external use.
+    PING_USE_CONTAINER_MESSAGES=true \
 #-- The command that the entrypoint will execute in the foreground to
 #-- instantiate the container
     STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server" \
