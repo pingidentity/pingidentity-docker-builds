@@ -22,4 +22,4 @@ testFramework:
       args:
         - -c
         - >-
-          kubectl get pods | grep dbt-ptk-smoke | cut -d ' ' -f 1 | xargs -I{} kubectl exec {} -- [ ! -z $(openssl rand -base64 32) ] && exit 0 || exit 1
+          kubectl get pods | grep dbt-ptk-smoke | cut -d ' ' -f 1 | xargs -I{} kubectl exec -i {} -- [ ! -z $(openssl rand -base64 32) ] && exit 0 || exit 1
