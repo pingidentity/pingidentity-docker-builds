@@ -45,10 +45,10 @@
         },
         {
             "version": "4.6.0",
-            "preferredShim": "redhat/ubi/ubi8:8.3",
+            "preferredShim": "redhat/ubi/ubi8:8.6",
             "shims": [
                 {
-                    "shim": "redhat/ubi/ubi8:8.3",
+                    "shim": "redhat/ubi/ubi8:8.6",
                     "preferredJVM": "rl11",
                     "jvms": [
                         {
