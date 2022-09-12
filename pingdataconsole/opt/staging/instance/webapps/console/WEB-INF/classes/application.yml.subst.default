@@ -15,6 +15,8 @@ spring:
     banner-mode: "OFF"
   thymeleaf:
     prefix: classpath:/public/app/
+  mvc.pathmatch:
+    matching-strategy: ant_path_matcher
 management.server.base-path: /actuator
 # NOTE: Increasing the log levels may cause sensitive information to be logged.
 #       Appropriate precautions should be taken when doing so.
