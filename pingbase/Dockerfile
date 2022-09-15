@@ -107,6 +107,9 @@ ENV IN_DIR=${BASE}/in \
     COLORIZE_LOGS=true \
 
 #-- Location default value
+#-- If PingDirectory is deployed in multi cluster mode, that is, 
+#-- K8S_CLUSTER, K8S_CLUSTERS and K8S_SEED_CLUSTER are defined,
+#-- LOCATION is ignored and K8S_CLUSTER is used as the location
     LOCATION=Docker \
     LOCATION_VALIDATION="true|Any string denoting a logical/physical location|Must be a string" \
 
