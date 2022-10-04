@@ -152,7 +152,17 @@ ENV SHIM=${SHIM} \
 
 #-- Setting this variable to true speeds up server startup time by
 #-- skipping an unnecessary JVM check.
-    UNBOUNDID_SKIP_START_PRECHECK_NODETACH=true
+    UNBOUNDID_SKIP_START_PRECHECK_NODETACH=true \
+
+#-- Whether this container is running as a Pod in a Kubernetes StatefulSet, and
+#-- that StatefulSet is using the Parallel podManagementPolicy. This property allows
+#-- for starting up Pods in parallel to speed up the initial startup of PingDataSync
+#-- topologies. This variable must be set to true when using the Parallel podManagementPolicy.
+#-- Note: when using parallel startup, ensure the RETRY_TIMEOUT_SECONDS variable is
+#-- large enough. The pods will be enabling replication simultaneously, so some pods
+#-- will have to retry while waiting for others to complete. If the timeout is too low,
+#-- a Pod may end up restarting unnecessarily.
+    PARALLEL_POD_MANAGEMENT_POLICY=false
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
