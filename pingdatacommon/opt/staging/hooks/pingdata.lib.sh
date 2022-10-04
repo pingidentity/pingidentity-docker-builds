@@ -860,35 +860,42 @@ buildRunPlan() {
             echo "We are the SEED server (${_seedInstanceName})"
 
             if test -z "${serverUUID}"; then
-                #
-                # First, we will check to see if there are any servers available in
-                # existing cluster
-                _numHosts=$(getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}" | wc -w 2> /dev/null)
-
-                echo "Number of servers available in this domain: ${_numHosts}"
-
-                #
-                # If there are no hosts found, this is situation where the k8s service cluster
-                # is returning no hosts, hence, there are no pingdirectory instances running
-                if test "${_numHosts}" -eq 0; then
+                if test "$(toLower "${PARALLEL_POD_MANAGEMENT_POLICY}")" = "true"; then
+                    # When starting up pods with the Parallel podManagementPolicy in a
+                    # Kubernetes StatefulSet, the seed server has to assume it is in a genesis state,
+                    # since there will immediately be multiple pods starting up in the StatefulSet.
+                    PD_STATE="GENESIS"
+                else
                     #
-                    # Second, we need to check other clusters
-                    if test "${_clusterMode}" = "multi"; then
-                        echo_red "We need to check all 0 servers in each cluster"
+                    # First, we will check to see if there are any servers available in
+                    # existing cluster
+                    _numHosts=$(getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}" | wc -w 2> /dev/null)
+
+                    echo "Number of servers available in this domain: ${_numHosts}"
+
+                    #
+                    # If there are no hosts found, this is situation where the k8s service cluster
+                    # is returning no hosts, hence, there are no pingdirectory instances running
+                    if test "${_numHosts}" -eq 0; then
+                        #
+                        # Second, we need to check other clusters
+                        if test "${_clusterMode}" = "multi"; then
+                            echo_red "We need to check all 0 servers in each cluster"
+                        fi
+
+                        PD_STATE="GENESIS"
                     fi
 
-                    PD_STATE="GENESIS"
-                fi
-
-                # Note: Added when headless pingdirectory-cluster support was added for enhancements
-                #       to PingDirectory 8.2
-                #
-                # If there is only 1 host that is returned, and that host's IP is the same
-                # as the current _podHostName, then we can assured that this server is the first
-                # in the current statefulset to be started, and will mark as GENESIS
-                if test "${_numHosts}" -eq 1 && test "$(getIP "${_podName}")" = "$(getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}")"; then
-                    echo "Verified that this host/ip is the only pod found in domain '${K8S_STATEFUL_SET_SERVICE_NAME}'"
-                    PD_STATE="GENESIS"
+                    # Note: Added when headless pingdirectory-cluster support was added for enhancements
+                    #       to PingDirectory 8.2
+                    #
+                    # If there is only 1 host that is returned, and that host's IP is the same
+                    # as the current _podHostName, then we can assured that this server is the first
+                    # in the current statefulset to be started, and will mark as GENESIS
+                    if test "${_numHosts}" -eq 1 && test "$(getIP "${_podName}")" = "$(getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}")"; then
+                        echo "Verified that this host/ip is the only pod found in domain '${K8S_STATEFUL_SET_SERVICE_NAME}'"
+                        PD_STATE="GENESIS"
+                    fi
                 fi
             fi
         fi
@@ -1021,7 +1028,8 @@ buildRunPlan() {
             test "${ORCHESTRATION_TYPE}" = "KUBERNETES" && echo "\
     #
     #   2. KUBERNETES - Our host name ($(hostname))is the 1st one in the stateful set (${K8S_STATEFUL_SET_SERVICE_NAME}-0)
-    #   3. KUBERNETES - There are no other servers currently running in the stateful set (${K8S_STATEFUL_SET_SERVICE_NAME})"
+    #   3. KUBERNETES - There are no other servers currently running in the stateful set (${K8S_STATEFUL_SET_SERVICE_NAME}),
+    #                   or the stateful set is configured to start up pods in parallel"
 
             test "${ORCHESTRATION_TYPE}" = "COMPOSE" && echo "\
     #
