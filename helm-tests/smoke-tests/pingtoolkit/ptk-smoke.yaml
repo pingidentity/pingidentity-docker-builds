@@ -15,11 +15,20 @@ testFramework:
     # volumeMountPath: /var/run/
     files: []
 
+# The grep calls here first grep for any pods used by the test, and then specifically for the pingtoolkit pod being tested
   testSteps:
+    - name: 01-wait-for-pingtoolkit
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit
+      command: [ "/bin/sh" ]
+      args:
+        - -c
+        - >-
+          timeout 90 sh -c 'while test "$grepResult" != "0"; do sleep 2; kubectl get pods | grep dbt-ptk-smoke | grep pingtoolkit | grep Running; grepResult=$?; done' && exit 0 || exit 1
+
     - name: 01-pingtoolkit
       image: ${DEPS_REGISTRY}pingidentity/pingtoolkit
       command: [ "/bin/sh" ]
       args:
         - -c
         - >-
-          kubectl get pods | grep dbt-ptk-smoke | cut -d ' ' -f 1 | xargs -I{} kubectl exec -i {} -- [ ! -z $(openssl rand -base64 32) ] && exit 0 || exit 1
+          kubectl get pods | grep dbt-ptk-smoke | grep pingtoolkit | cut -d ' ' -f 1 | xargs -I{} kubectl exec -i {} -- [ ! -z $(openssl rand -base64 32) ] && exit 0 || exit 1
