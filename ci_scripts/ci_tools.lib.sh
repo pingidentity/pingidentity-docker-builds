@@ -554,6 +554,7 @@ setupDockerConfigJson() {
     requirePipelineVar PIPELINE_BUILD_REGISTRY
     requirePipelineVar PIPELINE_BUILD_REPO
     requirePipelineVar ARTIFACTORY_REGISTRY
+    requirePipelineVar ARTIFACTORY_AUTH_TOKEN
     requirePipelineVar FEDRAMP_REGISTRY
     requirePipelineFile DOCKER_CONFIG_JSON
 
