@@ -842,6 +842,17 @@ buildRunPlan() {
             POD_HOSTNAME=$(eval "echo ${K8S_POD_HOSTNAME_PREFIX}${_ordinal}${K8S_POD_HOSTNAME_SUFFIX}")
             _podLocation="${K8S_CLUSTER}"
 
+            if test -n "${RESTRICTED_BASE_DNS}" && test "${K8S_CLUSTER}" != "${K8S_SEED_CLUSTER}" && test "${_ordinal}" != "0"; then
+                # Use the 0-ordinal server of this cluster as the initialize source when using entry balancing.
+                # If we are within the seed cluster, or if we are the 0 ordinal server, this isn't necessary.
+                # Shellcheck complains these variables aren't used, but they are exported below
+                # shellcheck disable=SC2034
+                INITIALIZE_SOURCE_HOSTNAME=$(eval "echo ${K8S_POD_HOSTNAME_PREFIX}0${K8S_POD_HOSTNAME_SUFFIX}")
+                # The 0-ordinal server should have the default LDAPS port even when incrementing ports
+                # shellcheck disable=SC2034
+                INITIALIZE_SOURCE_LDAPS_PORT="${LDAPS_PORT}"
+            fi
+
             _seedInstanceName="${K8S_STATEFUL_SET_NAME}-0.${K8S_SEED_CLUSTER}"
             SEED_HOSTNAME=$(eval "echo ${K8S_SEED_HOSTNAME_PREFIX}0${K8S_SEED_HOSTNAME_SUFFIX}")
             _seedLocation="${K8S_SEED_CLUSTER}"
@@ -1268,6 +1279,11 @@ buildRunPlan() {
     export_container_env LDAPS_PORT LOCATION
     if test "${PING_PRODUCT}" = "PingDirectory"; then
         export_container_env REPLICATION_PORT
+    fi
+
+    # Entry balancing info for PingDirectory
+    if test "${PING_PRODUCT}" = "PingDirectory" && test -n "${RESTRICTED_BASE_DNS}"; then
+        export_container_env INITIALIZE_SOURCE_HOSTNAME INITIALIZE_SOURCE_LDAPS_PORT
     fi
 
     # Cleanup Temp Files

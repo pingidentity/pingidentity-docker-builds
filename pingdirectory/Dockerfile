@@ -205,6 +205,11 @@ ENV SHIM=${SHIM} \
 #-- separated by a `;` character
     REPLICATION_BASE_DNS= \
 
+#-- Base DNs to set as --restricted when enabling replication. Multiple
+#-- base DNs can be specified here, separated by a `;` character.
+#-- See the product documentation for more information on how to configure entry balancing.
+    RESTRICTED_BASE_DNS= \
+
 #-- Whether this container is running as a Pod in a Kubernetes StatefulSet, and
 #-- that StatefulSet is using the Parallel podManagementPolicy. This property allows
 #-- for starting up Pods in parallel to speed up the initial startup of PingDirectory
