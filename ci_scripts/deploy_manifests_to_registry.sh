@@ -101,7 +101,7 @@ sprint="$(_getSprintTagIfAvailable)"
 
 #Define docker config file locations based on different image registry providers
 docker_config_hub_dir="/root/.docker-hub"
-docker_config_default_dir="/root/.docker"
+#docker_config_default_dir="/root/.docker"
 
 versions_to_deploy=$(_getAllVersionsToDeployForProduct "${product_to_deploy}")
 latest_version=$(_getLatestVersionForProduct "${product_to_deploy}")
@@ -120,9 +120,12 @@ for version in ${versions_to_deploy}; do
                 target_registry=$(toLower "${target_registry}")
                 case "${target_registry}" in
                     "artifactory")
-                        target_registry_url="${ARTIFACTORY_REGISTRY}"
-                        docker_config_dir="${docker_config_default_dir}"
-                        notary_server="https://notaryserver:4443"
+                        # TODO Artifactory is using v1 manifests. Update this to use manifests in Artifactory
+                        echo_yellow "Registry ${target_registry} is not implemented in deploy_manifests.sh"
+                        # target_registry_url="${ARTIFACTORY_REGISTRY}"
+                        # docker_config_dir="${docker_config_default_dir}"
+                        # notary_server="https://notaryserver:4443"
+                        continue
                         ;;
                     "dockerhub")
                         target_registry_url="${DOCKER_HUB_REGISTRY}"
@@ -207,17 +210,6 @@ for version in ${versions_to_deploy}; do
                         else
                             echo "Successfully Logged Out Auth Token from DockerHub"
                         fi
-                        ;;
-                    "artifactory")
-                        # Loop through Architectures and delete images used to build manifests.
-                        for arch in $(_getAllArchsForJVM "${jvm}"); do
-                            http_response_code=$(curl --header "Authorization: Bearer ${ARTIFACTORY_AUTH_TOKEN}" --silent --write-out '%{http_code}' --output "/dev/null" -X DELETE "https://art01.corp.pingidentity.com/artifactory/docker-builds/${product_to_deploy}/${version}-${shim_long_tag}-${jvm}-${arch}-edge/")
-                            if test "${http_response_code}" -eq 204; then
-                                echo "Successfully deleted image tag: ${version}-${shim_long_tag}-${jvm}-${arch}-edge"
-                            else
-                                echo_red "${http_response_code}: Unable to delete image tag: ${version}-${shim_long_tag}-${jvm}-${arch}-edge" && exit 1
-                            fi
-                        done # iterating over architectures
                         ;;
                     *)
                         echo_yellow "Tag Deletion for Registry ${target_registry} is not implemented in deploy_manifests_to_registry.sh"
