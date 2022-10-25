@@ -8,6 +8,11 @@ set -x
 _cacheFilename=$(sha1sum /opt/java/bin/java | cut -d " " -f 1)
 cp /opt/server/logs/option-cache/base "/opt/server/logs/option-cache/${_cacheFilename}"
 
+#- Set java property com.unboundid.directory.server.maintainConfigArchive=false
+#- This will prevent the server from generating configuration archives in /opt/out/instance/config/archived-configs/
+# shellcheck disable=SC2016
+sed -i 's/\\\${PRIVATE_UNBOUNDID_JAVA_ARGS} "\${LOGGC_ARG}" \\\${SCRIPT_NAME_ARG} \\/\\\${PRIVATE_UNBOUNDID_JAVA_ARGS} -Dcom.unboundid.directory.server.MaintainConfigArchive=false "\${LOGGC_ARG}" \\\${SCRIPT_NAME_ARG} \\/' "/opt/server/lib/_start-server.sh"
+
 #- Create the license directory with valid permissions so a license can be mounted via k8s secret.
 #- K8s secrets do not support setting file permissions, so allowing the secret to create these directories
 #- results in them being owned by root. This can lead to issues when pulling a server profile.
