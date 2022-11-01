@@ -44,7 +44,7 @@
             ]
         },
         {
-            "version": "6.3.3",
+            "version": "6.3.4",
             "preferredShim": "redhat/ubi/ubi8:8.6",
             "shims": [
                 {
