@@ -53,15 +53,15 @@ if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGI
     _userURL="${_basePaURL}/users/1"
     _httpsListenersURL="${_basePaURL}/httpsListeners"
     _keyPairsURL="${_basePaURL}/keyPairs"
-    _certsURL="${_basePaURL}/certificates"
     _enginesURL="${_basePaURL}/engines"
+    _certsURL="${_enginesURL}/certificates"
 
     _pa_curl \
         "${_userURL}" \
         2> /dev/null ||
         die_on_error 51 "Connection to admin (${_userURL})unsuccessful. Check vars PA_ADMIN_PRIVATE_HOSTNAME, PA_ADMIN_PRIVATE_PORT_HTTPS, ROOT_USER and PING_IDENTITY_PASSWORD"
 
-    # Get Engine Certificate ID
+    # Get Key Pair ID
     echo "Retrieving Key Pair ID from administration API..."
     _pa_curl "${_httpsListenersURL}"
     test ${?} -ne 200 && die_on_error 51 "Could not retrieve key-pair ID using ${_httpsListenersURL}"
@@ -75,7 +75,7 @@ if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGI
     kp_alias=$(jq -r '.items[] | select(.id=='"${key_pair_id}"') | .alias' "${_out}")
     echo "Key Pair Alias: ${kp_alias}"
 
-    # Get Certificate ID
+    # Get Engine Certificate ID
     echo "Retrieving Engine Certificate ID..."
     _pa_curl "${_certsURL}"
     test ${?} -ne 200 && die_on_error 51 "Could not retrieve certificate ID using ${_certsURL}"
@@ -85,30 +85,48 @@ if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGI
 
     host=$(getHostName)
     echo "Adding new engine: ${host}"
-    engine_id=$(
+    https_result_code=$(
         curl \
             --insecure \
             --request POST \
             --user "${ROOT_USER}:${_password}" \
             --header "X-Xsrf-Header: PingAccess" \
+            --output ${_out} \
+            --write-out '%{http_code}' \
             --data '{"name":"'"${host}"'", "selectedCertificateId": "'"${cert_id}"'"}' \
-            "${_enginesURL}" | jq -r '.id'
+            "${_enginesURL}"
     )
+
+    if test "${https_result_code}" = "200"; then
+        engine_id=$(jq -r '.id' "${_out}")
+    else
+        response_body=$("${_out}" | jq -r)
+        echo "${response_body}"
+        container_failure "${https_result_code}" "Failure to add engine"
+    fi
 
     echo "EngineId: ${engine_id}"
     echo "Retrieving the engine config..."
-    curl \
-        --insecure \
-        --request POST \
-        --user "${ROOT_USER}:${_password}" \
-        --header "X-Xsrf-Header: PingAccess" \
-        --output "${_config_zip}" \
-        "${_enginesURL}/${engine_id}/config"
+    https_result_code=$(
+        curl \
+            --insecure \
+            --request POST \
+            --user "${ROOT_USER}:${_password}" \
+            --header "X-Xsrf-Header: PingAccess" \
+            --output "${_config_zip}" \
+            --write-out '%{http_code}' \
+            "${_enginesURL}/${engine_id}/config"
+    )
+    if test "${https_result_code}" != "200"; then
+        response_body=$("${_out}" | jq -r)
+        echo "${response_body}"
+        container_failure "${https_result_code}" "Failure to retrieve engine config"
+    fi
 
     echo "Extracting bootstrap and pa.jwk files to conf folder..."
     unzip -oq "${_config_zip}" -d "${OUT_DIR}/instance"
-    # ls -la ${OUT_DIR}instance/conf
-    # cat ${OUT_DIR}/instance/conf/bootstrap.properties
+    # ls -la "${OUT_DIR}"/instance/conf
+    # cat "${OUT_DIR}"/instance/conf/bootstrap.properties
     chmod 400 "${OUT_DIR}/instance/conf/pa.jwk"
 
     echo "Cleanup zip.."
