@@ -30,7 +30,7 @@ set -e
 
 case "${_osID}" in
     alpine)
-        apk --update add nginx openssl
+        apk --update add nginx openssl openssl3
         mkdir -p /run/nginx
         ;;
     centos | rhel)
@@ -43,6 +43,7 @@ case "${_osID}" in
         echo "enabled=1" >> /etc/yum.repos.d/nginx.repo
         yum update -y
         #install openssl
+        # Note: openssl3 is not compatible with ubi8
         _versionID=$(awk '$0~/^VERSION_ID=/{split($1,version,"=");gsub(/"/,"",version[2]);print version[2];}' /etc/os-release)
         yum -y install --releasever "${_versionID}" openssl
         #install nginx from nginx repo
