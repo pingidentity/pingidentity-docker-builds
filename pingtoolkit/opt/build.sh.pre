@@ -29,7 +29,7 @@ case "${_osID}" in
     alpine)
         # cause a failure if anything below raises an error
         set -e
-        apk --update add py3-pip curl openssl
+        apk --update add py3-pip curl openssl openssl3
         pip3 install --no-cache-dir --upgrade awscli
 
         _kubectlVer=$(curl https://storage.googleapis.com/kubernetes-release/release/stable.txt)
