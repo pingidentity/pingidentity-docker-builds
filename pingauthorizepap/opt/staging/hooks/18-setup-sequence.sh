@@ -14,3 +14,5 @@ if test ! -f "${SERVER_ROOT_DIR}/config/server.uuid"; then
     # setup the instance given all the provided data
     run_hook "183-run-setup.sh"
 fi
+
+run_hook "184-run-policy-db.sh"
