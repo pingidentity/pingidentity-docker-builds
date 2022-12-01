@@ -136,7 +136,7 @@ ENV SHIM=${SHIM} \
 #-- extension of the KEYSTORE_FILE, defaulting to "jks".
     KEYSTORE_TYPE= \
 #-- Files tailed once container has started
-    TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/pingauthorize-pap.log ${SERVER_ROOT_DIR}/logs/setup.log ${SERVER_ROOT_DIR}/logs/start-server.log ${SERVER_ROOT_DIR}/logs/stop-server.log" \
+    TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/authorize-pe.log ${SERVER_ROOT_DIR}/logs/management-audit.log ${SERVER_ROOT_DIR}/logs/policy-db.log ${SERVER_ROOT_DIR}/logs/setup.log ${SERVER_ROOT_DIR}/logs/start-server.log ${SERVER_ROOT_DIR}/logs/stop-server.log" \
 
 #-- Hostname used for the REST API (deprecated, use `PING_EXTERNAL_BASE_URL` instead)
     REST_API_HOSTNAME="localhost" \
@@ -145,6 +145,23 @@ ENV SHIM=${SHIM} \
     DECISION_POINT_SHARED_SECRET="2FederateM0re" \
 #-- When set to `false`, disables default HTTP API caching in the Policy Manager, Trust Framework and Test Suite
     PING_ENABLE_API_HTTP_CACHE=true
+#// TODO: Add a continuation slash to the above line and uncomment the lines below once the 9.2.0.0-GA release is published .
+#// When set to `true`, the container will use the provided policy database admin credentials
+#// to either create a PostgreSQL policy database or upgrade it if it already exists.
+#// You must also provide the `PING_DB_CONNECTION_STRING`, `PING_DB_ADMIN_USERNAME`, `PING_DB_ADMIN_PASSWORD`
+#// `PING_DB_APP_USERNAME`, and `PING_DB_APP_PASSWORD` variables for this to work.
+#// PING_POLICY_DB_SYNC= \
+#// The JDBC connection string used to connect to the policy database. Use the format
+#// `jdbc:postgresql://<host>:<port>/<database>`. Only H2 embedded file and PostgreSQL are supported.
+#// PING_DB_CONNECTION_STRING="jdbc:h2:file:./Symphonic;ALIAS_COLUMN_NAME=TRUE" \
+#// The database administration username to use when creating or upgrading a policy database.
+#// PING_DB_ADMIN_USERNAME="sa" \
+#// The database administration password to use when creating or upgrading a policy database.
+#// PING_DB_ADMIN_PASSWORD="Passw0rd" \
+#// The username that the Policy Editor should use when accessing the policy database during server runtime.
+#// PING_DB_APP_USERNAME="pap_user" \
+#// The password that the Policy Editor should use when accessing the policy database during server runtime.
+#// PING_DB_APP_PASSWORD="Symphonic2014!"
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
@@ -271,7 +288,73 @@ COPY --from=final-staging ["/","/"]
 #-            --env PING_H2_BACKUP_DIR=/opt/out/backup \
 #-            --publish 8443:1443 \
 #-            --detach \
+#-            --env PING_IDENTITY_ACCEPT_EULA=YES \
+#-            --env PING_IDENTITY_DEVOPS_USER \
+#-            --env PING_IDENTITY_DEVOPS_KEY \
+#-            --tmpfs /run/secrets \
 #-            pingidentity/pingauthorizepap:edge
 #- ```
 #-
 #-
+#// TODO: Uncomment the lines below once 9.2.0.0-GA is released.
+#//
+#// ## Creating and upgrading a PostgreSQL policy database
+#//
+#// Although the Policy Editor will use an embedded H2 file for its policy
+#// database implementation by default, it also has the capability to use
+#// a PostgreSQL database. However, this database must first be initialized
+#// with database objects.
+#//
+#// Set the `PING_POLICY_DB_SYNC` environment variable to `true`, provide
+#// the PostgreSQL JDBC connection string in `PING_DB_CONNECTION_STRING`,
+#// the database administration credentials through `PING_DB_ADMIN_USERNAME`
+#// and `PING_DB_ADMIN_PASSWORD`, and the server runtime credentials through
+#// `PING_DB_APP_USERNAME` and `PING_DB_APP_PASSWORD` to indicate that
+#// pingauthorizepap should create the necessary policy database objects.
+#//
+#// Similarly, use the same environment variables with the same values
+#// when a new version of the application is released. pingauthorizepap
+#// will use the database administration user to perform any necessary upgrades to the
+#// database objects.
+#//
+#// In both scenarios, the database administration user and the server runtime user
+#// must exist and be able to sign into the PostgreSQL server. In the create
+#// scenario, the database administration user must be able to create databases.
+#// In the upgrade scenario, the database administration user must own the database
+#// objects. Therefore, it is advisable to continually provide the same
+#// administration credentials during creation and upgrades to prevent permissions issues.
+#//
+#// For example, assume that a system administrator has created a
+#// PostgreSQL username `pap_admin` that can sign into a PostgreSQL server hosted at
+#// example.com and listening on port 5432. They have also created the runtime user
+#// `pap_user`.
+#//
+#// To create the database objects under the database named `my_pap_db` and start the Policy Editor,
+#// use the following command:
+#//
+#// ```sh
+#//   docker run \
+#//            --name pingauthorizepap \
+#//            --env PING_EXTERNAL_BASE_URL=my-pap-hostname:8443 \
+#//            --env PING_POLICY_DB_SYNC=true \
+#//            --env PING_DB_CONNECTION_STRING=jdbc:postgresql://example.com:5432/my_pap_db \
+#//            --env PING_DB_ADMIN_USERNAME=pap_admin \
+#//            --env PING_DB_ADMIN_PASSWORD=2FederateM0re \
+#//            --env PING_DB_APP_USERNAME=pap_user \
+#//            --env PING_DB_APP_PASSWORD=2FederateM0re \
+#//            --publish 8443:1443 \
+#//            --detach \
+#//            --env PING_IDENTITY_ACCEPT_EULA=YES \
+#//            --env PING_IDENTITY_DEVOPS_USER \
+#//            --env PING_IDENTITY_DEVOPS_KEY \
+#//            --tmpfs /run/secrets \
+#//            pingidentity/pingauthorizepap:edge
+#// ```
+#//
+#// Use the same command when a new pingauthorizepap release requires an upgrade to the policy
+#// database schema.
+#//
+#// Note that `PING_DB_ADMIN_PASSWORD` and `PING_DB_APP_PASSWORD` are only provided on the
+#// command line for illustrative purposes and can instead be provided through a Vault or
+#// through a `/run/secrets` `.env` file.
+#//
