@@ -869,6 +869,8 @@ buildRunPlan() {
 
         if test "${_podInstanceName}" = "${_seedInstanceName}"; then
             echo "We are the SEED server (${_seedInstanceName})"
+            # Create a marker file to indicate that this is the seed server
+            touch /tmp/seed-server
 
             if test -z "${serverUUID}"; then
                 if test "$(toLower "${PARALLEL_POD_MANAGEMENT_POLICY}")" = "true"; then
