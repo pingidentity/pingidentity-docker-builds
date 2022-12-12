@@ -218,7 +218,11 @@ ENV SHIM=${SHIM} \
 #-- large enough. The pods will be enabling replication simultaneously, so some pods
 #-- will have to retry while waiting for others to complete. If the timeout is too low,
 #-- a Pod may end up restarting unnecessarily.
-    PARALLEL_POD_MANAGEMENT_POLICY=false
+    PARALLEL_POD_MANAGEMENT_POLICY=false \
+
+#-- Set to true to skip the waiting for DNS step that is normally done just before
+#-- attempting to join the topology.
+    SKIP_WAIT_FOR_DNS=false
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]

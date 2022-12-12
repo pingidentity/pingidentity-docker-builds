@@ -1309,8 +1309,10 @@ prepareToJoinTopology() {
 
     waitUntilLdapUp "${_podName}" "${POD_LDAPS_PORT}" ""
 
-    if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" && test -n "${K8S_POD_HOSTNAME_PREFIX}" && test -n "${K8S_POD_HOSTNAME_SUFFIX}"; then
-        waitForDns "${WAIT_FOR_DNS_TIMEOUT:-600}" "${K8S_POD_HOSTNAME_PREFIX}${_ordinal}${K8S_POD_HOSTNAME_SUFFIX}"
+    if ! test "$(toLower "${SKIP_WAIT_FOR_DNS}")" = "true"; then
+        if test "${ORCHESTRATION_TYPE}" = "KUBERNETES" && test -n "${K8S_POD_HOSTNAME_PREFIX}" && test -n "${K8S_POD_HOSTNAME_SUFFIX}"; then
+            waitForDns "${WAIT_FOR_DNS_TIMEOUT:-600}" "${K8S_POD_HOSTNAME_PREFIX}${_ordinal}${K8S_POD_HOSTNAME_SUFFIX}"
+        fi
     fi
 
     #
