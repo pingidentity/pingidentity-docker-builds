@@ -27,7 +27,7 @@ USAGE
 }
 
 wait_for() {
-    for _ in $(seq ${TIMEOUT}); do
+    for _ in $(seq "${TIMEOUT}"); do
         SERVER_FOUND=false
         FILE_FOUND=false
         DIR_FOUND=false

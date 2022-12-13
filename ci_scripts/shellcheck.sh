@@ -10,6 +10,8 @@ test "${VERBOSE}" = "true" && set -x
 command_prefix=""
 if ! type shellcheck; then
     if test "$(uname -m)" = "x86_64" && test "$(uname -s)" = "Linux"; then
+        echo "INFO: Downloading latest shellcheck version for Linux"
+
         # Install shellcheck
         shellcheck_filename="shellcheck.tar.xz"
 

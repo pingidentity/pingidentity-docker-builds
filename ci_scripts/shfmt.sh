@@ -71,6 +71,8 @@ fi
 command_prefix=""
 if ! type shfmt; then
     if test "$(uname -m)" = "x86_64" && test "$(uname -s)" = "Linux"; then
+        echo "INFO: Downloading latest shfmt version for Linux"
+
         # Install shfmt
         shfmt_filename="shfmt"
 

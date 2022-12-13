@@ -1141,14 +1141,14 @@ buildRunPlan() {
         #
         for _cluster in ${K8S_CLUSTERS}; do
             # get the max size of cluster name
-            test ${#_cluster} -gt ${_clusterWidth} && _clusterWidth=${#_cluster}
+            test "${#_cluster}" -gt "${_clusterWidth}" && _clusterWidth=${#_cluster}
 
             i=0
             while test $i -lt "${_numReplicas}"; do
                 _pod="${K8S_STATEFUL_SET_NAME}-${_ordinal}.${_cluster}"
 
                 # get the max size of the pod name
-                test ${#_pod} -gt ${_podWidth} && _podWidth=${#_pod}
+                test "${#_pod}" -gt "${_podWidth}" && _podWidth=${#_pod}
 
                 _ldapsPort=${SEED_LDAPS_PORT}
                 if test "${PING_PRODUCT}" = "PingDirectory"; then
