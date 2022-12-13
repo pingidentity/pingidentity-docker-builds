@@ -592,6 +592,8 @@ if test -n "${PING_IDENTITY_SNAPSHOT}" && test -n "${CI_COMMIT_REF_NAME}"; then
             echo_red "azure not implemented yet"
             exit 1
             # shellcheck source=./azure_tools.lib.sh
+            # This file is not implemented. Disable shellcheck.
+            # shellcheck disable=SC2317
             . "${CI_SCRIPTS_DIR}/azure_tools.lib.sh"
             ;;
     esac
@@ -625,6 +627,8 @@ elif test -n "${CI_COMMIT_REF_NAME}"; then
             echo_red "azure not implemented yet"
             exit 1
             # shellcheck source=./azure_tools.lib.sh
+            # This file is not implemented. Disable shellcheck.
+            # shellcheck disable=SC2317
             . "${CI_SCRIPTS_DIR}/azure_tools.lib.sh"
             ;;
     esac

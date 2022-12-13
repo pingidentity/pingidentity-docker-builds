@@ -624,7 +624,7 @@ for _helmTest in ${_helmTests}; do
 
         # Handle the edge case where a failed pod was found, yet the helm test process completed with an exit code of 0 (success)
         # before it could be manually killed. Here we still want to report a failed return code.
-        test ${_returnCode} -eq 0 && test ${_pod_terminated_with_failure:-false} = true && _returnCode=1
+        test ${_returnCode} -eq 0 && test "${_pod_terminated_with_failure:-false}" = "true" && _returnCode=1
 
         test ${_returnCode} -ne 0 && echo_red "Helm Test ${_helmRelease} Failed"
     else

@@ -35,6 +35,9 @@ removePackageManager_alpine() {
     rm -f /sbin/apk
 }
 
+# This function causes issues because yum is a dependency of other yum-related packages.
+# Currently not used. Disable shellcheck.
+# shellcheck disable=SC2317
 removePackageManager_centos() {
     rpm --erase yum
     rpm --erase --nodeps rpm

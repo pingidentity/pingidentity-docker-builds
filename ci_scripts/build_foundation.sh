@@ -323,4 +323,5 @@ rm ${_resultsFile}
 _totalStop=$(date '+%s')
 _totalDuration=$((_totalStop - _totalStart))
 echo "Total duration: ${_totalDuration}s"
-exit ${returnCode}
+test -z "${returnCode}" && returnCode=0
+exit "${returnCode}"

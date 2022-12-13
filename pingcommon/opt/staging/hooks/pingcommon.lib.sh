@@ -326,13 +326,13 @@ run_hook() {
     test -z "${_hookExit}" && _hookExit=99
 
     run_if_present "${HOOKS_DIR}/${_hookScript}.pre"
-    die_on_error ${_hookExit} "Error running ${_hookScript}.pre" || exit ${?}
+    die_on_error "${_hookExit}" "Error running ${_hookScript}.pre" || exit ${?}
 
     run_if_present "${HOOKS_DIR}/${_hookScript}"
-    die_on_error ${_hookExit} "Error running ${_hookScript}" || exit ${?}
+    die_on_error "${_hookExit}" "Error running ${_hookScript}" || exit ${?}
 
     run_if_present "${HOOKS_DIR}/${_hookScript}.post"
-    die_on_error ${_hookExit} "Error running ${_hookScript}.post" || exit ${?}
+    die_on_error "${_hookExit}" "Error running ${_hookScript}.post" || exit ${?}
 }
 
 ###############################################################################
@@ -457,11 +457,11 @@ waitForDns() {
         for hostname in $_hostnames; do
             getent ahosts "${hostname}" | awk '{print $1}' | sort -u | grep "$(hostname -i)" > /dev/null
             if test $? -eq 0; then
-                _found=true
+                hostname_found=true
             fi
         done
-        if test $_found; then
-            unset _found
+        if test "${hostname_found}" = "true"; then
+            unset hostname_found
             _count=$((_count + 1))
             if test "$_count" -ge "$_count_limit"; then
                 echo "INFO: Waiting for verification of IP resolution from hostname(s)"
