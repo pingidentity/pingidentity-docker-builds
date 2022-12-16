@@ -7,6 +7,8 @@ intel.b.pingfederate:
   script:
     - ci_scripts/build_product.sh --product pingfederate
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
@@ -38,6 +40,8 @@ arm.b.pingfederate:
   script:
     - ci_scripts/build_product.sh --product pingfederate
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
@@ -71,6 +75,8 @@ intel.t.pingfederate:
     - ci_scripts/run_helm_smoke.sh --product pingfederate
   retry: 2
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
@@ -99,6 +105,8 @@ arm.t.pingfederate:
     - ci_scripts/run_helm_smoke.sh --product pingfederate
   retry: 2
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
@@ -128,6 +136,8 @@ d.pingfederate:
     - ci_scripts/deploy_product_to_registry.sh --product pingfederate
     - ci_scripts/deploy_manifests_to_registry.sh --product pingfederate
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip deploy\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'

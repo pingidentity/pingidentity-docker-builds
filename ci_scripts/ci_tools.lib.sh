@@ -516,6 +516,30 @@ requirePipelineVar() {
 }
 
 ################################################################################
+# Executes the command passed, and fails if return code ne 0
+################################################################################
+exec_cmd_or_fail() {
+    eval "${*}"
+    result_code=${?}
+    test "${result_code}" -ne 0 && echo_red "The following command resulted in an error: ${*}" && exit "${result_code}"
+}
+
+################################################################################
+#Executes the command passed, and retries up to 5 times if return code is ne 0
+################################################################################
+exec_cmd_or_retry() {
+    num_retries=5
+    while test ${num_retries} -gt 0; do
+        num_retries=$((num_retries - 1))
+        eval "${*}"
+        result_code=${?}
+        test ${result_code} -eq 0 && break
+        sleep 5
+    done
+    test "${result_code}" -ne 0 && echo_red "The following command repeatedly resulted in an error: ${*}" && exit "${result_code}"
+}
+
+################################################################################
 # Kill the passed in process and all of the child processes.
 ################################################################################
 _kill_pid() {
@@ -554,6 +578,7 @@ setupDockerConfigJson() {
     requirePipelineVar PIPELINE_BUILD_REGISTRY
     requirePipelineVar PIPELINE_BUILD_REPO
     requirePipelineVar ARTIFACTORY_REGISTRY
+    requirePipelineVar ARTIFACTORY_AUTH_TOKEN
     requirePipelineVar FEDRAMP_REGISTRY
     requirePipelineFile DOCKER_CONFIG_JSON
 

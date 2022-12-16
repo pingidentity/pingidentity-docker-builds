@@ -14,6 +14,8 @@ intel.pd-repl.liberica:
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 3920000000
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i'
@@ -53,6 +55,8 @@ arm.pd-repl.liberica:
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 5880000000
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i'
@@ -90,6 +94,8 @@ intel.pa-pf-pd-fips.liberica:
     KUBERNETES_MEMORY_REQUEST: 1960000000
     KUBERNETES_MEMORY_LIMIT: 1960000000
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
@@ -130,6 +136,8 @@ intel.pa-pf-pd.liberica:
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 3920000000
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
@@ -171,6 +179,8 @@ arm.pa-pf-pd.liberica:
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 5880000000
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
@@ -209,6 +219,8 @@ intel.pds-pd.liberica:
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 3920000000
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdatasync(?:$|,)/i'
@@ -250,6 +262,8 @@ arm.pds-pd.liberica:
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 5880000000
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdatasync(?:$|,)/i'
@@ -287,6 +301,8 @@ intel.pdp-pd.liberica:
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 5880000000
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectoryproxy(?:$|,)/i'
@@ -327,6 +343,8 @@ arm.pdp-pd.liberica:
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 3920000000
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectoryproxy(?:$|,)/i'
@@ -364,6 +382,8 @@ intel.paz-pd.liberica:
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 3920000000
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingauthorize(?:$|,)/i'
@@ -404,6 +424,8 @@ arm.paz-pd.liberica:
     KUBERNETES_MEMORY_REQUEST: 3920000000
     KUBERNETES_MEMORY_LIMIT: 5880000000
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingauthorize(?:$|,)/i'
@@ -436,6 +458,8 @@ intel.pi-basic.latest:
     - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pi
   retry: 1
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'

@@ -7,6 +7,8 @@ intel.b.pingtoolkit:
   script:
     - ci_scripts/build_product.sh --product pingtoolkit
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingtoolkit(?:$|,)/i'
@@ -36,6 +38,8 @@ arm.b.pingtoolkit:
   script:
     - ci_scripts/build_product.sh --product pingtoolkit
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingtoolkit(?:$|,)/i'
@@ -67,6 +71,8 @@ intel.t.pingtoolkit:
     - ci_scripts/run_helm_smoke.sh --product pingtoolkit
   retry: 2
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingtoolkit(?:$|,)/i'
@@ -96,6 +102,8 @@ arm.t.pingtoolkit:
   script:
     - ci_scripts/run_helm_smoke.sh --product pingtoolkit
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingtoolkit(?:$|,)/i'
@@ -127,6 +135,8 @@ d.pingtoolkit:
     - ci_scripts/deploy_product_to_registry.sh --product pingtoolkit
     - ci_scripts/deploy_manifests_to_registry.sh --product pingtoolkit
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip deploy\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingtoolkit(?:$|,)/i'

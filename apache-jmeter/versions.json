@@ -13,17 +13,13 @@
                             "jvm": "al11",
                             "build": true,
                             "deploy": true,
-                            "registries": [
-                                "Artifactory"
-                            ]
+                            "registries": []
                         },
                         {
                             "jvm": "al17",
                             "build": true,
                             "deploy": true,
-                            "registries": [
-                                "Artifactory"
-                            ]
+                            "registries": []
                         }
                     ]
                 }

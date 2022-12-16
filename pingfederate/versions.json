@@ -14,8 +14,7 @@
                             "build": true,
                             "deploy": true,
                             "registries": [
-                                "DockerHub",
-                                "Artifactory"
+                                "DockerHub"
                             ]
                         }
                     ]
@@ -35,8 +34,7 @@
                             "build": true,
                             "deploy": true,
                             "registries": [
-                                "DockerHub",
-                                "Artifactory"
+                                "DockerHub"
                             ]
                         }
                     ]
@@ -56,7 +54,6 @@
                             "build": true,
                             "deploy": true,
                             "registries": [
-                                "Artifactory",
                                 "Fedramp"
                             ]
                         }

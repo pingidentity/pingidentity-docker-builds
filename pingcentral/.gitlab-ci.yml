@@ -7,6 +7,8 @@ intel.b.pingcentral:
   script:
     - ci_scripts/build_product.sh --product pingcentral
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingcentral(?:$|,)/i'
@@ -34,6 +36,8 @@ arm.b.pingcentral:
   script:
     - ci_scripts/build_product.sh --product pingcentral
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingcentral(?:$|,)/i'
@@ -62,6 +66,8 @@ intel.t.pingcentral:
   script:
     - ci_scripts/run_helm_smoke.sh --product pingcentral
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingcentral(?:$|,)/i'
@@ -89,6 +95,8 @@ arm.t.pingcentral:
   script:
     - ci_scripts/run_helm_smoke.sh --product pingcentral
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingcentral(?:$|,)/i'
@@ -118,6 +126,8 @@ d.pingcentral:
     - ci_scripts/deploy_product_to_registry.sh --product pingcentral
     - ci_scripts/deploy_manifests_to_registry.sh --product pingcentral
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip deploy\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingcentral(?:$|,)/i'
