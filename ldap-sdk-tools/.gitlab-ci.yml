@@ -7,6 +7,8 @@ intel.b.ldap-sdk-tools:
   script:
     - ci_scripts/build_product.sh --product ldap-sdk-tools
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)ldap-sdk-tools(?:$|,)/i'
@@ -33,6 +35,8 @@ arm.b.ldap-sdk-tools:
   script:
     - ci_scripts/build_product.sh --product ldap-sdk-tools
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)ldap-sdk-tools(?:$|,)/i'
@@ -60,6 +64,8 @@ intel.t.ldap-sdk-tools:
   script:
     - ci_scripts/run_helm_smoke.sh --product ldap-sdk-tools
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)ldap-sdk-tools(?:$|,)/i'
@@ -87,6 +93,8 @@ arm.t.ldap-sdk-tools:
   script:
     - ci_scripts/run_helm_smoke.sh --product ldap-sdk-tools
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)ldap-sdk-tools(?:$|,)/i'
@@ -116,6 +124,8 @@ d.ldap-sdk-tools:
     - ci_scripts/deploy_product_to_registry.sh --product ldap-sdk-tools
     - ci_scripts/deploy_manifests_to_registry.sh --product ldap-sdk-tools
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip deploy\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)ldap-sdk-tools(?:$|,)/i'

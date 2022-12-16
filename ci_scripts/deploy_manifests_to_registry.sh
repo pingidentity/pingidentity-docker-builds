@@ -15,20 +15,11 @@ Usage: ${0} {options}
 
     -p, --product
         The name of the product for which to build a manifest
-    --dry-run
-        does everything except actually call the docker command and prints it instead
     --help
         Display general usage information
 END_USAGE
     test -n "${*}" && echo "${*}"
     exit 99
-}
-
-# Executes the command passed, and fails if return code ne 0
-exec_cmd_or_fail() {
-    eval "${dry_run} ${*}"
-    result_code=${?}
-    test "${result_code}" -ne 0 && echo_red "The following command resulted in an error: ${*}" && exit "${result_code}"
 }
 
 # Creates and Publishes Multi-Arch Image Manifests
@@ -66,9 +57,6 @@ while test -n "${1}"; do
             shift
             test -z "${1}" && usage "You must provide a product to build"
             product_to_deploy="${1}"
-            ;;
-        --dry-run)
-            dry_run="echo"
             ;;
         --help)
             usage
@@ -119,14 +107,6 @@ for version in ${versions_to_deploy}; do
             for target_registry in ${registry_list}; do
                 target_registry=$(toLower "${target_registry}")
                 case "${target_registry}" in
-                    "artifactory")
-                        # TODO Artifactory is using v1 manifests. Update this to use manifests in Artifactory
-                        echo_yellow "Registry ${target_registry} is not implemented in deploy_manifests.sh"
-                        # target_registry_url="${ARTIFACTORY_REGISTRY}"
-                        # docker_config_dir="${docker_config_default_dir}"
-                        # notary_server="https://notaryserver:4443"
-                        continue
-                        ;;
                     "dockerhub")
                         target_registry_url="${DOCKER_HUB_REGISTRY}"
                         docker_config_dir="${docker_config_hub_dir}"

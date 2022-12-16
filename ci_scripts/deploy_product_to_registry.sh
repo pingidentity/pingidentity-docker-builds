@@ -15,33 +15,11 @@ Usage: ${0} {options}
 
     -p, --product
         The name of the product for which to deploy docker images
-    --dry-run
-        does everything except actually call the docker command and prints it instead
     --help
         Display general usage information
 END_USAGE
     test -n "${*}" && echo "${*}"
     exit 99
-}
-
-# Executes the command passed, and fails if return code ne 0
-exec_cmd_or_fail() {
-    eval "${dry_run} ${*}"
-    result_code=${?}
-    test "${result_code}" -ne 0 && echo_red "The following command resulted in an error: ${*}" && exit "${result_code}"
-}
-
-#Executes the command passed, and retries up to 5 times if return code is ne 0
-exec_cmd_or_retry() {
-    num_retries=5
-    while test ${num_retries} -gt 0; do
-        num_retries=$((num_retries - 1))
-        eval "${dry_run} ${*}"
-        result_code=${?}
-        test ${result_code} -eq 0 && break
-        sleep 5
-    done
-    test "${result_code}" -ne 0 && echo_red "The following command repeatedly resulted in an error: ${*}" && exit "${result_code}"
 }
 
 # Tags the product being deployed and push into registry
@@ -56,12 +34,6 @@ tag_and_push() {
         if test -z "${DEPLOY_NO_PUSH}"; then
             exec_cmd_or_fail docker tag "${source}" "${target}"
             case "${target_registry}" in
-                "artifactory")
-                    export DOCKER_CONTENT_TRUST_SERVER="https://notaryserver:4443"
-                    docker --config "${docker_config_default_dir}" trust revoke --yes "${target}"
-                    exec_cmd_or_retry docker --config "${docker_config_default_dir}" trust sign "${target}"
-                    unset DOCKER_CONTENT_TRUST_SERVER
-                    ;;
                 "dockerhub")
                     #Check to see if signature data already exists for tag
                     #If it does, remove the signature data
@@ -91,9 +63,6 @@ while test -n "${1}"; do
             shift
             test -z "${1}" && usage "You must provide a product to build"
             product_to_deploy="${1}"
-            ;;
-        --dry-run)
-            dry_run="echo"
             ;;
         --help)
             usage
@@ -142,14 +111,10 @@ for version in ${versions_to_deploy}; do
             for arch in $(_getAllArchsForJVM "${jvm}"); do
                 banner "Processing ${product_to_deploy} ${shim} ${jvm} ${version} ${arch}"
                 full_tag="${version}-${shim_long_tag}-${jvm}-${CI_TAG}-${arch}"
-                test -z "${dry_run}" &&
-                    docker --config "${docker_config_default_dir}" pull "${FOUNDATION_REGISTRY}/${product_to_deploy}:${full_tag}"
+                docker --config "${docker_config_default_dir}" pull "${FOUNDATION_REGISTRY}/${product_to_deploy}:${full_tag}"
                 for target_registry in ${registry_list}; do
                     target_registry=$(toLower "${target_registry}")
                     case "${target_registry}" in
-                        "artifactory")
-                            target_registry_url="${ARTIFACTORY_REGISTRY}"
-                            ;;
                         "dockerhub")
                             target_registry_url="${DOCKER_HUB_REGISTRY}"
                             ;;
@@ -163,8 +128,7 @@ for version in ${versions_to_deploy}; do
                     banner "Publishing ${product_to_deploy} ${shim} ${jvm} ${version} to ${target_registry}"
                     tag_and_push "${version}-${shim_long_tag}-${jvm}-${arch}-edge"
                 done # iterating over target registries to deploy to
-                test -z "${dry_run}" &&
-                    docker image rm -f "${FOUNDATION_REGISTRY}/${product_to_deploy}:${full_tag}"
+                docker image rm -f "${FOUNDATION_REGISTRY}/${product_to_deploy}:${full_tag}"
             done # iterating over architectures
         done     # iterating over JVMS
     done         # iterating over shims

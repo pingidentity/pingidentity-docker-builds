@@ -7,6 +7,8 @@ intel.b.pingintelligence:
   script:
     - ci_scripts/build_product.sh --product pingintelligence
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
@@ -37,6 +39,8 @@ intel.t.pingintelligence:
   script:
     - ci_scripts/run_helm_smoke.sh --product pingintelligence
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
@@ -68,6 +72,8 @@ d.pingintelligence:
     - ci_scripts/deploy_product_to_registry.sh --product pingintelligence
     - ci_scripts/deploy_manifests_to_registry.sh --product pingintelligence
   rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip deploy\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'

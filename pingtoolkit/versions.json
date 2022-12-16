@@ -14,8 +14,7 @@
                             "build": true,
                             "deploy": true,
                             "registries": [
-                                "DockerHub",
-                                "Artifactory"
+                                "DockerHub"
                             ]
                         }
                     ]
