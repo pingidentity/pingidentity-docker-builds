@@ -95,7 +95,7 @@ overwrite_and_archive_image() {
 # Authenticate to DockerHub and output the login data to $api_output_file
 authenticate_to_dockerhub() {
     banner "Authenticating to DockerHub"
-    http_response_code=$(curl --silent --request "POST" --write-out '%{http_code}' --output "${api_output_file}" --header "Content-Type: application/json" --data '{"username": "'"${DOCKER_USERNAME}"'", "password": "'"${DOCKER_PASSWORD}"'"}' "https://hub.docker.com/v2/users/login/")
+    http_response_code=$(curl --silent --request "POST" --write-out '%{http_code}' --output "${api_output_file}" --header "Content-Type: application/json" --data '{"username": "'"${DOCKER_USERNAME}"'", "password": "'"${DOCKER_ACCESS_TOKEN}"'"}' "https://hub.docker.com/v2/users/login/")
     if test "${http_response_code}" -eq 200; then
         echo "Successfully Retrieved Login Auth Token from DockerHub"
     else
