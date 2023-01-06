@@ -165,7 +165,7 @@ for version in ${versions_to_deploy}; do
                 case "${target_registry}" in
                     "dockerhub")
                         # Get Dockerhub Auth Token
-                        http_response_code=$(curl --silent --request "POST" --write-out '%{http_code}' --output "/tmp/dockerhub.api.out" --header "Content-Type: application/json" --data '{"username": "'"${DOCKER_USERNAME}"'", "password": "'"${DOCKER_PASSWORD}"'"}' "https://hub.docker.com/v2/users/login/")
+                        http_response_code=$(curl --silent --request "POST" --write-out '%{http_code}' --output "/tmp/dockerhub.api.out" --header "Content-Type: application/json" --data '{"username": "'"${DOCKER_USERNAME}"'", "password": "'"${DOCKER_ACCESS_TOKEN}"'"}' "https://hub.docker.com/v2/users/login/")
                         if test "${http_response_code}" -eq 200; then
                             dockerhub_auth_token=$(jq -r .token "/tmp/dockerhub.api.out")
                             echo "Successfully Retrieved Login Auth Token from DockerHub"
@@ -175,7 +175,7 @@ for version in ${versions_to_deploy}; do
 
                         # Loop through Architectures and delete images used to build manifests.
                         for arch in $(_getAllArchsForJVM "${jvm}"); do
-                            http_response_code=$(curl --silent --request "DELETE" --write-out '%{http_code}' --output "/dev/null" --header "Authorization: JWT ${dockerhub_auth_token}" "https://hub.docker.com/v2/repositories/pingidentity/${product_to_deploy}/tags/${version}-${shim_long_tag}-${jvm}-${arch}-edge/")
+                            http_response_code=$(curl --silent --request "DELETE" --write-out '%{http_code}' --output "/dev/null" --header "Authorization: Bearer ${dockerhub_auth_token}" "https://hub.docker.com/v2/repositories/pingidentity/${product_to_deploy}/tags/${version}-${shim_long_tag}-${jvm}-${arch}-edge")
                             if test "${http_response_code}" -eq 204; then
                                 echo "Successfully deleted image tag: ${version}-${shim_long_tag}-${jvm}-${arch}-edge"
                             else
@@ -184,7 +184,7 @@ for version in ${versions_to_deploy}; do
                         done # iterating over architectures
 
                         # Log out Dockerhub Auth Token
-                        http_response_code=$(curl --silent --request "POST" --write-out '%{http_code}' --output "/dev/null" --header "Authorization: JWT ${dockerhub_auth_token}" "https://hub.docker.com/v2/logout/")
+                        http_response_code=$(curl --silent --request "POST" --write-out '%{http_code}' --output "/dev/null" --header "Authorization: Bearer ${dockerhub_auth_token}" "https://hub.docker.com/v2/logout/")
                         if test "${http_response_code}" -ne 200; then
                             echo_red "${http_response_code}: Unable to logout from dockerhub after tag deletion" && exit 1
                         else

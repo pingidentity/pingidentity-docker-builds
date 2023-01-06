@@ -564,12 +564,12 @@ setupDockerConfigJson() {
     ####### SET UP DOCKERHUB #######
     echo "Logging Into DockerHub..."
     requirePipelineVar DOCKER_USERNAME
-    requirePipelineVar DOCKER_PASSWORD
+    requirePipelineVar DOCKER_ACCESS_TOKEN
     requirePipelineVar DOCKER_HUB_REGISTRY
     mkdir -p "${docker_config_hub_dir}"
 
     # login to docker.io to create the docker hub config.json
-    docker --config "${docker_config_hub_dir}" login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
+    docker --config "${docker_config_hub_dir}" login --username "${DOCKER_USERNAME}" --password "${DOCKER_ACCESS_TOKEN}"
     test ${?} -ne 0 && echo_red "Error: Failed to login to DockerHub in ci_tools.sh" && exit 1
 
     ####### SET UP ALL OTHER REGISTRIES #######
