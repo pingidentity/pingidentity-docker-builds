@@ -18,7 +18,6 @@ _out="/tmp/pa.api.request.out"
 _config_zip="/tmp/engine-config.zip"
 _pa_host=${PA_CONSOLE_HOST}
 _pa_port=${PA_ADMIN_PORT}
-_password=${PING_IDENTITY_PASSWORD:-PA_ADMIN_PASSWORD_INITIAL}
 # The environment variables PA_ADMIN_PRIVATE_... are automatically created from
 # ping-devops helm charts
 test -n "${PA_ADMIN_PRIVATE_HOSTNAME}" && _pa_host=${PA_ADMIN_PRIVATE_HOSTNAME}
@@ -27,7 +26,7 @@ test -n "${PA_ADMIN_PRIVATE_PORT_HTTPS}" && _pa_port=${PA_ADMIN_PRIVATE_PORT_HTT
 _pa_curl() {
     _curl \
         --insecure \
-        --user "${ROOT_USER}:${_password}" \
+        --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
         --header "X-Xsrf-Header: PingAccess" \
         --output ${_out} \
         "${@}"
@@ -89,7 +88,7 @@ if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGI
         curl \
             --insecure \
             --request POST \
-            --user "${ROOT_USER}:${_password}" \
+            --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
             --header "X-Xsrf-Header: PingAccess" \
             --output ${_out} \
             --write-out '%{http_code}' \
@@ -100,8 +99,7 @@ if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGI
     if test "${https_result_code}" = "200"; then
         engine_id=$(jq -r '.id' "${_out}")
     else
-        response_body=$("${_out}" | jq -r)
-        echo "${response_body}"
+        cat "${_out}"
         container_failure "${https_result_code}" "Failure to add engine"
     fi
 
@@ -111,15 +109,14 @@ if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGI
         curl \
             --insecure \
             --request POST \
-            --user "${ROOT_USER}:${_password}" \
+            --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
             --header "X-Xsrf-Header: PingAccess" \
             --output "${_config_zip}" \
             --write-out '%{http_code}' \
             "${_enginesURL}/${engine_id}/config"
     )
     if test "${https_result_code}" != "200"; then
-        response_body=$("${_out}" | jq -r)
-        echo "${response_body}"
+        cat "${_out}"
         container_failure "${https_result_code}" "Failure to retrieve engine config"
     fi
 

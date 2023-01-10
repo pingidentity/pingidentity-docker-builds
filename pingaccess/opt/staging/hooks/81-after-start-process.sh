@@ -2,9 +2,6 @@
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-test -n "${INITIAL_ADMIN_PASSWORD}" && echo_yellow "WARNING: INITIAL_ADMIN_PASSWORD is deprecated, use PING_IDENTITY_PASSWORD"
-test -n "${PA_ADMIN_PASSWORD}" && echo_yellow "WARNING: PA_ADMIN_PASSWORD is deprecated, use PING_IDENTITY_PASSWORD"
-
 pingaccess_private_hostname=${PA_CONSOLE_HOST}
 test -n "${PA_ADMIN_PRIVATE_HOSTNAME}" && pingaccess_private_hostname=${PA_ADMIN_PRIVATE_HOSTNAME}
 
@@ -13,24 +10,9 @@ test -n "${PA_ADMIN_PRIVATE_PORT_HTTPS}" && pingaccess_private_port=${PA_ADMIN_P
 
 _out="/tmp/pa.api.request.out"
 
-# Make an attempt to authenticate with the provided expected administrator password
-_pwCheck=$(
-    curl \
-        --insecure \
-        --silent \
-        --write-out '%{http_code}' \
-        --output /dev/null \
-        --request GET \
-        --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
-        -H "X-Xsrf-Header: PingAccess" \
-        "https://localhost:${pingaccess_private_port}/pa-admin-api/v3/users/1" \
-        2> /dev/null
-)
-
-# if not successful, attempt to update the password using the default
-if test "${_pwCheck}" -ne 200; then
-    run_hook "83-change-password.sh"
-fi
+# Attempt to update the administrator password from the default password
+# This does nothing if the password has already been changed
+run_hook "83-change-password.sh"
 
 echo "Checking for data.json to import.."
 if test -f "${STAGING_DIR}/instance/data/data.json"; then
@@ -54,6 +36,7 @@ else
         _keypairURL="${_basePaURL}/keyPairs/generate"
 
         #Create Keypair
+        echo "INFO: Creating keypair for ${pingaccess_private_hostname}."
         https_result_code=$(
             curl \
                 --insecure \
@@ -77,12 +60,12 @@ else
         if test "${https_result_code}" = "200"; then
             key_pair_id=$(jq -r '.id' "${_out}")
         else
-            response_body=$("${_out}" | jq -r)
-            echo "${response_body}"
+            cat "${_out}"
             container_failure "${https_result_code}" "Failure to create Keypair"
         fi
 
         #Assign HTTPS Listeners
+        echo "INFO: Assigning ADMIN HTTPS listener to keypairID ${key_pair_id}."
         _httpsListenersURL="${_basePaURL}/httpsListeners"
         https_result_code=$(
             curl \
@@ -98,11 +81,11 @@ else
         )
 
         if test "${https_result_code}" != "200"; then
-            response_body=$("${_out}" | jq -r)
-            echo "${response_body}"
+            cat "${_out}"
             container_failure "${https_result_code}" "Failure to assign ADMIN HTTPS Listener"
         fi
 
+        echo "INFO: Assigning ENGINE HTTPS listener to keypairID ${key_pair_id}."
         https_result_code=$(
             curl \
                 --insecure \
@@ -117,11 +100,11 @@ else
         )
 
         if test "${https_result_code}" != "200"; then
-            response_body=$("${_out}" | jq -r)
-            echo "${response_body}"
+            cat "${_out}"
             container_failure "${https_result_code}" "Failure to assign ENGINE HTTPS Listener"
         fi
 
+        echo "INFO: Assigning AGENT HTTPS listener to keypairID ${key_pair_id}."
         https_result_code=$(
             curl \
                 --insecure \
@@ -136,11 +119,11 @@ else
         )
 
         if test "${https_result_code}" != "200"; then
-            response_body=$("${_out}" | jq -r)
-            echo "${response_body}"
+            cat "${_out}"
             container_failure "${https_result_code}" "Failure to assign AGENT HTTPS Listener"
         fi
 
+        echo "INFO: Assigning CONFIG QUERY HTTPS listener to keypairID ${key_pair_id}."
         https_result_code=$(
             curl \
                 --insecure \
@@ -155,11 +138,11 @@ else
         )
 
         if test "${https_result_code}" != "200"; then
-            response_body=$("${_out}" | jq -r)
-            echo "${response_body}"
+            cat "${_out}"
             container_failure "${https_result_code} Failure to assign CONFIG QUERY HTTPS Listener"
         fi
 
+        echo "INFO: Assigning SIDEBAND HTTPS listener to keypairID ${key_pair_id}."
         https_result_code=$(
             curl \
                 --insecure \
@@ -174,14 +157,13 @@ else
         )
 
         if test "${https_result_code}" != "200"; then
-            response_body=$("${_out}" | jq -r)
-            echo "${response_body}"
+            cat "${_out}"
             container_failure "${https_result_code}" "Failure to assign SIDEBAND HTTPS Listener"
         fi
 
         #Update Administrative Node Host
         adminNodesHost="${pingaccess_private_hostname}:${PA_ADMIN_PRIVATE_PORT_CLUSTERCONFIG}"
-        echo "Setting administrative node ${adminNodesHost}"
+        echo "INFO: Setting administrative node ${adminNodesHost}"
         _adminNodeHostURL="${_basePaURL}/adminConfig"
 
         https_result_code=$(
@@ -198,8 +180,7 @@ else
         )
 
         if test "${https_result_code}" != "200"; then
-            response_body=$("${_out}" | jq -r)
-            echo "${response_body}"
+            cat "${_out}"
             container_failure "${https_result_code}" "Failure to update the Administrative Node Host"
         fi
     fi

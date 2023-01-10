@@ -100,10 +100,10 @@ ENV SHIM=${SHIM} \
     LICENSE_SHORT_NAME=PA \
 #-- Version used when retrieving license from License Server
     LICENSE_VERSION=${LICENSE_VERSION} \
-    PA_ADMIN_PASSWORD=${INITIAL_ADMIN_PASSWORD} \
     OPERATIONAL_MODE="STANDALONE" \
-#-- Change **non-default** password at startup by including this and PING_IDENTITY_PASSWORD
     PA_ADMIN_PASSWORD_INITIAL="2Access" \
+#-- Specify a password for administrator user for interaction with admin API
+    PING_IDENTITY_PASSWORD="2FederateM0re" \
 #-- The command that the entrypoint will execute in the foreground to
 #-- instantiate the container
     STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh" \
@@ -133,9 +133,6 @@ ENV SHIM=${SHIM} \
 #-- wait-for timeout for 80-post-start.sh hook script
 #-- How long to wait for the PA Admin console to be available
     ADMIN_WAITFOR_TIMEOUT=300
-
-#-- Specify a password for administrator user for interaction with admin API
-ENV PING_IDENTITY_PASSWORD=${PA_ADMIN_PASSWORD}
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
