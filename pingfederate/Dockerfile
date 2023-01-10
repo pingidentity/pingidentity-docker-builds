@@ -108,6 +108,8 @@ ENV SHIM=${SHIM} \
 #-- The command that the entrypoint will execute in the foreground to
 #-- instantiate the container
     STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh" \
+#-- Specify a password for administrator user for interaction with admin API
+    PING_IDENTITY_PASSWORD="2FederateM0re" \
 #-- Files tailed once container has started
     TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/server.log \
 

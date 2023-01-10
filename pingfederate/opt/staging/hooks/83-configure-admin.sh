@@ -19,11 +19,13 @@ _acceptLicenseAgreement=$(
 
 case "${_acceptLicenseAgreement}" in
     200)
-        # is new pf, create admin user.
+        # This is a new PingFederate instance, then create admin user.
         echo "INFO: new server found, must create admin"
-        ## set script vars
-        _password="$(get_value PING_IDENTITY_PASSWORD true)"
-        _password=${_password:=2Federate}
+
+        # Make sure PING_IDENTITY_PASSWORD is defined
+        test -z "${PING_IDENTITY_PASSWORD}" && container_failure 83 "ERROR: PING_IDENTITY_PASSWORD is not defined. Could not create administrator user."
+
+        # Set script vars
         _adminRoles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR"]'
         _createAdminUser=$(
             curl \
@@ -34,7 +36,7 @@ case "${_acceptLicenseAgreement}" in
                 --request POST \
                 --header "X-XSRF-Header: PingFederate" \
                 --header 'Content-Type: application/json' \
-                --data '{"username": "administrator", "password": "'"${_password}"'",
+                --data '{"username": "administrator", "password": "'"${PING_IDENTITY_PASSWORD}"'",
           "description": "Initial administrator user.", 
           "auditor": false,"active": true, 
           "roles": '"${_adminRoles}"' }' \
@@ -48,7 +50,7 @@ case "${_acceptLicenseAgreement}" in
         fi
         ;;
     401)
-        echo "INFO: found existing admin"
+        echo "INFO: Found existing admin PingFederate instance. Skipping creation of new admin user."
         ;;
     *)
         echo_red "$(jq -r . /tmp/license.acceptance)"
