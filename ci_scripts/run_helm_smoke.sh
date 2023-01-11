@@ -102,7 +102,6 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 returnCode=""
 
 test -z "${product}" && usage "Providing a product is required"
-! test -d "${CI_PROJECT_DIR}/${product}" && echo "invalid product ${product}" && exit 98
 ! test -d "${CI_PROJECT_DIR}/helm-tests/smoke-tests/${product}/" && echo "${product} has no smoke tests" && exit 98
 
 if test -n "${IS_LOCAL_BUILD}"; then
@@ -162,10 +161,6 @@ _run_helm_test() {
         --helm-set-values testFramework.finalStep.image=${DEPS_REGISTRY}busybox \
         ${NS_OPT}"
 
-    if [ "${product}" == "pingaccess" ]; then
-        _cmd="${_cmd} --helm-set-values global.envs.PING_IDENTITY_PASSWORD=${PA_DEFAULT_PASSWORD}"
-    fi
-
     echo "Running: $_cmd"
 
     local _start
@@ -213,6 +208,9 @@ _pids=()
 # Calculating test to be run
 #
 _test="${CI_PROJECT_DIR}/helm-tests/smoke-tests/${product}"
+if [[ "${product}" == *"pingaccess"* ]]; then
+    product="pingaccess"
+fi
 banner "Running smoke test found at: ${_test}"
 
 #If this is a snapshot pipeline, override the image tag to snapshot image tags

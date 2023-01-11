@@ -128,6 +128,65 @@ arm.t.pingaccess:
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
 
+intel.t.pingaccess-cluster:
+  stage: test.smoke
+  script:
+    - ci_scripts/run_helm_smoke.sh --product pingaccess-cluster
+  retry: 2
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingbase/**/*
+        - pingaccess/**/*
+        - pingjvm/*
+        - ci_scripts/*
+        - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingaccess/*
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
+
+arm.t.pingaccess-cluster:
+  stage: test.smoke
+  image: $RUNNER_IMAGE_AARCH64
+  tags:
+    - platform=aarch64
+  script:
+    - ci_scripts/run_helm_smoke.sh --product pingaccess-cluster
+  retry: 2
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingbase/**/*
+        - pingaccess/**/*
+        - pingjvm/*
+        - ci_scripts/*
+        - .gitlab-ci.yml
+        - helm-tests/smoke-tests/pingaccess/*
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
+
 ################################################
 #                  DEPLOY
 ################################################
