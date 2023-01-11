@@ -1,5 +1,5 @@
 ###############################################################################
-# Ping Identity Test - PingAccess Standalone Smoke Test
+# Ping Identity Test - PingAccess Clustered Smoke Test
 #
 #
 ###############################################################################
@@ -8,7 +8,7 @@ pingaccess-admin:
   privateCert:
     generate: true
   envs:
-    OPERATIONAL_MODE: "STANDALONE"
+    OPERATIONAL_MODE: "CLUSTERED_CONSOLE"
   container:
     resources:
       requests:
@@ -21,7 +21,7 @@ pingaccess-admin:
 pingaccess-engine:
   enabled: true
   envs:
-    OPERATIONAL_MODE: "STANDALONE"
+    OPERATIONAL_MODE: "CLUSTERED_ENGINE"
   container:
     resources:
       requests:
