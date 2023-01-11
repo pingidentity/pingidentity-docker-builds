@@ -16,9 +16,10 @@ export HISTTIMEFORMAT
 # as well as validate the tag is 2201 or newer.
 _getSprintTagIfAvailable() {
     # Determine whether the commit is associated with a sprint tag
-    # a sprint tag is exactly 4 digits, YYMM
+    # A sprint tag is contains exactly 4 digits in a row, either YYMM or YYMM.X
+    # A sprint tag in the docker-builds repository should not contain any letters
     for tag in $(git tag --points-at "${GIT_REV_LONG}"); do
-        if test -z "${tag##[0-9][0-9][0-9][0-9]}"; then
+        if test "${tag##[0-9][0-9][0-9][0-9]}" != "${tag}" && test "${tag##[A-Za-z]}" = "${tag}"; then
             sprint="${tag}"
             break
         fi
@@ -30,10 +31,16 @@ _getSprintTagIfAvailable() {
     if test -n "${PIPELINE_VERSIONS_JSON_OVERRIDE}"; then
         if test -z "${sprint}"; then
             most_recent_tag="$(git describe --tags --abbrev=0)"
-            test -n "${most_recent_tag##[0-9][0-9][0-9][0-9]}" && echo_red "ERROR: Most recent tag ${most_recent_tag} for branch ${CI_COMMIT_BRANCH} does not match form YYMM." && exit 1
-            sprint="${most_recent_tag}"
+
+            # A sprint tag is contains exactly 4 digits in a row, either YYMM or YYMM.X
+            # A sprint tag in the docker-builds repository should not contain any letters
+            if test "${most_recent_tag##[0-9][0-9][0-9][0-9]}" != "${most_recent_tag}" && test "${most_recent_tag##[A-Za-z]}" = "${most_recent_tag}"; then
+                sprint="${most_recent_tag}"
+            else
+                echo_red "ERROR: Most recent tag ${most_recent_tag} for branch ${CI_COMMIT_BRANCH} does not match form YYMM or YYMM.X" && exit 1
+            fi
         fi
-        test "${sprint}" -lt 2201 && echo_red "ERROR: The sprint release ${sprint} does not support versions.json override. Use 2201 or newer." && exit 1
+        test "${sprint:0:2}" -lt 22 && echo_red "ERROR: The sprint release ${sprint} does not support versions.json override. Use 2201 or newer." && exit 1
     fi
 
     printf "%s" "${sprint}"
