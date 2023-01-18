@@ -211,6 +211,9 @@ _test="${CI_PROJECT_DIR}/helm-tests/smoke-tests/${product}"
 if [[ "${product}" == *"pingaccess"* ]]; then
     product="pingaccess"
 fi
+if [[ "${product}" == *"pingdataconsole"* ]]; then
+    product="pingdataconsole"
+fi
 banner "Running smoke test found at: ${_test}"
 
 #If this is a snapshot pipeline, override the image tag to snapshot image tags
