@@ -90,6 +90,8 @@ ENV SHIM=${SHIM} \
     PING_PRODUCT=PingDirectoryProxy \
 #-- Name of license File
     LICENSE_FILE_NAME=PingDirectory.lic \
+#-- PD License directory. This value is set from the pingbase docker file
+    LICENSE_DIR="${PD_LICENSE_DIR}" \
 #-- Short name used when retrieving license from License Server
     LICENSE_SHORT_NAME=PD \
 #-- Version used when retrieving license from License Server
