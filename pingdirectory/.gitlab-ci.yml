@@ -22,6 +22,7 @@ intel.b.pingdirectory:
         - pingbase/**/*
         - pingaccess/**/*
         - pingdatasync/**/*
+        - pingdirectoryproxy/**/*
         - pingdirectory/**/*
         - pingfederate/**/*
         - pingauthorize/**/*
@@ -57,6 +58,7 @@ arm.b.pingdirectory:
         - pingbase/**/*
         - pingaccess/**/*
         - pingdatasync/**/*
+        - pingdirectoryproxy/**/*
         - pingdirectory/**/*
         - pingfederate/**/*
         - pingauthorize/**/*
