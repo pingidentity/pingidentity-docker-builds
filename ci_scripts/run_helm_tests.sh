@@ -64,9 +64,6 @@ if test -z "${CI_COMMIT_REF_NAME}"; then
 
     CI_PIPELINE_ID="local"
     CI_JOB_ID=$(date '+%Y%m%d%H%M%S')
-else
-    _addl_helm_set_values=" --set global.container.nodeSelector.docker-build-use=tests
-                            --set testFramework.pod.nodeSelector.docker-build-use=tests"
 fi
 
 _helm_tests_dir="${CI_PROJECT_DIR}/helm-tests"
