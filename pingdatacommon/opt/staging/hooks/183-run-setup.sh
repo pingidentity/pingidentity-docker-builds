@@ -39,7 +39,7 @@ fi
 # if a java.properties is delivered, we use it
 #
 _candidateProperties="${STAGING_DIR}/instance/config/java.properties"
-test -f "${_candidateProperties}" || _candidateProperties="${_candidateProperties}-$(uname -m)"
+test -f "${_candidateProperties}" || _candidateProperties="${_candidateProperties}.$(uname -m)"
 if test -f "${_candidateProperties}"; then
     echo_green "Applying custom java properties from $(basename "${_candidateProperties}")"
     cp "${_candidateProperties}" "${SERVER_ROOT_DIR}/config/java.properties"
@@ -122,7 +122,11 @@ if test ${_manageProfileRC} -ne 0; then
     exit 183
 fi
 
-if test "${KEEP_CUSTOM_JAVA_PROPS}" = "true" && test -f "${_candidateProperties}"; then
+#
+# Apply custom java properties after setup
+#
+
+if test -f "${_candidateProperties}"; then
     echo_green "Applying custom java properties from $(basename "${_candidateProperties}")"
     cp "${_candidateProperties}" "${SERVER_ROOT_DIR}/config/java.properties"
     "${SERVER_ROOT_DIR}/bin/dsjavaproperties"
