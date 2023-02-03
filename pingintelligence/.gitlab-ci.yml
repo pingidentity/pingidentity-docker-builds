@@ -26,6 +26,7 @@ intel.b.pingintelligence:
         - ci_scripts/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingintelligence/*
+        - helm-tests/integration-tests/**/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
@@ -58,6 +59,7 @@ intel.t.pingintelligence:
         - ci_scripts/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingintelligence/*
+        - helm-tests/integration-tests/**/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
