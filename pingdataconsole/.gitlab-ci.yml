@@ -25,6 +25,7 @@ intel.b.pingdataconsole:
         - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingdataconsole/*
+        - helm-tests/integration-tests/**/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
@@ -55,6 +56,7 @@ arm.b.pingdataconsole:
         - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingdataconsole/*
+        - helm-tests/integration-tests/**/*
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
