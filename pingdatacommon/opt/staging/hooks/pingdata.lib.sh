@@ -1372,6 +1372,7 @@ prepareToJoinTopology() {
                 waitUntilLdapUp "${SEED_HOSTNAME}" "${SEED_LDAPS_PORT}" "" > /dev/null 2>&1
                 echo_yellow "This seed server is out of sync with the topology. Using alternative seed server: ${SEED_HOSTNAME}:${SEED_LDAPS_PORT}"
                 export_container_env _seedInstanceName SEED_HOSTNAME
+                break
             fi
         done
     fi
