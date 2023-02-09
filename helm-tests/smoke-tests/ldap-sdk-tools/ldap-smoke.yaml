@@ -11,11 +11,6 @@ ldap-sdk-tools:
 ###############################################################################
 testFramework:
   enabled: true
-  #todo remove securityContext with 2208 helm release
-  pod:
-    securityContext:
-      runAsUser: 0
-      runAsGroup: 0
   testConfigMaps:
     # DEFAULTS (found in helm chart values.yaml)
     # prefix: ping-devops-test-

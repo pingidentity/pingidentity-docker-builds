@@ -50,9 +50,6 @@ testFramework:
 
     - name: 02-get-dse
       image: ${DEPS_REGISTRY}pingidentity/ldap-sdk-tools:latest
-      securityContext:
-        runAsUser: 0
-        runAsGroup: 0
       command:
         - /bin/sh
         - -c
