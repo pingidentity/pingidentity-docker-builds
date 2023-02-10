@@ -121,7 +121,7 @@ COPY --from=final-staging ["/","/"]
 #- To run a PingCentral container with your devops configuration file:
 #- ```shell docker run -Pt \
 #-            --name pingcentral \
-#-            --env-file ~/.pingidentity/devops \
+#-            --env-file ~/.pingidentity/config \
 #-            --env PING_IDENTITY_ACCEPT_EULA=YES \
 #-            --env PING_IDENTITY_DEVOPS_USER \
 #-            --env PING_IDENTITY_DEVOPS_KEY \
@@ -134,7 +134,7 @@ COPY --from=final-staging ["/","/"]
 #-            --name pingcentral \
 #-            --publish 9022:9022 \
 #-            --detach \
-#-            --env-file ~/.pingidentity/devops \
+#-            --env-file ~/.pingidentity/config \
 #-            --env PING_IDENTITY_ACCEPT_EULA=YES \
 #-            --env PING_IDENTITY_DEVOPS_USER \
 #-            --env PING_IDENTITY_DEVOPS_KEY \
