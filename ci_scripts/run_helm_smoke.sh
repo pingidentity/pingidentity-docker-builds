@@ -107,7 +107,7 @@ test -z "${product}" && usage "Providing a product is required"
 if test -n "${IS_LOCAL_BUILD}"; then
     set -a
     # shellcheck disable=SC1090
-    . ~/.pingidentity/devops
+    . ~/.pingidentity/config
     set +a
 fi
 
