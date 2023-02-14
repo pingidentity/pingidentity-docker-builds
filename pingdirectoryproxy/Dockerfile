@@ -156,7 +156,22 @@ ENV SHIM=${SHIM} \
 
 #-- Setting this variable to true speeds up server startup time by
 #-- skipping an unnecessary JVM check.
-    UNBOUNDID_SKIP_START_PRECHECK_NODETACH=true
+    UNBOUNDID_SKIP_START_PRECHECK_NODETACH=true \
+
+#-- The default retry timeout in seconds for manage-topology and
+#-- remove-defunct-server
+    RETRY_TIMEOUT_SECONDS=180 \
+
+#-- Set this variable to configure Proxy for automatic backend discovery with PingDirectory hostname
+#-- JOIN_PD_TOPOLOGY must be enabled for PINGDIRECTORY_HOSTNAME to take effect
+    PINGDIRECTORY_HOSTNAME="" \
+
+#-- Set this variable to configure Proxy for automatic backend discovery with PingDirectory LDAPS port
+#-- JOIN_PD_TOPOLOGY must be enabled for PINGDIRECTORY_LDAPS_PORT to take effect
+    PINGDIRECTORY_LDAPS_PORT="" \
+
+#-- Setting this variable to true will configure proxy to join the topology of PingDirectory
+    JOIN_PD_TOPOLOGY=false
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]

@@ -1,8 +1,9 @@
 {
 	"info": {
-		"_postman_id": "d69995be-e09c-4ec4-9656-57cd64bb4560",
+		"_postman_id": "10411103-3f22-40e3-a8b4-7fb21b51a241",
 		"name": "integrationtest_pdp+pd",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13718494"
 	},
 	"item": [
 		{
@@ -69,10 +70,10 @@
 				"method": "OPTIONS",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/available-state",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/available-state",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -186,10 +187,10 @@
 				"method": "HEAD",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/available-or-degraded-state",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/available-or-degraded-state",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -266,10 +267,10 @@
 				"method": "HEAD",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/available-state",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/available-state",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -359,10 +360,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/available-state",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/available-state",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -465,10 +466,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/available-or-degraded-state",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/available-or-degraded-state",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -573,10 +574,10 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pdp_port_https}}/available-state",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pdp_port_https}}/available-state",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pdp_port_https}}",
 					"path": [
@@ -682,10 +683,10 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/available-or-degraded-state",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/available-or-degraded-state",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -785,10 +786,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/config/backends",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/config/backends",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -890,10 +891,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/config/backends/userRoot",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/config/backends/userRoot",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -939,10 +940,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/schemas",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1/schemas",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -1063,10 +1064,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/schemas/inetOrgPerson",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1/schemas/inetOrgPerson",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -1202,10 +1203,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -1315,10 +1316,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/{{_base_dn}}",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1/{{_base_dn}}",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -1426,10 +1427,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/ou=People,{{_base_dn}}",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1/ou=People,{{_base_dn}}",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -1485,10 +1486,10 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -1542,10 +1543,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/ou=Groups,{{_base_dn}}",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1/ou=Groups,{{_base_dn}}",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -1659,10 +1660,10 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -1721,10 +1722,10 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -1776,10 +1777,10 @@
 					}
 				],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/uid=postman.user.0,ou=People,{{_base_dn}}",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1/uid=postman.user.0,ou=People,{{_base_dn}}",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -1898,10 +1899,10 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -1952,10 +1953,10 @@
 					}
 				],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/uid=postman.user.0,ou=People,{{_base_dn}}",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1/uid=postman.user.0,ou=People,{{_base_dn}}",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -1998,10 +1999,10 @@
 					}
 				],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/cn=postman.group.0,ou=groups,{{_base_dn}}",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1/cn=postman.group.0,ou=groups,{{_base_dn}}",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -2044,10 +2045,10 @@
 					}
 				],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/uid=postman.user.0,ou=people,{{_base_dn}}",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1/uid=postman.user.0,ou=people,{{_base_dn}}",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
@@ -2162,10 +2163,10 @@
 					}
 				],
 				"url": {
-					"raw": "https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/uid=proxy.user.0,ou=People,{{_base_dn}}",
+					"raw": "https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1/uid=proxy.user.0,ou=People,{{_base_dn}}",
 					"protocol": "https",
 					"host": [
-						"{{K8S_STATEFUL_SET_SERVICE_NAME}}"
+						"{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster"
 					],
 					"port": "{{pd_port_https}}",
 					"path": [
