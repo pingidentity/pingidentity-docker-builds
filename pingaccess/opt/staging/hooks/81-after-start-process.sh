@@ -8,6 +8,9 @@ test -n "${PA_ADMIN_PRIVATE_HOSTNAME}" && pingaccess_private_hostname=${PA_ADMIN
 pingaccess_private_port=${PA_ADMIN_PORT}
 test -n "${PA_ADMIN_PRIVATE_PORT_HTTPS}" && pingaccess_private_port=${PA_ADMIN_PRIVATE_PORT_HTTPS}
 
+pingaccess_admin_cluster_port=${PA_ADMIN_CLUSTER_PORT}
+test -n "${PA_ADMIN_PRIVATE_PORT_CLUSTERCONFIG}" && pingaccess_admin_cluster_port=${PA_ADMIN_PRIVATE_PORT_CLUSTERCONFIG}
+
 pingaccess_api_out=$(mktemp)
 
 # Attempt to update the administrator password from the default password
@@ -166,7 +169,7 @@ else
             fi
 
             # Update Administrative Node Host
-            adminNodesHost="${pingaccess_private_hostname}:${PA_ADMIN_PRIVATE_PORT_CLUSTERCONFIG}"
+            adminNodesHost="${pingaccess_private_hostname}:${pingaccess_admin_cluster_port}"
             echo "INFO: Setting administrative node ${adminNodesHost}"
             _adminNodeHostURL="${_basePaURL}/adminConfig"
 

@@ -109,7 +109,12 @@ ENV SHIM=${SHIM} \
     STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/run.sh" \
 #-- Files tailed once container has started
     TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/pingaccess.log \
+#-- Default port for PA Admin API and console
+#-- Ignored when using PingIdentity Helm charts
     PA_ADMIN_PORT=9000 \
+#-- Default port when clustering PA primary administrative node
+#-- Ignored when using PingIdentity Helm charts
+    PA_ADMIN_CLUSTER_PORT=9090 \
 #-- Percentage of the container memory to allocate to PingAccess JVM
 #-- DO NOT set to 100% or your JVM will exit with OutOfMemory errors and the container will terminate
     JAVA_RAM_PERCENTAGE=60.0 \
