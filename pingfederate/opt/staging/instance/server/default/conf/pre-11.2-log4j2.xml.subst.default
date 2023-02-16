@@ -12,7 +12,9 @@
  -->
 
 <!--
-   | On upgrade, the default log4j2.xml takes effect, if no custom settings exist.
+   | Default logging level is set to INFO for most Java packages.
+   | INFO log level includes: INFO, WARN and ERROR level messages.
+   | On upgrade, the new default log level will take effect, if no custom settings exist.
    | If the log4j2.xml has been customized, the custom settings will be preserved on upgrade.
 -->
 
@@ -22,11 +24,6 @@
    |
    | monitorInterval - the number of seconds before Log4J2 detects changes to the configuration file and reconfigures itself.
  -->
-
-<!--
-   | It is important that the failover appenders are not referenced directly in the loggers.
-   | Misconfiguration may cause PingFederate to enter a degraded state.
--->
 <Configuration monitorInterval="30" packages="com.pingidentity.log4j.pattern,com.pingidentity.log4j.layout,com.pingidentity.log4j.appender" shutdownHook="disable">
     <Appenders>
 
@@ -128,7 +125,7 @@
                 %X{app} - target application URL
                 %X{connectionid} - partner ID
                 %X{connectionname} - partner name
-                %X{virtualserverid} - The virtual server ID used by the partner connection for SSO transaction. For OAuth/OIDC transactions, the Virtual Issuers value used.
+                %X{virtualserverid} - virtual server ID
                 %X{protocol} - protocol (e.g. SAML20)
                 %X{host} - host
                 %X{role} - role (IdP, SP)
@@ -188,7 +185,7 @@
                 <!-- Uncomment this if you want to use UTF-8 encoding instead
                     of system's default encoding.
                 <charset>UTF-8</charset> -->
-                <pattern>%d | %X{user} | %X{roles} | %X{ip} | %X{adminsessionid} | %X{component} | %X{event} | %X{eventdetailid} | %m%n</pattern>
+                <pattern>%d | %X{user} | %X{roles} | %X{ip} | %X{component} | %X{event} | %X{eventdetailid} | %m%n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
@@ -275,7 +272,7 @@
                      filePattern="${sys:pf.log.dir}/provisioner.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
-                <pattern>%d %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
+                <pattern>%d{ABSOLUTE} %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
@@ -308,7 +305,7 @@
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
-                SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
+                <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
             </Policies>
             <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
         </RollingFile>
@@ -352,12 +349,8 @@
         This value can be changed depending on the configuration of your environment.
 
         You must also uncomment the reference to the ServerLogToOracleDB-FAILOVER appender in the
-        "Root logger" (near the end of this configuration file) before the appender can be used.
-
-        IMPORTANT:
-
-        The ServerLogToOracleDB appender is intended to be used by ServerLogToOracleDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
+        "Root logger" (near the end of this configuration file) before the appender can be
+        used:
         -->
         <!--
         <JDBC name="ServerLogToOracleDB" tableName="server_log" ignoreExceptions="false" bufferSize="256">
@@ -400,12 +393,8 @@
         This value can be changed depending on the configuration of your environment.
 
         You must also uncomment the reference to the ServerLogToSQLServerDB-FAILOVER appender in the
-        "Root logger" (near the end of this configuration file) before the appender can be used.
-
-        IMPORTANT:
-
-        The ServerLogToSQLServerDB appender is intended to be used by ServerLogToSQLServerDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
+        "Root logger" (near the end of this configuration file) before the appender can be
+        used:
         -->
         <!--
         <JDBC name="ServerLogToSQLServerDB" tableName="server_log" ignoreExceptions="false" bufferSize="256">
@@ -448,12 +437,8 @@
         This value can be changed depending on the configuration of your environment.
 
         You must also uncomment the reference to the ServerLogToMySQLDB-FAILOVER appender in the
-        "Root logger" (near the end of this configuration file) before the appender can be used.
-
-        IMPORTANT:
-
-        The ServerLogToMySQLDB appender is intended to be used by ServerLogToMySQLDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
+        "Root logger" (near the end of this configuration file) before the appender can be
+        used:
         -->
         <!--
         <JDBC name="ServerLogToMySQLDB" tableName="server_log" ignoreExceptions="false" bufferSize="256">
@@ -496,12 +481,8 @@
          This value can be changed depending on the configuration of your environment.
 
          You must also uncomment the reference to the ServerLogToPostgreSQLDB-FAILOVER appender in the
-         "Root logger" (near the end of this configuration file) before the appender can be used.
-
-         IMPORTANT:
-
-         The ServerLogToPostgreSQLDB appender is intended to be used by ServerLogToPostgreSQLDB-FAILOVER appender,
-         and must not be referenced directly in the loggers.
+         "Root logger" (near the end of this configuration file) before the appender can be
+         used:
          -->
         <!--
         <JDBC name="ServerLogToPostgreSQLDB" tableName="server_log" ignoreExceptions="false" bufferSize="256">
@@ -540,12 +521,8 @@
         In PingFailover, the retryIntervalSeconds is the number of seconds that should pass before retrying the primary JDBC appender.
 
         You must also uncomment the reference to the ProvisionerLogToOracleDB-FAILOVER appender in the
-        "com.pingidentity.provisioner" category (near the end of this configuration file) before the appender can be used.
-
-        IMPORTANT:
-
-        The ProvisionerLogToOracleDB appender is intended to be used by ProvisionerLogToOracleDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
+        "com.pingidentity.provisioner" category (near the end of this configuration file) before the appender can be
+        used:
         -->
         <!--
         <JDBC name="ProvisionerLogToOracleDB" tableName="provisioner_log" ignoreExceptions="false">
@@ -559,7 +536,7 @@
         <RollingFile name="ProvisionerLogToOracleDB-FILE" fileName="${sys:pf.log.dir}/provisioner-oracle-failover.log"
             filePattern="${sys:pf.log.dir}/provisioner-oracle-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
-                <pattern>%d %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
+                <pattern>%d{ABSOLUTE} %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
@@ -582,12 +559,8 @@
         In PingFailover, the retryIntervalSeconds is the number of seconds that should pass before retrying the primary JDBC appender.
 
         You must also uncomment the reference to the ProvisionerLogToSQLServerDB-FAILOVER appender in the
-        "com.pingidentity.provisioner" category (near the end of this configuration file) before the appender can be used.
-
-        IMPORTANT:
-
-        The ProvisionerLogToSQLServerDB appender is intended to be used by ProvisionerLogToSQLServerDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
+        "com.pingidentity.provisioner" category (near the end of this configuration file) before the appender can be
+        used:
         -->
         <!--
         <JDBC name="ProvisionerLogToSQLServerDB" tableName="provisioner_log" ignoreExceptions="false">
@@ -601,7 +574,7 @@
         <RollingFile name="ProvisionerLogToSQLServerDB-FILE" fileName="${sys:pf.log.dir}/provisioner-sqlserver-failover.log"
             filePattern="${sys:pf.log.dir}/provisioner-sqlserver-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
-                <pattern>%d %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
+                <pattern>%d{ABSOLUTE} %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
@@ -624,12 +597,8 @@
         In PingFailover, the retryIntervalSeconds is the number of seconds that should pass before retrying the primary JDBC appender.
 
         You must also uncomment the reference to the ProvisionerLogToMySQLDB-FAILOVER appender in the
-        "com.pingidentity.provisioner" category (near the end of this configuration file) before the appender can be used.
-
-        IMPORTANT:
-
-        The ProvisionerLogToMySQLDB appender is intended to be used by ProvisionerLogToMySQLDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
+        "com.pingidentity.provisioner" category (near the end of this configuration file) before the appender can be
+        used:
         -->
         <!--
         <JDBC name="ProvisionerLogToMySQLDB" tableName="provisioner_log" ignoreExceptions="false">
@@ -643,7 +612,7 @@
         <RollingFile name="ProvisionerLogToMySQLDB-FILE" fileName="${sys:pf.log.dir}/provisioner-mysql-failover.log"
             filePattern="${sys:pf.log.dir}/provisioner-mysql-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
-                <pattern>%d %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
+                <pattern>%d{ABSOLUTE} %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
@@ -666,12 +635,8 @@
         In PingFailover, the retryIntervalSeconds is the number of seconds that should pass before retrying the primary JDBC appender.
 
         You must also uncomment the reference to the ProvisionerLogToPostgreSQLDB-FAILOVER appender in the
-        "com.pingidentity.provisioner" category (near the end of this configuration file) before the appender can be used.
-
-        IMPORTANT:
-
-        The ProvisionerLogToPostgreSQLDB appender is intended to be used by ProvisionerLogToPostgreSQLDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
+        "com.pingidentity.provisioner" category (near the end of this configuration file) before the appender can be
+        used:
         -->
         <!--
         <JDBC name="ProvisionerLogToPostgreSQLDB" tableName="provisioner_log" ignoreExceptions="false">
@@ -685,7 +650,7 @@
         <RollingFile name="ProvisionerLogToPostgreSQLDB-FILE" fileName="${sys:pf.log.dir}/provisioner-postgresql-failover.log"
             filePattern="${sys:pf.log.dir}/provisioner-postgresql-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
-                <pattern>%d %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
+                <pattern>%d{ABSOLUTE} %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
@@ -708,12 +673,8 @@
         In PingFailover, the retryIntervalSeconds is the number of seconds that should pass before retrying the primary JDBC appender.
 
         You must also uncomment the reference to the OutboundProvisionerEventToOracleDB-FAILOVER appender in
-        "Set up the Outbound provisioner audit logger" section (defined below in this configuration file) before the appender can be used.
-
-        IMPORTANT:
-
-        The OutboundProvisionerEventToOracleDB appender is intended to be used by OutboundProvisionerEventToOracleDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
+        "Set up the Outbound provisioner audit logger" section (defined below in this configuration file) before the appender can be
+        used:
         -->
         <!--
         <JDBC name="OutboundProvisionerEventToOracleDB" tableName="provisioner_audit_log" ignoreExceptions="false">
@@ -753,12 +714,8 @@
         In PingFailover, the retryIntervalSeconds is the number of seconds that should pass before retrying the primary JDBC appender.
 
         You must also uncomment the reference to the OutboundProvisionerEventToSQLServerDB-FAILOVER appender in
-        "Set up the Outbound provisioner audit logger" section (defined below in this configuration file) before the appender can be used.
-
-        IMPORTANT:
-
-        The OutboundProvisionerEventToSQLServerDB appender is intended to be used by OutboundProvisionerEventToSQLServerDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
+        "Set up the Outbound provisioner audit logger" section (defined below in this configuration file) before the appender can be
+        used:
         -->
         <!--
         <JDBC name="OutboundProvisionerEventToSQLServerDB" tableName="provisioner_audit_log" ignoreExceptions="false">
@@ -798,12 +755,8 @@
         In PingFailover, the retryIntervalSeconds is the number of seconds that should pass before retrying the primary JDBC appender.
 
         You must also uncomment the reference to the OutboundProvisionerEventToMySQLDB-FAILOVER appender in
-        "Set up the Outbound provisioner audit logger" section (defined below in this configuration file) before the appender can be used.
-
-        IMPORTANT:
-
-        The OutboundProvisionerEventToMySQLDB appender is intended to be used by OutboundProvisionerEventToMySQLDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
+        "Set up the Outbound provisioner audit logger" section (defined below in this configuration file) before the appender can be
+        used:
         -->
         <!--
         <JDBC name="OutboundProvisionerEventToMySQLDB" tableName="provisioner_audit_log" ignoreExceptions="false">
@@ -843,12 +796,8 @@
         In PingFailover, the retryIntervalSeconds is the number of seconds that should pass before retrying the primary JDBC appender.
 
         You must also uncomment the reference to the OutboundProvisionerEventToPostgreSQLDB-FAILOVER appender in
-        "Set up the Outbound provisioner audit logger" section (defined below in this configuration file) before the appender can be used.
-
-        IMPORTANT:
-
-        The OutboundProvisionerEventToPostgreSQLDB appender is intended to be used by OutboundProvisionerEventToPostgreSQLDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
+        "Set up the Outbound provisioner audit logger" section (defined below in this configuration file) before the appender can be
+        used:
         -->
         <!--
         <JDBC name="OutboundProvisionerEventToPostgreSQLDB" tableName="provisioner_audit_log" ignoreExceptions="false">
@@ -893,12 +842,7 @@
 
         You must also uncomment the reference to OutboundProvisionerEventToCEFSyslog-FAILOVER appender in
         "Set up the Outbound provisioner audit logger" section (defined below in this configuration file)
-        before the appender can be used.
-
-        IMPORTANT:
-
-        The OutboundProvisionerEventToCEFSyslog appender is intended to be used by OutboundProvisionerEventToCEFSyslog-FAILOVER appender,
-        and must not be referenced directly in the loggers.
+        before the appender can be used:
         -->
         <!--
         <Socket name="OutboundProvisionerEventToCEFSyslog" host="{syslog.host}" port="{syslog.port}" protocol="{syslog.protocol}" ignoreExceptions="false">
@@ -960,11 +904,6 @@
         org.sourceid.wstrust.log.STSAuditLogger (when PingFederate is acting as a Security Token Service)
         org.sourceid.websso.profiles.idp.AsAuditLogger (when PingFederate is acting as an OAuth Authorization Server)
         org.sourceid.websso.profiles.idp.ClientRegistrationAuditLogger (when using PingFederate's Dynamic Client Registration functionality)
-
-        IMPORTANT:
-
-        The SecurityAuditToOracleDB appender is intended to be used by SecurityAuditToOracleDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
         -->
         <!--
         <JDBC name="SecurityAuditToOracleDB" tableName="audit_log" ignoreExceptions="false">
@@ -1017,11 +956,6 @@
         org.sourceid.wstrust.log.STSAuditLogger (when PingFederate is acting as a Security Token Service)
         org.sourceid.websso.profiles.idp.AsAuditLogger (when PingFederate is acting as an OAuth Authorization Server)
         org.sourceid.websso.profiles.idp.ClientRegistrationAuditLogger (when using PingFederate's Dynamic Client Registration functionality)
-
-        IMPORTANT:
-
-        The SecurityAuditToSQLServerDB appender is intended to be used by SecurityAuditToSQLServerDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
         -->
         <!--
         <JDBC name="SecurityAuditToSQLServerDB" tableName="audit_log" ignoreExceptions="false">
@@ -1074,11 +1008,6 @@
         org.sourceid.wstrust.log.STSAuditLogger (when PingFederate is acting as a Security Token Service)
         org.sourceid.websso.profiles.idp.AsAuditLogger (when PingFederate is acting as an OAuth Authorization Server)
         org.sourceid.websso.profiles.idp.ClientRegistrationAuditLogger (when using PingFederate's Dynamic Client Registration functionality)
-
-        IMPORTANT:
-
-        The SecurityAuditToMySQLDB appender is intended to be used by SecurityAuditToMySQLDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
         -->
         <!--
         <JDBC name="SecurityAuditToMySQLDB" tableName="audit_log" ignoreExceptions="false">
@@ -1131,11 +1060,6 @@
         org.sourceid.wstrust.log.STSAuditLogger (when PingFederate is acting as a Security Token Service)
         org.sourceid.websso.profiles.idp.AsAuditLogger (when PingFederate is acting as an OAuth Authorization Server)
         org.sourceid.websso.profiles.idp.ClientRegistrationAuditLogger (when using PingFederate's Dynamic Client Registration functionality)
-
-        IMPORTANT:
-
-        The SecurityAuditToPostgreSQLDB appender is intended to be used by SecurityAuditToPostgreSQLDB-FAILOVER appender,
-        and must not be referenced directly in the loggers.
         -->
         <!--
         <JDBC name="SecurityAuditToPostgreSQLDB" tableName="audit_log" ignoreExceptions="false">
@@ -1192,11 +1116,6 @@
         org.sourceid.wstrust.log.STSAuditLogger (when PingFederate is acting as a Security Token Service)
         org.sourceid.websso.profiles.idp.AsAuditLogger (when PingFederate is acting as an OAuth Authorization Server)
         org.sourceid.websso.profiles.idp.ClientRegistrationAuditLogger (when using PingFederate's Dynamic Client Registration functionality)
-
-        IMPORTANT:
-
-        The SecurityAuditToCEFSyslog appender is intended to be used by SecurityAuditToCEFSyslog-FAILOVER appender,
-        and must not be referenced directly in the loggers.
         -->
         <!--
         <Socket name="SecurityAuditToCEFSyslog" host="{syslog.host}" port="{syslog.port}" protocol="{syslog.protocol}" ignoreExceptions="false">
@@ -1282,90 +1201,93 @@
 
     <Loggers>
 
-        <!-- ======================== -->
-        <!-- Define logger log levels -->
-        <!-- ======================== -->
+        <!-- ================ -->
+        <!-- Limit categories -->
+        <!-- ================ -->
 
-        <!--
-        NOTES:
-
-        Levels for loggers can be specified directly here. Alternately, a
-        logger can be linked to a category defined in log4j-categories.xml.
-
-        You link a logger to a category by setting its level to match the
-        system property for the category (the system property is the category
-        ID with "pf.log.level." prepended). Logging can be enabled or disabled
-        for specific categories either in the administrative console
-        under Server > General Settings, or via the administrative API.
-        -->
-
-        <Logger name="org.sourceid" level="${sys:pf.log.level.core:-INFO}" />
-        <Logger name="com.pingidentity" level="${sys:pf.log.level.core:-INFO}" />
-
-        <Logger name="com.pingidentity.appserver.jetty.PingFederateInit" level="ERROR" additivity="false" includeLocation="false">
-            <AppenderRef ref="CONSOLE" />
-        </Logger>
-        <Logger name="com.pingidentity.appserver.jetty.PingFederateInit" level="${sys:pf.log.level.core:-INFO}" additivity="false" includeLocation="false">
-            <AppenderRef ref="FILE" />
-        </Logger>
-        <Logger name="org.sourceid.saml20.util.SystemUtil" level="${sys:pf.log.level.core:-INFO}" additivity="false">
-            <AppenderRef ref="CONSOLE" />
-            <AppenderRef ref="FILE" />
-        </Logger>
-        <Logger name="com.pingidentity.common.util.ErrorHandler" level="${sys:pf.log.level.core:-INFO}" additivity="false">
-            <AppenderRef ref="CONSOLE" />
-            <AppenderRef ref="FILE" />
-        </Logger>
-
-        <Logger name="org.sourceid.util.log.PolicyTreeLogger" level="${sys:pf.log.level.policytree:-INFO}" />
-        <Logger name="org.sourceid.saml20.domain.mgmt.impl.TrustedCAsManagerImpl" level="${sys:pf.log.level.trustedcas:-INFO}" />
-        <Logger name="org.sourceid.common.dsig" level="${sys:pf.log.level.xmlsig:-INFO}" />
-
-        <!--
-            This logger logs all HTTP request header values at TRACE level.
-            WARNING: This is intended for debugging purposes only. Sensitive information, such as passwords, may be
-            logged when the level of this logger is set to TRACE.
-        -->
-        <Logger name="org.sourceid.servlet.filter.HttpRequestHeaderFilter" level="${sys:pf.log.level.requestheaders:-INFO}" />
-        <!--
-            This logger logs all HTTP GET request parameter values at TRACE level.
-            WARNING: This is intended for debugging purposes only. Sensitive information, such as passwords, may be
-            logged when the level of this logger is set to TRACE.
-        -->
-        <Logger name="org.sourceid.servlet.filter.HttpRequestParameterFilter" level="${sys:pf.log.level.requestparams:-INFO}" />
-        <!--
-            This logger logs requests and responses from REST data stores at TRACE level.
-            WARNING: This is intended for debugging purposes only. Sensitive information, such as passwords, may be
-            logged when the level of this Logger is set to TRACE.
-        -->
-        <Logger name="com.pingidentity.pf.datastore.other" level="${sys:pf.log.level.restdatastore:-INFO}" />
-
-        <!-- Limit 3rd party dependencies -->
-        <Logger name="org.apache" level="INFO" />
         <Logger name="org.apache.http.wire" level="INFO" />
-        <Logger name="org.apache.hivemind" level="INFO" />
-        <Logger name="org.apache.axis" level="INFO" />
-        <Logger name="hsqldb.db" level="ERROR" />
+        <Logger name="com.pingidentity.pf.email" level="INFO" />
+        <!--
+            Uncomment com.pingidentity.pf.datastore.other logger for logging request and responses from REST data stores
+            WARNING: This is intended for debugging purposes only. Sensitive information, such as passwords, may be
+            logged with this Logger.
+        -->
+        <!--
+        <Logger name="com.pingidentity.pf.datastore.other" level="TRACE" />
+        -->
+        <Logger name="org.sourceid" level="INFO" />
+        <Logger name="org.sourceid.saml20.util.SystemUtil" level="INFO" additivity="false">
+            <AppenderRef ref="CONSOLE" />
+            <AppenderRef ref="FILE" />
+        </Logger>
+        <!--
+            Uncomment HttpRequestHeaderFilter logger for logging of all HTTP request header values
+            WARNING: This is intended for debugging purposes only. Sensitive information, such as passwords, may be
+            logged with this Logger.
+        -->
+        <!--
+        <Logger name="org.sourceid.servlet.filter.HttpRequestHeaderFilter" level="TRACE" />
+        -->
+        <!--
+            Uncomment HttpRequestParameterFilter logger for logging of all HTTP request parameter values
+            WARNING: This is intended for debugging purposes only. Sensitive information, such as passwords, may be
+            logged with this Logger.
+        -->
+        <!--
+        <Logger name="org.sourceid.servlet.filter.HttpRequestParameterFilter" level="TRACE" />
+        -->
+        <!--
+            Uncomment OutMessageContext logger to provide more information,
+            This may add PII information to logs.
+        -->
+        <!--
+        <Logger name="org.sourceid.websso.wrapper.OutMessageContext" level="TRACE" />
+        -->
+        <!--
+            Uncomment PolicyTreeLogger logger for logging policy tree flows in detail.
+            WARNING: This is intended for debugging purposes only.
+        -->
+        <!--
+        <Logger name="org.sourceid.util.log.PolicyTreeLogger" level="DEBUG" />
+        -->
+
         <Logger name="com.jolbox" level="OFF" />
-
-        <!-- Limit Amazon AWS SDK logging -->
-        <Logger name="com.amazonaws" level="INFO" />
-
+        <Logger name="com.pingidentity.crypto.CertificateServiceImpl" level="INFO" />
+        <!-- Adjust the priority value to DEBUG to get additional logging to help troubleshoot XML Signature problems -->
+        <Logger name="org.sourceid.common.dsig" level="INFO" />
+        <Logger name="org.sourceid.saml20.domain.mgmt.impl.PluginSupport" level="INFO" />
+        <Logger name="com.pingidentity" level="${PF_LOG_LEVEL}" />
+        <Logger name="com.pingidentity.common.util.ErrorHandler" level="INFO" additivity="false">
+            <AppenderRef ref="CONSOLE" />
+            <AppenderRef ref="FILE" />
+        </Logger>
+        <Logger name="com.pingidentity.appserver.jetty" level="INFO" />
+        <Logger name="org.apache" level="INFO" />
         <!-- Limit Jetty -->
         <Logger name="org.eclipse.jetty" level="INFO" />
         <Logger name="org.eclipse.jetty.io.nio" level="ERROR" />
         <Logger name="org.eclipse.jetty.jmx.ObjectMBean" level="ERROR" />
         <Logger name="org.eclipse.jetty.server.session" level="WARN" />
-
-        <!-- Limit JGroups -->
+        <Logger name="org.apache.hivemind" level="INFO" />
+        <!-- Limit the jgroups category -->
         <Logger name="org.jgroups" level="INFO" />
-
-        <!-- Limit AWS_PING -->
+        <Logger name="com.pingidentity.jgroups.org.jgroups" level="WARN" />
         <Logger name="com.pingidentity.aws" level="INFO" />
+        <!-- Limit the Amazon AWS SDK logging -->
+        <Logger name="com.amazonaws" level="INFO" />
+        <Logger name="com.pingidentity.locale" level="INFO" />
+        <Logger name="com.pingidentity.sdk.locale" level="INFO" />
+        <Logger name="org.apache.axis" level="INFO" />
+        <Logger name="hsqldb.db" level="ERROR" />
 
-        <!-- ==================================== -->
-        <!-- Loggers mapped to specific appenders -->
-        <!-- ==================================== -->
+        <!-- Limit the heartbeat category NON STANDARD -->
+        <Logger name="org.sourceid.websso.servlet.IntegrationControllerServlet" level="INFO" />
+        <Logger name="org.sourceid.servlet.HttpServletRespProxy" level="INFO" />
+        <Logger name="org.sourceid.saml20.bindings.BindingServiceImpl" level="INFO" />
+        <Logger name="org.sourceid.common.IDGenerator" level="INFO" />
+        <!-- ================ -->
+        <!-- Loggers -->
+        <!-- ================ -->
 
         <AsyncLogger name="org.sourceid.saml20.bindings.BindingLogProxy"
                      level="INFO" additivity="false" includeLocation="false">
@@ -1580,6 +1502,18 @@
             <appender-ref ref="RuntimeApiAudit" />
         </Logger>
 
+        <!-- Log xml content before parsing-->
+        <!--
+             This new logger is disabled by default. When enabled, PingFederate may write sensitive user information
+             to the server log. Consider enabling this logger for the sole purpose of troubleshooting in non-production
+             environments only (and disabling this logger when it is no longer required).
+        -->
+        <!--
+        <AsyncLogger name="com.pingidentity.common.util.xml.XmlBeansUtil" level="TRACE" additivity="false" includeLocation="false">
+            <AppenderRef ref="FILE" />
+        </AsyncLogger>
+        -->
+
         <!-- ======================= -->
         <!-- Set up the Outbound provisioner audit logger -->
         <!-- ======================= -->
@@ -1611,8 +1545,20 @@
             -->
         </Logger>
 
+        <Logger name="com.pingidentity.appserver.jetty.PingFederateInit" level="ERROR" additivity="false" includeLocation="false">
+            <AppenderRef ref="CONSOLE" />
+        </Logger>
+
+        <Logger name="com.pingidentity.appserver.jetty.PingFederateInit" level="INFO" additivity="false" includeLocation="false">
+            <AppenderRef ref="FILE" />
+        </Logger>
+
+        <Logger name="org.pingidentity.RunPF" level="ERROR" additivity="false" includeLocation="false">
+            <AppenderRef ref="CONSOLE" />
+        </Logger>
+
         <!-- ======================= -->
-        <!-- Set up the Root logger  -->
+        <!-- Set up the Root logger -->
         <!-- ======================= -->
         <!--
             IMPORTANT:

@@ -61,7 +61,7 @@ FROM ${DEPS}${SHIM} as final-staging
 # ARGS used in build.sh RUN command
 # Use correct run.sh file based on $VERSION
 # in the build.sh.post script.
-# TODO This should be removed upon deprecation of PF 11.0.x
+# TODO This should be removed upon deprecation of PF 11.1.x
 ARG VERSION
 
 # get the product bits FIRST
@@ -91,6 +91,7 @@ ARG IMAGE_GIT_REV=""
 ARG VERSION
 ARG LICENSE_VERSION
 
+#TODO: Remove PF_LOG_LEVEL upon deprecation of PF 11.1.x
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
@@ -121,6 +122,7 @@ ENV SHIM=${SHIM} \
 
 #-- General log level -- provide custom log4j2.xml in profile for more detailed control
 #-- valid values are OFF, ERROR, WARN, INFO, DEBUG
+#-- NOTE: PF_LOG_LEVEL only applies to PF versions before 11.2.0
     PF_LOG_LEVEL="INFO" \
 
 #-- Defines the port on which the PingFederate administrative
