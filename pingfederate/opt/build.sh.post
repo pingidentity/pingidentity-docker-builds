@@ -51,17 +51,7 @@ pf.admin.hostname=\${PF_ADMIN_PUBLIC_HOSTNAME}
 
 # shellcheck disable=SC2153
 version="${VERSION}"
-bin_dir="/opt/server/bin"
 conf_dir="/opt/staging/instance/server/default/conf"
-echo "PingFederate - Choosing run.sh based on version: ${version}"
-
-#TODO: remove this logic once we are no longer building PF 11.0
-#Select the correct run.sh file based on product version
-if test "${version#*"11.0."}" != "${version}" || test "${version#*"10.3."}" != "${version}"; then
-    mv "${bin_dir}/pre-11.1.0-run.sh" "${bin_dir}/run.sh"
-else
-    rm "${bin_dir}/pre-11.1.0-run.sh"
-fi
 
 #TODO: remove this logic once we are no longer building PF 11.1
 #Select the correct log4j2.xml file based on product version
