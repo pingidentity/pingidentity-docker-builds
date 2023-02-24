@@ -40,26 +40,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "version": "11.1.0",
-            "preferredShim": "redhat/ubi/ubi8:8.6",
-            "shims": [
-                {
-                    "shim": "redhat/ubi/ubi8:8.6",
-                    "preferredJVM": "rl11",
-                    "jvms": [
-                        {
-                            "jvm": "rl11",
-                            "build": true,
-                            "deploy": true,
-                            "registries": [
-                                "Fedramp"
-                            ]
-                        }
-                    ]
-                }
-            ]
         }
     ]
 }
