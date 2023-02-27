@@ -52,10 +52,10 @@ test ${?} -ne 0 && echo "error parsing ASE configuration" && exit 1
 if test -n "${https_port}"; then
     if test "${health}" = "true"; then
         # ping against health check service on HTTP
-        check_available_url "https://localhost:${https_port}/ase"
+        check_available_url "https://127.0.0.1:${https_port}/ase"
     else
         # simple check if the port is open
-        check_available_tcp "localhost:${https_port}"
+        check_available_tcp "127.0.0.1:${https_port}"
     fi
 fi
 
@@ -66,10 +66,10 @@ test ${?} -ne 0 && echo "error parsing ASE configuration" && exit 1
 if test -n "${http_port}"; then
     if test "${health}" = "true"; then
         # ping against health check service on HTTP
-        check_available_url "http://localhost:${http_port}/ase"
+        check_available_url "http://127.0.0.1:${http_port}/ase"
     else
         # simple check if the port is open
-        check_available_tcp "localhost:${http_port}"
+        check_available_tcp "127.0.0.1:${http_port}"
     fi
 fi
 
@@ -77,7 +77,7 @@ fi
 management_port=$(pi_get_config ase management_port)
 test ${?} -ne 0 && echo "error parsing ASE configuration" && exit 1
 if test -n "${management_port}"; then
-    check_available_tcp "localhost:${management_port}"
+    check_available_tcp "127.0.0.1:${management_port}"
 fi
 
 cluster_enabled=$(pi_get_config ase enable_cluster)
@@ -86,7 +86,7 @@ test ${?} -ne 0 && echo "error parsing ASE configuration" && exit 1
 cluster_port=$(pi_get_config cluster cluster_manager_port)
 test ${?} -ne 0 && echo "error parsing cluster configuration" && exit 1
 if test "${cluster_enabled}" = "true" && test -n "${cluster_port}"; then
-    check_available_tcp "localhost:${cluster_port}" -t 5
+    check_available_tcp "127.0.0.1:${cluster_port}" -t 5
 fi
 
 test isASERunning || exit 1
