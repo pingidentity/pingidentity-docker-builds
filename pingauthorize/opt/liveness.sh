@@ -4,7 +4,7 @@ test "${VERBOSE}" = "true" && set -x
 # shellcheck source=/dev/null
 test -f "${CONTAINER_ENV}" && . "${CONTAINER_ENV}"
 
-URL="https://localhost:${HTTPS_PORT}/available-or-degraded-state"
+URL="https://127.0.0.1:${HTTPS_PORT}/available-or-degraded-state"
 
 _curlResult=$(curl -k -o /dev/null -w '%{http_code}' "${URL}" 2> /dev/null)
 

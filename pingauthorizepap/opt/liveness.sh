@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-URL="https://localhost:${PING_ADMIN_PORT:-8444}/healthcheck"
+URL="https://127.0.0.1:${PING_ADMIN_PORT:-8444}/healthcheck"
 
 curl -ssk -o /dev/null "${URL}"
 if test ${?} -ne 0; then
