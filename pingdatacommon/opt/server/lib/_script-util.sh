@@ -38,6 +38,12 @@ set_java_home_and_args() {
         PRIVATE_UNBOUNDID_JAVA_ARGS="${PRIVATE_UNBOUNDID_JAVA_ARGS} -Djdk.lang.Process.launchMechanism=POSIX_SPAWN"
     fi
     if test -f "${INSTANCE_ROOT}/lib/set-java-home"; then
+
+        # Check set-java-home for CRLF
+        # Exit if found
+        test_crlf "${INSTANCE_ROOT}/lib/set-java-home"
+        die_on_error 11 ""
+
         # cannot follow dynamically generated file
         # shellcheck disable=SC1091
         . "${INSTANCE_ROOT}/lib/set-java-home"
@@ -173,6 +179,12 @@ set_classpath() {
 # Set a umask so that newly-created files and directories will have the desired
 # default permissions
 if test -f "${INSTANCE_ROOT}/config/server.umask"; then
+
+    # Check server.umask for CRLF
+    # Exit if found
+    test_crlf "${INSTANCE_ROOT}/config/server.umask"
+    die_on_error 11 ""
+
     # Cannot follow dynamically generated file
     # shellcheck disable=SC1091
     . "${INSTANCE_ROOT}/config/server.umask"
