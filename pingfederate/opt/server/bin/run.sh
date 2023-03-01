@@ -27,8 +27,16 @@ require() {
 PF_BIN="${SERVER_ROOT_DIR}/bin"
 # Read an optional running configuration file
 test -z "${RUN_CONF}" && RUN_CONF="${PF_BIN}/run.conf"
-# shellcheck disable=SC1090
-test -r "${RUN_CONF}" && . "${RUN_CONF}"
+
+if test -r "${RUN_CONF}"; then
+    # Check run.conf for CRLF
+    # Exit if found
+    test_crlf "${PF_BIN}/run.conf"
+    die_on_error 11 ""
+
+    # shellcheck disable=SC1090
+    . "${RUN_CONF}"
+fi
 
 PF_SERVER_HOME="${SERVER_ROOT_DIR}/server/default"
 PF_SERVER_LIB="${PF_SERVER_HOME}/lib"

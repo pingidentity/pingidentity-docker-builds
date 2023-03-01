@@ -2,7 +2,7 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 #
-#- This scrip is called to check if there is an existing server
+#- This script is called to check if there is an existing server
 #- and if so, it will return a 1, else 0
 #
 
@@ -17,6 +17,10 @@ RUN_PLAN="UNKNOWN"
 SERVER_UUID_FILE="${SERVER_ROOT_DIR}/config/server.uuid"
 
 if test -f "${SERVER_UUID_FILE}"; then
+    # Check server.uuid for CRLF
+    # Exit if found
+    test_crlf "${SERVER_ROOT_DIR}/config/server.uuid"
+    die_on_error 11 ""
     . "${SERVER_UUID_FILE}"
 
     RUN_PLAN="RESTART"

@@ -705,6 +705,12 @@ source_secret_envs() {
     if test -d "${SECRETS_DIR}"; then
         find "${SECRETS_DIR}" -type f -name '*.env' -print > /tmp/_envFile
         while IFS= read -r _envFile; do
+            # Check current .env file for CRLF
+            # Exit if found
+            test_crlf "${_envFile}"
+            die_on_error 11 ""
+
+            # Otherwise, continue
             set -o allexport
             # shellcheck source=/dev/null
             . "${_envFile}"
@@ -736,6 +742,34 @@ export_container_env() {
     done
 
     source_container_env
+}
+
+###############################################################################
+# test_crlf (file)
+#
+# Scan the passed file for CRLF characters
+###############################################################################
+test_crlf() {
+    _testCRLFFile="${1}"
+
+    # Test for file being passed
+    # shellcheck disable=SC2164
+    if test ! -f "${_testCRLFFile}"; then
+        echo_red "${_testCRLFFile} is not a file.  Exiting."
+        return 1
+    fi
+
+    # See if file has CRLF (^M or \r, depending on the tool used)
+    # grep uses \r notation
+    grep -q '\r' "${_testCRLFFile}"
+
+    if test $? -eq 0; then
+        echo_red "${_testCRLFFile} contains CRLF line endings which may produce undefined behavior. Exiting."
+        # Return non-zero to calling program
+        return 11
+    fi
+
+    return 0
 }
 
 ###############################################################################

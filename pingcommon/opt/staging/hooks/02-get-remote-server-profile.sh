@@ -171,6 +171,7 @@ compare_state_info
 flash_state_info
 # GDO-200 - Try to encourage orchestration variables over env_vars
 _env_vars_file="${STAGING_DIR}/env_vars"
+
 if test -f "${_env_vars_file}"; then
     grep '.suppress-container-warning' "${_env_vars_file}" 2> /dev/null > /dev/null
 
@@ -194,4 +195,11 @@ if test -f "${_env_vars_file}"; then
     } >> "${CONTAINER_ENV}"
 else
     touch "${CONTAINER_ENV}"
+fi
+
+# Check _env_vars_file for CRLF
+# Exit if found
+if test -f "${CONTAINER_ENV}"; then
+    test_crlf "${CONTAINER_ENV}"
+    die_on_error 11 ""
 fi
