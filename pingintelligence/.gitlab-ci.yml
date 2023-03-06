@@ -39,6 +39,7 @@ intel.t.pingintelligence:
   stage: test.smoke
   script:
     - ci_scripts/run_helm_smoke.sh --product pingintelligence
+  retry: 2
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never

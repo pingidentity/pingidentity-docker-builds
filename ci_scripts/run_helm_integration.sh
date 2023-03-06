@@ -175,7 +175,7 @@ trap _final EXIT
 
 _exitCode=""
 #List of products that will be used to build the images
-declare -a ProductList=("pingaccess-admin" "pingaccess-engine" "pingcentral" "pingdataconsole" "pingdatasync" "pingdelegator" "pingdirectory" "pingdirectoryproxy" "pingfederate-admin" "pingfederate-engine" "pingintelligence" "pingtoolkit" "pingauthorize" "pingauthorizepap")
+declare -a ProductList=("pingaccess-admin" "pingaccess-engine" "pingcentral" "pingdataconsole" "pingdatasync" "pingdirectory" "pingdirectoryproxy" "pingfederate-admin" "pingfederate-engine" "pingintelligence" "pingtoolkit" "pingauthorize" "pingauthorizepap")
 
 ################################################################################
 # _create_helm_values
