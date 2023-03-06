@@ -62,20 +62,48 @@ testFramework:
     files:
       - pa-pf-pd.postman-collection.json
       - generated.postman-environment.json
+      - wait-for-url.sh
 
   testSteps:
-    - name: 01-wait-for
-      waitFor:
-        pingfederate-admin:
-          service: https
-        pingfederate-engine:
-          service: https
-        pingaccess-admin:
-          service: https
-        pingaccess-engine:
-          service: https
-        pingdirectory:
-          service: https
+    - name: 01-wait-for-pingdirectory-0
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - /var/run/wait-for-url.sh
+        - https://${PD_ENGINE_PRIVATE_HOSTNAME}:${PD_ENGINE_PRIVATE_PORT_HTTPS}/available-state
+        - "900"
+
+    - name: 01a-wait-for-pingfederate-admin
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - /var/run/wait-for-url.sh
+        - https://${PF_ADMIN_PRIVATE_HOSTNAME}:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pingfederate/app
+        - "900"
+
+    - name: 01b-wait-for-pingfederate-engine
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - /var/run/wait-for-url.sh
+        - https://${PF_ENGINE_PRIVATE_HOSTNAME}:${PF_ENGINE_PRIVATE_PORT_HTTPS}/pf/heartbeat.ping
+        - "900"
+
+    - name: 01c-wait-for-pingaccess-admin
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - /var/run/wait-for-url.sh
+        - https://${PA_ADMIN_PRIVATE_HOSTNAME}:${PA_ADMIN_PRIVATE_PORT_HTTPS}/pa/heartbeat.ping
+        - "900"
+
+    - name: 01d-wait-for-pingaccess-engine
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - /var/run/wait-for-url.sh
+        - https://${PA_ENGINE_PRIVATE_HOSTNAME}:${PA_ENGINE_PRIVATE_PORT_HTTPS}/pa/heartbeat.ping
+        - "900"
 
     - name: 02-check-pa-pf-pd
       image: ${DEPS_REGISTRY}arnaudlacour/newman

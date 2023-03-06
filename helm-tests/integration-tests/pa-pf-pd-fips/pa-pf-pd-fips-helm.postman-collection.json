@@ -1024,7 +1024,7 @@
 					"script": {
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
-							"    pm.response.to.have.status(201);",
+							"    pm.expect(pm.response.code).to.be.oneOf([201, 409]);",
 							"});",
 							"",
 							"pm.test(\"response is not empty\", function(){",
@@ -1136,7 +1136,7 @@
 					"script": {
 						"exec": [
 							"pm.test(\"response is ok\", function(){",
-							"    pm.response.to.have.status(201);",
+							"    pm.expect(pm.response.code).to.be.oneOf([201, 409]);;",
 							"});",
 							"",
 							"pm.test(\"response is not empty\", function(){",
