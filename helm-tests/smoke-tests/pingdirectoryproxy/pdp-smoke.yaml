@@ -23,12 +23,16 @@ testFramework:
     files:
       - pdp-helm-test.postman-collection.json
       - generated.postman-environment.json
+      - wait-for-url.sh
 
   testSteps:
     - name: 01-wait-for-pingdirectoryproxy
-      waitFor:
-        pingdirectoryproxy:
-          service: https
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - /var/run/wait-for-url.sh
+        - https://${PDP_ENGINE_PRIVATE_HOSTNAME}:${PDP_ENGINE_PRIVATE_PORT_HTTPS}/available-state
+        - "900"
 
     - name: 02-postman-pdp-helm-test
       image: ${DEPS_REGISTRY}arnaudlacour/newman
