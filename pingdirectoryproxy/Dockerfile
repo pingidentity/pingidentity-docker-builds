@@ -126,7 +126,7 @@ ENV SHIM=${SHIM} \
 #-- If that keystore does not exist, the server will generate a self-signed certificate.
     KEYSTORE_FILE= \
 #-- Location of the pin file for the keystore defined in KEYSTORE_FILE.
-#-- If left undefined, the SECRETS_DIR will be checked for a pin file.
+#-- You must specify a KEYSTORE_PIN_FILE when a KEYSTORE_FILE is present.
 #-- This value does not need to be defined when allowing the server to generate a
 #-- self-signed certificate.
     KEYSTORE_PIN_FILE= \
@@ -140,7 +140,7 @@ ENV SHIM=${SHIM} \
 #-- its own certificate.
     TRUSTSTORE_FILE= \
 #-- Location of the pin file for the truststore defined in TRUSTSTORE_FILE.
-#-- If left undefined, the SECRETS_DIR will be checked for a pin file.
+#-- You must specify a TRUSTSTORE_PIN_FILE when a TRUSTSTORE_FILE is present.
 #-- This value does not need to be defined when allowing the server to generate a truststore.
     TRUSTSTORE_PIN_FILE= \
 #-- Format of the truststore defined in TRUSTSTORE_FILE. One of "jks", "pkcs12",
