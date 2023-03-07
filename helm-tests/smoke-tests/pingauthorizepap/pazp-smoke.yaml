@@ -19,9 +19,19 @@ pingauthorizepap:
 ###############################################################################
 testFramework:
   enabled: true
+  testConfigMaps:
+    # DEFAULTS (found in helm chart values.yaml)
+    # prefix: ping-devops-test-
+    # volumeMountPath: /var/run/
+    files:
+      - global-init-test.sh
+      - wait-for-url.sh
 
   testSteps:
-    - name: 01-wait-for
-      waitFor:
-        pingauthorizepap:
-          service: https
+    - name: 01-wait-for-pingauthorizepap
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - /var/run/wait-for-url.sh
+        - https://${PAZP_ENGINE_PRIVATE_HOSTNAME}:${PAZP_ENGINE_PRIVATE_PORT_HTTPS}/healthcheck
+        - "900"
