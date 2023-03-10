@@ -61,8 +61,8 @@ fi
 manage-topology add-server \
     --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
     --trustAll \
-    --hostname "${POD_LDAPS_PORT}" \
-    --port "${POD_HOSTNAME}" \
+    --hostname "${POD_HOSTNAME}" \
+    --port "${POD_LDAPS_PORT}" \
     --useSSL \
     --bindDN "${ROOT_USER_DN}" \
     --bindPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
