@@ -17,12 +17,6 @@ RUN_PLAN="UNKNOWN"
 SERVER_UUID_FILE="${SERVER_ROOT_DIR}/config/server.uuid"
 
 if test -f "${SERVER_UUID_FILE}"; then
-    # Check server.uuid for CRLF
-    # Exit if found
-    test_crlf "${SERVER_ROOT_DIR}/config/server.uuid"
-    die_on_error 11 ""
-    . "${SERVER_UUID_FILE}"
-
     RUN_PLAN="RESTART"
 else
     RUN_PLAN="START"

@@ -703,10 +703,6 @@ buildRunPlan() {
     # If we don't have a server.uuid file, then we should START with a SETUP plan.  Additionally
     #    if a SERVER_ROOT_DIR is found, then we should cleanup before starting.
     if test -f "${SERVER_UUID_FILE}"; then
-        # Check server.uuid for CRLF
-        # Exit if found
-        test_crlf "${SERVER_ROOT_DIR}/config/server.uuid"
-        die_on_error 11 ""
 
         # Sets the serverUUID variable
         # shellcheck disable=SC1090
