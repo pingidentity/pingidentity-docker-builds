@@ -48,7 +48,7 @@ api_curl() {
 archive_image() {
     test -z "${1}" && echo_red "ERROR: The function archive_image requires a repository name." && exit 1
     test -z "${2}" && echo_red "ERROR: The function archive_image requires an image tag." && exit 1
-    test -z "${3}" && echo_red "ERROR: The function overwrite_and_archive_image requires an architecture." && exit 1
+    test -z "${3}" && echo_red "ERROR: The function archive_image requires an architecture." && exit 1
 
     # Loop through all the image digests, pull them down, tag them, and publish them
     digest=$(jq -r --arg cur_arch "${3}" '.images[] | select(.architecture == $cur_arch) | .digest' "${api_output_file}")
@@ -144,6 +144,21 @@ get_artifactory_repository_tags_data() {
         exit 1
 }
 
+get_artifactory_repository_signed_tags_data() {
+    test -z "${1}" && echo_red "ERROR: The function get_artifactory_repository_signed_tags_data requires a repository name." && exit 1
+
+    target_repository="${ARTIFACTORY_REGISTRY}/${1}"
+
+    export DOCKER_CONTENT_TRUST_SERVER="https://notaryserver:4443"
+    docker --config "${docker_config_default_dir}" trust inspect "${target_repository}" > "${api_output_file}"
+
+    test "${?}" -ne 0 &&
+        echo "ERROR: ${http_result_code} Unable to retrieve repository trust data for ${target_repository}" &&
+        exit 1
+
+    unset DOCKER_CONTENT_TRUST_SERVER
+}
+
 get_dockerhub_specific_tag_data() {
     test -z "${1}" && echo_red "ERROR: The function get_dockerhub_specific_tag_data requires a repository name." && exit 1
     test -z "${2}" && echo_red "ERROR: The function get_dockerhub_specific_tag_data requires an image tag." && exit 1
@@ -172,9 +187,6 @@ repository_list=$(jq -r '[.results[] | .name] | unique | .[]' "${api_output_file
 
 # Loop through DockerHub/Artifactory repositories
 for repository in ${repository_list}; do
-    #TODO remove this exception when the apache-tomcat repository has been removed from DockerHub
-    test "${repository}" = "apache-tomcat" && continue
-
     banner "Archiving for repository: ${repository}"
     page_size=100
     page_number=1
@@ -199,6 +211,10 @@ for repository in ${repository_list}; do
     # Retrieve all image tags from Artifactory
     get_artifactory_repository_tags_data "${repository}"
     artifactory_repository_tag_list=$(jq '.tags[]' "${api_output_file}")
+
+    # Retrieve all signed image tags from Artifactory
+    get_artifactory_repository_signed_tags_data "${repository}"
+    artifactory_repository_signed_tag_list=$(jq '[.[] | .SignedTags[] | .SignedTag] | unique | .[]' "${api_output_file}")
 
     # Loop through each tag from the DockerHub Repository
     for tag in ${dockerhub_repository_tag_list}; do
@@ -227,7 +243,16 @@ for repository in ${repository_list}; do
                     if test ${last_updated_time} -gt ${sixty_days_ago}; then
                         # The latest tag has been updated in the past 60 days. Overwrite the archive.
                         echo "INFO: Archiving latest updated tag ${arch_tag} to Artifactory"
-                        overwrite_and_archive_image "${repository}" "${tag}" "${arch}"
+
+                        # Check to see if the Artifactory tag is signed. If not, archive directly, instead of overwriting trust data.
+                        if test "${artifactory_repository_signed_tag_list#*"\"${arch_tag}\""}" != "${artifactory_repository_signed_tag_list}"; then
+                            # The current tag is signed. Overwrite trust data.
+                            overwrite_and_archive_image "${repository}" "${tag}" "${arch}"
+                        else
+                            # The current tag is not signed. Archive image directly.
+                            echo "WARN: Image tag ${arch_tag} has no trust data. Skipping trust data deletion..."
+                            archive_image "${repository}" "${tag}" "${arch}"
+                        fi
                     else
                         echo "INFO: Latest tag ${arch_tag} is already archived and not updated. Skipping..."
                     fi
