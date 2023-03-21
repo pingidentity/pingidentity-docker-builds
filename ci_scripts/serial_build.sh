@@ -38,6 +38,8 @@ Usage: ${0} {options}
         verbose docker build not using docker buildkit
     --with-tests
         Execute smoke tests
+    -n, --no-clean
+        does not clean up and remove existing docker containers/images
     --help
         Display general usage information
 END_USAGE
@@ -88,6 +90,9 @@ while ! test -z "${1}"; do
             test -z "${1}" && usage "You must provide a version to build"
             versionsToBuild="${versionsToBuild:+${versionsToBuild} }--version ${1}"
             ;;
+        -n | --no-clean)
+            _noClean=true
+            ;;
         --with-tests)
             _smokeTests=true
             ;;
@@ -112,8 +117,11 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
-"${CI_SCRIPTS_DIR}/cleanup_docker.sh" full
-test "${?}" -ne 0 && exit 1
+if test -z "${_noClean}"; then
+    "${CI_SCRIPTS_DIR}/cleanup_docker.sh" full
+    test "${?}" -ne 0 && exit 1
+fi
+
 # Word-split is expected behavior for $jvmsToBuild and $shimsToBuild. Disable shellcheck.
 # shellcheck disable=SC2086
 "${CI_SCRIPTS_DIR}/build_foundation.sh" ${jvmsToBuild} ${shimsToBuild}
