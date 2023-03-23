@@ -715,7 +715,10 @@ else
     #we are on local
     IS_LOCAL_BUILD=true
     export IS_LOCAL_BUILD
-    FOUNDATION_REGISTRY="pingidentity"
+
+    if [ ! -z ${FOUNDATION_REGISTRY} ]; then
+        FOUNDATION_REGISTRY="pingidentity"
+    fi
     DEPS_REGISTRY="${DEPS_REGISTRY_OVERRIDE}"
     gitBranch=$(git rev-parse --abbrev-ref HEAD)
     GIT_REV_SHORT=$(git rev-parse --short=4 HEAD)
