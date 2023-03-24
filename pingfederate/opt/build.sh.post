@@ -41,7 +41,8 @@ sed -i -e 's/^pf\.admin\.https\.port=.*$/pf.admin.https.port=${PF_ADMIN_PORT}/' 
     -e 's/^provisioner\.failover\.grace\.period=.*$/provisioner.failover.grace.period=${PF_PROVISIONER_GRACE_PERIOD}/' \
     -e 's/^pf\.runtime\.threads\.min=.*$/pf.runtime.threads.min=${PF_JETTY_THREADS_MIN}/' \
     -e 's/^pf\.runtime\.threads\.max=.*$/pf.runtime.threads.max=${PF_JETTY_THREADS_MAX}/' \
-    -e 's/^pf\.runtime\.acceptQueueSize=.*$/pf.runtime.acceptQueueSize=${PF_ACCEPT_QUEUE_SIZE}/' "/opt/staging/instance/bin/run.properties.subst.default"
+    -e 's/^pf\.runtime\.acceptQueueSize=.*$/pf.runtime.acceptQueueSize=${PF_ACCEPT_QUEUE_SIZE}/' \
+    -e 's/^pf\.cluster\.bind\.address=.*$/pf.cluster.bind.address=${CLUSTER_BIND_ADDRESS}/' "/opt/staging/instance/bin/run.properties.subst.default"
 
 # Append values not set in the default run.properties
 echo "
