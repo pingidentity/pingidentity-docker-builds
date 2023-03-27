@@ -92,9 +92,9 @@ dsreplication enable \
     "$@" \
     --noSchemaReplication \
     --enableDebug --globalDebugLevel verbose
-test "${VERBOSE}" != "true" && set +x
 
 _replEnableResult=$?
+test "${VERBOSE}" != "true" && set +x
 echo "Replication enable for POD Server result=${_replEnableResult}"
 
 if test ${_replEnableResult} -ne 0; then
@@ -149,9 +149,10 @@ dsreplication initialize \
     --no-prompt \
     --enableDebug \
     --globalDebugLevel verbose
+_replInitResult=$?
 test "${VERBOSE}" != "true" && set +x
 
-if test -n "${RESTRICTED_BASE_DNS}" && test -n "${INITIALIZE_SOURCE_HOSTNAME}"; then
+if test ${_replInitResult} -eq 0 && test -n "${RESTRICTED_BASE_DNS}" && test -n "${INITIALIZE_SOURCE_HOSTNAME}"; then
     # If using entry balancing, initialize from a specific server in the same replication set, rather
     # than from a topology file. This ensures that any restricted DNs get initialized properly.
     # The INITIALIZE_SOURCE_HOSTNAME and INITIALIZE_SOURCE_LDAPS_PORT values should be set in the
@@ -189,10 +190,10 @@ if test -n "${RESTRICTED_BASE_DNS}" && test -n "${INITIALIZE_SOURCE_HOSTNAME}"; 
         --no-prompt \
         --enableDebug \
         --globalDebugLevel verbose
+    _replInitResult=$?
     test "${VERBOSE}" != "true" && set +x
 fi
 
-_replInitResult=$?
 echo "Replication initialize result=${_replInitResult}"
 
 test ${_replInitResult} -eq 0 && set_server_available online && dsreplication status --displayServerTable --showAll
