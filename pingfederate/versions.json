@@ -2,6 +2,26 @@
     "latest": "11.2.3",
     "versions": [
         {
+            "version": "11.3.0-beta",
+            "preferredShim": "alpine:3.17.2",
+            "shims": [
+                {
+                    "shim": "alpine:3.17.2",
+                    "preferredJVM": "al11",
+                    "jvms": [
+                        {
+                            "jvm": "al11",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "version": "11.2.3",
             "preferredShim": "alpine:3.17.2",
             "shims": [
