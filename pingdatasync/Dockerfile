@@ -78,6 +78,7 @@ FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
+ARG DATE
 ARG VERSION
 # PingIdentity license version
 ARG LICENSE_VERSION
@@ -85,6 +86,7 @@ ARG LICENSE_VERSION
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    DATE=${DATE} \
     PING_PRODUCT_VERSION=${VERSION} \
 #-- Files tailed once container has started
     TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/sync" \
@@ -171,8 +173,12 @@ ENV SHIM=${SHIM} \
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
 
-LABEL image-version="${IMAGE_VERSION}" \
-      image-git-rev="${IMAGE_GIT_REV}"
+LABEL name="${PING_PRODUCT}" \
+      version="${IMAGE_VERSION}" \
+      release="${IMAGE_GIT_REV}" \
+      date="${DATE}" \
+      summary="The PingDataSync server is an efficient, Java-based server that provides high throughput, low latency, and bidirectional real-time synchronization between two endpoint topologies, such as PingDirectory servers, PingDirectoryProxy servers, PingOne, or relational database management systems (RDBMS) systems." \
+      description="PingDataSync uses a dataless approach that synchronizes changes directly from the data sources in the background so that applications can continue to update their data sources directly. PingDataSync doesn't store any data from the endpoints themselves, which reduces hardware and administration costs. The server's high-availability mechanisms allow for easy failover from the main PingDataSync server to redundant instances."
 
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT}
 

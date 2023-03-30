@@ -109,12 +109,16 @@ FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
+ARG DATE
 ARG VERSION
 
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    DATE=${DATE} \
     PING_PRODUCT_VERSION=${VERSION} \
+#-- Ping product name
+    PING_PRODUCT="PingDataConsole" \
 #-- PingDataConsole HTTP listen port
     HTTP_PORT=8080 \
 #-- PingDataConsole HTTPS listen port
@@ -136,8 +140,12 @@ ENV SHIM=${SHIM} \
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
 
-LABEL image-version="${IMAGE_VERSION}" \
-      image-git-rev="${IMAGE_GIT_REV}"
+LABEL name="${PING_PRODUCT}" \
+      version="${IMAGE_VERSION}" \
+      release="${IMAGE_GIT_REV}" \
+      date="${DATE}" \
+      summary="PingDataConsole provides a tomcat image with the PingDataConsole deployed to be used in configuration of the PingData products." \
+      description="PingDataConsole provides a tomcat image with the PingDataConsole deployed to be used in configuration of the PingData products."
 
 COPY --from=final-staging ["/","/"]
 

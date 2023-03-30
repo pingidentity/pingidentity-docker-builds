@@ -81,22 +81,28 @@ FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
+ARG DATE
 ARG VERSION
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    DATE=${DATE} \
     PING_PRODUCT_VERSION=${VERSION} \
-    PATH=/opt/tools:${PATH}
+    PATH=/opt/tools:${PATH} \
+#-- Ping product name
+    PING_PRODUCT="ldap-sdk-tools"
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
 
-LABEL   image-version="${IMAGE_VERSION}" \
-        image-git-rev="${IMAGE_GIT_REV}" \
-		maintainer=devops_program@pingidentity.com \
-		license="Apache License v2.0, GPLv2, LGPLv2.1, Ping Identity UnboundID LDAP SDK Free Use" \
-		vendor="Ping Identity Corp." \
-		name="Ping Identity LDAP SDK Tools (Alpine/OpenJDK8) Image"
+LABEL name="${PING_PRODUCT}" \
+      version="${IMAGE_VERSION}" \
+      release="${IMAGE_GIT_REV}" \
+      date="${DATE}" \
+      summary="ldap-sdk-tools provides LDAP Client SDK tools to be used against other PingDirectory instances." \
+      description="ldap-sdk-tools provides LDAP Client SDK tools to be used against other PingDirectory instances." \
+      license="Apache License v2.0, GPLv2, LGPLv2.1, Ping Identity UnboundID LDAP SDK Free Use"
+
 VOLUME ["/opt/out"]
 COPY --from=final-staging ["/","/"]
 

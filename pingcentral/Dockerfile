@@ -81,12 +81,14 @@ FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
+ARG DATE
 ARG VERSION
 ARG LICENSE_VERSION
 
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    DATE=${DATE} \
     PING_PRODUCT_VERSION=${VERSION} \
     PING_CENTRAL_SERVER_PORT=9022 \
 #-- Ping product name
@@ -111,8 +113,12 @@ ENV SHIM=${SHIM} \
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
 
-LABEL image-version="${IMAGE_VERSION}" \
-      image-git-rev="${IMAGE_GIT_REV}"
+LABEL name="${PING_PRODUCT}" \
+      version="${IMAGE_VERSION}" \
+      release="${IMAGE_GIT_REV}" \
+      date="${DATE}" \
+      summary="PingCentral allows you to delegate common application configuration and deployment tasks to application owners, streamlining processes and saving time." \
+      description="PingCentral makes it possible for IAM adminstrators to delegate common application configuration and deployment tasks to application owners, which saves time and streamlines processes."
 
 EXPOSE 9022
 COPY --from=final-staging ["/","/"]
