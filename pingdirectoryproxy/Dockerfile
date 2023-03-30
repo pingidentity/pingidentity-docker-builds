@@ -77,6 +77,7 @@ FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
+ARG DATE
 ARG VERSION
 # PingIdentity license version
 ARG LICENSE_VERSION
@@ -84,6 +85,7 @@ ARG LICENSE_VERSION
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    DATE=${DATE} \
     PING_PRODUCT_VERSION=${VERSION} \
 
 #-- Ping product name
@@ -176,8 +178,12 @@ ENV SHIM=${SHIM} \
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
 
-LABEL image-version="${IMAGE_VERSION}" \
-      image-git-rev="${IMAGE_GIT_REV}"
+LABEL name="${PING_PRODUCT}" \
+      version="${IMAGE_VERSION}" \
+      release="${IMAGE_GIT_REV}" \
+      date="${DATE}" \
+      summary="The PingDirectoryProxy server is a LDAP proxy server for PingDirectory that provides high availability and additional security." \
+      description="The PingDirectoryProxy server is a fast, scalable, and easy-to-use LDAP proxy server that provides high availability and additional security for the PingDirectory server while remaining largely invisible to client applications. From a client perspective, request processing is the same, whether communicating with the PingDirectory server directly or going through the PingDirectoryProxy server."
 
 EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT}
 

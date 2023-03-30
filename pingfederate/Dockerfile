@@ -88,6 +88,7 @@ FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
+ARG DATE
 ARG VERSION
 ARG LICENSE_VERSION
 
@@ -95,6 +96,7 @@ ARG LICENSE_VERSION
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    DATE=${DATE} \
     PING_PRODUCT_VERSION=${VERSION} \
 #-- Ping product name
     PING_PRODUCT="PingFederate" \
@@ -269,8 +271,12 @@ ENV SHIM=${SHIM} \
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
 
-LABEL image-version="${IMAGE_VERSION}" \
-      image-git-rev="${IMAGE_GIT_REV}"
+LABEL name="${PING_PRODUCT}" \
+      version="${IMAGE_VERSION}" \
+      release="${IMAGE_GIT_REV}" \
+      date="${DATE}" \
+      summary="PingFederate is an enterprise federation server and identity bridge for user authentication and standards-based single sign-on (SSO) for employee, partner, and customer identity types." \
+      description="PingFederate enables outbound and inbound solutions for SSO, federated identity management, customer identity and access management, mobile identity security, API security, and social identity integration. Browser-based SSO extends employee, customer, and partner identities across domains without passwords using standard identity protocols, such as SAML, WS-Federation, WS-Trust, OAuth, OpenID Connect (OIDC), and System for Cross-domain Identity Management (SCIM)."
 
 EXPOSE 9031 9999
 

@@ -78,16 +78,21 @@ COPY --from=final-staging ["/","/"]
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
+ARG DATE
 ARG VERSION
 
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    DATE=${DATE} \
     PING_PRODUCT_VERSION=${VERSION} \
 
     PD_DELEGATOR_PUBLIC_HOSTNAME=localhost \
     PD_DELEGATOR_HTTP_PORT=6080 \
     PD_DELEGATOR_HTTPS_PORT=6443 \
+
+#-- Ping product name
+    PING_PRODUCT=PingDelegator \
 
 #-- The hostname for the public Ping Federate instance used for SSO.
     PF_ENGINE_PUBLIC_HOSTNAME=localhost \
@@ -143,8 +148,12 @@ ENV STARTUP_BACKGROUND_OPTS="${STARTUP_FOREGROUND_OPTS}"
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
 
-LABEL image-version="${IMAGE_VERSION}" \
-      image-git-rev="${IMAGE_GIT_REV}"
+LABEL name="${PING_PRODUCT}" \
+      version="${IMAGE_VERSION}" \
+      release="${IMAGE_GIT_REV}" \
+      date="${DATE}" \
+      summary="PingDelegator provides an NGINX instance with PingDelegator that can be used in administering PingDirectory Users/Groups." \
+      description="PingDelegator provides an NGINX instance with PingDelegator that can be used in administering PingDirectory Users/Groups."
 
 #- ## Run
 #- To run a PingDelegator container with HTTPS_PORT=6443 (6443 is simply a convention for

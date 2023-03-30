@@ -709,6 +709,7 @@ elif test -n "${CI_COMMIT_REF_NAME}"; then
     echo "${ARTIFACTORY_NOTARY_SERVER_IP} notaryserver" >> /etc/hosts
 
     GIT_REV_SHORT=$(git rev-parse --short=4 "$CI_COMMIT_SHA")
+    GIT_REV_MED=$(git rev-parse --short "$CI_COMMIT_SHA")
     GIT_REV_LONG=$(git rev-parse "$CI_COMMIT_SHA")
     CI_TAG="${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHORT_SHA}"
 else
@@ -719,6 +720,7 @@ else
     DEPS_REGISTRY="${DEPS_REGISTRY_OVERRIDE}"
     gitBranch=$(git rev-parse --abbrev-ref HEAD)
     GIT_REV_SHORT=$(git rev-parse --short=4 HEAD)
+    GIT_REV_MED=$(git rev-parse --short HEAD)
     GIT_REV_LONG=$(git rev-parse HEAD)
     CI_TAG="${gitBranch}-${GIT_REV_SHORT}"
 fi
@@ -727,6 +729,7 @@ export ARCH
 export FOUNDATION_REGISTRY
 export DEPS_REGISTRY
 export GIT_REV_SHORT
+export GIT_REV_MED
 export GIT_REV_LONG
 export gitBranch
 export CI_TAG

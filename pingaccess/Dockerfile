@@ -83,12 +83,14 @@ FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
+ARG DATE
 ARG LICENSE_VERSION
 ARG VERSION
 
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    DATE=${DATE} \
     PING_PRODUCT_VERSION=${VERSION} \
 #-- Ping product name
     PING_PRODUCT="PingAccess" \
@@ -142,8 +144,12 @@ ENV SHIM=${SHIM} \
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
 
-LABEL image-version="${IMAGE_VERSION}" \
-      image-git-rev="${IMAGE_GIT_REV}"
+LABEL name="${PING_PRODUCT}" \
+      version="${IMAGE_VERSION}" \
+      release="${IMAGE_GIT_REV}" \
+      date="${DATE}" \
+      summary="PingAccess is an identity-enabled access management product that protects web applications and APIs by applying security policies to client requests." \
+      description="PingAccess allows you to protect sites, APIs, and other resources using rules and other authentication criteria. It works in conjunction with PingFederate or other common token providers with the OAuth 2.0 and OpenID Connect (OIDC) protocols to integrate identity-based access management policies through a federated corporate identity store using open standards access protocols."
 
 
 EXPOSE ${PA_ADMIN_PORT} ${PA_ENGINE_PORT} ${HTTPS_PORT}

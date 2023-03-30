@@ -221,7 +221,7 @@ for _version in ${versionsToBuild}; do
 
         for _jvm in ${_jvmsToBuild}; do
             fullTag="${_buildVersion}-${_shimLongTag}-${_jvm}-${CI_TAG}-${ARCH}"
-            imageVersion="${productToBuild}-${_shimLongTag}-${_jvm}-${_buildVersion}-${_date}-${GIT_REV_SHORT}"
+            imageVersion="${_buildVersion}-${_shimLongTag}-${_jvm}"
             licenseVersion="$(_getLicenseVersion "${_version}")"
 
             _image="${FOUNDATION_REGISTRY}/${productToBuild}:${fullTag}"
@@ -240,8 +240,9 @@ for _version in ${versionsToBuild}; do
                 --build-arg SHIM="${_shim}" \
                 --build-arg SHIM_TAG="${_shimLongTag}" \
                 --build-arg VERSION="${_buildVersion}" \
+                --build-arg DATE="${_date}" \
                 --build-arg IMAGE_VERSION="${imageVersion}" \
-                --build-arg IMAGE_GIT_REV="${GIT_REV_LONG}" \
+                --build-arg IMAGE_GIT_REV="${GIT_REV_MED}" \
                 --build-arg LICENSE_VERSION="${licenseVersion}" \
                 --build-arg LATEST_ALPINE_VERSION="3.17.2" \
                 ${VERBOSE:+--build-arg VERBOSE="true"} \

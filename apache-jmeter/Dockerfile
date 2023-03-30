@@ -73,12 +73,17 @@ FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH}
 # Image version and git revision, set by build process of the docker build
 ARG IMAGE_VERSION="undefined"
 ARG IMAGE_GIT_REV=""
+ARG DATE
 ARG VERSION
 
 ENV SHIM=${SHIM} \
-    IMAGE_VERSION=${IMAGE_VERSION}  \
+    IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
+    DATE=${DATE} \
     PING_PRODUCT_VERSION=${VERSION} \
+
+#-- Ping product name
+    PING_PRODUCT="Apache-JMeter" \
 
 #-- Percentage of the container memory to allocate to PingFederate JVM
 #-- DO NOT set to 100% or your JVM will exit with OutOfMemory errors and the container will terminate
@@ -91,6 +96,10 @@ ENV SHIM=${SHIM} \
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
 
-LABEL image-version="${IMAGE_VERSION}" \
-      image-git-rev="${IMAGE_GIT_REV}"
+LABEL name="${PING_PRODUCT}" \
+      version="${IMAGE_VERSION}" \
+      release="${IMAGE_GIT_REV}" \
+      date="${DATE}" \
+      summary="Apache JMeter can send HTTPS requests to any given PingFederate server" \
+      description="Apache JMeter can send HTTPS requests to any given PingFederate server"
 COPY --from=final-staging ["/","/"]
