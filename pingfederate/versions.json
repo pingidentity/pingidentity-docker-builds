@@ -1,5 +1,5 @@
 {
-    "latest": "11.2.3",
+    "latest": "11.2.4",
     "versions": [
         {
             "version": "11.3.0-beta",
@@ -22,7 +22,7 @@
             ]
         },
         {
-            "version": "11.2.3",
+            "version": "11.2.4",
             "preferredShim": "alpine:3.17.2",
             "shims": [
                 {

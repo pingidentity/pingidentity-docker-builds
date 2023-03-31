@@ -6,7 +6,7 @@
 #
 test "${VERBOSE}" = "true" && set -x
 
-#for local, uncomment:
+# for local, uncomment:
 # CHANGED_FILES=$( git diff --name-only master HEAD )
 # echo "edited files: " $CHANGED_FILES
 
