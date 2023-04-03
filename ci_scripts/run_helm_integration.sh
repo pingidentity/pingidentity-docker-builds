@@ -52,7 +52,7 @@ $(cd "${_integration_helm_tests_dir}" && find ./* -type d -maxdepth 1 | sed 's/^
 
     --image-tag-shim {shim-name}
         Tests for a specific image shim tag.
-        Example: alpine:3.17.2
+        Example: alpine:3.17.3
 
     --verbose
         Turn up the volume
