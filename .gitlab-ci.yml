@@ -29,7 +29,7 @@ default:
   before_script:
     - ci_scripts/before_script.sh
   services:
-    - $PIPELINE_DEPS_REGISTRY/docker:18.09-dind
+    - $PIPELINE_DEPS_REGISTRY/docker:23.0.2-dind
   image: $RUNNER_IMAGE_X86_64
 ################################################
 # Default variables used by all jobs unless they
@@ -46,6 +46,7 @@ variables:
   KUBERNETES_MEMORY_REQUEST: 1900000000
   KUBERNETES_MEMORY_LIMIT: 1900000000
   KUBERNETES_POLL_TIMEOUT: 1200
+  DOCKER_TLS_CERTDIR: ""
 ################################################
 # For Docker Compose Tests, provide a kubernetes
 # sizing of:
