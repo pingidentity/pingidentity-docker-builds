@@ -17,29 +17,29 @@ usage() {
     cat << END_USAGE
 Usage: ${0} {options}
     where {options} include:
+    --dry-run
+        Does everything except actually call the docker command and prints it instead
+    --fail-fast
+        Exit and report failure when an error occurs
+    --help
+        Display general usage information
+    -j, --jvm
+        The ID of the JVM to build
+    --no-cache
+        No docker cache
+    --no-clean
+        When set, do not clean up existing docker containers and images
     -p, --product
         The name of the product for which to build a docker image
     -s, --shim
-        the name of the operating system for which to build a docker image
-    -j, --jvm
-        the id of the jvm to build
-    -v, --version
-        the version of the product for which to build a docker image
-        this setting overrides the versions in the version file of the target product
-    --dry-run
-        does everything except actually call the docker command and prints it instead
-    --fail-fast
-        exit and report failure when an error occurs
-    --no-cache
-        no docker cache
+        The name of the operating system for which to build a docker image
     --snapshot
-        create snapshot image
+        Create snapshot image
     --verbose-build
-        verbose docker build not using docker buildkit
-    --with-tests
-        Execute smoke tests
-    --help
-        Display general usage information
+        Verbose docker build not using docker buildkit
+    -v, --version
+        The version of the product for which to build a docker image
+        This setting overrides the versions in the version file of the target product
 END_USAGE
     exit 99
 }
@@ -67,6 +67,9 @@ while ! test -z "${1}"; do
         --no-cache)
             buildOptions="${buildOptions:+${buildOptions} }--no-cache"
             ;;
+        --no-clean)
+            no_clean=true
+            ;;
         -p | --product)
             shift
             test -z "${1}" && usage "You must provide a product to build"
@@ -87,9 +90,6 @@ while ! test -z "${1}"; do
             shift
             test -z "${1}" && usage "You must provide a version to build"
             versionsToBuild="${versionsToBuild:+${versionsToBuild} }--version ${1}"
-            ;;
-        --with-tests)
-            _smokeTests=true
             ;;
         --help)
             usage
@@ -112,8 +112,12 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
-"${CI_SCRIPTS_DIR}/cleanup_docker.sh" full
-test "${?}" -ne 0 && exit 1
+# Clean up local docker caches
+if test -z "${no_clean}"; then
+    "${CI_SCRIPTS_DIR}/cleanup_docker.sh" full
+    test "${?}" -ne 0 && exit 1
+fi
+
 # Word-split is expected behavior for $jvmsToBuild and $shimsToBuild. Disable shellcheck.
 # shellcheck disable=SC2086
 "${CI_SCRIPTS_DIR}/build_foundation.sh" ${jvmsToBuild} ${shimsToBuild}
