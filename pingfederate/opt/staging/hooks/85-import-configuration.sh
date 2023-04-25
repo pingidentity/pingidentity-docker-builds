@@ -11,6 +11,8 @@ if test -z "${_password}"; then
     _password="2Federate"
 fi
 
+tmp_trace_file=$(mktemp)
+#TODO remove --trace command when curl is fixed with a timeout error when sending large json data sets
 _importBulkConfig=$(
     curl \
         --insecure \
@@ -23,9 +25,12 @@ _importBulkConfig=$(
         --header 'X-BypassExternalValidation: true' \
         --data "@${BULK_CONFIG_DIR}/${BULK_CONFIG_FILE}" \
         --output "/tmp/import.status.out" \
+        --trace "${tmp_trace_file}" \
         "https://localhost:${PF_ADMIN_PORT}/pf-admin-api/v1/bulk/import?failFast=false" \
         2> /dev/null
 )
+
+rm -f "${tmp_trace_file}"
 
 if test "${_importBulkConfig}" = "200"; then
     echo "INFO: Removing Imported Bulk File"
