@@ -186,14 +186,32 @@ p.github:
 #  |_|    |_____|_| \_/_/    \_\______|
 ################################################
 
-clean-k8s:
+intel.clean-k8s:
   stage: final
   script:
     - ci_scripts/cleanup_kubernetes.sh
   when: always
 
-delete-old-k8s:
+arm.clean-k8s:
   stage: final
+  image: $RUNNER_IMAGE_AARCH64
+  tags:
+    - platform=aarch64
+  script:
+    - ci_scripts/cleanup_kubernetes.sh
+  when: always
+
+intel.delete-old-k8s:
+  stage: final
+  script:
+    - ci_scripts/cleanup_old_kubernetes.sh
+  when: always
+
+arm.delete-old-k8s:
+  stage: final
+  image: $RUNNER_IMAGE_AARCH64
+  tags:
+    - platform=aarch64
   script:
     - ci_scripts/cleanup_old_kubernetes.sh
   when: always
