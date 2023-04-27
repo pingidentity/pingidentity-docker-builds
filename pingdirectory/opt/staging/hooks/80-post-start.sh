@@ -25,8 +25,6 @@ if ! prepareToJoinTopology; then
     exit 0
 fi
 
-set_server_unavailable "Enabling replication" online
-
 #
 #- * Enabling Replication
 #
@@ -113,8 +111,6 @@ manage-topology export \
     --exportFilePath "${TOPOLOGY_FILE}"
 
 cat "${TOPOLOGY_FILE}"
-
-set_server_unavailable "Initializing replication" online
 
 #
 #- * Initialize replication
