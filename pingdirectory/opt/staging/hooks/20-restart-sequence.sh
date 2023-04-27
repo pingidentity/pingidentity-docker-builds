@@ -158,4 +158,12 @@ else
     rebuild-index --bulkRebuild new --bulkRebuild untrusted --baseDN "${USER_BASE_DN}"
 fi
 rm -f "${_replaceProfileOutputFile}"
+
+# Set the server unavailable since there may be additional replication work
+# to do before we can allow the server to respond correctly to a readiness.sh check.
+#
+# It is important to set the server back available during the 80-post-start.sh
+# hook.
+set_server_unavailable "Configuring replication" offline
+
 exit 0
