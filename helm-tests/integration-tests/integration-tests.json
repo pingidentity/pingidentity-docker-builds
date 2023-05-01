@@ -1,0 +1,433 @@
+{
+    "tests": [
+        {
+            "name": "pa-pf-pd",
+            "directory": "pa-pf-pd",
+            "variations": [
+                {
+                    "id": "1",
+                    "architecture": "x86_64",
+                    "products": [
+                        {
+                            "productName": "pingaccess-admin",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingaccess-engine",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingfederate-admin",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingfederate-engine",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        }
+
+                    ]
+                },
+                {
+                    "id": "2",
+                    "architecture": "x86_64",
+                    "products": [
+                        {
+                            "productName": "pingaccess-admin",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingaccess-engine",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingfederate-admin",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingfederate-engine",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        }
+                    ]
+                },
+                {
+                    "id": "3",
+                    "architecture": "aarch64",
+                    "products": [
+                        {
+                            "productName": "pingaccess-admin",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingaccess-engine",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingfederate-admin",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingfederate-engine",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "pa-pf-pd-fips",
+            "directory": "pa-pf-pd-fips",
+            "variations": [
+                {
+                    "id": "1",
+                    "architecture": "x86_64",
+                    "products": [
+                        {
+                            "productName": "pingaccess-admin",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingaccess-engine",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingfederate-admin",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingfederate-engine",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        }
+
+                    ]
+                },
+                {
+                    "id": "2",
+                    "architecture": "x86_64",
+                    "products": [
+                        {
+                            "productName": "pingaccess-admin",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingaccess-engine",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingfederate-admin",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingfederate-engine",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "pa-pf-pi",
+            "directory": "pa-pf-pi",
+            "variations": [
+                {
+                    "id": "1",
+                    "architecture": "x86_64",
+                    "products": [
+                        {
+                            "productName": "pingaccess-admin",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingaccess-engine",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingfederate-admin",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingfederate-engine",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingintelligence",
+                            "version": "latest",
+                            "shim": "centos:7.9.2009",
+                            "jvm": "conoj"
+                        }
+
+                    ]
+                },
+                {
+                    "id": "2",
+                    "architecture": "x86_64",
+                    "products": [
+                        {
+                            "productName": "pingaccess-admin",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingaccess-engine",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingfederate-admin",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingfederate-engine",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingintelligence",
+                            "version": "latest",
+                            "shim": "centos:7.9.2009",
+                            "jvm": "conoj"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "paz-pd",
+            "directory": "paz-pd",
+            "variations": [
+                {
+                    "id": "1",
+                    "architecture": "x86_64",
+                    "products": [
+                        {
+                            "productName": "pingauthorize",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        }
+                    ]
+                },
+                {
+                    "id": "2",
+                    "architecture": "aarch64",
+                    "products": [
+                        {
+                            "productName": "pingauthorize",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "pd-replicated",
+            "directory": "pd-replicated",
+            "variations": [
+                {
+                    "id": "1",
+                    "architecture": "x86_64",
+                    "products": [
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        }
+                    ]
+                },
+                {
+                    "id": "2",
+                    "architecture": "aarch64",
+                    "products": [
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "pdp-pd",
+            "directory": "pdp-pd",
+            "variations": [
+                {
+                    "id": "1",
+                    "architecture": "x86_64",
+                    "products": [
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingdirectoryproxy",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        }
+                    ]
+                },
+                {
+                    "id": "2",
+                    "architecture": "aarch64",
+                    "products": [
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingdirectoryproxy",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "pds-pd",
+            "directory": "pds-pd",
+            "variations": [
+                {
+                    "id": "1",
+                    "architecture": "x86_64",
+                    "products": [
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingdatasync",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        }
+                    ]
+                },
+                {
+                    "id": "2",
+                    "architecture": "aarch64",
+                    "products": [
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        },
+                        {
+                            "productName": "pingdatasync",
+                            "version": "latest",
+                            "shim": "alpine:3.17.3",
+                            "jvm": "al11"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -38,6 +38,20 @@
                             ]
                         }
                     ]
+                },
+                {
+                    "shim": "redhat/ubi/ubi9-minimal:9.1",
+                    "preferredJVM": "rl11",
+                    "jvms": [
+                        {
+                            "jvm": "rl11",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "Artifactory"
+                            ]
+                        }
+                    ]
                 }
             ]
         },

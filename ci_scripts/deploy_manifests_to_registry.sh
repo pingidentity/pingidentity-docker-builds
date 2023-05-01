@@ -107,6 +107,14 @@ for version in ${versions_to_deploy}; do
             for target_registry in ${registry_list}; do
                 target_registry=$(toLower "${target_registry}")
                 case "${target_registry}" in
+                    "artifactory")
+                        # TODO Artifactory is using v1 manifests. Update this to use manifests in Artifactory
+                        echo_yellow "Registry ${target_registry} is not implemented in deploy_manifests.sh"
+                        # target_registry_url="${ARTIFACTORY_REGISTRY}"
+                        # docker_config_dir="${docker_config_default_dir}"
+                        # notary_server="https://notaryserver:4443"
+                        continue
+                        ;;
                     "dockerhub")
                         target_registry_url="${DOCKER_HUB_REGISTRY}"
                         docker_config_dir="${docker_config_hub_dir}"

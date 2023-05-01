@@ -3,10 +3,10 @@
 # to verify replication between two
 # instances of PingDirectory with the latest
 # release for the liberica JVM on the x86_64 runner
-intel.pd-repl.liberica:
+intel.pd-repl.v1:
   stage: test.integration
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pd-replicated --image-tag-jvm al11 --image-tag-arch x86_64
+    - ci_scripts/run_helm_integration.sh --integration-test pd-replicated --variation 1
   retry: 1
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
@@ -41,13 +41,13 @@ intel.pd-repl.liberica:
 # to verify replication between two
 # instances of PingDirectory with the latest
 # release for the liberica JVM on the aarch64 runner
-arm.pd-repl.liberica:
+arm.pd-repl.v2:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pd-replicated --image-tag-jvm al11 --image-tag-arch aarch64
+    - ci_scripts/run_helm_integration.sh --integration-test pd-replicated --variation 2
   retry: 1
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
@@ -83,10 +83,54 @@ arm.pd-repl.liberica:
 # integrate together into an end to end test
 # for the liberica x86 JVM on a RHEL shim in
 # FIPS mode
-intel.pa-pf-pd-fips.liberica:
+intel.pa-pf-pd-fips.v1:
   stage: test.integration
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --image-tag-jvm al11
+    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --variation 1
+  retry: 1
+  variables:
+    KUBERNETES_CPU_REQUEST: 2850m
+    KUBERNETES_CPU_LIMIT: 2850m
+    KUBERNETES_MEMORY_REQUEST: 1960000000
+    KUBERNETES_MEMORY_LIMIT: 1960000000
+    KUBERNETES_POLL_TIMEOUT: 25m
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - helm-tests/integration-tests/pa-pf-pd-fips/*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingaccess/**/*
+        - pingdirectory/**/*
+        - pingfederate/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
+
+################################################
+# The purpose of the integration test below is
+# to verify PingAccess, PingFederate and PingDirectory
+# integrate together into an end to end test
+# for the liberica x86 JVM on a alpine shim in
+# FIPS mode
+intel.pa-pf-pd-fips.v2:
+  stage: test.integration
+  script:
+    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --variation 2
   retry: 1
   variables:
     KUBERNETES_CPU_REQUEST: 2850m
@@ -126,10 +170,50 @@ intel.pa-pf-pd-fips.liberica:
 # to verify PingAccess, PingFederate and PingDirectory
 # integrate together into an end to end test
 # for the liberica JVM on the x86_64 runner
-intel.pa-pf-pd.liberica:
+intel.pa-pf-pd.v1:
   stage: test.integration
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --image-tag-jvm al11 --image-tag-arch x86_64
+    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --variation 1
+  retry: 1
+  variables:
+    KUBERNETES_CPU_REQUEST: 2850m
+    KUBERNETES_CPU_LIMIT: 2850m
+    KUBERNETES_MEMORY_REQUEST: 3920000000
+    KUBERNETES_MEMORY_LIMIT: 3920000000
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - helm-tests/integration-tests/pa-pf-pd/*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingdatacommon/**/*
+        - pingaccess/**/*
+        - pingdirectory/**/*
+        - pingfederate/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
+
+################################################
+# The purpose of the integration test below is
+# to verify PingAccess, PingFederate and PingDirectory
+# integrate together into an end to end test
+# for the liberica JVM on the x86_64 runner
+intel.pa-pf-pd.v2:
+  stage: test.integration
+  script:
+    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --variation 2
   retry: 1
   variables:
     KUBERNETES_CPU_REQUEST: 2850m
@@ -166,13 +250,13 @@ intel.pa-pf-pd.liberica:
 # to verify PingAccess, PingFederate and PingDirectory
 # integrate together into an end to end test
 # for the liberica JVM on the aarch64 runner
-arm.pa-pf-pd.liberica:
+arm.pa-pf-pd.v3:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --image-tag-jvm al11 --image-tag-arch aarch64
+    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --variation 3
   retry: 1
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
@@ -209,10 +293,10 @@ arm.pa-pf-pd.liberica:
 # to verify PingDataSync and PingDirectory
 # integrate together into an end to end test
 # for the liberica JVM on the x86_64 runner
-intel.pds-pd.liberica:
+intel.pds-pd.v1:
   stage: test.integration
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pds-pd --image-tag-jvm al11 --image-tag-arch x86_64
+    - ci_scripts/run_helm_integration.sh --integration-test pds-pd --variation 1
   retry: 1
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
@@ -249,13 +333,13 @@ intel.pds-pd.liberica:
 # to verify PingDataSync and PingDirectory
 # integrate together into an end to end test
 # for the liberica JVM on the aarch64 runner
-arm.pds-pd.liberica:
+arm.pds-pd.v2:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pds-pd --image-tag-jvm al11 --image-tag-arch aarch64
+    - ci_scripts/run_helm_integration.sh --integration-test pds-pd --variation 2
   retry: 1
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
@@ -291,10 +375,10 @@ arm.pds-pd.liberica:
 # to verify PingDirectoryProxy and PingDirectory
 # integrate together into an end to end test
 # for the liberica JVM on the x86_64 runner
-intel.pdp-pd.liberica:
+intel.pdp-pd.v1:
   stage: test.integration
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pdp-pd --image-tag-jvm al11 --image-tag-arch x86_64
+    - ci_scripts/run_helm_integration.sh --integration-test pdp-pd --variation 1
   retry: 1
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
@@ -330,13 +414,13 @@ intel.pdp-pd.liberica:
 # to verify PingDirectoryProxy and PingDirectory
 # integrate together into an end to end test
 # for the liberica JVM on the aarch64 runner
-arm.pdp-pd.liberica:
+arm.pdp-pd.v2:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pdp-pd --image-tag-jvm al11 --image-tag-arch aarch64
+    - ci_scripts/run_helm_integration.sh --integration-test pdp-pd --variation 2
   retry: 1
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
@@ -372,10 +456,10 @@ arm.pdp-pd.liberica:
 # to verify PingAuthorize and PingDirectory
 # integrate together into an end to end test
 # for the liberica JVM on the x86_64 runner
-intel.paz-pd.liberica:
+intel.paz-pd.v1:
   stage: test.integration
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test paz-pd --image-tag-jvm al11 --image-tag-arch x86_64
+    - ci_scripts/run_helm_integration.sh --integration-test paz-pd --variation 1
   retry: 1
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
@@ -411,13 +495,13 @@ intel.paz-pd.liberica:
 # to verify PingAuthorize and PingDirectory
 # integrate together into an end to end test
 # for the liberica JVM on the aarch64 runner
-arm.paz-pd.liberica:
+arm.paz-pd.v2:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
   tags:
     - platform=aarch64
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test paz-pd --image-tag-jvm al11 --image-tag-arch aarch64
+    - ci_scripts/run_helm_integration.sh --integration-test paz-pd --variation 2
   retry: 1
   variables:
     KUBERNETES_CPU_REQUEST: 1900m
@@ -453,10 +537,43 @@ arm.paz-pd.liberica:
 # to verify PingIntelligence
 # works in an end to end test
 # on the x86_64 runner
-intel.pi-basic.latest:
+intel.pa-pf-pi.v1:
   stage: test.integration
   script:
-    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pi
+    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pi --variation 1
+  retry: 1
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - helm-tests/integration-tests/pa-pf-pi/*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingintelligence/**/*
+        - ci_scripts/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
+
+################################################
+# The purpose of the integration test below is
+# to verify PingIntelligence
+# works in an end to end test
+# on the x86_64 runner
+intel.pa-pf-pi.v2:
+  stage: test.integration
+  script:
+    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pi --variation 2
   retry: 1
   rules:
     - if: $ARCHIVE_PIPELINE == "true"

@@ -25,7 +25,7 @@
             "archs": ["x86_64","aarch64"]
         },
         {
-            "shims": ["redhat/ubi/ubi8"],
+            "shims": ["redhat/ubi/ubi9-minimal"],
             "id": "rl11",
             "version": "11",
             "archs": ["x86_64"]

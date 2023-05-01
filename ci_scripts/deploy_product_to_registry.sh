@@ -34,6 +34,12 @@ tag_and_push() {
         if test -z "${DEPLOY_NO_PUSH}"; then
             exec_cmd_or_fail docker tag "${source}" "${target}"
             case "${target_registry}" in
+                "artifactory")
+                    export DOCKER_CONTENT_TRUST_SERVER="https://notaryserver:4443"
+                    docker --config "${docker_config_default_dir}" trust revoke --yes "${target}"
+                    exec_cmd_or_retry docker --config "${docker_config_default_dir}" trust sign "${target}"
+                    unset DOCKER_CONTENT_TRUST_SERVER
+                    ;;
                 "dockerhub")
                     #Check to see if signature data already exists for tag
                     #If it does, remove the signature data
@@ -115,6 +121,9 @@ for version in ${versions_to_deploy}; do
                 for target_registry in ${registry_list}; do
                     target_registry=$(toLower "${target_registry}")
                     case "${target_registry}" in
+                        "artifactory")
+                            target_registry_url="${ARTIFACTORY_REGISTRY}"
+                            ;;
                         "dockerhub")
                             target_registry_url="${DOCKER_HUB_REGISTRY}"
                             ;;

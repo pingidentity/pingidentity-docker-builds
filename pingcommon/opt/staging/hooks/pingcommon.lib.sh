@@ -761,8 +761,10 @@ test_crlf() {
 
     # See if file has CRLF (^M or \r, depending on the tool used)
     # grep uses \r notation
-    grep -q '\r' "${_testCRLFFile}"
+    # "$(printf '<val>')" is needed to successfully find CRLF using redhats version of grep
+    grep -q "$(printf '\r')" "${_testCRLFFile}"
 
+    # grep returns 0 if pattern is matched, and returns 1 if not.
     if test $? -eq 0; then
         echo_red "${_testCRLFFile} contains CRLF line endings which may produce undefined behavior. Exiting."
         # Return non-zero to calling program

@@ -216,9 +216,6 @@ if [[ "${product}" == *"pingdataconsole"* ]]; then
 fi
 banner "Running smoke test found at: ${_test}"
 
-#If this is a snapshot pipeline, override the image tag to snapshot image tags
-test -n "${PING_IDENTITY_SNAPSHOT}" && _image_tag_override="latest-${ARCH}-$(date "+%m%d%Y")"
-
 #
 # If a tag is passed, then only run the smoke test for that tag
 # otherwise, run for all the tag combinations taking into account
@@ -241,7 +238,12 @@ else
     # get a list of all versions to build for the product from the versions.json file
     #
     if test -z "${versions}" && test -f "${CI_PROJECT_DIR}/${product}"/versions.json; then
-        versions=$(_getAllVersionsToBuildForProduct "${product}")
+        if test -n "${PING_IDENTITY_SNAPSHOT}"; then
+            snapshotVersion="$(_getLatestSnapshotVersionForProduct "${product}")"
+            versions=$(_getLatestVersionForProduct "${product}")
+        else
+            versions=$(_getAllVersionsToBuildForProduct "${product}")
+        fi
     fi
 
     for _version in ${versions}; do
@@ -270,6 +272,10 @@ else
             # get a list of all jvms to build for the product/version from the versions.json file
             #
             _jvms=$(_getJVMsToBuildForProductVersionShim "${product}" "${_version}" "${_shim}")
+            #TODO remove this al17 logic, once al17 is being built in product versions.json files
+            if test "${product}" = "pingaccess" || test "${product}" = "pingfederate" && test "${_shim#*"alpine"}" != "${_shim}" && test -n "${PING_IDENTITY_SNAPSHOT}"; then
+                _jvms="${_jvms:+${_jvms} }al17"
+            fi
 
             for _jvm in ${_jvms}; do
                 if test -z "${jvmList}"; then
@@ -287,7 +293,11 @@ else
                 #            \/     \/          \/   \/               \/
                 # Example: 8.2.0.5-alpine_3.14-al11-branch-name-4fa1-x86_64
                 #
-                _tag="${_version}"
+                if test -n "${PING_IDENTITY_SNAPSHOT}"; then
+                    _tag="${snapshotVersion}"
+                else
+                    _tag="${_version}"
+                fi
                 test -n "${_shimTag}" && _tag="${_tag:+${_tag}-}${_shimTag}"
                 test -n "${_jvm}" && _tag="${_tag:+${_tag}-}${_jvm}"
                 # CI_TAG is assigned when we source ci_tools.lib.sh

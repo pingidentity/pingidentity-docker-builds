@@ -16,6 +16,7 @@ Usage: ${0} {options}
     where {options} include:
 
     --integration-test {integration-test-name}
+        ** Required
         The name of the integration test to run.  Should be a directory
         in current directory, relative directory off of helm-tests/integration-tests
         or absolute directory.  The directory should contain yaml files containing
@@ -23,6 +24,11 @@ Usage: ${0} {options}
 
         Available tests include (from ${_integration_helm_tests_dir}):
 $(cd "${_integration_helm_tests_dir}" && find ./* -type d -maxdepth 1 | sed 's/^/          /')
+
+    --variation {id}
+        ** Required, unless the image tag is overridden.
+        Select the integration test variation configuration as described in
+        helm-tests/integration-tests/integration-tests.json for the provided test name.
 
     --namespace {namespace-name}
         The name of the namespace to use.  Used primarily for local testing
@@ -39,20 +45,6 @@ $(cd "${_integration_helm_tests_dir}" && find ./* -type d -maxdepth 1 | sed 's/^
     --image-tag-override {tag}
         Override the image-tags with this single tag.  Good for testing against a released
         version (i.e. sprint of 2105)
-
-    --image-tag-arch {x86_64 | aarch64}
-        Tests for a specific image architecture tag.  This will be added to the end of the
-        image tag.
-        Default: x86_64
-
-    --image-tag-jvm {al11 | rl11}
-        Tests for a specific image jvm tag.  This will be added to the end of the
-        image tag.
-        Default: al11
-
-    --image-tag-shim {shim-name}
-        Tests for a specific image shim tag.
-        Example: alpine:3.17.3
 
     --verbose
         Turn up the volume
@@ -76,8 +68,6 @@ fi
 
 _tmpDir=$(mktemp -d)
 _integration_helm_tests_dir="${CI_PROJECT_DIR}/helm-tests/integration-tests"
-_image_tag_arch="x86_64"
-_image_tag_jvm="al11"
 
 while test -n "${1}"; do
     case "${1}" in
@@ -114,25 +104,15 @@ while test -n "${1}"; do
             shift
             _image_tag_override="${1}"
             ;;
-        --image-tag-jvm)
-            test -z "${2}" && usage "You must specify an image-tag-jvm ${1} option (i.e. 2105)"
-            shift
-            _image_tag_jvm="${1}"
-            ;;
-        --image-tag-arch)
-            test -z "${2}" && usage "You must specify an image-tag-arch ${1} option (i.e. 2105)"
-            shift
-            _image_tag_arch="${1}"
-            ;;
-        --image-tag-shim)
-            test -z "${2}" && usage "You must specify an shim ${1} option (i.e. rhel7_7.9)"
-            shift
-            _image_tag_shim="${1}"
-            ;;
         --namespace)
             test -z "${2}" && usage "You must specify a namespace to deploy to if you specify the ${1} option"
             shift
             _namespace_to_use="${1}"
+            ;;
+        --variation)
+            test -z "${2}" && usage "You must specify a variation id if you specify the ${1} option"
+            shift
+            variation_id="${1}"
             ;;
         --verbose)
             VERBOSE=true
@@ -174,69 +154,44 @@ _final() {
 trap _final EXIT
 
 _exitCode=""
-#List of products that will be used to build the images
-declare -a ProductList=("pingaccess-admin" "pingaccess-engine" "pingcentral" "pingdataconsole" "pingdatasync" "pingdirectory" "pingdirectoryproxy" "pingfederate-admin" "pingfederate-engine" "pingintelligence" "pingtoolkit" "pingauthorize" "pingauthorizepap")
 
 ################################################################################
 # _create_helm_values
 ################################################################################
 _create_helm_values() {
     banner "Creating image/tags to use"
-    #
-    # Create variables of format PINGDIRECTORY_LATEST=n.n.n.n that will be exported and used by
-    # integration test variables
-    #
 
     _imagePattern=' %-58s| %-15s\n'
     #shellcheck disable=SC2059
     printf "$_imagePattern" "IMAGE" "TAG"
 
-    for _productName in "${ProductList[@]}"; do
-        short_product_name="$(echo "${_productName}" | sed -e "s/-admin//" -e "s/-engine//")"
-        if test -n "${_image_tag_override}"; then
-            _tag="${_image_tag_override}"
-        else
-            # Get the defined JVM ID for the product.
-            # This exception is required for integration test pa-pf-pi, as separate products are using
-            # differing JVM IDs in that case.
-            if test "${short_product_name}" = "pingintelligence"; then
-                jvm_id="conoj"
-            else
-                jvm_id="${_image_tag_jvm}"
-            fi
+    if test -n "${_image_tag_override}"; then
+        _tag="${_image_tag_override}"
+    else
+        # Start out the tag with the version of the product being built
+        test -z "${product_version}" && echo_red "ERROR: version for product ${_productName} not found." && exit 1
+        _tag="${product_version}"
 
-            # If an image-tag-shim is provided use that
-            # else, Get the first shim for the set product and JVM ID
-            # Note, jvm id has a default value set above in this file.
-            if test -n "${_image_tag_shim}"; then
-                shim_tag="${_image_tag_shim}"
-            else
-                shim_tag=$(_getFirstShimForProductJVM "${short_product_name}" "${jvm_id}")
-            fi
-            shim_long_tag=$(_getLongTag "${shim_tag}")
+        # Add the shim (i.e. os) to the tag.  Example: alpine
+        test -z "${shim_long_tag}" && echo_red "ERROR: Shim for product ${_productName} not found." && exit 1
+        _tag="${_tag}-${shim_long_tag}"
 
-            #Get the greatest version value for the set product and retrieved/set shim.
-            product_version="$(_getLatestVersionForProductShim "${short_product_name}" "${shim_tag}")"
+        # Add the jvm to the tag.  Example: al11
+        test -z "${jvm_id}" && echo_red "ERROR: JVM for product ${_productName} not found." && exit 1
+        _tag="${_tag}-${jvm_id}"
 
-            # Start out the tag with the latestVersion of the product being built
-            _tag="${product_version}"
+        # CI_TAG is assigned when we source ci_tools.lib.sh (i.e. run in pipeline)
+        test -z "${CI_TAG}" && echo_red "ERROR: CI_TAG not found." && exit 1
+        _tag="${_tag}-${CI_TAG}"
 
-            # Add the shim (i.e. os) to the tag.  Example: alpine
-            test -n "${shim_long_tag}" && _tag="${_tag:+${_tag}-}${shim_long_tag}"
+        #Finally, add the architecture designation to the tag
+        test -z "${test_arch}" && echo_red "ERROR: Test architecture not found." && exit 1
+        _tag="${_tag}-${test_arch}"
+    fi
 
-            # Add the jvm to the tag.  Example: al11
-            test -n "${jvm_id}" && _tag="${_tag:+${_tag}-}${jvm_id}"
-
-            # CI_TAG is assigned when we source ci_tools.lib.sh (i.e. run in pipeline)
-            test -n "${CI_TAG}" && _tag="${_tag:+${_tag}-}${CI_TAG}"
-
-            #Finally, add the architecture designation to the tag
-            _tag="${_tag}-${_image_tag_arch}"
-        fi
-
-        #shellcheck disable=SC2059
-        printf "$_imagePattern" "${FOUNDATION_REGISTRY}/${_productName}" "${_tag}"
-        cat >> "${_helmValues}" << EO_PROD_TAG
+    #shellcheck disable=SC2059
+    printf "$_imagePattern" "${FOUNDATION_REGISTRY}/${_productName}" "${_tag}"
+    cat >> "${_helmValues}" << EO_PROD_TAG
 ${_productName}:
   image:
     name: ${short_product_name}
@@ -246,14 +201,45 @@ ${_productName}:
 
 EO_PROD_TAG
 
-    done
 }
 
-#If this is a snapshot pipeline, override the image tag to snapshot image tags
-test -n "${PING_IDENTITY_SNAPSHOT}" && _image_tag_override="latest-${_image_tag_arch}-$(date "+%m%d%Y")"
+test -z "${_integration_to_run}" && usage "Integration test name is required, but not specified."
+test -z "${variation_id}" && test -z "${_image_tag_override}" && usage "Test variation id is required, but not specified."
+
+integration_test_name="${_integration_to_run##*/}"
+
+# Get the defined architecture for the test
+test_arch=$(_getIntTestArch "${integration_test_name}" "${variation_id}")
+
+# Get the defined products for the test
+products=$(_getIntTestProducts "${integration_test_name}" "${variation_id}")
 
 _helmValues="${_tmpDir}/helmValues.yaml"
-_create_helm_values
+for _productName in ${products}; do
+    short_product_name="$(echo "${_productName}" | sed -e "s/-admin//" -e "s/-engine//")"
+    # Get the defined JVM ID for the product.
+    jvm_id=$(_getIntTestProductJVM "${integration_test_name}" "${variation_id}" "${_productName}")
+
+    # Get the defined shim for the product.
+    shim_tag=$(_getIntTestProductShim "${integration_test_name}" "${variation_id}" "${_productName}")
+    shim_long_tag=$(_getLongTag "${shim_tag}")
+
+    #If this is a snapshot pipeline, override the image tag to snapshot image tags
+    # Get the defined product version.
+    if test -n "${PING_IDENTITY_SNAPSHOT}"; then
+        # Get the defined product version.
+        # If the product version is set to latest, grab the latest product version.
+        product_version="$(_getLatestSnapshotVersionForProduct "${short_product_name}")"
+        _image_tag_override="${product_version}-${shim_long_tag}-${jvm_id}-${CI_TAG}-${test_arch}"
+    else
+        product_version="$(_getIntTestProductVersion "${integration_test_name}" "${variation_id}" "${_productName}")"
+        # If the product version is set to latest, grab the latest product version.
+        if test "${product_version}" = "latest"; then
+            product_version=$(_getLatestVersionForProduct "${short_product_name}")
+        fi
+    fi
+    _create_helm_values
+done
 
 # Create result file information/patterns
 _totalStart=$(date '+%s')
@@ -288,7 +274,6 @@ _exitCode=${?}
 _stop=$(date '+%s')
 _duration=$((_stop - _start))
 
-# docker-compose -f "${_test}" down
 if test ${_exitCode} -ne 0; then
     _result="FAIL"
 else
