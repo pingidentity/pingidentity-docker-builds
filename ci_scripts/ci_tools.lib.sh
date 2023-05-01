@@ -11,6 +11,87 @@ set -o history
 HISTTIMEFORMAT='%T'
 export HISTTIMEFORMAT
 
+_getIntTestArch() {
+    test -z "${1}" && echo_red "ERROR: The function _getIntTestArch requires a test name." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getIntTestArch requires a variation id." && exit 1
+
+    tests_json="${CI_PROJECT_DIR}/helm-tests/integration-tests/integration-tests.json"
+
+    # Ensure that the file exists before returning the file path.
+    ! test -f "${tests_json}" && echo_red "ERROR: File ${tests_json} not found." && exit 1
+
+    jq -r --arg testName "${1}" \
+        --arg variationId "${2}" \
+        '.tests[] | select(.name == $testName) | .variations[] | select(.id == $variationId) | .architecture' \
+        "${tests_json}"
+}
+
+_getIntTestProducts() {
+    test -z "${1}" && echo_red "ERROR: The function _getIntTestProducts requires a test name." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getIntTestProducts requires a variation id." && exit 1
+
+    tests_json="${CI_PROJECT_DIR}/helm-tests/integration-tests/integration-tests.json"
+
+    # Ensure that the file exists before returning the file path.
+    ! test -f "${tests_json}" && echo_red "ERROR: File ${tests_json} not found." && exit 1
+
+    jq -r --arg testName "${1}" \
+        --arg variationId "${2}" \
+        '[.tests[] | select(.name == $testName) | .variations[] | select(.id == $variationId) | .products[] | .productName] | unique | .[]' \
+        "${tests_json}"
+}
+
+_getIntTestProductJVM() {
+    test -z "${1}" && echo_red "ERROR: The function _getIntTestProductJVM requires a test name." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getIntTestProductJVM requires a variation id." && exit 1
+    test -z "${3}" && echo_red "ERROR: The function _getIntTestProductJVM requires a product name." && exit 1
+
+    tests_json="${CI_PROJECT_DIR}/helm-tests/integration-tests/integration-tests.json"
+
+    # Ensure that the file exists before returning the file path.
+    ! test -f "${tests_json}" && echo_red "ERROR: File ${tests_json} not found." && exit 1
+
+    jq -r --arg testName "${1}" \
+        --arg variationId "${2}" \
+        --arg prodName "${3}" \
+        '.tests[] | select(.name == $testName) | .variations[] | select(.id == $variationId) | .products[] | select(.productName == $prodName) | .jvm' \
+        "${tests_json}"
+}
+
+_getIntTestProductShim() {
+    test -z "${1}" && echo_red "ERROR: The function _getIntTestProductShim requires a test name." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getIntTestProductShim requires a variation id." && exit 1
+    test -z "${3}" && echo_red "ERROR: The function _getIntTestProductShim requires a product name." && exit 1
+
+    tests_json="${CI_PROJECT_DIR}/helm-tests/integration-tests/integration-tests.json"
+
+    # Ensure that the file exists before returning the file path.
+    ! test -f "${tests_json}" && echo_red "ERROR: File ${tests_json} not found." && exit 1
+
+    jq -r --arg testName "${1}" \
+        --arg variationId "${2}" \
+        --arg prodName "${3}" \
+        '.tests[] | select(.name == $testName) | .variations[] | select(.id == $variationId) | .products[] | select(.productName == $prodName) | .shim' \
+        "${tests_json}"
+}
+
+_getIntTestProductVersion() {
+    test -z "${1}" && echo_red "ERROR: The function _getIntTestProductVersion requires a test name." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getIntTestProductVersion requires a variation id." && exit 1
+    test -z "${3}" && echo_red "ERROR: The function _getIntTestProductVersion requires a product name." && exit 1
+
+    tests_json="${CI_PROJECT_DIR}/helm-tests/integration-tests/integration-tests.json"
+
+    # Ensure that the file exists before returning the file path.
+    ! test -f "${tests_json}" && echo_red "ERROR: File ${tests_json} not found." && exit 1
+
+    jq -r --arg testName "${1}" \
+        --arg variationId "${2}" \
+        --arg prodName "${3}" \
+        '.tests[] | select(.name == $testName) | .variations[] | select(.id == $variationId) | .products[] | select(.productName == $prodName) | .version' \
+        "${tests_json}"
+}
+
 # Retrieve the tag on the commit, or the most recent tag for the branch.
 # If PIPELINE_VERSIONS_JSON_OVERRIDE is set, strongly validate YYMM format
 # as well as validate the tag is 2201 or newer.
@@ -91,28 +172,6 @@ _getLatestVersionForProduct() {
 
     product_versions_file="$(_getVersionsFilePath "${1}")"
     jq -r '.latest' "${product_versions_file}"
-}
-
-# Get all shims from versions.json file for a specified product name and JVM ID.
-# Note, we are assuming a couple things here. Our JVM ids should be matched to one
-# shim only, and therefore, it is okay to return the first match here. Since the integration
-# tests only test the newest version possible, even if the product is using different versions
-# of a shim per product version, we only care about the first shim listed here.
-_getFirstShimForProductJVM() {
-    test -z "${1}" && echo_red "ERROR: The function _getFirstShimForProductJVM requires a product name input." && exit 1
-    test -z "${2}" && echo_red "ERROR: The function _getFirstShimForProductJVM requires a JVM ID input." && exit 1
-
-    product_versions_file="$(_getVersionsFilePath "${1}")"
-    jq -r --arg jvm_id "${2}" '[.versions[] | .shims[] | select(.jvms[].jvm == $jvm_id) | .shim][0]' "${product_versions_file}"
-}
-
-# Get the latest version from versions.json file for a specified product name and JVM ID.
-_getLatestVersionForProductShim() {
-    test -z "${1}" && echo_red "ERROR: The function _getLatestVersionForProductShim requires a product name input." && exit 1
-    test -z "${2}" && echo_red "ERROR: The function _getLatestVersionForProductShim requires a shim input." && exit 1
-
-    product_versions_file="$(_getVersionsFilePath "${1}")"
-    jq -r --arg shim "${2}" '[.versions[] | select(.shims[].shim == $shim) | .version] | max' "${product_versions_file}"
 }
 
 # Get the default shim from versions.json file for a specified product name and version.

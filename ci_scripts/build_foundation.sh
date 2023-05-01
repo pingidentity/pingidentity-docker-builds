@@ -195,10 +195,11 @@ fi
 imagesToCleanup="${imagesToCleanup} ${_image}"
 
 if test -n "${PING_IDENTITY_SNAPSHOT}"; then
-    jvmsToBuild="al11"
-    jvmsToBuild="${jvmsToBuild:+${jvmsToBuild} }al17"
     # TODO: Fix artifactory caching issue. Shim is hardcoded to avoid incorrect arch pull from artifactory.
     shimsToBuild="alpine:3.17.3"
+    if test "${ARCH}" = "x86_64"; then
+        shimsToBuild="${shimsToBuild} redhat/ubi/ubi9-minimal:9.1"
+    fi
 fi
 
 if test -n "${shimsToBuild}"; then

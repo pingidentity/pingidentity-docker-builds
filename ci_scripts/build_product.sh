@@ -132,22 +132,13 @@ if test -n "${PING_IDENTITY_SNAPSHOT}"; then
     esac
 fi
 
+# Handle versions to build and shims to build for snapshot images
 if test -z "${versionsToBuild}"; then
     if test -n "${PING_IDENTITY_SNAPSHOT}"; then
         versionsToBuild=$(_getLatestSnapshotVersionForProduct "${productToBuild}")
         latestVersion=$(_getLatestVersionForProduct "${productToBuild}")
-        shimsToBuild=$(_getDefaultShimForProductVersion "${productToBuild}" "${latestVersion}")
-        # Build JDK 17 snapshot images for PA and PF
-        if test -z "${jvmsToBuild}"; then
-            case "${productToBuild}" in
-                pingaccess | pingfederate)
-                    jvmsToBuild="${jvmsToBuild:+${jvmsToBuild} }al11"
-                    jvmsToBuild="${jvmsToBuild:+${jvmsToBuild} }al17"
-                    ;;
-                *)
-                    jvmsToBuild="${jvmsToBuild:+${jvmsToBuild} }al11"
-                    ;;
-            esac
+        if test -z "${shimsToBuild}"; then
+            shimsToBuild=$(_getShimsToBuildForProductVersion "${productToBuild}" "${latestVersion}")
         fi
     else
         versionsToBuild=$(_getAllVersionsToBuildForProduct "${productToBuild}")
@@ -214,7 +205,16 @@ for _version in ${versionsToBuild}; do
         _start=$(date '+%s')
         _shimLongTag=$(_getLongTag "${_shim}")
         if test -z "${jvmsToBuild}"; then
-            _jvmsToBuild=$(_getJVMsToBuildForProductVersionShim "${productToBuild}" "${_version}" "${_shim}")
+            # Handle jvms to build for snapshot images
+            if test -n "${PING_IDENTITY_SNAPSHOT}"; then
+                _jvmsToBuild=$(_getJVMsToBuildForProductVersionShim "${productToBuild}" "${latestVersion}" "${_shim}")
+                #TODO remove this al17 logic, once al17 is being built in product versions.json files
+                if test "${productToBuild}" = "pingaccess" || test "${productToBuild}" = "pingfederate" && test "${_shim#*"alpine"}" != "${_shim}"; then
+                    _jvmsToBuild="${_jvmsToBuild:+${_jvmsToBuild} }al17"
+                fi
+            else
+                _jvmsToBuild=$(_getJVMsToBuildForProductVersionShim "${productToBuild}" "${_version}" "${_shim}")
+            fi
         else
             _jvmsToBuild=${jvmsToBuild}
         fi
@@ -266,7 +266,7 @@ for _version in ${versionsToBuild}; do
                 _result=PASS
                 if test -z "${IS_LOCAL_BUILD}"; then
                     exec_cmd_or_fail docker push "${_image}"
-                    if test -n "${PING_IDENTITY_SNAPSHOT}"; then
+                    if test -n "${PING_IDENTITY_SNAPSHOT}" && test "${_jvm}" = "al11"; then
                         exec_cmd_or_fail docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
                         exec_cmd_or_fail docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
                         exec_cmd_or_fail docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"

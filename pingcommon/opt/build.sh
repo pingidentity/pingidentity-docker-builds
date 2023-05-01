@@ -83,19 +83,17 @@ case "${_osID}" in
         # altogether remove the package manager
         removePackageManager_alpine
         ;;
-    centos | rhel)
+    centos)
         _versionID=$(awk '$0~/^VERSION_ID=/{split($1,version,"=");gsub(/"/,"",version[2]);print version[2];}' /etc/os-release)
         _packages="bind-utils cronie gettext git git-lfs jq net-tools nmap-ncat openssh-clients procps-ng unzip zip"
 
-        if test "${_osID}" = "centos"; then
-            rm -rf /var/lib/rpm
-            rpmdb -v --rebuilddb
-            rm -fr /var/cache/yum/*
-            yum clean all
-            yum -y update --releasever "${_versionID}"
-            yum -y install --releasever "${_versionID}" epel-release
-            curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | bash
-        fi
+        rm -rf /var/lib/rpm
+        rpmdb -v --rebuilddb
+        rm -fr /var/cache/yum/*
+        yum clean all
+        yum -y update --releasever "${_versionID}"
+        yum -y install --releasever "${_versionID}" epel-release
+        curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | bash
         yum -y update --releasever "${_versionID}"
         # Word-splitting expected in listing yum packages to install
         # shellcheck disable=SC2086
@@ -109,8 +107,22 @@ case "${_osID}" in
         #TODO this causes issues because yum is a dependency of other yum-related packages.
         #removePackageManager_centos
         ;;
+    rhel)
+        _versionID=$(awk '$0~/^VERSION_ID=/{split($1,version,"=");gsub(/"/,"",version[2]);print version[2];}' /etc/os-release)
+        _packages="bind-utils cronie gettext git git-lfs jq net-tools nmap-ncat openssh-clients procps-ng unzip zip findutils"
+
+        microdnf -y update --releasever "${_versionID}"
+        # Word-splitting expected in listing microdnf packages to install
+        # shellcheck disable=SC2086
+        microdnf -y install --releasever "${_versionID}" ${_packages}
+        microdnf -y clean all
+        rm -fr /var/cache/yum/* /var/lib/dnf/history.*
+
+        # Create user in root group
+        useradd --uid 9031 --gid root --shell /bin/false ping
+        ;;
     ubuntu)
-        apt-get -y update
+        apt-get -y upgrade
         apt-get -y install apt-utils
         apt-get -y install curl gettext-base dnsutils git git-lfs jq unzip openssh-client netcat
         apt-get -y autoremove

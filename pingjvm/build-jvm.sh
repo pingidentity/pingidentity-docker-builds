@@ -59,8 +59,9 @@ if ! type java > /dev/null 2> /dev/null; then
                     echo "ERROR: Unsupported architecture ${_osArch} for OS ${_osID}" && exit 91
                     ;;
             esac
-            curl -o busybox https://busybox.net/downloads/binaries/1.31.0-i686-uclibc/busybox
-            chmod +x busybox
+            # Word-splitting expected in listing microdnf packages to install
+            # shellcheck disable=SC2086
+            microdnf -y install tar gzip findutils wget
             download_cmd="curl -o"
             download_libc=""
             ;;
