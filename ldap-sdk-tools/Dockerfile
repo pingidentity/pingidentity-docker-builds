@@ -71,6 +71,12 @@ COPY --from=jvm ["/opt/java","/opt/java"]
 # apply product-specific hooks and patches
 COPY ["/opt","/opt"]
 
+# add legal information in licenses directory
+COPY --from=product-staging ["/opt/LICENSE.txt","/licenses/LDAPSDK-LICENSE-short.txt"]
+COPY --from=product-staging ["/opt/LICENSE-UnboundID-LDAPSDK.txt","/licenses/"]
+COPY --from=product-staging ["/opt/LICENSE-GPLv2.txt","/licenses/"]
+COPY --from=product-staging ["/opt/LICENSE-LGPLv2.1.txt","/licenses/"]
+
 # Run build
 RUN ["/opt/build.sh"]
 

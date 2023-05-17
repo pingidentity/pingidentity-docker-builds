@@ -67,6 +67,9 @@ COPY --from=jvm ["/opt/java","/opt/java"]
 # apply product-specific hooks and patches
 COPY ["/opt","/opt"]
 
+# add legal information in licenses directory
+COPY --from=product-staging ["/opt/server/legal/","/licenses/"]
+
 # Run build
 RUN ["/opt/build.sh"]
 
