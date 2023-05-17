@@ -1409,6 +1409,16 @@ prepareToJoinTopology() {
             --hostname "${POD_HOSTNAME}" \
             --port "${POD_LDAPS_PORT}" \
             --exportFilePath "${_currentTopoFile}"
+        _returnCode=$?
+
+        # Check if manage-topology was successfull
+        if test ${_returnCode} -ne 0; then
+            echo_red "**********"
+            echo_red "Failed to run the manage-topology tool while setting up the topology"
+            echo_red "Container cannot reach itself"
+            exit ${_returnCode}
+        fi
+
         # Check if this server knows about the seed server.
         if test -z "$(jq -r ".serverInstances[] | select(.instanceName==\"${_seedInstanceName}\") | .instanceName" "${_currentTopoFile}")"; then
             # If this instance does not think it is in the seed server's topology, then it may have lost its volume.
