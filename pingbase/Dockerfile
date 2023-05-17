@@ -8,6 +8,7 @@ LABEL	name="Ping Identity Docker Image" \
         maintainer="devops_program@pingidentity.com" \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp."
+
 # If an env variable is needed to set other env variables, it must be
 # set in a separate statement before it is needed (no line continuation)
 
@@ -213,6 +214,9 @@ ENV IN_DIR=${BASE}/in \
 
 # VOLUME [ "${BAK_DIR}" "${IN_DIR}" "${OUT_DIR}" "${LOGS_DIR}" ]
 WORKDIR ${BASE}
+
+# Embed license.txt in /license directory of container
+COPY ["./license.txt","/licenses/"]
 
 # Switch to the default non-root user created in build.sh
 USER 9031:0

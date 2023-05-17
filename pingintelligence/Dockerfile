@@ -63,6 +63,9 @@ COPY --from=common ["/opt/","/opt/"]
 # apply product-specific hooks and patches
 COPY ["/opt","/opt"]
 
+# add legal information in licenses directory
+COPY --from=product-staging ["/opt/server/ase-oss-list.txt","/licenses/"]
+
 # Run build
 RUN ["/opt/build.sh"]
 
