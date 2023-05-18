@@ -35,7 +35,7 @@
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         }
 
@@ -48,31 +48,31 @@
                         {
                             "productName": "pingaccess-admin",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingaccess-engine",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingfederate-admin",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingfederate-engine",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         }
                     ]
@@ -84,31 +84,31 @@
                         {
                             "productName": "pingaccess-admin",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingaccess-engine",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingfederate-admin",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingfederate-engine",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         }
                     ]
@@ -150,7 +150,7 @@
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         }
 
@@ -163,31 +163,31 @@
                         {
                             "productName": "pingaccess-admin",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingaccess-engine",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingfederate-admin",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingfederate-engine",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         }
                     ]
@@ -242,25 +242,25 @@
                         {
                             "productName": "pingaccess-admin",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingaccess-engine",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingfederate-admin",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingfederate-engine",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
@@ -284,13 +284,13 @@
                         {
                             "productName": "pingauthorize",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         }
                     ]
@@ -302,13 +302,13 @@
                         {
                             "productName": "pingauthorize",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         }
                     ]
@@ -326,7 +326,7 @@
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         }
                     ]
@@ -338,7 +338,7 @@
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         }
                     ]
@@ -356,13 +356,13 @@
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingdirectoryproxy",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         }
                     ]
@@ -374,13 +374,13 @@
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingdirectoryproxy",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         }
                     ]
@@ -398,13 +398,13 @@
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingdatasync",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         }
                     ]
@@ -416,13 +416,13 @@
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         },
                         {
                             "productName": "pingdatasync",
                             "version": "latest",
-                            "shim": "alpine:3.17.3",
+                            "shim": "alpine:3.18.0",
                             "jvm": "al11"
                         }
                     ]
