@@ -17,7 +17,9 @@ Before running this image, you must obtain an evaluation [license](https://devop
 THE SOFTWARE PROVIDED HEREUNDER IS PROVIDED ON AN "AS IS" BASIS, WITHOUT
 ANY WARRANTIES OR REPRESENTATIONS EXPRESS, IMPLIED OR STATUTORY.
 
-Please contact devops_program@pingidentity.com for details
+Ping Identity customers can create a case in the [Ping Identity Support Portal](https://support.pingidentity.com/s/).
+
+Non-Ping Identity customers can use the PingDevOps Community. [PingDevOps Community](https://support.pingidentity.com/s/topic/0TO1W000000IF30WAG/pingdevops).
 
 ## Copyright
 
