@@ -100,7 +100,8 @@ else
                 _licenseError=$(jq -r ".error" "${LICENSE_FILE}" 2> /dev/null)
 
                 if test -z "${_licenseError}" || test "${_licenseError}" = "null"; then
-                    _licenseError="Error (${HTTP_RESULT_CODE}).  Please contact devops_program@pingidentity.com with this log."
+                    _licenseError="Error (${HTTP_RESULT_CODE}). Ping Identity customers can create a case in the [Ping Identity Support Portal](https://support.pingidentity.com/s/)
+ with this log. Non-Ping Identity customers can use the [PingDevOps Community](https://support.pingidentity.com/s/topic/0TO1W000000IF30WAG/pingdevops) for questions."
                 fi
 
                 echo ""
