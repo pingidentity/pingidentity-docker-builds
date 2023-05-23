@@ -72,16 +72,15 @@ else
                     --header "devops-purpose: get-license" \
                     "${_licenseAPI}" \
                     --output "${LICENSE_FILE}"
-                _resultCode=${?}
-                test ${_resultCode} -eq 0 && break
+
+                test "${HTTP_RESULT_CODE}" = "200" && test "${EXIT_CODE}" = "0" && break
             done
             #
             # Just testing the http code isn't sufficient, curl will return http 200 if it
             # can retrieve the file even if it can't actually write the file to disk. We
-            # also need to capture & test the curl return code.
+            # also need to capture & test the curl exit code.
             #
-            rc=${_resultCode}
-            if test ${rc} -eq 0; then
+            if test "${HTTP_RESULT_CODE}" = "200" && test "${EXIT_CODE}" = "0"; then
                 echo ""
                 echo "Successfully pulled evaluation license from Ping Identity"
                 test "${PING_DEBUG}" = "true" && cat_indent "${LICENSE_FILE}"
@@ -100,7 +99,7 @@ else
                 _licenseError=$(jq -r ".error" "${LICENSE_FILE}" 2> /dev/null)
 
                 if test -z "${_licenseError}" || test "${_licenseError}" = "null"; then
-                    _licenseError="Error (${HTTP_RESULT_CODE}). Ping Identity customers can create a case in the [Ping Identity Support Portal](https://support.pingidentity.com/s/)
+                    _licenseError="Error (http code: ${HTTP_RESULT_CODE} exit code: ${EXIT_CODE}). Ping Identity customers can create a case in the [Ping Identity Support Portal](https://support.pingidentity.com/s/)
  with this log. Non-Ping Identity customers can use the [PingDevOps Community](https://support.pingidentity.com/s/topic/0TO1W000000IF30WAG/pingdevops) for questions."
                 fi
 

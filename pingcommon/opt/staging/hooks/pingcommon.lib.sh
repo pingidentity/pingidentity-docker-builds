@@ -52,7 +52,7 @@ _curl() {
     set -- --get \
         --silent \
         --show-error \
-        --write-out '%{http_code}' \
+        --write-out "%{http_code}" \
         --location \
         --connect-timeout 2 \
         --retry 6 \
@@ -66,6 +66,9 @@ _curl() {
     fi
 
     HTTP_RESULT_CODE=$(curl "${@}")
+    # Shellcheck complains this variable isn't used, but it are exported below
+    # shellcheck disable=SC2034
+    EXIT_CODE=${?}
     test "${HTTP_RESULT_CODE}" = "200"
     return ${?}
 }
