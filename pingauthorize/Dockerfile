@@ -154,7 +154,15 @@ ENV SHIM=${SHIM} \
     PD_PROFILE="${STAGING_DIR}/pd.profile" \
 #-- Setting this variable to true speeds up server startup time by
 #-- skipping an unnecessary JVM check.
-    UNBOUNDID_SKIP_START_PRECHECK_NODETACH=true
+    UNBOUNDID_SKIP_START_PRECHECK_NODETACH=true \
+
+#-- There is an additional certificate-based variable used to identity the certificate alias 
+#-- used within the `KEYSTORE_FILE`. That variable is called `CERTIFICATE_NICKNAME`,
+#-- which identifies the certificate to use by the server in the `KEYSTORE_FILE`. 
+#-- If a value is not provided, the container will look at the list certs found in the 
+#-- `KEYSTORE_FILE` and if one - and only one - certificate is found of type `PrivateKeyEntry`,
+#-- that alias will be used.
+    CERTIFICATE_NICKNAME=
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
