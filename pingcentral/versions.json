@@ -3,10 +3,10 @@
     "versions": [
         {
             "version": "1.11.0",
-            "preferredShim": "alpine:3.18.0",
+            "preferredShim": "alpine:3.18.2",
             "shims": [
                 {
-                    "shim": "alpine:3.18.0",
+                    "shim": "alpine:3.18.2",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
@@ -23,10 +23,10 @@
         },
         {
             "version": "1.10.1",
-            "preferredShim": "alpine:3.18.0",
+            "preferredShim": "alpine:3.18.2",
             "shims": [
                 {
-                    "shim": "alpine:3.18.0",
+                    "shim": "alpine:3.18.2",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
