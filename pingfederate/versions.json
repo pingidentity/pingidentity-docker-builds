@@ -1,32 +1,12 @@
 {
-    "latest": "11.2.5",
+    "latest": "11.3.0",
     "versions": [
         {
-            "version": "11.3.0-beta",
-            "preferredShim": "alpine:3.18.0",
+            "version": "11.3.0",
+            "preferredShim": "alpine:3.18.2",
             "shims": [
                 {
-                    "shim": "alpine:3.18.0",
-                    "preferredJVM": "al11",
-                    "jvms": [
-                        {
-                            "jvm": "al11",
-                            "build": true,
-                            "deploy": true,
-                            "registries": [
-                                "DockerHub"
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "version": "11.2.5",
-            "preferredShim": "alpine:3.18.0",
-            "shims": [
-                {
-                    "shim": "alpine:3.18.0",
+                    "shim": "alpine:3.18.2",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
@@ -56,11 +36,11 @@
             ]
         },
         {
-            "version": "11.1.7",
-            "preferredShim": "alpine:3.18.0",
+            "version": "11.2.5",
+            "preferredShim": "alpine:3.18.2",
             "shims": [
                 {
-                    "shim": "alpine:3.18.0",
+                    "shim": "alpine:3.18.2",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
