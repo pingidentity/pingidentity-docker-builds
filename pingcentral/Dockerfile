@@ -33,15 +33,13 @@ FROM ${DEPS}alpine:${LATEST_ALPINE_VERSION} as product-staging
 
 # ARGS used in get-product-bits.sh RUN command
 ARG ARTIFACTORY_URL
-ARG INTERNAL_GITLAB_URL
-ARG PING_IDENTITY_GITLAB_TOKEN
 ARG PRODUCT
 ARG SNAPSHOT_URL
 ARG VERBOSE
 ARG VERSION
 
-# Get libxml2-utils for get-product-bits.sh
-RUN apk --no-cache --update add libxml2-utils
+# Get libxml2-utils and jq for get-product-bits.sh
+RUN apk --no-cache --update add libxml2-utils jq
 
 # Get local filesystem product bits if present
 COPY ["tmp/", "/tmp/"]

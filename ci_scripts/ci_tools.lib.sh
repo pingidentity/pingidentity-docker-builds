@@ -545,7 +545,14 @@ _getLatestSnapshotVersionForProduct() {
             _curl "${SNAPSHOT_DELEGATOR_URL}/maven-metadata.xml" | xmllint --xpath 'string(/metadata/versioning/snapshotVersions/snapshotVersion/value)' -
             ;;
         pingcentral)
-            _curl "${SNAPSHOT_ARTIFACTORY_URL}/pass/pass-common/maven-metadata.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/metadata/versioning/latest)' -
+            # Get lastSuccessfulBuild filename
+            product_version_api_json_url="${SNAPSHOT_PINGCENTRAL_URL}/api/json"
+            bits_file_name="$(_curl "${product_version_api_json_url}" | jq -r '.artifacts[] | .fileName')"
+
+            #Remove 'ping-central-' and '.zip' from file name to product snapshot version
+            snapshot_version="${bits_file_name##ping-central-}"
+            snapshot_version="${snapshot_version%%\.zip}"
+            echo "${snapshot_version}"
             ;;
         pingfederate)
             _curl "${SNAPSHOT_BLD_FED_URL}/artifact/pf-server/HuronPeak/assembly/base/pom.xml" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'string(/project/version)' -
