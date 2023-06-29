@@ -108,13 +108,12 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 
 # Handle snapshot pipeline logic and requirements
 if test -n "${PING_IDENTITY_SNAPSHOT}"; then
-    if test -z "${PING_IDENTITY_GITLAB_TOKEN}"; then
-        echo "the PING_IDENTITY_GITLAB_TOKEN must be provided for snapshot"
-        exit 96
-    fi
     case "${productToBuild}" in
-        pingaccess | pingcentral)
+        pingaccess)
             snapshot_url="${SNAPSHOT_ARTIFACTORY_URL}"
+            ;;
+        pingcentral)
+            snapshot_url="${SNAPSHOT_PINGCENTRAL_URL}"
             ;;
         pingfederate)
             snapshot_url="${SNAPSHOT_BLD_FED_URL}"
@@ -246,9 +245,7 @@ for _version in ${versionsToBuild}; do
                 --build-arg LICENSE_VERSION="${licenseVersion}" \
                 --build-arg LATEST_ALPINE_VERSION="3.18.2" \
                 ${VERBOSE:+--build-arg VERBOSE="true"} \
-                ${PING_IDENTITY_SNAPSHOT:+--build-arg PING_IDENTITY_GITLAB_TOKEN="${PING_IDENTITY_GITLAB_TOKEN}"} \
                 ${PING_IDENTITY_SNAPSHOT:+--build-arg SNAPSHOT_URL="${snapshot_url}"} \
-                ${PING_IDENTITY_SNAPSHOT:+--build-arg INTERNAL_GITLAB_URL="${INTERNAL_GITLAB_URL}"} \
                 ${_dependencies} \
                 "${CI_PROJECT_DIR}/${productToBuild}"
 

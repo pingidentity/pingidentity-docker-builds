@@ -120,12 +120,11 @@ case "${product_name}" in
         ;;
     pingcentral)
         if test -n "${SNAPSHOT_URL}"; then
-            # Get snapshot ID from maven-metadata.xml
-            product_version_metadata_url="${SNAPSHOT_URL}/pass/pass-common/${product_version}/maven-metadata.xml"
-            product_snapshot_id="$(wget -q -O - "${product_version_metadata_url}" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'concat(string(/metadata/versioning/snapshot/timestamp),"-",string(/metadata/versioning/snapshot/buildNumber))' -)"
+            # Get lastSuccessfulBuild filename
+            product_version_api_json_url="${SNAPSHOT_URL}/api/json"
+            bits_file_name="$(wget -q -O - "${product_version_api_json_url}" | jq -r '.artifacts[] | .fileName')"
 
-            bits_file_name="ping-central-${product_version}.zip"
-            bits_download_url="https://${INTERNAL_GITLAB_URL}/api/v4/projects/2990/jobs/artifacts/master/raw/distribution/target/${bits_file_name}?job=verify-master-job"
+            bits_download_url="${SNAPSHOT_URL}/artifact/distribution/target/${bits_file_name}"
         else
             bits_file_name="ping-central-${product_version}.zip"
             bits_download_url="${ARTIFACTORY_URL}/libs-releases-local/com/pingidentity/products/ping-central/${product_version}/${bits_file_name}"
@@ -230,7 +229,7 @@ esac
 # OR The user is not on the Ping Identity internal VPN
 # OR The user does not have the ARTIFACTORY_URL defined in their environment.
 echo "Retrieving product bits for ${product_name} ${product_version}..."
-wget ${PING_IDENTITY_GITLAB_TOKEN:+--header "PRIVATE-TOKEN: ${PING_IDENTITY_GITLAB_TOKEN}"} -O "/tmp/${output_file}" "${bits_download_url}"
+wget -O "/tmp/${output_file}" "${bits_download_url}"
 test $? -ne 0 && echo "Error: Could not retrieve artifact ${bits_file_name} from ${bits_download_url}" && exit 1
 echo "Successfully retrieved artifact ${bits_file_name} from ${bits_download_url}."
 
