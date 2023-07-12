@@ -109,6 +109,12 @@ fi
 # Copy the manage-profile.log to a previous version to keep size down due to repeated fail attempts
 mv "${SERVER_ROOT_DIR}/logs/tools/manage-profile.log" "${SERVER_ROOT_DIR}/logs/tools/manage-profile.log.prev"
 
+_reimportDataValue="never"
+if test "$(toLower "${FORCE_DATA_REIMPORT}")" = "true"; then
+    _reimportDataValue="always"
+    PD_REBUILD_ON_RESTART="true"
+fi
+
 case "$(toLower "${PD_REBUILD_ON_RESTART}")" in
     yes | true)
         echo "Forcing replace-profile due to PD_REBUILD_ON_RESTART=${PD_REBUILD_ON_RESTART} ..."
@@ -123,7 +129,7 @@ _manage_profile_cmd="${SERVER_BITS_DIR}/bin/manage-profile replace-profile \
         --serverRoot ${SERVER_ROOT_DIR} \
         --profile ${PD_PROFILE} \
         --useEnvironmentVariables \
-        --reimportData never \
+        --reimportData ${_reimportDataValue} \
         ${_licenseKeyFileArg} \
         ${_replaceFullProfile}"
 
