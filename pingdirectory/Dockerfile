@@ -239,7 +239,7 @@ ENV SHIM=${SHIM} \
 
 #-- Set to true to force PingDirectory to export and re-import its backend data on restart.
 #-- Note that this process can take a long time for large backends.
-    FORCE_DATA_REIMPORT=false
+    PD_FORCE_DATA_REIMPORT=false
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]

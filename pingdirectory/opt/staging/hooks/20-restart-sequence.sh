@@ -110,7 +110,7 @@ fi
 mv "${SERVER_ROOT_DIR}/logs/tools/manage-profile.log" "${SERVER_ROOT_DIR}/logs/tools/manage-profile.log.prev"
 
 _reimportDataValue="never"
-if test "$(toLower "${FORCE_DATA_REIMPORT}")" = "true"; then
+if test "$(toLower "${PD_FORCE_DATA_REIMPORT}")" = "true"; then
     _reimportDataValue="always"
     PD_REBUILD_ON_RESTART="true"
 fi
