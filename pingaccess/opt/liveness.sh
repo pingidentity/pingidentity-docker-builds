@@ -44,8 +44,8 @@ case "${OPERATIONAL_MODE}" in
         exit 0
         ;;
     *)
-        # OPERATIONAL_MODE is unset or an invalid value. Return unsuccessful on health check by default.
-        echo "Error: OPERATIONAL_MODE is either unset or an invalid value: ${OPERATIONAL_MODE}"
+        # OPERATIONAL_MODE/PA_RUN_PA_OPERATIONAL_MODE is unset or an invalid value. Return unsuccessful on health check by default.
+        echo "Error: OPERATIONAL_MODE or PA_RUN_PA_OPERATIONAL_MODE (for PA 7.3+) are either unset or an invalid value. OPERATIONAL_MODE: ${OPERATIONAL_MODE}, PA_RUN_PA_OPERATIONAL_MODE: ${PA_RUN_PA_OPERATIONAL_MODE})"
         exit 1
         ;;
 esac

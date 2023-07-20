@@ -98,6 +98,7 @@ if test -z "${1}" -o "$1" = "start-server"; then
     #   docker run .... start-server           # Starts server in foreground (same as previous)
     #   docker run .... start-server /bin/sh   # Starts server in background and runs shell
     #   docker run .... /bin/sh                # Doesn't start the server but drops into a shell
+
     if test -z "${*}"; then
         # replace the shell with foreground server
         echo_green "Starting server in foreground: (${STARTUP_COMMAND} ${STARTUP_FOREGROUND_OPTS})"
