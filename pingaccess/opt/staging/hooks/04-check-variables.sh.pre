@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+#
+# Ping Identity DevOps - Docker Build Hooks
+#
+# This post hook overrides any old variables with product-supported versions for PingAccess 7.3+
+
+# shellcheck source=./pingcommon.lib.sh
+. "${HOOKS_DIR}/pingcommon.lib.sh"
+
+# Ignore shellcheck SC2034 here because shellcheck sees these variables as unused. The values
+# are passed in to export_container_env below.
+
+# OPERATIONAL_MODE overriden by PA_RUN_PA_OPERATIONAL_MODE
+if test -n "${PA_RUN_PA_OPERATIONAL_MODE}"; then
+    # shellcheck disable=SC2034
+    OPERATIONAL_MODE="${PA_RUN_PA_OPERATIONAL_MODE}"
+fi
+
+# FIPS_MODE_ON overriden by PA_FIPS_MODE_PA_FIPS_MODE
+if test -n "${PA_FIPS_MODE_PA_FIPS_MODE}"; then
+    # shellcheck disable=SC2034
+    FIPS_MODE_ON="${PA_FIPS_MODE_PA_FIPS_MODE}"
+fi
+
+export_container_env OPERATIONAL_MODE FIPS_MODE_ON

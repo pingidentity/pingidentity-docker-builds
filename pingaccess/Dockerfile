@@ -329,6 +329,7 @@ ENV SHIM=${SHIM} \
     LICENSE_SHORT_NAME=PA \
 #-- Version used when retrieving license from License Server
     LICENSE_VERSION=${LICENSE_VERSION} \
+#-- PA_RUN_PA_OPERATIONAL_MODE will override this value for PingAccess 7.3 and later.
     OPERATIONAL_MODE="STANDALONE" \
     PA_ADMIN_PASSWORD_INITIAL="2Access" \
 #-- Specify a password for administrator user for interaction with admin API
@@ -350,6 +351,7 @@ ENV SHIM=${SHIM} \
 #-- Turns on FIPS mode (currently with the Bouncy Castle FIPS provider)
 #-- set to exactly "true" lowercase to turn on
 #-- set to anything else to turn off
+#-- PA_FIPS_MODE_PA_FIPS_MODE will override this for PingAccess 7.3 and later.
     FIPS_MODE_ON=false \
 
 #-- Defines a variable to allow showing library versions in the output at startup

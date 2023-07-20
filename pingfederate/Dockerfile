@@ -257,9 +257,11 @@ ENV IN_DIR=${BASE}/in \
     PF_ENGINE_PUBLIC_HOSTNAME="localhost" \
 #-- PF (PingFederate) engine private hostname
     PF_ENGINE_PRIVATE_HOSTNAME="pingfederate" \
-#-- PF (PingFederate) admin public baseurl that may be used in redirects
+#-- PF (PingFederate) admin public baseurl that may be used in redirects.
+#-- PF_RUN_PF_ADMIN_BASEURL will override this value for PingFederate 11.3 and later.
     PF_ADMIN_PUBLIC_BASEURL="https://localhost:9999" \
-#-- PF (PingFederate) admin public hostname that may be used in redirects
+#-- PF (PingFederate) admin public hostname that may be used in redirects.
+#-- PF_RUN_PF_ADMIN_HOSTNAME will override this value for PingFederate 11.3 and later.
     PF_ADMIN_PUBLIC_HOSTNAME="localhost" \
 #-- PF (PingFederate) admin private hostname
     PF_ADMIN_PRIVATE_HOSTNAME="pingfederate-admin" \
@@ -331,10 +333,12 @@ ENV SHIM=${SHIM} \
 
 #-- Defines the port on which the PingFederate administrative
 #-- console and API runs.
+#-- PF_RUN_PF_ADMIN_HTTPS_PORT will override this for PingFederate 11.3 and later.
     PF_ADMIN_PORT=9999 \
 
 #-- Defines the port on which PingFederate listens for
 #-- encrypted HTTPS (SSL/TLS) traffic.
+#-- PF_RUN_PF_HTTPS_PORT will override this for PingFederate 11.3 and later.
     PF_ENGINE_PORT=9031 \
 
 #-- Flag to turn on PingFederate Engine debugging
@@ -361,20 +365,24 @@ ENV SHIM=${SHIM} \
 #-- Operational Mode
 #-- Indicates the operational mode of the runtime server in run.properties
 #-- Options include STANDALONE, CLUSTERED_CONSOLE, CLUSTERED_ENGINE.
+#-- PF_RUN_PF_OPERATIONAL_MODE will override this for PingFederate 11.3 and later.
     OPERATIONAL_MODE="STANDALONE" \
 
 #-- Defines mechanism for console authentication in run.properties.
 #-- Options include none, native, LDAP, cert, RADIUS, OIDC.
 #-- If not set, default is native.
+#-- PF_RUN_PF_CONSOLE_AUTHENTICATION will override this for PingFederate 11.3 and later.
     PF_CONSOLE_AUTHENTICATION= \
 
 #-- Defines mechanism for admin api authentication in run.properties.
 #-- Options include none, native, LDAP, cert, RADIUS, OIDC.
 #-- If not set, default is native.
+#-- PF_RUN_PF_ADMIN_API_AUTHENTICATION will override this for PingFederate 11.3 and later.
     PF_ADMIN_API_AUTHENTICATION= \
 
 #-- Hardware Security Module Mode in run.properties
 #-- Options include OFF, AWSCLOUDHSM, NCIPHER, LUNA, BCFIPS.
+#-- PF_RUN_PF_HSM_MODE will override this for PingFederate 11.3 and later.
     HSM_MODE="OFF" \
 
 #-- Defines a variable that allows instantiating non-FIPS crypto/random
@@ -383,55 +391,71 @@ ENV SHIM=${SHIM} \
 #-- Hardware Security Module Hybrid Mode
 #--   When PF is in Hybrid mode, certs/keys can be created either on the local trust store or on the HSM.
 #--   This can used as a migration strategy towards an HSM setup.
+#-- PF_RUN_PF_HSM_HYBRID will override this for PingFederate 11.3 and later.
     PF_HSM_HYBRID=false \
 
 #-- This is the username for an account within the LDAP Directory Server
 #-- that can be used to perform user lookups for authentication and other
 #-- user level search operations.  Set if PF_CONSOLE_AUTHENTICATION or
 #-- PF_ADMIN_API_AUTHENTICATION=LDAP
+#-- PF_LDAP_LDAP_USERNAME will override this for PingFederate 11.3 and later.
     PF_LDAP_USERNAME="" \
 
 #-- This is the password for the Username specified above.
 #-- This property should be obfuscated using the 'obfuscate.sh' utility.
 #-- Set if PF_CONSOLE_AUTHENTICATION or PF_ADMIN_API_AUTHENTICATION=LDAP
+#-- PF_LDAP_LDAP_PASSWORD will override this for PingFederate 11.3 and later.
     PF_LDAP_PASSWORD="" \
 
 #-- IP address for cluster communication.  Set to NON_LOOPBACK to
 #-- allow the system to choose an available non-loopback IP address.
+#-- PF_RUN_PF_CLUSTER_BIND_ADDRESS will override this for PingFederate 11.3 and later.
     CLUSTER_BIND_ADDRESS="NON_LOOPBACK" \
 
 #-- Provisioner Mode in run.properties
 #-- Options include OFF, STANDALONE, FAILOVER.
+#-- PF_RUN_PF_PROVISIONER_MODE will override this for PingFederate 11.3 and later.
     PF_PROVISIONER_MODE=OFF \
 
 #-- Provisioner Node ID in run.properties
 #-- Initial active provisioning server node ID is 1
+#-- PF_RUN_PROVISIONER_NODE_ID will override this for PingFederate 11.3 and later.
     PF_PROVISIONER_NODE_ID=1 \
+
+#-- Node group ID in cluster-adaptive.conf file. Does not require a .subst file.
+#    PF_CLUSTER_ADAPTIVE_NODE_GROUP_ID= \
 
 #-- Provisioner Failover Grace Period in run.properties
 #-- Grace period, in seconds. Default 600 seconds
+#-- PF_RUN_PROVISIONER_FAILOVER_GRACE_PERIOD will override this for PingFederate 11.3 and later.
     PF_PROVISIONER_GRACE_PERIOD=600 \
 
 #-- Override the default value for the minimum size of the Jetty thread pool
 #-- Leave unset to let the container automatically tune the value according to available resources
+#-- PF_RUN_PF_RUNTIME_THREADS_MIN will override this for PingFederate 11.3 and later.
     PF_JETTY_THREADS_MIN="" \
 
 #-- Override the default value for the maximum size of the Jetty thread pool
 #-- Leave unset to let the container automatically tune the value according to available resources
+#-- PF_RUN_PF_RUNTIME_THREADS_MAX will override this for PingFederate 11.3 and later.
     PF_JETTY_THREADS_MAX="" \
 
 #-- The size of the accept queue. There is generally no reason to tune this but please refer
 #-- to the performance tuning guide for further tuning guidance.
+#-- PF_RUN_PF_RUNTIME_ACCEPTQUEUESIZE will override this for PingFederate 11.3 and later.
     PF_ACCEPT_QUEUE_SIZE=512 \
 
 #-- The region of the PingOne tenant PingFederate should connect with.
 #-- Valid values are "com", "eu" and "asia"
+#-- PF_RUN_PF_PINGONE_ADMIN_URL_REGION will override this for PingFederate 11.3 and later.
     PF_PINGONE_REGION="" \
 
 #-- The PingOne environment ID to use
+#-- PF_RUN_PF_PINGONE_ADMIN_URL_ENVIRONMENT_ID will override this for PingFederate 11.3 and later.
     PF_PINGONE_ENV_ID="" \
 
 #-- The title featured in the administration console -- this is generally used to easily distinguish between environments
+#-- PF_RUN_PF_CONSOLE_TITLE will override this for PingFederate 11.3 and later.
     PF_CONSOLE_TITLE="Docker PingFederate" \
 
 #-- This property defines the tags associated with this PingFederate node.
@@ -452,11 +476,13 @@ ENV SHIM=${SHIM} \
 #--
 #-- Example 3: PF_NODE_TAGS=
 #-- Example 3 is also valid because the PF_NODE_TAGS property is optional.
+#-- PF_RUN_NODE_TAGS will override this for PingFederate 11.3 and later.
     PF_NODE_TAGS="" \
 
 #-- This property defines the name of the PingFederate environment that will be
 #-- displayed in the administrative console, used to make separate environments
 #-- easily identifiable.
+#-- PF_RUN_PF_CONSOLE_ENVIRONMENT will override this for PingFederate 11.3 and later.
     PF_CONSOLE_ENV="" \
 
 #-- Percentage of the container memory to allocate to PingFederate JVM
