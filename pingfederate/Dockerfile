@@ -518,6 +518,7 @@ COPY --from=base "/licenses/" "/licenses/"
 
 # get the staged bits
 COPY --from=final-staging ["/opt","/opt"]
+COPY --from=final-staging ["/etc/motd","/etc/motd"]
 
 RUN ["/opt/install_deps.sh"]
 

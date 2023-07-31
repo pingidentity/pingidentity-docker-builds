@@ -383,6 +383,7 @@ LABEL name="${PING_PRODUCT}" \
 
 EXPOSE ${PA_ADMIN_PORT} ${PA_ENGINE_PORT} ${HTTPS_PORT}
 COPY --from=final-staging ["/opt","/opt"]
+COPY --from=final-staging ["/etc/motd","/etc/motd"]
 
 # RUN ["/opt/build.sh"]
 RUN ["/opt/install_deps.sh"]

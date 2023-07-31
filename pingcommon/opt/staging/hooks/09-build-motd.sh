@@ -12,52 +12,54 @@ test "${VERBOSE}" = "true" && set -x
 # shellcheck source=./pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-_motdFile="/etc/motd"
-# isOS ubuntu && _motdFile="${_motdFile}.tail"
-_motdJsonFile="/tmp/motd.json"
-_currentDate=$(date +%Y%m%d)
+motd_file="/etc/motd"
+motd_json_file="$(mktemp)"
+current_date=$(date +%Y%m%d)
 
 echo "
 $(echo_bar)
                 Ping Identity DevOps Docker Image
 
+       Product: ${PING_PRODUCT}
        Version: ${IMAGE_VERSION}
    DevOps User: ${PING_IDENTITY_DEVOPS_USER}
       Hostname: ${HOST_NAME}
-       Started: $(date)
-$(echo_bar)" > "${_motdFile}"
+       Started: ${current_date}
+$(echo_bar)" > "${motd_file}"
 
 #
 # Get a MOTD from the server profile if it is set
 #
 if test -f "${STAGING_DIR}/motd"; then
-    cat "${STAGING_DIR}/motd" >> "${_motdFile}"
+    cat "${STAGING_DIR}/motd" >> "${motd_file}"
 fi
 
 if test -z "${MOTD_URL}"; then
     echo "Not pulling MOTD since MOTD_URL is not set"
 else
-    _motdCurlResult=$(curl -G -o "${_motdJsonFile}" -w '%{http_code}' "${MOTD_URL}" 2> /dev/null)
+    motd_curl_result=$(curl -G -o "${motd_json_file}" -w '%{http_code}' "${MOTD_URL}" 2> /dev/null)
 
-    if test "${_motdCurlResult}" = "200"; then
+    if test "${motd_curl_result}" = "200"; then
         echo "Successfully downloaded MOTD from ${MOTD_URL}"
-        _jqExpr=".[] | select(.validFrom <= ${_currentDate} and .validTo >= ${_currentDate}) |
+        jq_expr=".[] | select(.validFrom <= ${current_date} and .validTo >= ${current_date}) |
                \"\n---- SUBJECT: \" + .subject + \"\n\" +
                          (.message | join(\"\n\")) +
                \"\n\""
-        _imageName=$(echo "${IMAGE_VERSION}" | sed 's/-.*//')
+        image_name="$(toLower "${PING_PRODUCT}")"
 
         {
-            jq -r "select (.devops != null) | .devops | ${_jqExpr}" "${_motdJsonFile}"
-            jq -r "select (.${_imageName} != null) | .${_imageName} | ${_jqExpr}" "${_motdJsonFile}"
+            jq -r "select (.devops != null) | .devops | ${jq_expr}" "${motd_json_file}"
+            jq -r "select (.${image_name} != null) | .${image_name} | ${jq_expr}" "${motd_json_file}"
             echo
-        } >> "${_motdFile}"
+        } >> "${motd_file}"
     else
         echo_red "Unable to download MOTD from ${MOTD_URL}"
     fi
 fi
 
-echo_bar >> "${_motdFile}"
+echo_bar >> "${motd_file}"
 
-echo "Current ${_motdFile}"
-cat_indent "${_motdFile}"
+echo "Current ${motd_file}"
+cat_indent "${motd_file}"
+
+exit 0

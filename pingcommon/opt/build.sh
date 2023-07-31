@@ -6,6 +6,7 @@ test -f "/opt/build.sh.pre" && sh /opt/build.sh.pre
 # Update file permissions for the BASE for the default container user,
 # and update the /var/lib/nginx owner if necessary.
 fixPermissions() {
+    echo "INFO: Fixing filesystem permissions..."
     test -f /etc/motd || touch /etc/motd
     chmod go+w /etc/motd
 
