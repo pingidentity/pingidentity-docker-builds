@@ -1,8 +1,8 @@
 {
-    "latest": "11.3.0",
+    "latest": "11.3.1",
     "versions": [
         {
-            "version": "11.3.0",
+            "version": "11.3.1",
             "preferredShim": "alpine:3.18.2",
             "shims": [
                 {
@@ -36,7 +36,7 @@
             ]
         },
         {
-            "version": "11.2.6",
+            "version": "11.2.7",
             "preferredShim": "alpine:3.18.2",
             "shims": [
                 {
