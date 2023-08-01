@@ -14,28 +14,15 @@
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-set -e
-echo_yellow "NOTE: PingAccess 6.1 natively supports data.json ingestion,"
-echo_yellow "and is the recommended method for configuration. For more information, see:"
-echo_yellow "https://devops.pingidentity.com/reference/profileStructures/#pingaccess"
-
-echo "INFO: begin importing data.."
-
-# # to Test an import call from the container you can use:
-# curl -k -v -X POST -u "Administrator:${PING_IDENTITY_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
-#   -d @${STAGING_DIR}/instance/data/data.json \
-#   https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import
-
-# to check on the status of an import use:
-# curl -k -v -X GET -u "Administrator:${PING_IDENTITY_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
-#   https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows/1
-
 if test -f "${STAGING_DIR}/instance/data/data.json"; then
-    # curl -ks -X POST -u "Administrator:${PING_IDENTITY_PASSWORD}" -H "Content-Type: application/json" -H "X-Xsrf-Header: PingAccess" \
-    # -d @${STAGING_DIR}/instance/data/data.json \
-    # https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows > /dev/null
-    _out="/tmp/import.request.out"
-    _import_http_code=$(
+    set -e
+    echo_yellow "NOTE: PingAccess 6.1 natively supports data.json ingestion,"
+    echo_yellow "and is the recommended method for configuration. For more information, see:"
+    echo_yellow "https://devops.pingidentity.com/reference/profileStructures/#pingaccess"
+
+    echo "INFO: Begin importing data.json.."
+    api_output_file=$(mktemp)
+    http_response_code=$(
         curl \
             --insecure \
             --silent \
@@ -45,22 +32,21 @@ if test -f "${STAGING_DIR}/instance/data/data.json"; then
             --header "Content-Type: application/json" \
             --header "X-Xsrf-Header: PingAccess" \
             --data @"${STAGING_DIR}/instance/data/data.json" \
-            --output ${_out} \
+            --output "${api_output_file}" \
             "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows" \
             2> /dev/null
     )
 
-    if ! test "${_import_http_code}" = "200"; then
-        echo_red "Import request error: ${_import_http_code}"
-        jq . "${_out}"
+    if ! test "${http_response_code}" = "200"; then
+        echo_red "ERROR ${http_response_code}: Unable to Import data.json"
+        cat "${api_output_file}"
         exit 85
     fi
 
-    _import_id=$(jq -r .id "${_out}")
-    _out=/tmp/import.status.out
-    _attempts=300
-    while test ${_attempts} -gt 0; do
-        _import_http_code=$(
+    import_id=$(jq -r .id "${api_output_file}")
+    polling_attempts=300
+    while test ${polling_attempts} -gt 0; do
+        http_response_code=$(
             curl \
                 --insecure \
                 --silent \
@@ -69,43 +55,47 @@ if test -f "${STAGING_DIR}/instance/data/data.json"; then
                 --user "${ROOT_USER}:${PING_IDENTITY_PASSWORD}" \
                 --header "Content-Type: application/json" \
                 --header "X-Xsrf-Header: PingAccess" \
-                --output ${_out} \
+                --output "${api_output_file}" \
                 "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows" \
                 2> /dev/null
         )
 
-        if test "${_import_http_code}" = 200; then
-            _import_status=$(jq -r '.items[]|select(.id=='"${_import_id}"')|.status' "${_out}")
-            case "${_import_status}" in
+        if test "${http_response_code}" = 200; then
+            import_status=$(jq -r '.items[]|select(.id=='"${import_id}"')|.status' "${api_output_file}")
+            case "${import_status}" in
                 '' | 'In Progress')
-                    echo "import in progress.."
+                    echo "INFO: Import in progress.."
                     sleep 2
                     ;;
                 Complete)
-                    echo_green "Import done."
-                    _attempts=0
+                    echo_green "INFO: Import done."
+                    polling_attempts=0
                     ;;
                 Failed)
                     # clean failure, display error, bail
-                    echo_red "Import failed."
-                    jq -r '.items[]|select(.id==1)|.apiErrorView|.flash[0]' "${_out}"
+                    echo_red "ERROR: Import failed."
+                    cat "${api_output_file}"
                     exit 85
                     ;;
                 *)
                     # unexpected error
-                    echo_red "Import status: ${_import_status}"
+                    echo_red "Import status: ${import_status}"
                     echo_red "ERROR: Unsuccessful Import"
                     exit 85
                     ;;
             esac
         else
-            echo "There was an error retrieving import status, retrying in 3 seconds (HTTP Code: ${_import_http_code})"
+            echo "WARN: There was an error retrieving import status, retrying in 3 seconds (HTTP Code: ${http_response_code})"
             # Something is really wrong, retrying at most 3 times
-            if test ${_attempts} -gt 3; then
-                _attempts=3
+            if test ${polling_attempts} -gt 3; then
+                polling_attempts=3
             fi
             sleep 3
         fi
-        _attempts=$((_attempts - 1))
+        polling_attempts=$((polling_attempts - 1))
     done
+
+    rm -f "${api_output_file}"
 fi
+
+exit 0

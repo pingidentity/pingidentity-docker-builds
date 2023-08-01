@@ -4,11 +4,19 @@
 #
 ###############################################################################
 pingdirectory:
+  container:
+    resources:
+      requests:
+        cpu: 2
+        memory: 4Gi
+      limits:
+        cpu: 2
+        memory: 4Gi
   enabled: true
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
     SERVER_PROFILE_PATH: FIPS-integration/pingdirectory
-    MAX_HEAP_SIZE: 1g
+    MAX_HEAP_SIZE: 2g
     FIPS_MODE_ON: "true"
     KEYSTORE_FILE: /opt/staging/.sec/private-key.pem
     KEYSTORE_TYPE: pem
