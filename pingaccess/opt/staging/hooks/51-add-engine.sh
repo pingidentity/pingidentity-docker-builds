@@ -139,6 +139,8 @@ if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGI
         # to be no longer communicating, and can be deleted for this scripts purpose.
         echo "INFO: Engine ${engine_hostname} has a stale status..."
         echo "INFO: Deleting engine ${engine_hostname}..."
+        # Toggle on debug logging if DEBUG=true is set
+        start_debug_logging
         https_result_code=$(
             curl \
                 --insecure \
@@ -149,6 +151,8 @@ if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGI
                 --write-out '%{http_code}' \
                 "${engines_api_url}/${configured_engine_id}"
         )
+        # Toggle off debug logging for now
+        stop_debug_logging
         if test "${https_result_code}" != "200"; then
             cat "${api_output_file}"
             container_failure "${https_result_code}" "ERROR: Failure to delete engine ID ${configured_engine_id}"
@@ -156,6 +160,8 @@ if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGI
     fi
 
     echo "INFO: Adding new engine ${engine_hostname}"
+    # Toggle on debug logging if DEBUG=true is set
+    start_debug_logging
     https_result_code=$(
         curl \
             --insecure \
@@ -167,6 +173,8 @@ if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGI
             --data '{"name":"'"${engine_hostname}"'", "selectedCertificateId": "'"${cert_id}"'"}' \
             "${engines_api_url}"
     )
+    # Toggle off debug logging for now
+    stop_debug_logging
 
     if test "${https_result_code}" = "200"; then
         engine_id=$(jq -r '.id' "${api_output_file}")
@@ -177,6 +185,8 @@ if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGI
 
     echo "INFO: EngineId: ${engine_id}"
     echo "INFO: Retrieving the engine config..."
+    # Toggle on debug logging if DEBUG=true is set
+    start_debug_logging
     https_result_code=$(
         curl \
             --insecure \
@@ -187,6 +197,8 @@ if test -n "${OPERATIONAL_MODE}" && test "${OPERATIONAL_MODE}" = "CLUSTERED_ENGI
             --write-out '%{http_code}' \
             "${engines_api_url}/${engine_id}/config"
     )
+    # Toggle off debug logging for now
+    stop_debug_logging
     if test "${https_result_code}" != "200"; then
         cat "${api_output_file}"
         container_failure "${https_result_code}" "Failure to retrieve engine config"

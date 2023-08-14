@@ -11,10 +11,15 @@ pingaccess_api_out=$(mktemp)
 accept_administrator_eula() {
     test -z "${1}" && container_failure 83 "ERROR: The function accept_administrator_eula requires a password."
     echo "INFO: Accepting end user license agreement. PING_IDENTITY_ACCEPT_EULA = ${PING_IDENTITY_ACCEPT_EULA}"
+
+    # Toggle on debug logging if DEBUG=true is set
+    start_debug_logging
     https_result_code=$(
         curl \
             --insecure \
             --silent \
+            --show-error \
+            --write-out '%{http_code}' \
             --request PUT \
             --write-out '%{http_code}' \
             --user "${ROOT_USER}:${1}" \
@@ -24,6 +29,8 @@ accept_administrator_eula() {
             "https://localhost:${pingaccess_private_port}/pa-admin-api/v3/users/1" \
             2> /dev/null
     )
+    # Toggle off debug logging
+    stop_debug_logging
 
     if test "${https_result_code}" != "200"; then
         cat "${pingaccess_api_out}"
@@ -31,6 +38,8 @@ accept_administrator_eula() {
     fi
 }
 
+# Toggle on debug logging if DEBUG=true is set
+start_debug_logging
 # Make an attempt to authenticate with the user-provided administrator password
 https_result_code=$(
     curl \
@@ -44,6 +53,8 @@ https_result_code=$(
         "https://localhost:${pingaccess_private_port}/pa-admin-api/v3/users/1" \
         2> /dev/null
 )
+# Toggle off debug logging
+stop_debug_logging
 
 # Check to see if the user-provided administrator password authenticated correctly.
 # If so, make sure the EULA is accepted.
@@ -54,6 +65,8 @@ if test "${https_result_code}" = "200"; then
         accept_administrator_eula "${PING_IDENTITY_PASSWORD}"
     fi
 else # Else attempt to authenticate with the default initial administrator password
+    # Toggle on debug logging if DEBUG=true is set
+    start_debug_logging
     https_result_code=$(
         curl \
             --insecure \
@@ -66,6 +79,9 @@ else # Else attempt to authenticate with the default initial administrator passw
             "https://localhost:${pingaccess_private_port}/pa-admin-api/v3/users/1" \
             2> /dev/null
     )
+    # Toggle off debug logging
+    stop_debug_logging
+
     # Check to see if the default initial administrator password authenticated correctly.
     # If so, accept the EULA and change the administrator password.
     if test "${https_result_code}" = "200"; then
@@ -75,6 +91,9 @@ else # Else attempt to authenticate with the default initial administrator passw
         # Change the administrator password
         if test -n "${PING_IDENTITY_PASSWORD}"; then
             echo "INFO: Changing administrator password"
+
+            # Toggle on debug logging if DEBUG=true is set
+            start_debug_logging
             https_result_code=$(
                 curl \
                     --insecure \
@@ -88,6 +107,8 @@ else # Else attempt to authenticate with the default initial administrator passw
                     "https://localhost:${pingaccess_private_port}/pa-admin-api/v3/users/1/password" \
                     2> /dev/null
             )
+            # Toggle off debug logging
+            stop_debug_logging
 
             if test "${https_result_code}" != "200"; then
                 cat "${pingaccess_api_out}"

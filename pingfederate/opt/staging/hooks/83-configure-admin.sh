@@ -2,6 +2,8 @@
 # shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
+# Toggle on debug logging if DEBUG=true is set
+start_debug_logging
 ## attempt to accept license, works if new server, fails if admin exists.
 _acceptLicenseAgreement=$(
     curl \
@@ -16,6 +18,8 @@ _acceptLicenseAgreement=$(
         "https://localhost:${PF_ADMIN_PORT}/pf-admin-api/v1/license/agreement" \
         2> /dev/null
 )
+# Toggle off debug logging
+stop_debug_logging
 
 case "${_acceptLicenseAgreement}" in
     200)
@@ -25,6 +29,8 @@ case "${_acceptLicenseAgreement}" in
         # Make sure PING_IDENTITY_PASSWORD is defined
         test -z "${PING_IDENTITY_PASSWORD}" && container_failure 83 "ERROR: PING_IDENTITY_PASSWORD is not defined. Could not create administrator user."
 
+        # Toggle on debug logging if DEBUG=true is set
+        start_debug_logging
         # Set script vars
         _adminRoles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR"]'
         _createAdminUser=$(
@@ -43,6 +49,8 @@ case "${_acceptLicenseAgreement}" in
                 "https://localhost:${PF_ADMIN_PORT}/pf-admin-api/v1/administrativeAccounts" \
                 2> /dev/null
         )
+        # Toggle off debug logging
+        stop_debug_logging
         if test "${_createAdminUser}" != "200"; then
             echo_red "$(jq -r . /tmp/create.admin)"
             echo_red "error attempting to create admin"

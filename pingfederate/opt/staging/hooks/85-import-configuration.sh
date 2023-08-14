@@ -14,6 +14,8 @@ fi
 tmp_trace_file=$(mktemp)
 api_output_file=$(mktemp)
 #TODO remove --trace command when curl is fixed with a timeout error when sending large json data sets
+# Toggle on debug logging if DEBUG=true is set
+start_debug_logging
 http_response_code=$(
     curl \
         --insecure \
@@ -30,6 +32,8 @@ http_response_code=$(
         "https://localhost:${PF_ADMIN_PORT}/pf-admin-api/v1/bulk/import?failFast=false" \
         2> /dev/null
 )
+# Toggle off debug logging
+stop_debug_logging
 
 rm -f "${tmp_trace_file}"
 
@@ -37,6 +41,8 @@ if test "${http_response_code}" = "200"; then
     echo "INFO: Removing Imported Bulk File"
     rm "${BULK_CONFIG_DIR}/${BULK_CONFIG_FILE}"
 
+    # Toggle on debug logging if DEBUG=true is set
+    start_debug_logging
     if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE"; then
         http_response_code=$(
             curl \
@@ -51,6 +57,9 @@ if test "${http_response_code}" = "200"; then
                 "https://localhost:${PF_ADMIN_PORT}/pf-admin-api/v1/cluster/replicate" \
                 2> /dev/null
         )
+        # Toggle off debug logging
+        stop_debug_logging
+
         if test "${http_response_code}" != "200"; then
             echo_red "ERROR ${http_response_code}: Unable to replicate config"
             cat "${api_output_file}"

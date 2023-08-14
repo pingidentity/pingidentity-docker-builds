@@ -22,6 +22,9 @@ if test -f "${STAGING_DIR}/instance/data/data.json"; then
 
     echo "INFO: Begin importing data.json.."
     api_output_file=$(mktemp)
+
+    # Toggle on debug logging if DEBUG=true is set
+    start_debug_logging
     http_response_code=$(
         curl \
             --insecure \
@@ -36,6 +39,8 @@ if test -f "${STAGING_DIR}/instance/data/data.json"; then
             "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows" \
             2> /dev/null
     )
+    # Toggle off debug logging
+    stop_debug_logging
 
     if ! test "${http_response_code}" = "200"; then
         echo_red "ERROR ${http_response_code}: Unable to Import data.json"
@@ -45,6 +50,9 @@ if test -f "${STAGING_DIR}/instance/data/data.json"; then
 
     import_id=$(jq -r .id "${api_output_file}")
     polling_attempts=300
+
+    # Toggle on debug logging if DEBUG=true is set
+    start_debug_logging
     while test ${polling_attempts} -gt 0; do
         http_response_code=$(
             curl \
@@ -59,6 +67,8 @@ if test -f "${STAGING_DIR}/instance/data/data.json"; then
                 "https://localhost:${PA_ADMIN_PORT}/pa-admin-api/v3/config/import/workflows" \
                 2> /dev/null
         )
+        # Toggle off debug logging
+        stop_debug_logging
 
         if test "${http_response_code}" = 200; then
             import_status=$(jq -r '.items[]|select(.id=='"${import_id}"')|.status' "${api_output_file}")

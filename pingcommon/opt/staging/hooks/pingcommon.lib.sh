@@ -65,12 +65,17 @@ _curl() {
         set -- --retry-connrefused "${@}"
     fi
 
+    # Toggle on debug logging if DEBUG=true is set
+    start_debug_logging
     HTTP_RESULT_CODE=$(curl "${@}")
-    # Shellcheck complains this variable isn't used, but it are exported below
+    # Shellcheck complains this variable isn't used, but it is exported below
     # shellcheck disable=SC2034
     EXIT_CODE=${?}
+    # Toggle off debug logging
+    stop_debug_logging
     test "${HTTP_RESULT_CODE}" = "200"
     return ${?}
+
 }
 
 #
@@ -904,6 +909,25 @@ show_libs_ver() {
         _file=""
     done < "${_tmpDir}"/mf.list
     rm -rf "${_tmpDir}"
+}
+
+###############################################################################
+# Debug logging toggle
+# Will be used in conjunction with the ENV variable 'DEBUG'
+#   either set to true or false/unset
+###############################################################################
+# Function to start debug logging
+start_debug_logging() {
+    if test "${DEBUG}" = "true"; then
+        set -x
+    fi
+}
+
+# Function to stop debug logging
+stop_debug_logging() {
+    if test "${VERBOSE}" != "true"; then
+        set +x
+    fi
 }
 
 ###############################################################################

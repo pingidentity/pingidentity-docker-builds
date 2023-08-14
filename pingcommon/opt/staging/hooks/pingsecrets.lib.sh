@@ -25,7 +25,8 @@ get_hashicorp_secrets() {
             # If the VAULT_TOKEN is not set, then use the VAULT_AUTH_USERNAME/VAULT_AUTH_PASSWORD to get a token
             echo "Getting VAULT_TOKEN using login with '${VAULT_AUTH_USERNAME}/************'"
             _tmpTokenJson=$(mktemp)
-
+            # Toggle on debug logging if DEBUG=true is set
+            start_debug_logging
             _httpResultCode=$(
                 curl \
                     --silent \
@@ -43,6 +44,8 @@ get_hashicorp_secrets() {
                     "${VAULT_ADDR}/v1/auth/userpass/login/${VAULT_AUTH_USERNAME}" \
                     --output "${_tmpTokenJson}"
             )
+            # Toggle off debug logging
+            stop_debug_logging
 
             #
             # If the curl returns a non-200, emit a message that the authentication wouldn't work
