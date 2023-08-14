@@ -31,7 +31,10 @@ if test -f "${STAGING_DIR}/instance/data/data.json"; then
         echo "WARNING: skipping import."
     fi
 else
-    #Check if start-up-deployer was used for configuration
+    # Toggle on debug logging if DEBUG=true is set
+    start_debug_logging
+
+    # Check if start-up-deployer was used for configuration
     https_result_code=$(
         curl \
             --insecure \
@@ -44,6 +47,8 @@ else
             "https://localhost:${pingaccess_private_port}/pa-admin-api/v3/config/import/workflows" \
             2> /dev/null
     )
+    # Toggle off debug logging for now
+    stop_debug_logging
 
     if test "${https_result_code}" != "200"; then
         cat "${pingaccess_api_out}"
@@ -66,6 +71,9 @@ else
 
                 # Create Keypair
                 echo "INFO: Creating keypair for ${pingaccess_private_hostname}."
+
+                # Toggle on debug logging if DEBUG=true is set
+                start_debug_logging
                 https_result_code=$(
                     curl \
                         --insecure \
@@ -85,6 +93,8 @@ else
                                 "validDays": "365"}' \
                         "${_keypairURL}"
                 )
+                # Toggle off debug logging
+                stop_debug_logging
 
                 if test "${https_result_code}" = "200"; then
                     key_pair_id=$(jq -r '.id' "${pingaccess_api_out}")
@@ -96,6 +106,9 @@ else
                 # Assign HTTPS Listeners
                 echo "INFO: Assigning ADMIN HTTPS listener to keypairID ${key_pair_id}."
                 _httpsListenersURL="${_basePaURL}/httpsListeners"
+
+                # Toggle on debug logging if DEBUG=true is set
+                start_debug_logging
                 https_result_code=$(
                     curl \
                         --insecure \
@@ -108,6 +121,8 @@ else
                         --data '{"keyPairId": "'"${key_pair_id}"'", "name": "ADMIN", "restartRequired": "false"}' \
                         "${_httpsListenersURL}/1"
                 )
+                # Toggle off debug logging
+                stop_debug_logging
 
                 if test "${https_result_code}" != "200"; then
                     cat "${pingaccess_api_out}"
@@ -115,6 +130,9 @@ else
                 fi
 
                 echo "INFO: Assigning ENGINE HTTPS listener to keypairID ${key_pair_id}."
+
+                # Toggle on debug logging if DEBUG=true is set
+                start_debug_logging
                 https_result_code=$(
                     curl \
                         --insecure \
@@ -127,6 +145,8 @@ else
                         --data '{"keyPairId": "'"${key_pair_id}"'", "name": "ENGINE", "restartRequired": "false"}' \
                         "${_httpsListenersURL}/2"
                 )
+                # Toggle off debug logging
+                stop_debug_logging
 
                 if test "${https_result_code}" != "200"; then
                     cat "${pingaccess_api_out}"
@@ -134,6 +154,9 @@ else
                 fi
 
                 echo "INFO: Assigning AGENT HTTPS listener to keypairID ${key_pair_id}."
+
+                # Toggle on debug logging if DEBUG=true is set
+                start_debug_logging
                 https_result_code=$(
                     curl \
                         --insecure \
@@ -146,6 +169,8 @@ else
                         --data '{"keyPairId": "'"${key_pair_id}"'", "name": "AGENT", "restartRequired": "false"}' \
                         "${_httpsListenersURL}/3"
                 )
+                # Toggle off debug logging
+                stop_debug_logging
 
                 if test "${https_result_code}" != "200"; then
                     cat "${pingaccess_api_out}"
@@ -153,6 +178,8 @@ else
                 fi
 
                 echo "INFO: Assigning CONFIG QUERY HTTPS listener to keypairID ${key_pair_id}."
+                # Toggle on debug logging if DEBUG=true is set
+                start_debug_logging
                 https_result_code=$(
                     curl \
                         --insecure \
@@ -165,6 +192,8 @@ else
                         --data '{"keyPairId": "'"${key_pair_id}"'", "name": "CONFIG QUERY", "restartRequired": "false"}' \
                         "${_httpsListenersURL}/4"
                 )
+                # Toggle off debug logging
+                stop_debug_logging
 
                 if test "${https_result_code}" != "200"; then
                     cat "${pingaccess_api_out}"
@@ -172,6 +201,8 @@ else
                 fi
 
                 echo "INFO: Assigning SIDEBAND HTTPS listener to keypairID ${key_pair_id}."
+                # Toggle on debug logging if DEBUG=true is set
+                start_debug_logging
                 https_result_code=$(
                     curl \
                         --insecure \
@@ -184,6 +215,8 @@ else
                         --data '{"keyPairId": "'"${key_pair_id}"'", "name": "SIDEBAND", "restartRequired": "false"}' \
                         "${_httpsListenersURL}/5"
                 )
+                # Toggle off debug logging
+                stop_debug_logging
 
                 if test "${https_result_code}" != "200"; then
                     cat "${pingaccess_api_out}"
@@ -195,6 +228,8 @@ else
                 echo "INFO: Setting administrative node ${adminNodesHost}"
                 _adminNodeHostURL="${_basePaURL}/adminConfig"
 
+                # Toggle on debug logging if DEBUG=true is set
+                start_debug_logging
                 https_result_code=$(
                     curl \
                         --insecure \
@@ -207,6 +242,8 @@ else
                         --data '{"hostPort":"'"${adminNodesHost}"'"}' \
                         "${_adminNodeHostURL}"
                 )
+                # Toggle off debug logging
+                stop_debug_logging
 
                 if test "${https_result_code}" != "200"; then
                     cat "${pingaccess_api_out}"

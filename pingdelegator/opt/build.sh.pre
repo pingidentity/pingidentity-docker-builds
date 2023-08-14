@@ -3,6 +3,8 @@ echo "Pre-build stage (before package are laid down on the shim)"
 
 # Common wrapper for reliable curl calls
 _curl() {
+    # Toggle on debug logging if DEBUG=true is set
+    start_debug_logging
     _httpResultCode=$(
         curl \
             --get \
@@ -17,6 +19,8 @@ _curl() {
             --retry-delay 3 \
             "${@}"
     )
+    # Toggle off debug logging
+    stop_debug_logging
     test "${_httpResultCode}" -eq 200
     return ${?}
 }
