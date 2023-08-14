@@ -198,7 +198,9 @@ ENV SHIM=${SHIM} \
     FIPS_PROVIDER="BCFIPS" \
 
 #-- Force a rebuild (replace-profile) of a PingDirectoy on restart.
-#-- Used when changes are made outside of the PD_PROFILE
+#-- Used to ensure that the server configuration exactly matches the server profile.
+#-- This variable will slow down startup times and should only be used
+#-- when necessary.
     PD_REBUILD_ON_RESTART=false \
 
 #-- Setting this variable to true speeds up server startup time by
