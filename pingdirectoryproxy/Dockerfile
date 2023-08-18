@@ -184,7 +184,10 @@ ENV SHIM=${SHIM} \
     PINGDIRECTORY_LDAPS_PORT="" \
 
 #-- Setting this variable to true will configure proxy to join the topology of PingDirectory
-    JOIN_PD_TOPOLOGY=false
+    JOIN_PD_TOPOLOGY=false \
+
+#-- Sets the number of columns in PingDirectoryProxy command-line tool output
+    COLUMNS=120
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
