@@ -179,7 +179,10 @@ ENV SHIM=${SHIM} \
 #-- If a value is not provided, the container will look at the list certs found in the 
 #-- `KEYSTORE_FILE` and if one - and only one - certificate is found of type `PrivateKeyEntry`,
 #-- that alias will be used.
-    CERTIFICATE_NICKNAME=
+    CERTIFICATE_NICKNAME= \
+
+#-- Sets the number of columns in PingDataSync command-line tool output
+    COLUMNS=120
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
