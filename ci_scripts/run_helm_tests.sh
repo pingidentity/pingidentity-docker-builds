@@ -36,6 +36,9 @@ $(cd "${_helm_tests_dir}" && find ./* -type d -maxdepth 2 | grep "\/" | sed 's/^
     --namespace-suffix {namespace-suffix}
         Namespace suffix to be appended to namespace
 
+    --platform {platform}
+        platform for test (openshift vs EKS)
+
     --helm-file-values {helm-values-yaml}
         Additional helm values files to be added to helm-test.
         Multiple helm values files can be added.
@@ -127,6 +130,11 @@ while test -n "${1}"; do
             test -z "${2}" && usage "You must specify a namespace-suffix to use if you specify the ${1} option"
             shift
             _namespace_suffix="${1}"
+            ;;
+        --platform)
+            test -z "${2}" && usage "You must specify a platform to use if you specify the ${1} option"
+            shift
+            platform="${1}"
             ;;
         --verbose)
             VERBOSE=true
@@ -480,6 +488,13 @@ for _helmTest in ${_helmTests}; do
     # shellcheck disable=SC2016
     envsubst '${DEPS_REGISTRY}' < "${_helmTest}" > "${_substHelmTest}"
 
+    # Deploy daemonSet with haveged to create more entropy on openshift/fips testing
+    if test -n "$(kubectl get daemonsets.apps haveged --namespace default 2>&1 > /dev/null)"; then
+        if test "${platform}" = "openshift" || [[ "${_helmTest}" == *"fips"* ]]; then
+            kubectl apply -n default -f "${_helm_tests_dir}/integration-tests/haveged.yaml"
+        fi
+    fi
+
     # Word-split is expected behavior for helm variables. Disable shellcheck.
     # shellcheck disable=SC2086
     helm install "${_helmRelease}" "${HELM_CHART_NAME}" \
@@ -490,10 +505,12 @@ for _helmTest in ${_helmTests}; do
         ${_addl_helm_set_values} \
         --set "testFramework.name=${TEST_SUFFIX}" \
         --set "testFramework.enabled=true" \
+        --set "testFramework.rbac.serviceAccountImagePullSecrets[0].name=${ECR_SECRET_NAME}" \
+        --set "testFramework.rbac.serviceAccountImagePullSecrets[1].name=${DOCKER_SECRET_NAME}" \
         --set "testFramework.testConfigMaps.prefix=${TEST_PREFIX}" \
-        --set "testFramework.finalStep.image=${DEPS_REGISTRY}busybox" \
-        --set "global.externalImage.pingtoolkit.image.repositoryFqn=${DEPS_REGISTRY}pingidentity/pingtoolkit" \
+        --set "global.externalImage.pingtoolkit.image.repositoryFqn=pingidentity/pingtoolkit" \
         --set "global.externalImage.pingtoolkit.image.tag=latest" \
+        --set "testFramework.finalStep.image=busybox:latest" \
         --set "global.addReleaseNameToResource=prepend"
 
     _returnCode=${?}

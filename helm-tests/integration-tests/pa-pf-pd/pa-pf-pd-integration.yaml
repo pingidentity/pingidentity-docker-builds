@@ -75,7 +75,7 @@ testFramework:
 
   testSteps:
     - name: 01-wait-for-pingdirectory-0
-      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      image: pingidentity/pingtoolkit:latest
       command:
         - /bin/sh
         - /var/run/wait-for-url.sh
@@ -83,7 +83,7 @@ testFramework:
         - "900"
 
     - name: 01a-wait-for-pingfederate-admin
-      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      image: pingidentity/pingtoolkit:latest
       command:
         - /bin/sh
         - /var/run/wait-for-url.sh
@@ -91,7 +91,7 @@ testFramework:
         - "900"
 
     - name: 01b-wait-for-pingfederate-engine
-      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      image: pingidentity/pingtoolkit:latest
       command:
         - /bin/sh
         - /var/run/wait-for-url.sh
@@ -99,7 +99,7 @@ testFramework:
         - "900"
 
     - name: 01c-wait-for-pingaccess-admin
-      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      image: pingidentity/pingtoolkit:latest
       command:
         - /bin/sh
         - /var/run/wait-for-url.sh
@@ -107,7 +107,7 @@ testFramework:
         - "900"
 
     - name: 01d-wait-for-pingaccess-engine
-      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      image: pingidentity/pingtoolkit:latest
       command:
         - /bin/sh
         - /var/run/wait-for-url.sh
@@ -115,7 +115,7 @@ testFramework:
         - "900"
 
     - name: 02-check-pa-pf-pd
-      image: ${DEPS_REGISTRY}arnaudlacour/newman
+      image: arnaudlacour/newman
       command:
         - newman
         - run

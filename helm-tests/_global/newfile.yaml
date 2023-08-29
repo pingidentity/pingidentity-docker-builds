@@ -91,7 +91,7 @@ testFramework:
         - "/var/run/shared/.config/helm/repositories.yaml"
 
     - name: 02a-wait-for-pingdfederate-admin
-      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      image: pingidentity/pingtoolkit:latest
       command:
         - /bin/sh
         - /var/run/wait-for-url.sh
@@ -99,7 +99,7 @@ testFramework:
         - "900"
 
     - name: 02b-wait-for-pingdfederate-engine
-      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      image: pingidentity/pingtoolkit:latest
       command:
         - /bin/sh
         - /var/run/wait-for-url.sh
@@ -107,7 +107,7 @@ testFramework:
         - "900"
 
     - name: 03-postman-pf-helm-test
-      image: ${DEPS_REGISTRY}arnaudlacour/newman
+      image: arnaudlacour/newman
       command:
         - newman
         - run

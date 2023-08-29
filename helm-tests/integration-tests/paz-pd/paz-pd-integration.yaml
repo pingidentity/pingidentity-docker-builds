@@ -40,7 +40,7 @@ testFramework:
 
   testSteps:
     - name: 01-wait-for-pingdirectory
-      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      image: pingidentity/pingtoolkit:latest
       command:
         - /bin/sh
         - /var/run/wait-for-url.sh
@@ -63,7 +63,7 @@ testFramework:
         - ldapsearch --baseDN "" --hostname $PD_ENGINE_PRIVATE_HOSTNAME --port $PD_ENGINE_PRIVATE_PORT_LDAPS --useSSL --trustAll --scope base "(&)"
 
     - name: 04-check-paz-pd
-      image: ${DEPS_REGISTRY}arnaudlacour/newman
+      image: arnaudlacour/newman
       command:
         - newman
         - run

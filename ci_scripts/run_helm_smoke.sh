@@ -158,7 +158,6 @@ _run_helm_test() {
         --helm-set-values global.image.repository=${FOUNDATION_REGISTRY} \
         --helm-set-values global.image.tag=${_test_tag} \
         --helm-set-values global.image.pullPolicy=Always \
-        --helm-set-values testFramework.finalStep.image=${DEPS_REGISTRY}busybox \
         ${NS_OPT}"
 
     echo "Running: $_cmd"

@@ -32,7 +32,7 @@ testFramework:
 
   testSteps:
     - name: 01-wait-for-pingdataconsole
-      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      image: pingidentity/pingtoolkit:latest
       command:
         - /bin/sh
         - /var/run/wait-for-url.sh
@@ -40,7 +40,7 @@ testFramework:
         - "900"
 
     - name: 02-postman-pdc-helm-test
-      image: ${DEPS_REGISTRY}arnaudlacour/newman
+      image: arnaudlacour/newman
       command:
         - newman
         - run

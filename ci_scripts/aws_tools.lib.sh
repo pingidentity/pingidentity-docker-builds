@@ -45,23 +45,34 @@ _createPipelineRepoAccess() {
 
     test -z "${_ns}" && echo_red "Namespace required to createPipelineRepoAccess" && exit 1
 
+    # Create secret for dockerhub credentials to avoid rate limiting
+    DOCKER_SECRET_NAME="dockerhub-config"
+    export DOCKER_SECRET_NAME
+
+    kubectl create secret docker-registry "${DOCKER_SECRET_NAME}" \
+        --docker-server=https://index.docker.io/v1/ \
+        --docker-username="${DOCKER_USERNAME}" \
+        --docker-password="${DOCKER_ACCESS_TOKEN}" \
+        --namespace="${_ns}"
+
     # Create secret for AWS ECR registry
-    _ecrSecretName="aws-ecr-registry"
+    ECR_SECRET_NAME="aws-ecr-registry"
+    export ECR_SECRET_NAME
 
     # AWS Version 2.x
     _awsToken="$(aws ecr get-login-password --region "${AWS_REGION}")"
 
-    kubectl create secret docker-registry "${_ecrSecretName}" \
+    kubectl create secret docker-registry "${ECR_SECRET_NAME}" \
         --docker-server="https://${PIPELINE_BUILD_REGISTRY}" \
         --docker-username=AWS \
         --docker-password="${_awsToken}" \
         --namespace "${_ns}"
 
     kubectl patch serviceaccount default \
-        --namespace "${_ns}" -p '{"imagePullSecrets":[{"name":"'${_ecrSecretName}'"}]}'
+        --namespace "${_ns}" -p '{"imagePullSecrets":[{"name":"'${DOCKER_SECRET_NAME}'"},{"name":"'${ECR_SECRET_NAME}'"}]}'
 
-    kubectl describe secret "${_ecrSecretName}" --namespace "${_ns}"
-    # kubectl describe secret "${_artifactorySecretName}" --namespace "${_ns}"
+    kubectl describe secret "${DOCKER_SECRET_NAME}" --namespace "${_ns}"
+    kubectl describe secret "${ECR_SECRET_NAME}" --namespace "${_ns}"
     kubectl get serviceaccount default -o=yaml --namespace "${_ns}"
 }
 

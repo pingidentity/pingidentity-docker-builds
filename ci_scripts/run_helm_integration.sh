@@ -211,6 +211,9 @@ integration_test_name="${_integration_to_run##*/}"
 # Get the defined architecture for the test
 test_arch=$(_getIntTestArch "${integration_test_name}" "${variation_id}")
 
+# Get the defined architecture for the test
+platform=$(_getIntTestPlatform "${integration_test_name}" "${variation_id}")
+
 # Get the defined products for the test
 products=$(_getIntTestProducts "${integration_test_name}" "${variation_id}")
 
@@ -241,6 +244,23 @@ for _productName in ${products}; do
     _create_helm_values
 done
 
+if test "${platform}" = "openshift"; then
+    echo "This is an integration-test on an openshift cluster"
+    # Switch to openshift cluster context in order to run integration tests on redhat images
+    kubectl config set-cluster "${RH_CLUSTER}" --server="${RH_CLUSTER_SERVER}"
+    kubectl config set "clusters.${RH_CLUSTER}.certificate-authority-data" "${RH_CLUSTER_CERT}"
+    kubectl config set-context "${_namespace_to_use}/${RH_CLUSTER}/system:admin" --cluster="${RH_CLUSTER}" --namespace="${_namespace_to_use}" --user="system:admin/${RH_CLUSTER}"
+    kubectl config set "users.system:admin/${RH_CLUSTER}.client-certificate-data" "${RH_CLUSTER_CLIENT_CERT}"
+    kubectl config set "users.system:admin/${RH_CLUSTER}.client-key-data" "${RH_CLUSTER_CLIENT_KEY}"
+    kubectl config use-context "${_namespace_to_use}/${RH_CLUSTER}/system:admin"
+
+    # Unset fsGroup and runAsUser on pod and container level
+    _addl_helm_set_values=("${_addl_helm_set_values[@]}" --helm-set-values "global.workload.securityContext.fsGroup=null")
+    _addl_helm_set_values=("${_addl_helm_set_values[@]}" --helm-set-values "global.workload.securityContext.runAsUser=null")
+    _addl_helm_set_values=("${_addl_helm_set_values[@]}" --helm-set-values "global.externalImage.pingtoolkit.securityContext.runAsUser=null")
+    _addl_helm_set_values=("${_addl_helm_set_values[@]}" --helm-set-values "global.externalImage.pingaccess.securityContext.runAsUser=null")
+fi
+
 # Create result file information/patterns
 _totalStart=$(date '+%s')
 _resultsFile="/tmp/$$.results"
@@ -264,6 +284,7 @@ test -n "${_namespace_to_use}" && NS_OPT=(--namespace "${_namespace_to_use}")
 test -n "${HELM_CHART_NAME}" && HELM_CHART_OPT=(--helm-chart "${HELM_CHART_NAME}")
 "${CI_SCRIPTS_DIR}/run_helm_tests.sh" \
     --helm-test "${_integration_to_run}" \
+    --platform "${platform}" \
     --helm-file-values "${_helmValues}" \
     "${_addl_helm_file_values[@]}" \
     "${_addl_helm_set_values[@]}" \
@@ -273,6 +294,18 @@ test -n "${HELM_CHART_NAME}" && HELM_CHART_OPT=(--helm-chart "${HELM_CHART_NAME}
 _exitCode=${?}
 _stop=$(date '+%s')
 _duration=$((_stop - _start))
+
+# Unset openshift cluster context
+if test "${platform}" = "openshift"; then
+    kubectl config unset "contexts.redhat-cluster/${RH_CLUSTER}/system:admin"
+    kubectl config unset "clusters.${RH_CLUSTER}"
+    kubectl config unset "users.system:admin/${RH_CLUSTER}"
+fi
+
+# Remove daemonSet
+if test -n "$(kubectl get daemonsets.apps haveged --namespace default 2>&1 > /dev/null)"; then
+    kubectl delete -n default daemonsets.apps haveged
+fi
 
 if test ${_exitCode} -ne 0; then
     _result="FAIL"
