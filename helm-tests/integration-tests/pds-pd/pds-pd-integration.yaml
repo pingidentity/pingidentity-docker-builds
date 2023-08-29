@@ -38,7 +38,7 @@ testFramework:
 
   testSteps:
     - name: 01-wait-for-pingdirectory
-      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      image: pingidentity/pingtoolkit:latest
       command:
         - /bin/sh
         - /var/run/wait-for-url.sh
@@ -61,7 +61,7 @@ testFramework:
           service: https
 
     - name: 04-check-pds-pd
-      image: ${DEPS_REGISTRY}arnaudlacour/newman
+      image: arnaudlacour/newman
       command:
         - newman
         - run

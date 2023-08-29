@@ -20,7 +20,7 @@ testFramework:
 
   testSteps:
     - name: 01-ldap-sdk-tools
-      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit
+      image: pingidentity/pingtoolkit:latest
       command: [ "/bin/sh" ]
       args:
         - -c

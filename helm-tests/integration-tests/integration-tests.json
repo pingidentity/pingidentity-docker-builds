@@ -7,6 +7,7 @@
                 {
                     "id": "1",
                     "architecture": "x86_64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingaccess-admin",
@@ -44,6 +45,7 @@
                 {
                     "id": "2",
                     "architecture": "x86_64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingaccess-admin",
@@ -80,6 +82,7 @@
                 {
                     "id": "3",
                     "architecture": "aarch64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingaccess-admin",
@@ -111,6 +114,44 @@
                             "shim": "alpine:3.18.2",
                             "jvm": "al11"
                         }
+                    ]
+                },
+                {
+                    "id": "4",
+                    "architecture": "x86_64",
+                    "platform": "openshift",
+                    "products": [
+                        {
+                            "productName": "pingaccess-admin",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingaccess-engine",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingfederate-admin",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingfederate-engine",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.18.2",
+                            "jvm": "al11"
+                        }
+
                     ]
                 }
             ]
@@ -122,6 +163,7 @@
                 {
                     "id": "1",
                     "architecture": "x86_64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingaccess-admin",
@@ -159,6 +201,7 @@
                 {
                     "id": "2",
                     "architecture": "x86_64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingaccess-admin",
@@ -190,6 +233,44 @@
                             "shim": "alpine:3.18.2",
                             "jvm": "al11"
                         }
+                    ]
+                },
+                {
+                    "id": "3",
+                    "architecture": "x86_64",
+                    "platform": "openshift",
+                    "products": [
+                        {
+                            "productName": "pingaccess-admin",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingaccess-engine",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingfederate-admin",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingfederate-engine",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingdirectory",
+                            "version": "latest",
+                            "shim": "alpine:3.18.2",
+                            "jvm": "al11"
+                        }
+
                     ]
                 }
             ]
@@ -201,6 +282,7 @@
                 {
                     "id": "1",
                     "architecture": "x86_64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingaccess-admin",
@@ -238,6 +320,7 @@
                 {
                     "id": "2",
                     "architecture": "x86_64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingaccess-admin",
@@ -270,6 +353,44 @@
                             "jvm": "conoj"
                         }
                     ]
+                },
+                {
+                    "id": "3",
+                    "architecture": "x86_64",
+                    "platform": "openshift",
+                    "products": [
+                        {
+                            "productName": "pingaccess-admin",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingaccess-engine",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingfederate-admin",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingfederate-engine",
+                            "version": "latest",
+                            "shim": "redhat/ubi/ubi9-minimal:9.1",
+                            "jvm": "rl11"
+                        },
+                        {
+                            "productName": "pingintelligence",
+                            "version": "latest",
+                            "shim": "centos:7.9.2009",
+                            "jvm": "conoj"
+                        }
+
+                    ]
                 }
             ]
         },
@@ -280,6 +401,7 @@
                 {
                     "id": "1",
                     "architecture": "x86_64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingauthorize",
@@ -298,6 +420,7 @@
                 {
                     "id": "2",
                     "architecture": "aarch64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingauthorize",
@@ -322,6 +445,7 @@
                 {
                     "id": "1",
                     "architecture": "x86_64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingdirectory",
@@ -334,6 +458,7 @@
                 {
                     "id": "2",
                     "architecture": "aarch64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingdirectory",
@@ -352,6 +477,7 @@
                 {
                     "id": "1",
                     "architecture": "x86_64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingdirectory",
@@ -370,6 +496,7 @@
                 {
                     "id": "2",
                     "architecture": "aarch64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingdirectory",
@@ -394,6 +521,7 @@
                 {
                     "id": "1",
                     "architecture": "x86_64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingdirectory",
@@ -412,6 +540,7 @@
                 {
                     "id": "2",
                     "architecture": "aarch64",
+                    "platform": "EKS",
                     "products": [
                         {
                             "productName": "pingdirectory",

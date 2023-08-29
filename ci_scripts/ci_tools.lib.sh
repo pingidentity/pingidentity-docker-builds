@@ -26,6 +26,21 @@ _getIntTestArch() {
         "${tests_json}"
 }
 
+_getIntTestPlatform() {
+    test -z "${1}" && echo_red "ERROR: The function _getIntTestPlatform requires a test name." && exit 1
+    test -z "${2}" && echo_red "ERROR: The function _getIntTestPlatform requires a variation id." && exit 1
+
+    tests_json="${CI_PROJECT_DIR}/helm-tests/integration-tests/integration-tests.json"
+
+    # Ensure that the file exists before returning the file path.
+    ! test -f "${tests_json}" && echo_red "ERROR: File ${tests_json} not found." && exit 1
+
+    jq -r --arg testName "${1}" \
+        --arg variationId "${2}" \
+        '.tests[] | select(.name == $testName) | .variations[] | select(.id == $variationId) | .platform' \
+        "${tests_json}"
+}
+
 _getIntTestProducts() {
     test -z "${1}" && echo_red "ERROR: The function _getIntTestProducts requires a test name." && exit 1
     test -z "${2}" && echo_red "ERROR: The function _getIntTestProducts requires a variation id." && exit 1
@@ -642,6 +657,7 @@ setupDockerConfigJson() {
     mkdir -p "${docker_config_hub_dir}"
 
     # login to docker.io to create the docker hub config.json
+    docker logout https://index.docker.io/v1/
     docker --config "${docker_config_hub_dir}" login --username "${DOCKER_USERNAME}" --password "${DOCKER_ACCESS_TOKEN}"
     test ${?} -ne 0 && echo_red "Error: Failed to login to DockerHub in ci_tools.sh" && exit 1
 

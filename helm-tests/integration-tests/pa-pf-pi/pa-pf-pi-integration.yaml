@@ -77,7 +77,7 @@ testFramework:
           service: https
 
     - name: 02-check-pa-pf-pi
-      image: ${DEPS_REGISTRY}arnaudlacour/newman
+      image: arnaudlacour/newman
       command:
         - newman
         - run
