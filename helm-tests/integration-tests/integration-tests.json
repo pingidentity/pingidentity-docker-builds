@@ -148,7 +148,7 @@
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.18.2",
+                            "shim": "alpine:3.18.3",
                             "jvm": "al11"
                         }
 
@@ -267,7 +267,7 @@
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
-                            "shim": "alpine:3.18.2",
+                            "shim": "alpine:3.18.3",
                             "jvm": "al11"
                         }
 
