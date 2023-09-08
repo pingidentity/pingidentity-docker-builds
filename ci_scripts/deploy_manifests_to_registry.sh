@@ -51,6 +51,39 @@ create_manifest_and_push() {
     echo "Successfully created and pushed manifest: ${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
 }
 
+publish_manifest_to_redhat_registry() {
+    target_manifest_name="${1}"
+    # Redhat preflight binary filename
+    preflight_filename="/usr/local/bin/preflight"
+
+    # Set openshift project id
+    if test "${product_to_deploy}" == "pingaccess"; then
+        openshift_project_id="${PA_OPENSHIFT_PROJECT_ID}"
+    elif test "${product_to_deploy}" == "pingfederate"; then
+        openshift_project_id="${PF_OPENSHIFT_PROJECT_ID}"
+    fi
+
+    # Download Redhat's preflight tool
+    if test ! -f "${preflight_filename}"; then
+        echo "INFO: Downloading latest preflight version for Linux"
+
+        # Download the latest version of preflight for linux amd64(x86_64) from GitHub.
+        preflight_download_url=$(curl --silent https://api.github.com/repos/redhat-openshift-ecosystem/openshift-preflight/releases/latest | jq -r '.assets[] | select(.name|test("linux-amd64")) | .browser_download_url')
+        test -z "${preflight_download_url}" && echo "Error: Failed to retrieve preflight download URL" && exit 1
+        curl --location --silent --output "${preflight_filename}" "${preflight_download_url}"
+        test $? -ne 0 && echo "Error: Failed to retrieve preflight binary from GitHub" && exit 1
+
+        # Give execute permissions to shellcheck
+        chmod +x "${preflight_filename}"
+        test $? -ne 0 && echo "Error: Failed to exit execute permissions on preflight binary" && exit 1
+    fi
+
+    # Run preflight on redhat manifests
+    echo "Running redhat preflight check on manifest: ${product_to_deploy}:${target_manifest_name}"
+    exec_cmd_or_fail preflight check container "${DOCKER_HUB_REGISTRY}/${product_to_deploy}:${target_manifest_name}" --submit --certification-project-id="${openshift_project_id}" --docker-config="${docker_config_dir}" --pyxis-api-token="${PYXIS_API_TOKEN}"
+    echo "Successfully pushed manifest: ${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
+}
+
 while test -n "${1}"; do
     case "${1}" in
         -p | --product)
@@ -149,6 +182,11 @@ for version in ${versions_to_deploy}; do
                     if test -n "${sprint}"; then
                         create_manifest_and_push_and_sign "${version}-${shim_long_tag}-${jvm}-latest"
                         create_manifest_and_push_and_sign "${sprint}-${version}-${shim_long_tag}-${jvm}"
+                        if [[ "${shim_long_tag}" == "redhat"* ]]; then
+                            # Publish redhat manifests to redhat registry once they have been pushed to dockerhub
+                            publish_manifest_to_redhat_registry "${version}-${shim_long_tag}-${jvm}-latest"
+                            publish_manifest_to_redhat_registry "${sprint}-${version}-${shim_long_tag}-${jvm}"
+                        fi
                         if test "${shim}" = "${default_shim}" && test "${jvm}" = "${default_jvm}"; then
                             create_manifest_and_push_and_sign "${version}-latest"
                             create_manifest_and_push_and_sign "${sprint}-${version}"
