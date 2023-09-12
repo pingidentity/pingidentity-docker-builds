@@ -103,3 +103,10 @@ case "${_osID}" in
         removePackageManager_ubuntu
         ;;
 esac
+
+#fix permissions to ping user and root group. Removes permissions from others
+chown -f 9031:0 "${BASE}"
+chmod -f o-rwx "${BASE}"
+
+#fix group permissions from owner
+chmod -f g=u "${BASE}"
