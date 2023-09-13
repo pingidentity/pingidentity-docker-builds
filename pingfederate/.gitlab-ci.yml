@@ -157,5 +157,5 @@ d.pingfederate:
         - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
-    - if: '$CI_COMMIT_TAG =~ /^\d{4}$/'
+    - if: '$CI_COMMIT_TAG =~ /^\d{4}\.?\d*/'
       when: on_success
