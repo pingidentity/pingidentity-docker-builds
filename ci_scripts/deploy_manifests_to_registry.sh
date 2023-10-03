@@ -80,7 +80,7 @@ publish_manifest_to_redhat_registry() {
 
     # Run preflight on redhat manifests
     echo "Running redhat preflight check on manifest: ${product_to_deploy}:${target_manifest_name}"
-    exec_cmd_or_fail preflight check container "${DOCKER_HUB_REGISTRY}/${product_to_deploy}:${target_manifest_name}" --submit --certification-project-id="${openshift_project_id}" --docker-config="${docker_config_dir}" --pyxis-api-token="${PYXIS_API_TOKEN}"
+    exec_cmd_or_fail preflight check container "${DOCKER_HUB_REGISTRY}/${product_to_deploy}:${target_manifest_name}" --submit --certification-project-id="${openshift_project_id}" --docker-config="${docker_config_dir}/config.json" --pyxis-api-token="${PYXIS_API_TOKEN}"
     echo "Successfully pushed manifest: ${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
 }
 
@@ -184,7 +184,6 @@ for version in ${versions_to_deploy}; do
                         create_manifest_and_push_and_sign "${sprint}-${version}-${shim_long_tag}-${jvm}"
                         if [[ "${shim_long_tag}" == "redhat"* ]]; then
                             # Publish redhat manifests to redhat registry once they have been pushed to dockerhub
-                            publish_manifest_to_redhat_registry "${version}-${shim_long_tag}-${jvm}-latest"
                             publish_manifest_to_redhat_registry "${sprint}-${version}-${shim_long_tag}-${jvm}"
                         fi
                         if test "${shim}" = "${default_shim}" && test "${jvm}" = "${default_jvm}"; then
