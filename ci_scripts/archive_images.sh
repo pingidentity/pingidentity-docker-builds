@@ -187,6 +187,11 @@ repository_list=$(jq -r '[.results[] | .name] | unique | .[]' "${api_output_file
 
 # Loop through DockerHub/Artifactory repositories
 for repository in ${repository_list}; do
+    # TODO: Remove conditional once we have access to pingone-ldap-gateway image
+    if test "${repository}" = "pingone-ldap-gateway"; then
+        # Skip pingone-ldap-gateway image
+        continue
+    fi
     banner "Archiving for repository: ${repository}"
     page_size=100
     page_number=1
