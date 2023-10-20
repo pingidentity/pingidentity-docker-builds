@@ -29,12 +29,10 @@ printf "
 #############################################
 # Enabling PingDataSync Failover
 #
-# Current Master Topology Instance: ${MASTER_TOPOLOGY_INSTANCE}
-#
 #   %60s        %-60s
 #   %60s  <-->  %-60s
 #############################################
-" "Topology Master Server" "POD Server" "${MASTER_TOPOLOGY_HOSTNAME}:${MASTER_TOPOLOGY_LDAPS_PORT}" "${POD_HOSTNAME}:${POD_LDAPS_PORT:?}"
+" "Remote Server" "POD Server" "${REMOTE_SERVER_HOSTNAME}:${REMOTE_SERVER_LDAPS_PORT}" "${POD_HOSTNAME}:${POD_LDAPS_PORT:?}"
 
 # manage-topology add-server does not currently support an admin password file - see DS-43027
 # Read the value from file using get_value if necessary, or default to PING_IDENTITY_PASSWORD.
@@ -46,8 +44,8 @@ fi
 manage-topology add-server \
     --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
     --trustAll \
-    --hostname "${MASTER_TOPOLOGY_HOSTNAME}" \
-    --port "${MASTER_TOPOLOGY_LDAPS_PORT}" \
+    --hostname "${REMOTE_SERVER_HOSTNAME}" \
+    --port "${REMOTE_SERVER_LDAPS_PORT}" \
     --useSSL \
     --bindDN "${ROOT_USER_DN}" \
     --bindPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
