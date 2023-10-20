@@ -32,12 +32,10 @@ printf "
 #############################################
 # Enabling Replication
 #
-# Current Master Topology Instance: ${MASTER_TOPOLOGY_INSTANCE}
-#
 #   %60s        %-60s
 #   %60s  <-->  %-60s
 #############################################
-" "Topology Master Server" "POD Server" "${MASTER_TOPOLOGY_HOSTNAME}:${MASTER_TOPOLOGY_LDAPS_PORT}" "${POD_HOSTNAME}:${_podReplicationPort:?}"
+" "Remote Server" "POD Server" "${REMOTE_SERVER_HOSTNAME}:${REMOTE_SERVER_LDAPS_PORT}" "${POD_HOSTNAME}:${_podReplicationPort:?}"
 
 # Use positional arguments to build --baseDN args for dsreplication
 set -- --baseDN "${USER_BASE_DN}"
@@ -72,10 +70,10 @@ set -x
 dsreplication enable \
     --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
     --trustAll \
-    --host1 "${MASTER_TOPOLOGY_HOSTNAME}" \
-    --port1 "${MASTER_TOPOLOGY_LDAPS_PORT}" \
+    --host1 "${REMOTE_SERVER_HOSTNAME}" \
+    --port1 "${REMOTE_SERVER_LDAPS_PORT}" \
     --useSSL1 \
-    --replicationPort1 "${MASTER_TOPOLOGY_REPLICATION_PORT}" \
+    --replicationPort1 "${REMOTE_SERVER_REPLICATION_PORT}" \
     --bindDN1 "${ROOT_USER_DN}" \
     --bindPasswordFile1 "${ROOT_USER_PASSWORD_FILE}" \
     --host2 "${POD_HOSTNAME}" \

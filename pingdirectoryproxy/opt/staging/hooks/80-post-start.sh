@@ -14,21 +14,16 @@ test "${VERBOSE}" = "true" && set -x
 # shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
 . "${HOOKS_DIR}/pingdata.lib.sh"
 
-# Check availability and set variables necessary for enabling backend discovery
-# If this method returns a non-zero exit code, then we shouldn't try
-# to enable automatic backend discovery
+# This hook is only needed when joining a PD topology for automatic backend discovery
 if test "$(toLower "${JOIN_PD_TOPOLOGY}")" != "true"; then
-    echo "Backend discovery for PingDirectoryProxy will not be configured, because JOIN_PD_TOPOLOGY is set to false."
     exit 0
-else
-    if test -z "${PINGDIRECTORY_HOSTNAME}" ||
-        test -z "${PINGDIRECTORY_LDAPS_PORT}"; then
-        echo "One of PINGDIRECTORY_HOSTNAME: (${PINGDIRECTORY_HOSTNAME}), PINGDIRECTORY_LDAPS_PORT: (${PINGDIRECTORY_LDAPS_PORT}) aren't set."
-        exit 0
-    else
-        POD_HOSTNAME="${K8S_STATEFUL_SET_NAME}-0"
-        POD_LDAPS_PORT="${LDAPS_PORT}"
-    fi
+fi
+
+if ! prepareToJoinTopology; then
+    echo "Backend discovery for PingDirectoryProxy will not be configured."
+    set_server_available online
+
+    exit 0
 fi
 
 _podName=$(getHostName)
@@ -44,8 +39,6 @@ printf "
 #############################################
 # Enabling PingDirectoryProxy Backend Discovery
 #
-# Current PingDirectory Topology Instance: ${PINGDIRECTORY_HOSTNAME}
-#
 #   %60s        %-60s
 #   %60s  <-->  %-60s
 #############################################
@@ -58,6 +51,7 @@ if test -z "${ADMIN_USER_PASSWORD}"; then
     ADMIN_USER_PASSWORD="${PING_IDENTITY_PASSWORD}"
 fi
 
+set -x
 manage-topology add-server \
     --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
     --trustAll \
@@ -76,10 +70,13 @@ manage-topology add-server \
     --ignoreWarnings
 
 _addServerResult=$?
+test "${VERBOSE}" != "true" && set +x
 echo "Automatic backend discovery configuration for POD Server result=${_addServerResult}"
 
 if test ${_addServerResult} -ne 0; then
-    echo "Failed to configure Proxy backend discovery."
+    echo "Failed to configure Proxy automatic backend discovery."
+else
+    set_server_available online
 fi
 
 exit ${_addServerResult}
