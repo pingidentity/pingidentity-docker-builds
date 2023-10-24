@@ -9,16 +9,16 @@ if ! type java > /dev/null 2> /dev/null; then
     #Modify the following variables to update Alpine and RHEL image's JDK.
     case "${JVM_ID}" in
         al11 | rl11)
-            JDK_VERSION="11.0.20.1+1"
-            alpine_x86_64_checksum="0faadbb7843fc9c0abb628cc8b69c48e3739e397"
-            alpine_aarch64_checksum="2eff8182e5d0cf407ebed9f9099a5628b378234b"
-            redhat_x86_64_checksum="b927332cf8b19d5e479c7e20e8917a98c77adf72"
+            JDK_VERSION="11.0.21+10"
+            alpine_x86_64_checksum="12b2e8adff3e8fd6dfe878a054a1d2d525ce10c5"
+            alpine_aarch64_checksum="febff0d39ad9ee97060f6e678c7cec1656fb554b"
+            redhat_x86_64_checksum="7c1d864e8c7c7f7ef58c89d79949fcd276a9d39d"
             ;;
         al17)
-            JDK_VERSION="17.0.8.1+1"
-            alpine_x86_64_checksum="2417c959b53be60f1aa30cfdae33c37425809642"
-            alpine_aarch64_checksum="c34d3eaf3f598b351ec5dd936d4393dbc330b520"
-            redhat_x86_64_checksum="95a711e12ae1af5249ac56f1513e7ed9a3c0a6d7"
+            JDK_VERSION="17.0.9+11"
+            alpine_x86_64_checksum="ea40f30b472b1c5e6a3c50f1b80529f7f50f1c8d"
+            alpine_aarch64_checksum="2232f029142ac86b5d2e09d27516be8a80043402"
+            redhat_x86_64_checksum="af3de4524646058018c7b885b54f7606c5d0a592"
             ;;
         *)
             echo "ERROR: Unrecognized JVM_ID: ${JVM_ID}" && exit 1
