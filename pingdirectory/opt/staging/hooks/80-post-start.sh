@@ -18,10 +18,20 @@ test -f "${HOOKS_DIR}/pingdirectory.lib.sh" && . "${HOOKS_DIR}/pingdirectory.lib
 # Check availability and set variables necessary for enabling replication
 # If this method returns a non-zero exit code, then we shouldn't try
 # to enable replication
-if ! prepareToJoinTopology; then
+prepareToJoinTopology
+_prepareToJoinResult=$?
+
+# Load balancing algorithms can't be set until the server has started, and
+# the prepareToJoinTopology function above waits for the server to start
+setLoadBalancingAlgorithms
+_setAlgorithmsResult=$?
+if test ${_setAlgorithmsResult} -ne 0; then
+    exit ${_setAlgorithmsResult}
+fi
+
+if test ${_prepareToJoinResult} -ne 0; then
     echo "Replication will not be configured."
     set_server_available online
-
     exit 0
 fi
 

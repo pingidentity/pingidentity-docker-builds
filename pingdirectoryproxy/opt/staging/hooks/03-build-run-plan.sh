@@ -39,7 +39,7 @@ export_container_env RUN_PLAN INSTANCE_NAME
 
 # Only need to set run plan when joining a PingDirectory topology
 if test "$(toLower "${JOIN_PD_TOPOLOGY}")" != "true"; then
-    echo "Backend discovery for PingDirectoryProxy will not be configured, because JOIN_PD_TOPOLOGY is not set to true."
+    echo "Automatic server discovery for PingDirectoryProxy will not be configured, because JOIN_PD_TOPOLOGY is not set to true."
     exit 0
 fi
 

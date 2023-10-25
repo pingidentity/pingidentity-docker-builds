@@ -1008,16 +1008,13 @@ buildRunPlan() {
     #########################################################################
     # Unknown ORCHESTRATION_TYPE
     #########################################################################
-    if test -z "${ORCHESTRATION_TYPE}" && test "${PD_STATE}" = "SETUP"; then
+    if ! test "${PING_PRODUCT}" = "PingDirectoryProxy" && test -z "${ORCHESTRATION_TYPE}" && test "${PD_STATE}" = "SETUP"; then
         case "${PING_PRODUCT}" in
             PingDirectory)
                 echo "Replication will not be enabled. Unknown ORCHESTRATION_TYPE"
                 ;;
             PingDataSync)
                 echo "Sync failover will not be enabled. Unknown ORCHESTRATION_TYPE"
-                ;;
-            PingDirectoryProxy)
-                echo "Automatic backend discovery will not be enabled. Unknown ORCHESTRATION_TYPE"
                 ;;
         esac
         PD_STATE="GENESIS"
@@ -1380,12 +1377,16 @@ prepareToJoinTopology() {
     #- * Check to see if PD_STATE is GENESIS.  If so, no replication or failover will be performed
     #
     if test "${PD_STATE}" = "GENESIS"; then
-        if test "${PING_PRODUCT}" = "PingDirectory"; then
-            echo "PD_STATE is GENESIS ==> Replication on this server won't be set up until more instances are added"
-        else
-            echo "PD_STATE is GENESIS ==> Failover on this server won't be set up until more instances are added"
-        fi
-        return 1
+        case "${PING_PRODUCT}" in
+            PingDirectory)
+                echo "PD_STATE is GENESIS ==> Replication on this server won't be set up until more instances are added"
+                return 1
+                ;;
+            PingDataSync)
+                echo "PD_STATE is GENESIS ==> Failover on this server won't be set up until more instances are added"
+                return 1
+                ;;
+        esac
     fi
 
     # Proxy has no notion of a seed server
@@ -1451,7 +1452,7 @@ prepareToJoinTopology() {
     _priorNumInstances=$(jq ".serverInstances | length" "${_priorTopoFile}")
 
     #
-    #- * If this server is already in a prior topology, then replication/failover/backend discovery may already be enabled.
+    #- * If this server is already in a prior topology, then replication/failover/server discovery may already be enabled.
     #- * It is also possible that this server has lost its volume and isn't aware of the topology.
     #- * When that is the case, run remove-defunct-server and re-add this server to the topology from the seed server.
     #
@@ -1508,7 +1509,7 @@ prepareToJoinTopology() {
                     echo "This instance (${_podInstanceName}) is already found in topology --> No need to enable failover"
                     ;;
                 PingDirectoryProxy)
-                    echo "This instance (${_podInstanceName}) is already found in topology --> No need to enable automatic backend discovery"
+                    echo "This instance (${_podInstanceName}) is already found in topology --> No need to enable automatic server discovery"
                     ;;
             esac
             return 1
