@@ -146,5 +146,5 @@ fi
 if test "${PING_PRODUCT}" = "PingDirectory"; then
     set_server_unavailable "Configuring replication" offline
 elif test "${PING_PRODUCT}" = "PingDirectoryProxy" && test "${JOIN_PD_TOPOLOGY}" = "true"; then
-    set_server_unavailable "Configuring automatic backend discovery" offline
+    set_server_unavailable "Configuring automatic server discovery" offline
 fi

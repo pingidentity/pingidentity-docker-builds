@@ -34,13 +34,7 @@ printf "
 #############################################
 " "Remote Server" "POD Server" "${REMOTE_SERVER_HOSTNAME}:${REMOTE_SERVER_LDAPS_PORT}" "${POD_HOSTNAME}:${POD_LDAPS_PORT:?}"
 
-# manage-topology add-server does not currently support an admin password file - see DS-43027
-# Read the value from file using get_value if necessary, or default to PING_IDENTITY_PASSWORD.
-ADMIN_USER_PASSWORD="$(get_value ADMIN_USER_PASSWORD true)"
-if test -z "${ADMIN_USER_PASSWORD}"; then
-    ADMIN_USER_PASSWORD="${PING_IDENTITY_PASSWORD}"
-fi
-
+set -x
 manage-topology add-server \
     --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
     --trustAll \
@@ -55,10 +49,11 @@ manage-topology add-server \
     --remoteServerBindDN "${ROOT_USER_DN}" \
     --remoteServerBindPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
     --adminUID "${ADMIN_USER_NAME}" \
-    --adminPassword "${ADMIN_USER_PASSWORD}" \
+    --adminPasswordFile "${ADMIN_USER_PASSWORD_FILE}" \
     --ignoreWarnings
 
 _addServerResult=$?
+test "${VERBOSE}" != "true" && set +x
 echo "Failover configuration for POD Server result=${_addServerResult}"
 
 if test ${_addServerResult} -ne 0; then

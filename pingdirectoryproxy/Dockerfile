@@ -175,11 +175,11 @@ ENV SHIM=${SHIM} \
 #-- remove-defunct-server
     RETRY_TIMEOUT_SECONDS=180 \
 
-#-- Set this variable to configure Proxy for automatic backend discovery with PingDirectory hostname
+#-- Set this variable to configure Proxy for automatic server discovery with PingDirectory hostname
 #-- JOIN_PD_TOPOLOGY must be enabled for PINGDIRECTORY_HOSTNAME to take effect
     PINGDIRECTORY_HOSTNAME="" \
 
-#-- Set this variable to configure Proxy for automatic backend discovery with PingDirectory LDAPS port
+#-- Set this variable to configure Proxy for automatic server discovery with PingDirectory LDAPS port
 #-- JOIN_PD_TOPOLOGY must be enabled for PINGDIRECTORY_LDAPS_PORT to take effect
     PINGDIRECTORY_LDAPS_PORT="" \
 

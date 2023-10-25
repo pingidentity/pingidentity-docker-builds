@@ -243,6 +243,11 @@ ENV SHIM=${SHIM} \
 #-- Note that this process can take a long time for large backends.
     PD_FORCE_DATA_REIMPORT=false \
 
+#-- The load-balancing algorithm names to set for this server instance.
+#-- This variable is only needed when enabling automatic server discovery with PingDirectoryProxy.
+#-- Multiple algorithms can be specified here, separated by a `;` character
+    LOAD_BALANCING_ALGORITHM_NAMES= \
+
 #-- Sets the number of columns in PingDirectory command-line tool output
     COLUMNS=120
 
