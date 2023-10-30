@@ -180,11 +180,11 @@ for version in ${versions_to_deploy}; do
                     create_manifest_and_push_and_sign "${sprint}-${version}"
                 else
                     if test -n "${sprint}"; then
-                        create_manifest_and_push_and_sign "${version}-${shim_long_tag}-${jvm}-latest"
                         create_manifest_and_push_and_sign "${sprint}-${version}-${shim_long_tag}-${jvm}"
                         if [[ "${shim_long_tag}" == "redhat"* ]]; then
-                            # Publish redhat manifests to redhat registry once they have been pushed to dockerhub
                             publish_manifest_to_redhat_registry "${sprint}-${version}-${shim_long_tag}-${jvm}"
+                        else
+                            create_manifest_and_push_and_sign "${version}-${shim_long_tag}-${jvm}-latest"
                         fi
                         if test "${shim}" = "${default_shim}" && test "${jvm}" = "${default_jvm}"; then
                             create_manifest_and_push_and_sign "${version}-latest"
@@ -201,7 +201,9 @@ for version in ${versions_to_deploy}; do
                             create_manifest_and_push_and_sign "edge"
                         fi
                     fi
-                    create_manifest_and_push_and_sign "${version}-${shim_long_tag}-${jvm}-edge"
+                    if [[ "${shim_long_tag}" != "redhat"* ]]; then
+                        create_manifest_and_push_and_sign "${version}-${shim_long_tag}-${jvm}-edge"
+                    fi
                 fi
 
                 # Delete images of type ${version}-${shim_long_tag}-${jvm}-${arch}-edge from target registry
