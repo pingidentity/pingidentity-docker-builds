@@ -72,4 +72,4 @@ else
     set_server_available online
 fi
 
-#exit ${_addServerResult}
+exit ${_addServerResult}
