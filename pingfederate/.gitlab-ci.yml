@@ -23,6 +23,7 @@ intel.b.pingfederate:
         - pingdatacommon/**/*
         - pingaccess/**/*
         - pingdirectory/**/*
+        - pingintelligence/**/*
         - integration_tests/**/*
         - ci_scripts/*
         - pingjvm/*
@@ -57,6 +58,7 @@ arm.b.pingfederate:
         - pingdatacommon/**/*
         - pingaccess/**/*
         - pingdirectory/**/*
+        - pingintelligence/**/*
         - integration_tests/**/*
         - ci_scripts/*
         - pingjvm/*
