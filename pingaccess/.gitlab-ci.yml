@@ -22,6 +22,7 @@ intel.b.pingaccess:
         - pingbase/**/*
         - pingaccess/**/*
         - pingdirectory/**/*
+        - pingintelligence/**/*
         - pingfederate/**/*
         - integration_tests/**/*
         - pingjvm/*
@@ -56,6 +57,7 @@ arm.b.pingaccess:
         - pingbase/**/*
         - pingaccess/**/*
         - pingdirectory/**/*
+        - pingintelligence/**/*
         - pingfederate/**/*
         - integration_tests/**/*
         - pingjvm/*
