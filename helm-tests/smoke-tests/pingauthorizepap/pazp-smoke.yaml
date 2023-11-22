@@ -33,5 +33,5 @@ testFramework:
       command:
         - /bin/sh
         - /var/run/wait-for-url.sh
-        - https://${PAZP_ENGINE_PRIVATE_HOSTNAME}:${PAZP_ENGINE_PRIVATE_PORT_HTTPS}/healthcheck
+        - https://${PAZP_ENGINE_PRIVATE_HOSTNAME}:${PAZP_ENGINE_PRIVATE_PORT_HTTPS}/index.html
         - "900"

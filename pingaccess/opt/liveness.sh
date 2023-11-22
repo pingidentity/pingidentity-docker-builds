@@ -26,11 +26,11 @@ case "${OPERATIONAL_MODE}" in
         fi
         ;;
     "CLUSTERED_ENGINE" | "CLUSTERED_CONSOLE_REPLICA")
-        curl -ss -o /dev/null -k "https://127.0.0.1:${PA_ENGINE_PORT}/pa/heartbeat.ping"
+        curl -sS -o /dev/null -k "https://127.0.0.1:${PA_ENGINE_PORT}/pa/heartbeat.ping"
         # ^ this will succeed if PA has not been configured to a port other than the default
         if test ${?} -ne 0; then
             # if the default failed, we try on the custom port
-            curl -ss -o /dev/null -k "https://127.0.0.1:${HTTPS_PORT}/pa/heartbeat.ping"
+            curl -sS -o /dev/null -k "https://127.0.0.1:${HTTPS_PORT}/pa/heartbeat.ping"
             # ^ this will succeed if PA has been customized to listen to ${HTTPS_PORT}
             if test ${?} -ne 0; then
                 # the health check must return 0 for healthy, 1 otherwise
