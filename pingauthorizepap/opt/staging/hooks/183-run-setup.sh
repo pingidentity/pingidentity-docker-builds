@@ -81,7 +81,7 @@ fi
 
 cat << EOF >> "${_setup_args_file}"
 --excludeSensitiveValues
---adminPort 8444
+--adminPort "${PING_ADMIN_PORT:-8444}"
 --licenseKeyFile "${LICENSE_DIR}/${LICENSE_FILE_NAME}"
 --port ${HTTPS_PORT}
 --hostname "${REST_API_HOSTNAME}"
