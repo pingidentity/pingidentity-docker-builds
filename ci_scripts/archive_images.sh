@@ -103,18 +103,6 @@ authenticate_to_dockerhub() {
     fi
 }
 
-# Retrieve DockerHub list of repositories for Ping Identity, and output the data to $api_output_file
-get_all_dockerhub_repositories() {
-    http_result_code=$(api_curl \
-        --header "Authorization: Bearer ${dockerhub_auth_token}" \
-        --output "${api_output_file}" \
-        --request "GET" \
-        "${dockerhub_api_domain}/v2/namespaces/${api_namespace}/repositories?page_size=100")
-    test "${http_result_code}" -ne 200 &&
-        echo "ERROR: ${http_result_code} Unable to retrieve repositories from ${dockerhub_api_domain}/v2/namespaces/${api_namespace}/repositories?page_size=100" &&
-        exit 1
-}
-
 # Retrieve DockerHub tags data for a specific repository, and output the data to $api_output_file
 get_dockerhub_repository_tags_data() {
     test -z "${1}" && echo_red "ERROR: The function get_dockerhub_repository_tags_data requires a repository name." && exit 1
@@ -181,17 +169,11 @@ get_dockerhub_specific_tag_data() {
 authenticate_to_dockerhub
 dockerhub_auth_token=$(jq -r .token "${api_output_file}")
 
-# Get list of all DockerHub repositories for the organization PingIdentity
-get_all_dockerhub_repositories
-repository_list=$(jq -r '[.results[] | .name] | unique | .[]' "${api_output_file}")
+# Define list of all DockerHub repositories for the PingDevops Integrations Team
+repository_list="ldap-sdk-tools pingaccess pingauthorize pingauthorizepap pingcentral pingdataconsole pingdatasync pingdelegator pingdirectory pingdirectoryproxy pingfederate pingintelligence pingtoolkit"
 
 # Loop through DockerHub/Artifactory repositories
 for repository in ${repository_list}; do
-    # TODO: Remove conditional once we have access to pingone-ldap-gateway image
-    if test "${repository}" = "pingone-ldap-gateway"; then
-        # Skip pingone-ldap-gateway image
-        continue
-    fi
     banner "Archiving for repository: ${repository}"
     page_size=100
     page_number=1
