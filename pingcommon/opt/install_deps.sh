@@ -78,7 +78,7 @@ case "${_osID}" in
         ;;
     rhel)
         _versionID=$(awk '$0~/^VERSION_ID=/{split($1,version,"=");gsub(/"/,"",version[2]);print version[2];}' /etc/os-release)
-        _packages="bind-utils cronie gettext git git-lfs jq net-tools nmap-ncat openssh-clients procps-ng unzip zip findutils"
+        _packages="bind-utils cronie gettext git git-lfs jq net-tools nmap-ncat openssh-clients procps-ng tar unzip zip findutils"
 
         microdnf -y update --releasever "${_versionID}"
         # Word-splitting expected in listing microdnf packages to install
