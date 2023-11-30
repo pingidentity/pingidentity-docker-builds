@@ -394,6 +394,12 @@ ENV SHIM=${SHIM} \
 #-- PF_RUN_PF_HSM_HYBRID will override this for PingFederate 11.3 and later.
     PF_HSM_HYBRID=false \
 
+#-- This is the type of the LDAP directory server. This property is needed by
+#-- PingFederate to determine how to handle different implementations between
+#-- the available LDAP directory server types. Valid options include: ActiveDirectory,
+#-- SunDirectoryServer, OracleUnifiedDirectory, PingDirectory, and Generic.
+    PF_LDAP_TYPE=PingDirectory \
+
 #-- This is the username for an account within the LDAP Directory Server
 #-- that can be used to perform user lookups for authentication and other
 #-- user level search operations.  Set if PF_CONSOLE_AUTHENTICATION or
