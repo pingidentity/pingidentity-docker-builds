@@ -14,6 +14,12 @@
 # Group-Based Permissions should be used to define such permissions.
 #
 
+# Any special characters in the value that needs to be evaluated
+# must be escaped (e.g., "\ " for " ").  This is also true for spaces that
+# occur at the beginning of the string.  See the Javadoc for the load method
+# for the java.util.Properties class for a definitive description of what
+# characters need to be escaped and how escaping should occur.
+
 # *****************************************************************************
 #                         Basic Connection Properties
 # *****************************************************************************
@@ -27,6 +33,7 @@
 # Group:
 #
 # - LDAP server address (ldap.url)
+# - LDAP server type (ldap.type)
 # - LDAP credentials (ldap.username, and ldap.password), if anonymous
 #   binding to the LDAP server is not set, or is set to false
 # - Search Base (search.base)
@@ -55,6 +62,24 @@
 ldap.url=ldap://${PD_ENGINE_PRIVATE_HOSTNAME}:${LDAP_PORT}
 
 
+# --------------------
+# LDAP Type (REQUIRED)
+# --------------------
+
+# This is the type of the LDAP directory server. This property is needed by
+# PingFederate to determine how to handle different implementations between
+# the available LDAP directory server types.
+#
+#   Valid values are:
+#     ActiveDirectory           - for Active Directory servers
+#     SunDirectoryServer        - for Oracle Directory servers
+#     OracleUnifiedDirectory    - for Oracle Unified Directory servers
+#     PingDirectory             - for PingDirectory servers
+#     Generic                   - for any other server types not specified
+#
+ldap.type=${PF_LDAP_TYPE}
+
+
 # -------------------------------
 # LDAP Binding for Authentication
 # -------------------------------
@@ -79,9 +104,9 @@ ldap.url=ldap://${PD_ENGINE_PRIVATE_HOSTNAME}:${LDAP_PORT}
 # Set credentials if the ldap.anonymousBinding property above is not used or
 # set to false.
 
-#   ----------------------------------------------------
-#   Username (REQUIRED, if anonymous binding is not set)
-#   ----------------------------------------------------
+#   --------------------------------------------------------------------------------
+#   Username (REQUIRED, if anonymous binding and client TLS certificate are not set)
+#   --------------------------------------------------------------------------------
 # This is the username for an account within the LDAP Directory Server
 # that can be used to perform user lookups for authentication and other
 # user level search operations.
@@ -98,9 +123,9 @@ ldap.url=ldap://${PD_ENGINE_PRIVATE_HOSTNAME}:${LDAP_PORT}
 ldap.username=${PF_LDAP_USERNAME}
 
 
-#   ----------------------------------------------------
-#   Password (REQUIRED, if anonymous binding is not set)
-#   ----------------------------------------------------
+#   --------------------------------------------------------------------------------
+#   Password (REQUIRED, if anonymous binding and client TLS certificate are not set)
+#   --------------------------------------------------------------------------------
 #   This is the password for the Username specified above.
 #   This property should be obfuscated using one of the following utilities:
 #
@@ -117,7 +142,26 @@ ldap.username=${PF_LDAP_USERNAME}
 #   Copy complete result into property value, as shown in the example below:
 #     ldap.password=OBF:JWE:eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2Iiwia2lkIjoiVEU0dVZjcU1wayIsInZlcnNpb24iOiI3LjEuMjAwLjQtU05BUFNIT1QifQ..8Zf_xQ4PuXuYkdE0culPpA.E2Lh_zAne5YpaJo9wbl39A.Z8wVd6SFB8lcQbvutU1u-Q
 #
+#   This property can also be specified as a secret reference in the form OBF:MGR:{secretManagerId}:{secretId}.
+#       To use this form, a secret manager plugin must be configured.
+#       Secret manager plugins usually include a custom action to help with constructing secret references.
 ldap.password=${PF_LDAP_PASSWORD}
+
+
+#   --------------------------------------------------------------------------------
+#   Client TLS Certificate (REQUIRED, if anonymous binding and username are not set)
+#   --------------------------------------------------------------------------------
+#   This is the alias of the certificate that is used for client mutual TLS
+#   authentication. The certificate must be added in the administrative
+#   console under 'SSL Client Keys & Certificates' first.
+#
+#   Note: This file is not included in config archives. Importing an archive
+#   will require you to set this property again if the referenced certificate
+#   was not included in it.
+#
+#   Example:
+#     ldap.clientTlsCertificate=e17lc2ygjhshhlqgb3yyhbtx4
+#ldap.clientTlsCertificate=
 
 # Enable LDAPS connections Hostname verification.
 #
@@ -442,12 +486,6 @@ role.search.filter=(member={1})
 # taken when entering this information.  Unless specifically identified
 # as a DN (i.e., via role.search.attribute above), DNs are not parsed and
 # will be compared exactly as entered.
-#
-# Any special characters in the value that needs to be evaluated
-# must be escaped (e.g., "\ " for " ").  This is also true for spaces that
-# occur at the beginning of the string.  See the Javadoc for the load method
-# for the java.util.Properties class for a definitive description of what
-# characters need to be escaped and how escaping should occur.
 #
 # The configuration values are case-sensitive.
 #
