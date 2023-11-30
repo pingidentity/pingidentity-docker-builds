@@ -1,8 +1,6 @@
 # Default JVM memory options for PingFederate in Docker containers
 # Select the server VM
 -server
-# display the current version
---show-version
 # show the VM-selected settings upon start
 -XshowSettings:vm
 # explicitly enable container support

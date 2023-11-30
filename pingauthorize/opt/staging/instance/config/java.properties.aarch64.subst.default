@@ -69,8 +69,6 @@ start-server.precheck.java-args=-client -Xmx64m -Xms64m
 # slight modifications after that.
 #
 start-server.java-args=-server \
-  --show-version \
-  --show-module-resolution \
   -Xmx1024m -Xms1024m \
   -XX:MaxNewSize=64m -XX:NewSize=64m \
   -Xlog:gc*:file=${SERVER_ROOT_DIR}/logs/jvm/gc.log:time,uptime,level,tags:filecount=3,filesize=100m \
