@@ -1,8 +1,8 @@
 {
-    "latest": "11.3.4",
+    "latest": "12.0.0",
     "versions": [
         {
-            "version": "11.3.4",
+            "version": "12.0.0",
             "preferredShim": "alpine:3.18.4",
             "shims": [
                 {
@@ -36,7 +36,7 @@
             ]
         },
         {
-            "version": "11.2.7",
+            "version": "11.3.4",
             "preferredShim": "alpine:3.18.4",
             "shims": [
                 {
@@ -45,6 +45,20 @@
                     "jvms": [
                         {
                             "jvm": "al11",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "shim": "redhat/ubi/ubi9-minimal:9.1",
+                    "preferredJVM": "rl11",
+                    "jvms": [
+                        {
+                            "jvm": "rl11",
                             "build": true,
                             "deploy": true,
                             "registries": [
