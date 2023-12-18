@@ -1,8 +1,8 @@
 {
-    "latest": "4.10.0",
+    "latest": "5.0.0",
     "versions": [
         {
-            "version": "4.10.0",
+            "version": "5.0.0",
             "preferredShim": "alpine:3.18.4",
             "shims": [
                 {
@@ -22,7 +22,7 @@
             ]
         },
         {
-            "version": "4.8.0",
+            "version": "4.10.0",
             "preferredShim": "alpine:3.18.4",
             "shims": [
                 {
