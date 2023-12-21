@@ -3,10 +3,10 @@
     "versions": [
         {
             "version": "12.0.0",
-            "preferredShim": "alpine:3.18.4",
+            "preferredShim": "alpine:3.19.0",
             "shims": [
                 {
-                    "shim": "alpine:3.18.4",
+                    "shim": "alpine:3.19.0",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
@@ -37,28 +37,14 @@
         },
         {
             "version": "11.3.4",
-            "preferredShim": "alpine:3.18.4",
+            "preferredShim": "alpine:3.19.0",
             "shims": [
                 {
-                    "shim": "alpine:3.18.4",
+                    "shim": "alpine:3.19.0",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
                             "jvm": "al11",
-                            "build": true,
-                            "deploy": true,
-                            "registries": [
-                                "DockerHub"
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "shim": "redhat/ubi/ubi9-minimal:9.1",
-                    "preferredJVM": "rl11",
-                    "jvms": [
-                        {
-                            "jvm": "rl11",
                             "build": true,
                             "deploy": true,
                             "registries": [
