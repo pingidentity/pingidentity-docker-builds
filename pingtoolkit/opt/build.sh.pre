@@ -29,8 +29,7 @@ case "${_osID}" in
     alpine)
         # cause a failure if anything below raises an error
         set -e
-        apk --update add py3-pip curl openssl
-        pip3 install --no-cache-dir --upgrade awscli
+        apk --update add curl openssl aws-cli jq
 
         _kubectlVer=$(curl https://storage.googleapis.com/kubernetes-release/release/stable.txt)
         case "$(uname -m)" in
@@ -43,8 +42,9 @@ case "${_osID}" in
         chmod +x ${_file}
 
         _file=/opt/kustomize
-        _kustomizeVer=4.1.2
-        _curl -o ${_file}.tgz "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${_kustomizeVer}/kustomize_v${_kustomizeVer}_linux_${_vanityArch}.tar.gz"
+        # Get the latest kustomize version
+        _kustomizeDownloadURL=$(curl --silent https://api.github.com/repos/kubernetes-sigs/kustomize/releases/latest | jq -r --arg OSArch "linux_${_vanityArch}" '.assets[] | select(.name|test($OSArch)) | .browser_download_url')
+        _curl -o ${_file}.tgz "${_kustomizeDownloadURL}"
         tar -C /opt -xzf ${_file}.tgz
         chmod +x ${_file}
         rm ${_file}.tgz

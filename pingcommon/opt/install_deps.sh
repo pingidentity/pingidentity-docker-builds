@@ -104,6 +104,9 @@ case "${_osID}" in
         ;;
 esac
 
+# Environment variables for BASE isn't available here.
+BASE=/opt
+
 #fix permissions to ping user and root group. Removes permissions from others
 chown -f 9031:0 "${BASE}"
 chmod -f o-rwx "${BASE}"
