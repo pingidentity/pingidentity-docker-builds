@@ -1,7 +1,12 @@
 #!/usr/bin/env sh
-test -f "/opt/build.sh.pre" && sh /opt/build.sh.pre
+
+if test -f "/opt/build.sh.pre"; then
+    sh /opt/build.sh.pre
+    test "${?}" -ne 0 && echo "ERROR: The Pre-Build Stage has Failed to Execute" && exit 1
+fi
 
 /opt/install_deps.sh
+test "${?}" -ne 0 && echo "ERROR: The Dependency Installation Stage has Failed to Execute" && exit 1
 
 # Update file permissions for the BASE for the default container user,
 # and update the /var/lib/nginx owner if necessary.
@@ -45,7 +50,10 @@ done
 # Remove get-product-bits.sh. It is not needed at runtime.
 rm -f "/opt/get-product-bits.sh"
 
-test -f "/opt/build.sh.post" && sh /opt/build.sh.post
+if test -f "/opt/build.sh.post"; then
+    sh /opt/build.sh.post
+    test "${?}" -ne 0 && echo "ERROR: The Post-Build Stage has Failed to Execute" && exit 1
+fi
 
 # generate the staging manifest
 find "/opt/staging" > "/opt/staging-manifest.txt"
