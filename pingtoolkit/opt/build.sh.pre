@@ -29,25 +29,8 @@ case "${_osID}" in
     alpine)
         # cause a failure if anything below raises an error
         set -e
-        apk --update add curl openssl aws-cli jq
 
-        _kubectlVer=$(curl https://storage.googleapis.com/kubernetes-release/release/stable.txt)
-        case "$(uname -m)" in
-            x86_64) _vanityArch="amd64" ;;
-            aarch64) _vanityArch="arm64" ;;
-            *) _vanityArch=$(uname -m) ;;
-        esac
-        _file=/opt/kubectl
-        _curl -o ${_file} "https://storage.googleapis.com/kubernetes-release/release/${_kubectlVer}/bin/linux/${_vanityArch}/kubectl"
-        chmod +x ${_file}
-
-        _file=/opt/kustomize
-        # Get the latest kustomize version
-        _kustomizeDownloadURL=$(curl --silent https://api.github.com/repos/kubernetes-sigs/kustomize/releases/latest | jq -r --arg OSArch "linux_${_vanityArch}" '.assets[] | select(.name|test($OSArch)) | .browser_download_url')
-        _curl -o ${_file}.tgz "${_kustomizeDownloadURL}"
-        tar -C /opt -xzf ${_file}.tgz
-        chmod +x ${_file}
-        rm ${_file}.tgz
+        apk --update add curl openssl aws-cli kubectl kustomize
 
         set +e
         ;;
