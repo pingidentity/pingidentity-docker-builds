@@ -21,4 +21,4 @@ Please contact devops\_program@pingidentity.com for details
 
 ## Copyright
 
-Copyright © 2023 Ping Identity. All rights reserved.
+Copyright © 2024 Ping Identity. All rights reserved.
