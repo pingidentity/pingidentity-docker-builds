@@ -512,7 +512,7 @@ LABEL name="${PING_PRODUCT}" \
       summary="PingFederate is an enterprise federation server and identity bridge for user authentication and standards-based single sign-on (SSO) for employee, partner, and customer identity types." \
       description="PingFederate enables outbound and inbound solutions for SSO, federated identity management, customer identity and access management, mobile identity security, API security, and social identity integration. Browser-based SSO extends employee, customer, and partner identities across domains without passwords using standard identity protocols, such as SAML, WS-Federation, WS-Trust, OAuth, OpenID Connect (OIDC), and System for Cross-domain Identity Management (SCIM)."
 
-EXPOSE 9031 9999
+EXPOSE 9031 9032 9999
 
 WORKDIR ${BASE}
 
