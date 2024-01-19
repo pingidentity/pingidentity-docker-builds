@@ -341,6 +341,11 @@ ENV SHIM=${SHIM} \
 #-- PF_RUN_PF_HTTPS_PORT will override this for PingFederate 11.3 and later.
     PF_ENGINE_PORT=9031 \
 
+#-- Defines a secondary HTTPS port that can be used for mutual SSL/TLS 
+#-- (client X.509 certificate) authentication for both end users and protocol requests
+#-- PF_RUN_PF_HTTPS_SECONDARY_PORT will override this value. Set to -1 to disable port by default to reduce attack surface.
+    PF_ENGINE_SECONDARY_PORT=-1 \
+
 #-- Flag to turn on PingFederate Engine debugging
 #-- Used in run.sh
     PF_ENGINE_DEBUG=false \
