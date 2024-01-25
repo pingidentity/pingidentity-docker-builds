@@ -120,7 +120,6 @@ ENV IN_DIR=${BASE}/in \
 #-- File name for devops-creds passed as a Docker secret
     PING_IDENTITY_DEVOPS_FILE=devops-secret \
 
-
 #-- Path to a manifest of files expected in the staging dir on first image startup
     STAGING_MANIFEST=${BASE}/staging-manifest.txt \
 #-- Whether to clean the staging dir when the image starts
@@ -340,6 +339,12 @@ ENV SHIM=${SHIM} \
 #-- encrypted HTTPS (SSL/TLS) traffic.
 #-- PF_RUN_PF_HTTPS_PORT will override this for PingFederate 11.3 and later.
     PF_ENGINE_PORT=9031 \
+
+#-- Defines a secondary HTTPS port that can be used for mutual SSL/TLS 
+#-- (client X.509 certificate) authentication for both end users and protocol requests.
+#-- PF_RUN_PF_HTTPS_SECONDARY_PORT (default 9032) will override this value.
+#-- The default value of -1 disables the port in the product.
+    PF_ENGINE_SECONDARY_PORT=-1 \
 
 #-- Flag to turn on PingFederate Engine debugging
 #-- Used in run.sh

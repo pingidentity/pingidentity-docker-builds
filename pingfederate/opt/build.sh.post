@@ -30,6 +30,7 @@ sed -i -e 's/^pf\.admin\.https\.port=.*$/pf.admin.https.port=${PF_ADMIN_PORT}/' 
     -e 's/^pf\.console\.authentication=.*$/pf.console.authentication=${PF_CONSOLE_AUTHENTICATION}/' \
     -e 's/^pf\.admin\.api\.authentication=.*$/pf.admin.api.authentication=${PF_ADMIN_API_AUTHENTICATION}/' \
     -e 's/^pf\.https\.port=.*$/pf.https.port=${PF_ENGINE_PORT}/' \
+    -e 's/^pf\.secondary\.https\.port=.*$/pf.secondary.https.port=${PF_ENGINE_SECONDARY_PORT}/' \
     -e 's/^pf\.heartbeat\.system\.monitoring=false/pf.heartbeat.system.monitoring=true/' \
     -e 's/^pf\.operational\.mode=.*$/pf.operational.mode=${OPERATIONAL_MODE}/' \
     -e 's/^pf\.cluster\.tcp\.discovery\.initial\.hosts=.*$/pf.cluster.tcp.discovery.initial.hosts=${DISCOVERY_INITIAL_HOST}/' \
