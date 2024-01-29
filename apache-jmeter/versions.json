@@ -1,12 +1,12 @@
 {
-    "latest": "5.6.2",
+    "latest": "5.6.3",
     "versions": [
         {
-            "version": "5.6.2",
-            "preferredShim": "alpine:3.19.0",
+            "version": "5.6.3",
+            "preferredShim": "alpine:3.19.1",
             "shims": [
                 {
-                    "shim": "alpine:3.19.0",
+                    "shim": "alpine:3.19.1",
                     "preferredJVM": "al11",
                     "jvms": [
                         {

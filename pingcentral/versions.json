@@ -1,12 +1,12 @@
 {
-    "latest": "2.0.0",
+    "latest": "2.0.1",
     "versions": [
         {
-            "version": "2.0.0",
-            "preferredShim": "alpine:3.19.0",
+            "version": "2.0.1",
+            "preferredShim": "alpine:3.19.1",
             "shims": [
                 {
-                    "shim": "alpine:3.19.0",
+                    "shim": "alpine:3.19.1",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
@@ -23,10 +23,10 @@
         },
         {
             "version": "1.14.1",
-            "preferredShim": "alpine:3.19.0",
+            "preferredShim": "alpine:3.19.1",
             "shims": [
                 {
-                    "shim": "alpine:3.19.0",
+                    "shim": "alpine:3.19.1",
                     "preferredJVM": "al11",
                     "jvms": [
                         {

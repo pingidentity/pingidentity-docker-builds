@@ -3,10 +3,10 @@
     "versions": [
         {
             "version": "10.0.0.0",
-            "preferredShim": "alpine:3.19.0",
+            "preferredShim": "alpine:3.19.1",
             "shims": [
                 {
-                    "shim": "alpine:3.19.0",
+                    "shim": "alpine:3.19.1",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
@@ -23,16 +23,16 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.84"
+                    "version": "9.0.85"
                 }
             ]
         },
         {
-            "version": "9.3.0.3",
-            "preferredShim": "alpine:3.19.0",
+            "version": "9.3.0.4",
+            "preferredShim": "alpine:3.19.1",
             "shims": [
                 {
-                    "shim": "alpine:3.19.0",
+                    "shim": "alpine:3.19.1",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
@@ -49,7 +49,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.84"
+                    "version": "9.0.85"
                 }
             ]
         }
