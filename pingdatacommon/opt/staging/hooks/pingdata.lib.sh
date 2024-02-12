@@ -1543,9 +1543,9 @@ prepareToJoinTopology() {
         REMOTE_SERVER_REPLICATION_PORT="${_seedReplicationPort:?}"
     fi
 
+    test -n "${REMOTE_SERVER_REPLICATION_PORT}" && export REMOTE_SERVER_REPLICATION_PORT
     export REMOTE_SERVER_HOSTNAME
     export REMOTE_SERVER_LDAPS_PORT
-    test -n "${REMOTE_SERVER_REPLICATION_PORT}" && export REMOTE_SERVER_REPLICATION_PORT
 }
 
 # Call the remove-defunct-server command on this server
