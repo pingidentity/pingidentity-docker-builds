@@ -1730,3 +1730,52 @@ compare_and_save_jvm_settings() {
 
     return ${_diffRC}
 }
+
+update_java_properties_on_restart() {
+    #
+    # if a java.properties is delivered, we use it if there are changes.
+    #
+    _candidateProperties="${STAGING_DIR}/instance/config/java.properties"
+    test -f "${_candidateProperties}" || _candidateProperties="${_candidateProperties}.$(uname -m)"
+
+    #
+    # Generate the jvm options
+    #
+    jvmOptions=$(getJvmOptions)
+    _returnCode=${?}
+    if test ${_returnCode} -ne 0; then
+        echo_red "${jvmOptions}"
+        container_failure 183 "Invalid JVM options"
+    fi
+
+    # Before running any ds tools, handle java.properties.
+    # If a custom java.properties is set in instance/config/java.properties in the server profile,
+    # then use those properties.
+    # If no custom java.properties file is provided, and either the JVM options have changed or the
+    # REGENERATE_JAVA_PROPERTIES variable is set to true, then generate a new java.properties file.
+    if test -f "${_candidateProperties}"; then
+        # Specific java.properties file was provided, so we'll use that
+        # Only need to re-apply if there are changes
+        diff "${_candidateProperties}" "/opt/out/instance/config/java.properties" > /dev/null 2>&1
+        if test $? -ne 0; then
+            echo_green "Applying changed custom java properties"
+            cp "${_candidateProperties}" "${SERVER_ROOT_DIR}/config/java.properties"
+            "${SERVER_ROOT_DIR}/bin/dsjavaproperties"
+            if test ${?} -eq 0; then
+                echo_green "Custom java properties successfully applied."
+            else
+                echo_red "There was an issue applying the provided java properties."
+            fi
+        else
+            echo "Custom java.properties file is unchanged. Existing java.properties file will be left in place"
+        fi
+    elif ! compare_and_save_jvm_settings "${jvmOptions}" || test "${REGENERATE_JAVA_PROPERTIES}" = "true"; then
+        echo "JVM options and/or JVM version have changed, and/or REGENERATE_JAVA_PROPERTIES is set to true. Re-generating java.properties for current JVM."
+        # re-initialize the current java.properties.  a backup in same location will be created.
+        # Word-split is expected behavior for $jvmOptions. Disable shellcheck.
+        # shellcheck disable=SC2086
+        "${SERVER_ROOT_DIR}/bin/dsjavaproperties" --initialize ${jvmOptions}
+    else
+        echo "JVM options and version have not changed, and no custom java.properties file was provided. Will not generate a new java.properties file."
+    fi
+}
