@@ -136,7 +136,7 @@ process_secrets_env_json() {
         echo "     --> ${_secretEnvFile} (env property file)"
 
         for key in $(jq -r "keys | flatten[]" "${_secretJson}"); do
-            echo "$key=$(jq ".$key" "${_secretJson}")" >> "${_secretEnvFile}"
+            echo "$key=$(jq --arg k "$key" '.[$k]' "${_secretJson}")" >> "${_secretEnvFile}"
         done
 
         mv "${_secretJson}" "${_secretJson}".PROCESSED
