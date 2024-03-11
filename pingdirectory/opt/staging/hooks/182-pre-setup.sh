@@ -50,7 +50,7 @@ fi
 #
 
 _ordinal="${_podHostName##*-}"
-if test "${PD_STATE}" = "GENESIS" || { test -n "${RESTRICTED_BASE_DNS}" && test "${K8S_CLUSTER}" != "${K8S_SEED_CLUSTER}" && test "${_ordinal}" == "0"; }; then
+if test "${PD_STATE}" = "GENESIS" || { test -n "${RESTRICTED_BASE_DNS}" && test "${K8S_CLUSTER}" != "${K8S_SEED_CLUSTER}" && test "${_ordinal}" = "0"; }; then
     echo "PD_STATE is GENESIS ==> Processing Templates"
 
     test -z "${MAKELDIF_USERS}" && MAKELDIF_USERS=0

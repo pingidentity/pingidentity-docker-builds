@@ -28,7 +28,7 @@ test "${VERBOSE}" = "true" && set -x
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 # Check to see if there there is an instance directory and files in it
-if test -d "${STAGING_DIR}/instance" && find "${STAGING_DIR}/instance" -type f | read -r; then
+if test -d "${STAGING_DIR}/instance" && test -n "$(ls -A "${STAGING_DIR}/instance")"; then
     # If this is a new server or the a SERVER_PROFILE_UPDATE is asked for
     # Then copy/overwrite files to SERVER_ROOT_DIR
     if test "${RUN_PLAN}" = "START" || test "${SERVER_PROFILE_UPDATE}" = "true"; then
