@@ -17,7 +17,7 @@ test "${VERBOSE}" = "true" && set -x
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 # Check to see if there there is an instance directory and files in it
-if test -d "${STAGING_DIR}/instance" && find "${STAGING_DIR}/instance" -type f | read -r; then
+if test -d "${STAGING_DIR}/instance" && test -n "$(ls -A "${STAGING_DIR}/instance")"; then
     # If this is a new server, copy/overwrite files to SERVER_ROOT_DIR
     # If this is a restart, then copy to SERVER_BITS_DIR, so that the files
     # are maintained by manage-profile replace-profile.
