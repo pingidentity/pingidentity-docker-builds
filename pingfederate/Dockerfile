@@ -503,9 +503,13 @@ ENV SHIM=${SHIM} \
     BULK_CONFIG_DIR="${OUT_DIR}/instance/bulk-config" \
     BULK_CONFIG_FILE=data.json \
 
-    #-- wait-for timeout for 80-post-start.sh hook script
-    #-- How long to wait for the PF Admin console to be available
-    ADMIN_WAITFOR_TIMEOUT=300
+#-- wait-for timeout for 80-post-start.sh hook script
+#-- How long to wait for the PF Admin console to be available
+    ADMIN_WAITFOR_TIMEOUT=300 \
+
+#-- Set to true to create the initial admin user after PingFederate starts up.
+#-- The initial admin user will only be created on the first startup of the server after the license is accepted.
+    CREATE_INITIAL_ADMIN_USER=false
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
