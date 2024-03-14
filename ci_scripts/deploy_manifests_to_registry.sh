@@ -229,14 +229,6 @@ for version in ${versions_to_deploy}; do
                                 echo_red "${http_response_code}: Unable to delete image tag: ${version}-${shim_long_tag}-${jvm}-${arch}-edge" && exit 1
                             fi
                         done # iterating over architectures
-
-                        # Log out Dockerhub Auth Token
-                        http_response_code=$(curl --silent --request "POST" --write-out '%{http_code}' --output "/dev/null" --header "Authorization: Bearer ${dockerhub_auth_token}" "https://hub.docker.com/v2/logout/")
-                        if test "${http_response_code}" -ne 200; then
-                            echo_red "${http_response_code}: Unable to logout from dockerhub after tag deletion" && exit 1
-                        else
-                            echo "Successfully Logged Out Auth Token from DockerHub"
-                        fi
                         ;;
                     *)
                         echo_yellow "Tag Deletion for Registry ${target_registry} is not implemented in deploy_manifests_to_registry.sh"
