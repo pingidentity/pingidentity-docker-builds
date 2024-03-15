@@ -12,8 +12,11 @@ if test -z "${1}" -o "$1" = "start-server"; then
 
     echo_green "Command: ${*}"
 
-    # Process secrets
+    # Pull in secrets from Vault
     process_secrets
+
+    # After pulling in secrets from Vault, source any secrets that were created
+    source_secret_envs
 
     # Capture environment variables and secrets state info
     add_state_info "environment_variables"
