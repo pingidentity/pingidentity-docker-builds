@@ -342,7 +342,7 @@ ENV SHIM=${SHIM} \
 
 #-- Defines a secondary HTTPS port that can be used for mutual SSL/TLS 
 #-- (client X.509 certificate) authentication for both end users and protocol requests.
-#-- PF_RUN_PF_HTTPS_SECONDARY_PORT (default 9032) will override this value.
+#-- PF_RUN_PF_SECONDARY_HTTPS_PORT (default 9032) will override this value.
 #-- The default value of -1 disables the port in the product.
     PF_ENGINE_SECONDARY_PORT=-1 \
 
