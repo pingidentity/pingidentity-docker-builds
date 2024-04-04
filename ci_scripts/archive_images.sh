@@ -116,6 +116,8 @@ get_dockerhub_repository_tags_data() {
         "${dockerhub_api_domain}/v2/namespaces/${api_namespace}/repositories/${1}/tags?page=${2}&page_size=${3}")
     test "${http_result_code}" -ne 200 &&
         echo "ERROR: ${http_result_code} Unable to retrieve the list of tags from ${dockerhub_api_domain}/v2/namespaces/${api_namespace}/repositories/${repository}/tags?page=${1}&page_size=${2}" &&
+        echo "Response body:" &&
+        cat "${api_output_file}" &&
         exit 1
 }
 
@@ -129,6 +131,8 @@ get_artifactory_repository_tags_data() {
         "${artifactory_api_domain}/api/docker/docker-builds/v2/${1}/tags/list")
     test "${http_result_code}" -ne 200 &&
         echo "ERROR: ${http_result_code} Unable to retrieve the list of tags from ${artifactory_api_domain}/api/docker/docker-builds/v2/${repository}/tags/list" &&
+        echo "Response body:" &&
+        cat "${api_output_file}" &&
         exit 1
 }
 
@@ -142,6 +146,8 @@ get_artifactory_repository_signed_tags_data() {
 
     test "${?}" -ne 0 &&
         echo "ERROR: ${http_result_code} Unable to retrieve repository trust data for ${target_repository}" &&
+        echo "Response body:" &&
+        cat "${api_output_file}" &&
         exit 1
 
     unset DOCKER_CONTENT_TRUST_SERVER
@@ -158,6 +164,8 @@ get_dockerhub_specific_tag_data() {
         "${dockerhub_api_domain}/v2/namespaces/${api_namespace}/repositories/${repository}/tags/${tag}")
     test "${http_result_code}" -ne 200 &&
         echo "ERROR: ${http_result_code} Unable to retrieve tag information from ${dockerhub_api_domain}/v2/namespaces/${api_namespace}/repositories/${repository}/tags/${tag}" &&
+        echo "Response body:" &&
+        cat "${api_output_file}" &&
         exit 1
 }
 
