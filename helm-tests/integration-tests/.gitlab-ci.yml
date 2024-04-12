@@ -171,43 +171,44 @@ intel.pa-pf-pd-fips.v2:
 # integrate together into an end to end test
 # for the openshift platform on a RHEL shim in
 # FIPS mode
-intel.pa-pf-pd-fips.v3:
-  stage: test.integration
-  script:
-    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --variation 3
-  retry: 1
-  variables:
-    KUBERNETES_CPU_REQUEST: 2850m
-    KUBERNETES_CPU_LIMIT: 2850m
-    KUBERNETES_MEMORY_REQUEST: 1960000000
-    KUBERNETES_MEMORY_LIMIT: 1960000000
-    KUBERNETES_POLL_TIMEOUT: 25m
-  rules:
-    - if: $ARCHIVE_PIPELINE == "true"
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
-      when: never
-    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
-      when: on_success
-    - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
-      changes:
-        - helm-tests/integration-tests/pa-pf-pd-fips/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingaccess/**/*
-        - pingdirectory/**/*
-        - pingfederate/**/*
-        - ci_scripts/*
-        - pingjvm/*
-        - .gitlab-ci.yml
-      when: on_success
-    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
-      when: on_success
+##### REMOVING OPENSHIFT REFERENCE DUE TO APRIL 12 CLUSTER SHUTDOWN
+#intel.pa-pf-pd-fips.v3:
+#  stage: test.integration
+#  script:
+#    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --variation 3
+#  retry: 1
+#  variables:
+#    KUBERNETES_CPU_REQUEST: 2850m
+#    KUBERNETES_CPU_LIMIT: 2850m
+#    KUBERNETES_MEMORY_REQUEST: 1960000000
+#    KUBERNETES_MEMORY_LIMIT: 1960000000
+#    KUBERNETES_POLL_TIMEOUT: 25m
+#  rules:
+#    - if: $ARCHIVE_PIPELINE == "true"
+#      when: never
+#    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+#      when: never
+#    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
+#      when: on_success
+#    - if: '$BUILD_PRODUCT != null'
+#      when: never
+#    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+#      when: never
+#    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+#      changes:
+#        - helm-tests/integration-tests/pa-pf-pd-fips/*
+#        - pingbase/**/*
+#        - pingcommon/**/*
+#        - pingdatacommon/**/*
+#        - pingaccess/**/*
+#        - pingdirectory/**/*
+#        - pingfederate/**/*
+#        - ci_scripts/*
+#        - pingjvm/*
+#        - .gitlab-ci.yml
+#      when: on_success
+#    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+#      when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -337,40 +338,41 @@ arm.pa-pf-pd.v3:
 # to verify PingAccess, PingFederate and PingDirectory
 # integrate together into an end to end test
 # for the openshift platform 
-intel.pa-pf-pd.v4:
-  stage: test.integration
-  script:
-    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --variation 4
-  retry: 1
-  variables:
-    KUBERNETES_CPU_REQUEST: 2850m
-    KUBERNETES_CPU_LIMIT: 2850m
-    KUBERNETES_MEMORY_REQUEST: 3920000000
-    KUBERNETES_MEMORY_LIMIT: 3920000000
-  rules:
-    - if: $ARCHIVE_PIPELINE == "true"
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
-      when: never
-    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
-      when: on_success
-    - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
-      changes:
-        - helm-tests/integration-tests/pa-pf-pd/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingaccess/**/*
-        - pingdirectory/**/*
-        - pingfederate/**/*
-        - ci_scripts/*
-        - pingjvm/*
-        - .gitlab-ci.yml
-      when: on_success
-    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
-      when: on_success
+##### REMOVING OPENSHIFT REFERENCE DUE TO APRIL 12 CLUSTER SHUTDOWN
+# intel.pa-pf-pd.v4:
+#   stage: test.integration
+#   script:
+#     - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --variation 4
+#   retry: 1
+#   variables:
+#     KUBERNETES_CPU_REQUEST: 2850m
+#     KUBERNETES_CPU_LIMIT: 2850m
+#     KUBERNETES_MEMORY_REQUEST: 3920000000
+#     KUBERNETES_MEMORY_LIMIT: 3920000000
+#   rules:
+#     - if: $ARCHIVE_PIPELINE == "true"
+#       when: never
+#     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+#       when: never
+#     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
+#       when: on_success
+#     - if: '$BUILD_PRODUCT != null'
+#       when: never
+#     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+#       changes:
+#         - helm-tests/integration-tests/pa-pf-pd/*
+#         - pingbase/**/*
+#         - pingcommon/**/*
+#         - pingdatacommon/**/*
+#         - pingaccess/**/*
+#         - pingdirectory/**/*
+#         - pingfederate/**/*
+#         - ci_scripts/*
+#         - pingjvm/*
+#         - .gitlab-ci.yml
+#       when: on_success
+#     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+#       when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -687,30 +689,31 @@ intel.pa-pf-pi.v2:
 # to verify PingIntelligence
 # works in an end to end test
 # on the openshift platform
-intel.pa-pf-pi.v3:
-  stage: test.integration
-  script:
-    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pi --variation 3
-  retry: 1
-  rules:
-    - if: $ARCHIVE_PIPELINE == "true"
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
-      when: never
-    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
-      when: on_success
-    - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
-      changes:
-        - helm-tests/integration-tests/pa-pf-pi/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingintelligence/**/*
-        - ci_scripts/*
-        - .gitlab-ci.yml
-      when: on_success
-    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
-      when: on_success
+##### REMOVING OPENSHIFT REFERENCE DUE TO APRIL 12 CLUSTER SHUTDOWN
+# intel.pa-pf-pi.v3:
+#   stage: test.integration
+#   script:
+#     - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pi --variation 3
+#   retry: 1
+#   rules:
+#     - if: $ARCHIVE_PIPELINE == "true"
+#       when: never
+#     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+#       when: never
+#     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
+#       when: on_success
+#     - if: '$BUILD_PRODUCT != null'
+#       when: never
+#     - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+#       when: never
+#     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+#       changes:
+#         - helm-tests/integration-tests/pa-pf-pi/*
+#         - pingbase/**/*
+#         - pingcommon/**/*
+#         - pingintelligence/**/*
+#         - ci_scripts/*
+#         - .gitlab-ci.yml
+#       when: on_success
+#     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+#       when: on_success
