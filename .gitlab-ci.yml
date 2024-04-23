@@ -23,6 +23,7 @@ stages:
   - test.integration
   - deploy
   - publish
+  - archive
   - final
 
 default:
@@ -216,10 +217,127 @@ arm.delete-old-k8s:
     - ci_scripts/cleanup_old_kubernetes.sh
   when: always
 
-archive:
-  stage: final
+########################################################
+#            _____   _____ _    _ _______      ________
+#     /\   |  __ \ / ____| |  | |_   _\ \    / /  ____|
+#    /  \  | |__) | |    | |__| | | |  \ \  / /| |__
+#   / /\ \ |  _  /| |    |  __  | | |   \ \/ / |  __|
+#  / ____ \| | \ \| |____| |  | |_| |_   \  /  | |____
+# /_/    \_\_|  \_\\_____|_|  |_|_____|   \/   |______|
+########################################################
+
+a.ldap-sdk-tools:
+  stage: archive
   script:
-    - ci_scripts/archive_images.sh
+    - ci_scripts/archive_images.sh --product ldap-sdk-tools
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: on_success
+    - when: never
+
+a.pingaccess:
+  stage: archive
+  script:
+    - ci_scripts/archive_images.sh --product pingaccess
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: on_success
+    - when: never
+
+a.pingauthorize:
+  stage: archive
+  script:
+    - ci_scripts/archive_images.sh --product pingauthorize
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: on_success
+    - when: never
+
+a.pingauthorizepap:
+  stage: archive
+  script:
+    - ci_scripts/archive_images.sh --product pingauthorizepap
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: on_success
+    - when: never
+
+a.pingcentral:
+  stage: archive
+  script:
+    - ci_scripts/archive_images.sh --product pingcentral
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: on_success
+    - when: never
+
+a.pingdataconsole:
+  stage: archive
+  script:
+    - ci_scripts/archive_images.sh --product pingdataconsole
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: on_success
+    - when: never
+
+a.pingdatasync:
+  stage: archive
+  script:
+    - ci_scripts/archive_images.sh --product pingdatasync
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: on_success
+    - when: never
+
+a.pingdelegator:
+  stage: archive
+  script:
+    - ci_scripts/archive_images.sh --product pingdelegator
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: on_success
+    - when: never
+
+a.pingdirectory:
+  stage: archive
+  script:
+    - ci_scripts/archive_images.sh --product pingdirectory
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: on_success
+    - when: never
+
+a.pingdirectoryproxy:
+  stage: archive
+  script:
+    - ci_scripts/archive_images.sh --product pingdirectoryproxy
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: on_success
+    - when: never
+
+a.pingfederate:
+  stage: archive
+  script:
+    - ci_scripts/archive_images.sh --product pingfederate
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: on_success
+    - when: never
+
+a.pingintelligence:
+  stage: archive
+  script:
+    - ci_scripts/archive_images.sh --product pingintelligence
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: on_success
+    - when: never
+
+a.pingtoolkit:
+  stage: archive
+  script:
+    - ci_scripts/archive_images.sh --product pingtoolkit
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: on_success

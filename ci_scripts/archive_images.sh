@@ -7,6 +7,42 @@
 #
 test "${VERBOSE}" = "true" && set -x
 
+# Usage printing function
+usage() {
+    test -n "${*}" && echo "${*}"
+    cat << END_USAGE
+Usage: ${0} {options}
+    where {options} include:
+    -p, --product
+        Specifies the DockerHub Ping product from which images
+        will be archived into the internal Artifactory repositories.
+
+        The following are valid products to archive:
+        ldap-sdk-tools pingaccess pingauthorize pingauthorizepap
+        pingcentral pingdataconsole pingdatasync pingdelegator pingdirectory
+        pingdirectoryproxy pingfederate pingintelligence pingtoolkit
+    --help
+        Display general usage information
+END_USAGE
+    exit 99
+}
+
+while ! test -z "${1}"; do
+    case "${1}" in
+        -p | --product)
+            shift
+            repository="${1}"
+            ;;
+        --help)
+            usage
+            ;;
+        *)
+            usage "Unrecognized option"
+            ;;
+    esac
+    shift
+done
+
 # source ci_tools.lib.sh
 if test -z "${CI_COMMIT_REF_NAME}"; then
     CI_PROJECT_DIR="$(
@@ -180,89 +216,96 @@ dockerhub_auth_token=$(jq -r .token "${api_output_file}")
 # Define list of all DockerHub repositories for the PingDevops Integrations Team
 repository_list="ldap-sdk-tools pingaccess pingauthorize pingauthorizepap pingcentral pingdataconsole pingdatasync pingdelegator pingdirectory pingdirectoryproxy pingfederate pingintelligence pingtoolkit"
 
-# Loop through DockerHub/Artifactory repositories
-for repository in ${repository_list}; do
-    banner "Archiving for repository: ${repository}"
-    page_size=100
-    page_number=1
+# Make sure repository is set by user, or exit
+if test -z "${repository}"; then
+    usage "A product name supplied by --product flag is required by this script."
+fi
 
-    # Retrieve all unique non-edge image tags from DockerHub
-    while test "${page_number}" -gt "0"; do
-        get_dockerhub_repository_tags_data "${repository}" "${page_number}" "${page_size}"
+# Make sure the user-supplied repository is in the above accepted repository list
+if test "${repository_list#*"${repository}"}" = "${repository_list}"; then
+    usage "Invalid repository ${repository} supplied. Valid repositories are ${repository_list}"
+fi
 
-        # Check to see if there is more tags on the next page
-        next_url=$(jq -r '.next' "${api_output_file}")
-        if test "${next_url}" != "null"; then
-            page_number=$((page_number + 1))
-        else
-            # Stop looping while statement
-            page_number=0
-        fi
+banner "Archiving for repository: ${repository}"
+page_size=100
+page_number=1
 
-        # Get the list of all non-edge images in each DockerHub repository
-        dockerhub_repository_tag_list="${dockerhub_repository_tag_list}${dockerhub_repository_tag_list:+ }$(jq -r '[.results[] | select(.name | match("^(?!.*edge)")) | .name] | unique | .[]' "${api_output_file}")"
-    done # Done looping pages of tags data
+# Retrieve all unique non-edge image tags from DockerHub
+while test "${page_number}" -gt "0"; do
+    get_dockerhub_repository_tags_data "${repository}" "${page_number}" "${page_size}"
 
-    # Retrieve all image tags from Artifactory
-    get_artifactory_repository_tags_data "${repository}"
-    artifactory_repository_tag_list=$(jq '.tags[]' "${api_output_file}")
+    # Check to see if there is more tags on the next page
+    next_url=$(jq -r '.next' "${api_output_file}")
+    if test "${next_url}" != "null"; then
+        page_number=$((page_number + 1))
+    else
+        # Stop looping while statement
+        page_number=0
+    fi
 
-    # Retrieve all signed image tags from Artifactory
-    get_artifactory_repository_signed_tags_data "${repository}"
-    artifactory_repository_signed_tag_list=$(jq '[.[] | .SignedTags[] | .SignedTag] | unique | .[]' "${api_output_file}")
+    # Get the list of all non-edge images in each DockerHub repository
+    dockerhub_repository_tag_list="${dockerhub_repository_tag_list}${dockerhub_repository_tag_list:+ }$(jq -r '[.results[] | select(.name | match("^(?!.*edge)")) | .name] | unique | .[]' "${api_output_file}")"
+done # Done looping pages of tags data
 
-    # Loop through each tag from the DockerHub Repository
-    for tag in ${dockerhub_repository_tag_list}; do
-        # Loop through arch specific tags
-        get_dockerhub_specific_tag_data "${repository}" "${tag}"
-        arch_list_for_tag=$(jq -r '.images[] | .architecture' "${api_output_file}")
+# Retrieve all image tags from Artifactory
+get_artifactory_repository_tags_data "${repository}"
+artifactory_repository_tag_list=$(jq '.tags[]' "${api_output_file}")
 
-        for arch in ${arch_list_for_tag}; do
-            arch_tag="${tag}-${arch}"
+# Retrieve all signed image tags from Artifactory
+get_artifactory_repository_signed_tags_data "${repository}"
+artifactory_repository_signed_tag_list=$(jq '[.[] | .SignedTags[] | .SignedTag] | unique | .[]' "${api_output_file}")
 
-            # Check to see if the DockerHub tag is already archived on Artifactory
-            if test "${artifactory_repository_tag_list#*"\"${arch_tag}\""}" != "${artifactory_repository_tag_list}"; then
-                # The current tag is already archived.
-                # Either the tag is a sprint tag, or a sliding latest tag.
-                # If it is a sprint tag, skip archive process.
-                # If it is a latest tag, re-archive the image if it has been updated in the past 60 days
+# Loop through each tag from the DockerHub Repository
+for tag in ${dockerhub_repository_tag_list}; do
+    # Loop through arch specific tags
+    get_dockerhub_specific_tag_data "${repository}" "${tag}"
+    arch_list_for_tag=$(jq -r '.images[] | .architecture' "${api_output_file}")
 
-                # Check to see if tag is a sprint tag
-                if test "${arch_tag#*[0-9][0-9][0-9][0-9]}" != "${arch_tag}"; then
-                    echo "INFO: Sprint tag ${arch_tag} is already archived. Skipping..."
-                else
-                    # Note, these date command flags are specific to the busybox date command
-                    iso_date_last_updated=$(jq -r '.last_updated' "${api_output_file}" | sed -e 's/T.*//g')
-                    last_updated_time=$(($(date -d "${iso_date_last_updated}" +%s)))
-                    sixty_days_ago=$(($(date +%s) - (60 * 24 * 60 * 60)))
-                    if test ${last_updated_time} -gt ${sixty_days_ago}; then
-                        # The latest tag has been updated in the past 60 days. Overwrite the archive.
-                        echo "INFO: Archiving latest updated tag ${arch_tag} to Artifactory"
+    for arch in ${arch_list_for_tag}; do
+        arch_tag="${tag}-${arch}"
 
-                        # Check to see if the Artifactory tag is signed. If not, archive directly, instead of overwriting trust data.
-                        if test "${artifactory_repository_signed_tag_list#*"\"${arch_tag}\""}" != "${artifactory_repository_signed_tag_list}"; then
-                            # The current tag is signed. Overwrite trust data.
-                            overwrite_and_archive_image "${repository}" "${tag}" "${arch}"
-                        else
-                            # The current tag is not signed. Archive image directly.
-                            echo "WARN: Image tag ${arch_tag} has no trust data. Skipping trust data deletion..."
-                            archive_image "${repository}" "${tag}" "${arch}"
-                        fi
-                    else
-                        echo "INFO: Latest tag ${arch_tag} is already archived and not updated. Skipping..."
-                    fi
-                fi
+        # Check to see if the DockerHub tag is already archived on Artifactory
+        if test "${artifactory_repository_tag_list#*"\"${arch_tag}\""}" != "${artifactory_repository_tag_list}"; then
+            # The current tag is already archived.
+            # Either the tag is a sprint tag, or a sliding latest tag.
+            # If it is a sprint tag, skip archive process.
+            # If it is a latest tag, re-archive the image if it has been updated in the past 60 days
+
+            # Check to see if tag is a sprint tag
+            if test "${arch_tag#*[0-9][0-9][0-9][0-9]}" != "${arch_tag}"; then
+                echo "INFO: Sprint tag ${arch_tag} is already archived. Skipping..."
             else
-                # The tag is not archived on Artifactory. Do so.
-                echo "INFO: Archiving new tag ${arch_tag} to Artifactory"
-                archive_image "${repository}" "${tag}" "${arch}"
-            fi
-        done # looping through architectures
-    done     # looping through tags
+                # Note, these date command flags are specific to the busybox date command
+                iso_date_last_updated=$(jq -r '.last_updated' "${api_output_file}" | sed -e 's/T.*//g')
+                last_updated_time=$(($(date -d "${iso_date_last_updated}" +%s)))
+                sixty_days_ago=$(($(date +%s) - (60 * 24 * 60 * 60)))
+                if test ${last_updated_time} -gt ${sixty_days_ago}; then
+                    # The latest tag has been updated in the past 60 days. Overwrite the archive.
+                    echo "INFO: Archiving latest updated tag ${arch_tag} to Artifactory"
 
-    # Be sure to only use the tags from each individual repository
-    unset artifactory_repository_tag_list
-    unset dockerhub_repository_tag_list
-done # looping through dockerhub repositories
+                    # Check to see if the Artifactory tag is signed. If not, archive directly, instead of overwriting trust data.
+                    if test "${artifactory_repository_signed_tag_list#*"\"${arch_tag}\""}" != "${artifactory_repository_signed_tag_list}"; then
+                        # The current tag is signed. Overwrite trust data.
+                        overwrite_and_archive_image "${repository}" "${tag}" "${arch}"
+                    else
+                        # The current tag is not signed. Archive image directly.
+                        echo "WARN: Image tag ${arch_tag} has no trust data. Skipping trust data deletion..."
+                        archive_image "${repository}" "${tag}" "${arch}"
+                    fi
+                else
+                    echo "INFO: Latest tag ${arch_tag} is already archived and not updated. Skipping..."
+                fi
+            fi
+        else
+            # The tag is not archived on Artifactory. Do so.
+            echo "INFO: Archiving new tag ${arch_tag} to Artifactory"
+            archive_image "${repository}" "${tag}" "${arch}"
+        fi
+    done # looping through architectures
+done     # looping through tags
+
+# Be sure to only use the tags from each individual repository
+unset artifactory_repository_tag_list
+unset dockerhub_repository_tag_list
 
 exit 0
