@@ -111,23 +111,6 @@ archive_image() {
     echo "INFO: Successfully archived image: ${target_image}"
 }
 
-# Revoke any trust data from notary for a specific images archive to artifactory
-overwrite_and_archive_image() {
-    test -z "${1}" && echo_red "ERROR: The function overwrite_and_archive_image requires a repository name." && exit 1
-    test -z "${2}" && echo_red "ERROR: The function overwrite_and_archive_image requires an image tag." && exit 1
-    test -z "${3}" && echo_red "ERROR: The function overwrite_and_archive_image requires an architecture." && exit 1
-
-    target_image="${ARTIFACTORY_REGISTRY}/${1}:${2}-${3}"
-
-    # Revoke trust data for the tag
-    export DOCKER_CONTENT_TRUST_SERVER="https://notaryserver:4443"
-    exec_cmd_or_fail docker --config "${docker_config_default_dir}" trust revoke --yes "${target_image}"
-    unset DOCKER_CONTENT_TRUST_SERVER
-
-    # Archive the image
-    archive_image "${1}" "${2}" "${3}"
-}
-
 # Authenticate to DockerHub and output the login data to $api_output_file
 authenticate_to_dockerhub() {
     banner "Authenticating to DockerHub"
@@ -135,7 +118,7 @@ authenticate_to_dockerhub() {
     if test "${http_response_code}" -eq 200; then
         echo "Successfully Retrieved Login Auth Token from DockerHub"
     else
-        echo_red "${http_response_code}: Unable to login to dockerhub for tag deletion" && exit 1
+        echo_red "${http_response_code}: Unable to authenticate with DockerHub" && exit 1
     fi
 }
 
@@ -150,11 +133,26 @@ get_dockerhub_repository_tags_data() {
         --output "${api_output_file}" \
         --request "GET" \
         "${dockerhub_api_domain}/v2/namespaces/${api_namespace}/repositories/${1}/tags?page=${2}&page_size=${3}")
-    test "${http_result_code}" -ne 200 &&
-        echo "ERROR: ${http_result_code} Unable to retrieve the list of tags from ${dockerhub_api_domain}/v2/namespaces/${api_namespace}/repositories/${repository}/tags?page=${1}&page_size=${2}" &&
-        echo "Response body:" &&
-        cat "${api_output_file}" &&
-        exit 1
+    if test "${http_result_code}" != "200"; then
+        # Re-Authenticate to DockerHub by retrieving the Auth Token
+        # The avoids the auth token timeout of 60m
+        authenticate_to_dockerhub
+        dockerhub_auth_token=$(jq -r .token "${api_output_file}")
+
+        # Try the curl tag retrieval again
+        http_result_code=$(api_curl \
+            --header "Authorization: Bearer ${dockerhub_auth_token}" \
+            --output "${api_output_file}" \
+            --request "GET" \
+            "${dockerhub_api_domain}/v2/namespaces/${api_namespace}/repositories/${1}/tags?page=${2}&page_size=${3}")
+
+        if test "${http_result_code}" != "200"; then
+            echo "ERROR: ${http_result_code} Unable to retrieve the list of tags from ${dockerhub_api_domain}/v2/namespaces/${api_namespace}/repositories/${repository}/tags?page=${1}&page_size=${2}"
+            echo "Response body:"
+            cat "${api_output_file}"
+            exit 1
+        fi
+    fi
 }
 
 get_artifactory_repository_tags_data() {
@@ -165,28 +163,20 @@ get_artifactory_repository_tags_data() {
         --output "${api_output_file}" \
         --request "GET" \
         "${artifactory_api_domain}/api/docker/docker-builds/v2/${1}/tags/list")
-    test "${http_result_code}" -ne 200 &&
-        echo "ERROR: ${http_result_code} Unable to retrieve the list of tags from ${artifactory_api_domain}/api/docker/docker-builds/v2/${repository}/tags/list" &&
-        echo "Response body:" &&
-        cat "${api_output_file}" &&
-        exit 1
-}
-
-get_artifactory_repository_signed_tags_data() {
-    test -z "${1}" && echo_red "ERROR: The function get_artifactory_repository_signed_tags_data requires a repository name." && exit 1
-
-    target_repository="${ARTIFACTORY_REGISTRY}/${1}"
-
-    export DOCKER_CONTENT_TRUST_SERVER="https://notaryserver:4443"
-    docker --config "${docker_config_default_dir}" trust inspect "${target_repository}" > "${api_output_file}"
-
-    test "${?}" -ne 0 &&
-        echo "ERROR: ${http_result_code} Unable to retrieve repository trust data for ${target_repository}" &&
-        echo "Response body:" &&
-        cat "${api_output_file}" &&
-        exit 1
-
-    unset DOCKER_CONTENT_TRUST_SERVER
+    if test "${http_result_code}" != "200"; then
+        # Try the curl tag retrieval again
+        http_result_code=$(api_curl \
+            --header "Authorization: Bearer ${art_auth_token}" \
+            --output "${api_output_file}" \
+            --request "GET" \
+            "${artifactory_api_domain}/api/docker/docker-builds/v2/${1}/tags/list")
+        if test "${http_result_code}" != "200"; then
+            echo "ERROR: ${http_result_code} Unable to retrieve the list of tags from ${artifactory_api_domain}/api/docker/docker-builds/v2/${repository}/tags/list"
+            echo "Response body:"
+            cat "${api_output_file}"
+            exit 1
+        fi
+    fi
 }
 
 get_dockerhub_specific_tag_data() {
@@ -198,11 +188,26 @@ get_dockerhub_specific_tag_data() {
         --output "${api_output_file}" \
         --request "GET" \
         "${dockerhub_api_domain}/v2/namespaces/${api_namespace}/repositories/${repository}/tags/${tag}")
-    test "${http_result_code}" -ne 200 &&
-        echo "ERROR: ${http_result_code} Unable to retrieve tag information from ${dockerhub_api_domain}/v2/namespaces/${api_namespace}/repositories/${repository}/tags/${tag}" &&
-        echo "Response body:" &&
-        cat "${api_output_file}" &&
-        exit 1
+    if test "${http_result_code}" != "200"; then
+        # Re-Authenticate to DockerHub by retrieving the Auth Token
+        # The avoids the auth token timeout of 60m
+        authenticate_to_dockerhub
+        dockerhub_auth_token=$(jq -r .token "${api_output_file}")
+
+        # Try the curl again
+        http_result_code=$(api_curl \
+            --header "Authorization: Bearer ${dockerhub_auth_token}" \
+            --output "${api_output_file}" \
+            --request "GET" \
+            "${dockerhub_api_domain}/v2/namespaces/${api_namespace}/repositories/${repository}/tags/${tag}")
+
+        if test "${http_result_code}" != "200"; then
+            echo "ERROR: ${http_result_code} Unable to retrieve tag information from ${dockerhub_api_domain}/v2/namespaces/${api_namespace}/repositories/${repository}/tags/${tag}"
+            echo "Response body:"
+            cat "${api_output_file}"
+            exit 1
+        fi
+    fi
 }
 
 ######################
@@ -230,7 +235,7 @@ banner "Archiving for repository: ${repository}"
 page_size=100
 page_number=1
 
-# Retrieve all unique non-edge image tags from DockerHub
+# Retrieve all unique non-edge non-latest image tags from DockerHub
 while test "${page_number}" -gt "0"; do
     get_dockerhub_repository_tags_data "${repository}" "${page_number}" "${page_size}"
 
@@ -243,66 +248,45 @@ while test "${page_number}" -gt "0"; do
         page_number=0
     fi
 
-    # Get the list of all non-edge images in each DockerHub repository
-    dockerhub_repository_tag_list="${dockerhub_repository_tag_list}${dockerhub_repository_tag_list:+ }$(jq -r '[.results[] | select(.name | match("^(?!.*edge)")) | .name] | unique | .[]' "${api_output_file}")"
+    # Get the list of all non-edge and non-latest images in each DockerHub repository
+    page_images_list=$(jq -r '[.results[] | select(.name | match("^(?!.*edge)")) | select(.name | match("^(?!.*latest)"))  | .name] | unique | .[]' "${api_output_file}")
+
+    # Concatenate the list to the current list seperated by a space
+    dockerhub_repository_tag_list="${dockerhub_repository_tag_list}${dockerhub_repository_tag_list:+ }${page_images_list}"
 done # Done looping pages of tags data
 
 # Retrieve all image tags from Artifactory
 get_artifactory_repository_tags_data "${repository}"
 artifactory_repository_tag_list=$(jq '.tags[]' "${api_output_file}")
 
-# Retrieve all signed image tags from Artifactory
-get_artifactory_repository_signed_tags_data "${repository}"
-artifactory_repository_signed_tag_list=$(jq '[.[] | .SignedTags[] | .SignedTag] | unique | .[]' "${api_output_file}")
-
 # Loop through each tag from the DockerHub Repository
 for tag in ${dockerhub_repository_tag_list}; do
-    # Loop through arch specific tags
-    get_dockerhub_specific_tag_data "${repository}" "${tag}"
-    arch_list_for_tag=$(jq -r '.images[] | .architecture' "${api_output_file}")
+    # Artifactory tags are archived in the format "${tag}-${arch}"
+    # Here, we only want to see if ANY tag regardless of arch is already archived.
+    # If so, we can skip the below API call to dockerhub to retrieve arch information
+    # And skip archiving the tag
+    # Check to see if the DockerHub tag is already archived on Artifactory
+    # This regex replacement with sed is much easier than pattern matching. Disable shellcheck.
+    # shellcheck disable=SC2001
+    replaced_artifactory_repository_tag_list="$(echo "${artifactory_repository_tag_list}" | sed -e "s/\"${tag}-[[:alnum:]]*\"$/REPLACE/g")"
 
-    for arch in ${arch_list_for_tag}; do
-        arch_tag="${tag}-${arch}"
+    if test "${replaced_artifactory_repository_tag_list}" != "${artifactory_repository_tag_list}"; then
+        # The tag is archived on Artifactory
+        echo "INFO: Tag ${tag} already archived to Artifactory. Skipping..."
+    else
+        # The tag is not archived on Artifactory for ANY arch. Do so.
 
-        # Check to see if the DockerHub tag is already archived on Artifactory
-        if test "${artifactory_repository_tag_list#*"\"${arch_tag}\""}" != "${artifactory_repository_tag_list}"; then
-            # The current tag is already archived.
-            # Either the tag is a sprint tag, or a sliding latest tag.
-            # If it is a sprint tag, skip archive process.
-            # If it is a latest tag, re-archive the image if it has been updated in the past 60 days
+        # Loop through arch specific tags
+        get_dockerhub_specific_tag_data "${repository}" "${tag}"
+        arch_list_for_tag=$(jq -r '.images[] | .architecture' "${api_output_file}")
 
-            # Check to see if tag is a sprint tag
-            if test "${arch_tag#*[0-9][0-9][0-9][0-9]}" != "${arch_tag}"; then
-                echo "INFO: Sprint tag ${arch_tag} is already archived. Skipping..."
-            else
-                # Note, these date command flags are specific to the busybox date command
-                iso_date_last_updated=$(jq -r '.last_updated' "${api_output_file}" | sed -e 's/T.*//g')
-                last_updated_time=$(($(date -d "${iso_date_last_updated}" +%s)))
-                sixty_days_ago=$(($(date +%s) - (60 * 24 * 60 * 60)))
-                if test ${last_updated_time} -gt ${sixty_days_ago}; then
-                    # The latest tag has been updated in the past 60 days. Overwrite the archive.
-                    echo "INFO: Archiving latest updated tag ${arch_tag} to Artifactory"
-
-                    # Check to see if the Artifactory tag is signed. If not, archive directly, instead of overwriting trust data.
-                    if test "${artifactory_repository_signed_tag_list#*"\"${arch_tag}\""}" != "${artifactory_repository_signed_tag_list}"; then
-                        # The current tag is signed. Overwrite trust data.
-                        overwrite_and_archive_image "${repository}" "${tag}" "${arch}"
-                    else
-                        # The current tag is not signed. Archive image directly.
-                        echo "WARN: Image tag ${arch_tag} has no trust data. Skipping trust data deletion..."
-                        archive_image "${repository}" "${tag}" "${arch}"
-                    fi
-                else
-                    echo "INFO: Latest tag ${arch_tag} is already archived and not updated. Skipping..."
-                fi
-            fi
-        else
-            # The tag is not archived on Artifactory. Do so.
-            echo "INFO: Archiving new tag ${arch_tag} to Artifactory"
+        for arch in ${arch_list_for_tag}; do
+            echo "INFO: Archiving new tag ${tag}-${arch} to Artifactory"
             archive_image "${repository}" "${tag}" "${arch}"
-        fi
-    done # looping through architectures
-done     # looping through tags
+
+        done # looping through architectures
+    fi
+done # looping through tags
 
 # Be sure to only use the tags from each individual repository
 unset artifactory_repository_tag_list
