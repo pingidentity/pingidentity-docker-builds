@@ -228,6 +228,7 @@ arm.delete-old-k8s:
 
 a.ldap-sdk-tools:
   stage: archive
+  retry: 2
   script:
     - ci_scripts/archive_images.sh --product ldap-sdk-tools
   rules:
@@ -237,6 +238,7 @@ a.ldap-sdk-tools:
 
 a.pingaccess:
   stage: archive
+  retry: 2
   script:
     - ci_scripts/archive_images.sh --product pingaccess
   rules:
@@ -246,6 +248,7 @@ a.pingaccess:
 
 a.pingauthorize:
   stage: archive
+  retry: 2
   script:
     - ci_scripts/archive_images.sh --product pingauthorize
   rules:
@@ -255,6 +258,7 @@ a.pingauthorize:
 
 a.pingauthorizepap:
   stage: archive
+  retry: 2
   script:
     - ci_scripts/archive_images.sh --product pingauthorizepap
   rules:
@@ -264,6 +268,7 @@ a.pingauthorizepap:
 
 a.pingcentral:
   stage: archive
+  retry: 2
   script:
     - ci_scripts/archive_images.sh --product pingcentral
   rules:
@@ -273,6 +278,7 @@ a.pingcentral:
 
 a.pingdataconsole:
   stage: archive
+  retry: 2
   script:
     - ci_scripts/archive_images.sh --product pingdataconsole
   rules:
@@ -282,6 +288,7 @@ a.pingdataconsole:
 
 a.pingdatasync:
   stage: archive
+  retry: 2
   script:
     - ci_scripts/archive_images.sh --product pingdatasync
   rules:
@@ -291,6 +298,7 @@ a.pingdatasync:
 
 a.pingdelegator:
   stage: archive
+  retry: 2
   script:
     - ci_scripts/archive_images.sh --product pingdelegator
   rules:
@@ -300,6 +308,7 @@ a.pingdelegator:
 
 a.pingdirectory:
   stage: archive
+  retry: 2
   script:
     - ci_scripts/archive_images.sh --product pingdirectory
   rules:
@@ -309,6 +318,7 @@ a.pingdirectory:
 
 a.pingdirectoryproxy:
   stage: archive
+  retry: 2
   script:
     - ci_scripts/archive_images.sh --product pingdirectoryproxy
   rules:
@@ -318,6 +328,7 @@ a.pingdirectoryproxy:
 
 a.pingfederate:
   stage: archive
+  retry: 2
   script:
     - ci_scripts/archive_images.sh --product pingfederate
   rules:
@@ -327,6 +338,7 @@ a.pingfederate:
 
 a.pingintelligence:
   stage: archive
+  retry: 2
   script:
     - ci_scripts/archive_images.sh --product pingintelligence
   rules:
@@ -336,6 +348,7 @@ a.pingintelligence:
 
 a.pingtoolkit:
   stage: archive
+  retry: 2
   script:
     - ci_scripts/archive_images.sh --product pingtoolkit
   rules:
