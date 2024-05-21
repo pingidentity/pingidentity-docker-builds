@@ -24,6 +24,7 @@ stages:
   - deploy
   - publish
   - archive
+  - custom.image
   - final
 
 default:
@@ -127,6 +128,8 @@ intel.f.pingfoundation:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]/i'
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
@@ -142,6 +145,8 @@ arm.f.pingfoundation:
     - ci_scripts/build_foundation.sh
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]/i'
       when: never
@@ -165,6 +170,8 @@ p.github:
     - ci_scripts/deploy_docs.sh
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip products\]/i'
       when: never
@@ -355,3 +362,36 @@ a.pingtoolkit:
     - if: $ARCHIVE_PIPELINE == "true"
       when: on_success
     - when: never
+
+###################################################################################
+#   _____ _    _  _____ _______ ____  __  __   _____ __  __          _____ ______
+#  / ____| |  | |/ ____|__   __/ __ \|  \/  | |_   _|  \/  |   /\   / ____|  ____|
+# | |    | |  | | (___    | | | |  | | \  / |   | | | \  / |  /  \ | |  __| |__
+# | |    | |  | |\___ \   | | | |  | | |\/| |   | | | |\/| | / /\ \| | |_ |  __|
+# | |____| |__| |____) |  | | | |__| | |  | |  _| |_| |  | |/ ____ \ |__| | |____
+#  \_____|\____/|_____/   |_|  \____/|_|  |_| |_____|_|  |_/_/    \_\_____|______|
+###################################################################################
+
+intel.custom.image:
+  stage: custom.image
+  script:
+    - ci_scripts/build_custom_image.sh --product $CUSTOM_PRODUCT_NAME --version $CUSTOM_PRODUCT_VERSION --os-shim $CUSTOM_OS_SHIM --jvm $CUSTOM_JVM_ID --sprint $CUSTOM_SPRINT_VERSION
+  rules:
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: on_success
+    - when: never
+
+arm.custom.image:
+  stage: custom.image
+  image: $RUNNER_IMAGE_AARCH64
+  tags:
+    - platform=aarch64
+  script:
+    - ci_scripts/build_custom_image.sh --product $CUSTOM_PRODUCT_NAME --version $CUSTOM_PRODUCT_VERSION --os-shim $CUSTOM_OS_SHIM --jvm $CUSTOM_JVM_ID --sprint $CUSTOM_SPRINT_VERSION
+  rules:
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: on_success
+    - when: never
+
+
+

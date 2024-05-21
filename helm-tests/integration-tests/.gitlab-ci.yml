@@ -16,6 +16,8 @@ intel.pd-repl.v1:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i'
@@ -57,6 +59,8 @@ arm.pd-repl.v2:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i'
@@ -96,6 +100,8 @@ intel.pa-pf-pd-fips.v1:
     KUBERNETES_POLL_TIMEOUT: 25m
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
@@ -140,6 +146,8 @@ intel.pa-pf-pd-fips.v2:
     KUBERNETES_POLL_TIMEOUT: 25m
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
@@ -228,6 +236,8 @@ intel.pa-pf-pd.v1:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
@@ -267,6 +277,8 @@ intel.pa-pf-pd.v2:
     KUBERNETES_MEMORY_LIMIT: 3920000000
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
@@ -311,6 +323,8 @@ arm.pa-pf-pd.v3:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
@@ -352,6 +366,8 @@ arm.pa-pf-pd.v3:
 #   rules:
 #     - if: $ARCHIVE_PIPELINE == "true"
 #       when: never
+#     - if: $CUSTOM_IMAGE_PIPELINE == "true"
+#       when: never
 #     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
 #       when: never
 #     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
@@ -391,6 +407,8 @@ intel.pds-pd.v1:
     KUBERNETES_MEMORY_LIMIT: 3920000000
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
@@ -435,6 +453,8 @@ arm.pds-pd.v2:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdatasync(?:$|,)/i'
@@ -473,6 +493,8 @@ intel.pdp-pd.v1:
     KUBERNETES_MEMORY_LIMIT: 5880000000
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
@@ -516,6 +538,8 @@ arm.pdp-pd.v2:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectoryproxy(?:$|,)/i'
@@ -554,6 +578,8 @@ intel.paz-pd.v1:
     KUBERNETES_MEMORY_LIMIT: 3920000000
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
@@ -597,6 +623,8 @@ arm.paz-pd.v2:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingauthorize(?:$|,)/i'
@@ -631,6 +659,8 @@ intel.pa-pf-pi.v1:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
@@ -663,6 +693,8 @@ intel.pa-pf-pi.v2:
   retry: 1
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
@@ -697,6 +729,8 @@ intel.pa-pf-pi.v2:
 #   retry: 1
 #   rules:
 #     - if: $ARCHIVE_PIPELINE == "true"
+#       when: never
+#     - if: $CUSTOM_IMAGE_PIPELINE == "true"
 #       when: never
 #     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
 #       when: never

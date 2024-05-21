@@ -9,6 +9,8 @@ intel.b.pingdirectory:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i'
@@ -45,6 +47,8 @@ arm.b.pingdirectory:
     - ci_scripts/build_product.sh --product pingdirectory
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
@@ -85,6 +89,8 @@ intel.t.pd.al11:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i'
@@ -115,6 +121,8 @@ arm.t.pingdirectory:
   retry: 2
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
@@ -147,6 +155,8 @@ d.pingdirectory:
     - ci_scripts/deploy_manifests_to_registry.sh --product pingdirectory
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip deploy\]/i'
       when: never

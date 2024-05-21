@@ -9,6 +9,8 @@ intel.b.pingaccess:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i'
@@ -43,6 +45,8 @@ arm.b.pingaccess:
     - ci_scripts/build_product.sh --product pingaccess
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
@@ -81,6 +85,8 @@ intel.t.pingaccess:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i'
@@ -112,6 +118,8 @@ arm.t.pingaccess:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i'
@@ -139,6 +147,8 @@ intel.t.pingaccess-cluster:
   retry: 2
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
@@ -171,6 +181,8 @@ arm.t.pingaccess-cluster:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i'
@@ -202,6 +214,8 @@ d.pingaccess:
     - ci_scripts/deploy_manifests_to_registry.sh --product pingaccess
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip deploy\]/i'
       when: never

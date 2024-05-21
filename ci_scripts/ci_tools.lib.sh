@@ -721,6 +721,17 @@ elif test -n "${CI_COMMIT_REF_NAME}"; then
     # we terminate to DEPS registry with a slash so it can be omitted to revert to implicit
     DEPS_REGISTRY="${PIPELINE_DEPS_REGISTRY}/"
 
+    if test -n "${CUSTOM_IMAGE_PIPELINE}"; then
+        # Trick the pipeline to think local. This removes the need to push to ECR for build process,
+        # and keeps the images around after serial_build.sh is finished.
+        IS_LOCAL_BUILD=true
+        export IS_LOCAL_BUILD
+        # keep local foundation registry if set
+        if test -z "${FOUNDATION_REGISTRY}"; then
+            FOUNDATION_REGISTRY="pingidentity"
+        fi
+    fi
+
     banner "CI PIPELINE using ${PIPELINE_BUILD_REGISTRY_VENDOR} - ${FOUNDATION_REGISTRY}"
 
     #

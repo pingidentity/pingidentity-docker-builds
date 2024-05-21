@@ -9,6 +9,8 @@ intel.b.pingfederate:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
@@ -43,6 +45,8 @@ arm.b.pingfederate:
     - ci_scripts/build_product.sh --product pingfederate
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
@@ -81,6 +85,8 @@ intel.t.pingfederate:
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
       when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
@@ -110,6 +116,8 @@ arm.t.pingfederate:
   retry: 2
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
@@ -141,6 +149,8 @@ d.pingfederate:
     - ci_scripts/deploy_manifests_to_registry.sh --product pingfederate
   rules:
     - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip deploy\]/i'
       when: never
