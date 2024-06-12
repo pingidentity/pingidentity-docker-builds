@@ -182,7 +182,13 @@ ENV SHIM=${SHIM} \
     CERTIFICATE_NICKNAME= \
 
 #-- Sets the number of columns in PingDataSync command-line tool output
-    COLUMNS=120
+    COLUMNS=120 \
+
+#-- Force a rebuild (replace-profile) of PingDataSync on restart.
+#-- Used to ensure that the server configuration exactly matches the server profile.
+#-- This variable will slow down startup times and should only be used
+#-- when necessary.
+    PD_REBUILD_ON_RESTART=false
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
