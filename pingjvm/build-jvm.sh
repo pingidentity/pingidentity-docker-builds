@@ -3,6 +3,7 @@ test "${VERBOSE}" = "true" && set -x
 
 _osID=$(awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' < /etc/os-release 2> /dev/null)
 _osArch=$(uname -m)
+download_cmd="curl -o"
 
 # If there is no Java, we'll pull down Liberica Standard JDK
 if ! type java > /dev/null 2> /dev/null; then
@@ -43,10 +44,9 @@ if ! type java > /dev/null 2> /dev/null; then
                     ;;
             esac
             download_libc="-musl"
-            download_cmd="wget -O"
-
             # Get binutils for jlinking with Liberica JDK 17 on alpine
-            apk --no-cache --update add binutils
+            # Add curl to download the JDK
+            apk --no-cache --update add binutils curl
             ;;
         rhel)
             case "${_osArch}" in
@@ -62,7 +62,6 @@ if ! type java > /dev/null 2> /dev/null; then
             # Word-splitting expected in listing microdnf packages to install
             # shellcheck disable=SC2086
             microdnf -y install tar gzip findutils wget
-            download_cmd="curl -o"
             download_libc=""
             ;;
         *)
