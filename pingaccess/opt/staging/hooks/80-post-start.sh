@@ -27,7 +27,7 @@ if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" || test "${OPERATIONAL_MODE}
         echo "PingAccess is up"
     fi
 
-    "${HOOKS_DIR}/81-after-start-process.sh"
+    run_hook "81-after-start-process.sh"
     test ${?} -ne 0 && kill 1
 
     # everything was successful, pa is ready.
