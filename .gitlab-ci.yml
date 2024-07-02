@@ -10,7 +10,7 @@ include:
   - local: pingdirectory/.gitlab-ci.yml
   - local: pingdirectoryproxy/.gitlab-ci.yml
   - local: pingfederate/.gitlab-ci.yml
-  - local: pingintelligence/.gitlab-ci.yml
+#  - local: pingintelligence/.gitlab-ci.yml
   - local: pingtoolkit/.gitlab-ci.yml
   - local: helm-tests/integration-tests/.gitlab-ci.yml
 #  - local: apache-jmeter/.gitlab-ci.yml
@@ -343,15 +343,15 @@ a.pingfederate:
       when: on_success
     - when: never
 
-a.pingintelligence:
-  stage: archive
-  retry: 2
-  script:
-    - ci_scripts/archive_images.sh --product pingintelligence
-  rules:
-    - if: $ARCHIVE_PIPELINE == "true"
-      when: on_success
-    - when: never
+#a.pingintelligence:
+#  stage: archive
+#  retry: 2
+#  script:
+#    - ci_scripts/archive_images.sh --product pingintelligence
+#  rules:
+#    - if: $ARCHIVE_PIPELINE == "true"
+#      when: on_success
+#    - when: never
 
 a.pingtoolkit:
   stage: archive
