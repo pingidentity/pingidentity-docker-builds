@@ -2,102 +2,102 @@
 #                  BUILD 
 ################################################
 
-intel.b.pingintelligence:
-  stage: products
-  script:
-    - ci_scripts/build_product.sh --product pingintelligence
-  rules:
-    - if: $ARCHIVE_PIPELINE == "true"
-      when: never
-    - if: $CUSTOM_IMAGE_PIPELINE == "true"
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
-      when: never
-    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
-      when: on_success
-    - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
-      changes:
-        - integration_tests/pi-*
-        - pingintelligence/**/*
-        - pingcommon/**/*
-        - pingbase/**/*
-        - ci_scripts/*
-        - .gitlab-ci.yml
-        - helm-tests/smoke-tests/pingintelligence/*
-        - helm-tests/integration-tests/**/*
-      when: on_success
-    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
-      when: on_success
+#intel.b.pingintelligence:
+#  stage: products
+#  script:
+#    - ci_scripts/build_product.sh --product pingintelligence
+#  rules:
+#    - if: $ARCHIVE_PIPELINE == "true"
+#      when: never
+#    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+#      when: never
+#    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
+#      when: never
+#    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
+#      when: on_success
+#    - if: '$BUILD_PRODUCT != null'
+#      when: never
+#    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+#      when: never
+#    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+#      changes:
+#        - integration_tests/pi-*
+#        - pingintelligence/**/*
+#        - pingcommon/**/*
+#        - pingbase/**/*
+#        - ci_scripts/*
+#        - .gitlab-ci.yml
+#        - helm-tests/smoke-tests/pingintelligence/*
+#        - helm-tests/integration-tests/**/*
+#      when: on_success
+#    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+#      when: on_success
 
 ################################################
 #                  SMOKE TESTS
 ################################################
 
-intel.t.pingintelligence:
-  stage: test.smoke
-  script:
-    - ci_scripts/run_helm_smoke.sh --product pingintelligence
-  retry: 2
-  rules:
-    - if: $ARCHIVE_PIPELINE == "true"
-      when: never
-    - if: $CUSTOM_IMAGE_PIPELINE == "true"
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
-      when: never
-    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
-      when: on_success
-    - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
-      changes:
-        - integration_tests/pi-*
-        - pingintelligence/**/*
-        - pingcommon/**/*
-        - pingbase/**/*
-        - ci_scripts/*
-        - .gitlab-ci.yml
-        - helm-tests/smoke-tests/pingintelligence/*
-        - helm-tests/integration-tests/**/*
-      when: on_success
-    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
-      when: on_success
+#intel.t.pingintelligence:
+#  stage: test.smoke
+#  script:
+#    - ci_scripts/run_helm_smoke.sh --product pingintelligence
+#  retry: 2
+#  rules:
+#    - if: $ARCHIVE_PIPELINE == "true"
+#      when: never
+#    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+#      when: never
+#    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
+#      when: never
+#    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
+#      when: on_success
+#    - if: '$BUILD_PRODUCT != null'
+#      when: never
+#    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+#      when: never
+#    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+#      changes:
+#        - integration_tests/pi-*
+#        - pingintelligence/**/*
+#        - pingcommon/**/*
+#        - pingbase/**/*
+#        - ci_scripts/*
+#        - .gitlab-ci.yml
+#        - helm-tests/smoke-tests/pingintelligence/*
+#        - helm-tests/integration-tests/**/*
+#      when: on_success
+#    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+#      when: on_success
 
 ################################################
 #                  DEPLOY
 ################################################
 
-d.pingintelligence:
-  stage: deploy
-  script:
-    - ci_scripts/deploy_product_to_registry.sh --product pingintelligence
-    - ci_scripts/deploy_manifests_to_registry.sh --product pingintelligence
-  rules:
-    - if: $ARCHIVE_PIPELINE == "true"
-      when: never
-    - if: $CUSTOM_IMAGE_PIPELINE == "true"
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip deploy\]/i'
-      when: never
-    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
-      when: on_success
-    - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
-      when: never
-    - if: '$CI_COMMIT_REF_NAME =~ /^master$/'
-      changes:
-        - pingintelligence/**/*
-        - pingcommon/**/*
-        - pingbase/**/*
-        - ci_scripts/*
-        - .gitlab-ci.yml
-      when: on_success
-    - if: '$CI_COMMIT_TAG =~ /^\d{4}\.?\d*/'
-      when: on_success
+#d.pingintelligence:
+#  stage: deploy
+#  script:
+#    - ci_scripts/deploy_product_to_registry.sh --product pingintelligence
+#    - ci_scripts/deploy_manifests_to_registry.sh --product pingintelligence
+#  rules:
+#    - if: $ARCHIVE_PIPELINE == "true"
+#      when: never
+#    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+#      when: never
+#    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip deploy\]/i'
+#      when: never
+#    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
+#      when: on_success
+#    - if: '$BUILD_PRODUCT != null'
+#      when: never
+#    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+#      when: never
+#    - if: '$CI_COMMIT_REF_NAME =~ /^master$/'
+#      changes:
+#        - pingintelligence/**/*
+#        - pingcommon/**/*
+#        - pingbase/**/*
+#        - ci_scripts/*
+#        - .gitlab-ci.yml
+#      when: on_success
+#    - if: '$CI_COMMIT_TAG =~ /^\d{4}\.?\d*/'
+#      when: on_success

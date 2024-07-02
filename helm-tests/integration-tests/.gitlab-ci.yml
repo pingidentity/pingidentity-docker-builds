@@ -651,70 +651,70 @@ arm.paz-pd.v2:
 # to verify PingIntelligence
 # works in an end to end test
 # on the x86_64 runner
-intel.pa-pf-pi.v1:
-  stage: test.integration
-  script:
-    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pi --variation 1
-  retry: 1
-  rules:
-    - if: $ARCHIVE_PIPELINE == "true"
-      when: never
-    - if: $CUSTOM_IMAGE_PIPELINE == "true"
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
-      when: never
-    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
-      when: on_success
-    - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
-      changes:
-        - helm-tests/integration-tests/pa-pf-pi/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingintelligence/**/*
-        - ci_scripts/*
-        - .gitlab-ci.yml
-      when: on_success
-    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
-      when: on_success
+#intel.pa-pf-pi.v1:
+#  stage: test.integration
+#  script:
+#    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pi --variation 1
+#  retry: 1
+#  rules:
+#    - if: $ARCHIVE_PIPELINE == "true"
+#      when: never
+#    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+#      when: never
+#    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+#      when: never
+#    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
+#      when: on_success
+#    - if: '$BUILD_PRODUCT != null'
+#      when: never
+#    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+#      when: never
+#    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+#      changes:
+#        - helm-tests/integration-tests/pa-pf-pi/*
+#        - pingbase/**/*
+#        - pingcommon/**/*
+#        - pingintelligence/**/*
+#        - ci_scripts/*
+#        - .gitlab-ci.yml
+#      when: on_success
+#    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+#      when: on_success
 
 ################################################
 # The purpose of the integration test below is
 # to verify PingIntelligence
 # works in an end to end test
 # on the x86_64 runner
-intel.pa-pf-pi.v2:
-  stage: test.integration
-  script:
-    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pi --variation 2
-  retry: 1
-  rules:
-    - if: $ARCHIVE_PIPELINE == "true"
-      when: never
-    - if: $CUSTOM_IMAGE_PIPELINE == "true"
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
-      when: never
-    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
-      when: on_success
-    - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
-      changes:
-        - helm-tests/integration-tests/pa-pf-pi/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingintelligence/**/*
-        - ci_scripts/*
-        - .gitlab-ci.yml
-      when: on_success
-    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
-      when: on_success
+#intel.pa-pf-pi.v2:
+#  stage: test.integration
+#  script:
+#    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pi --variation 2
+#  retry: 1
+#  rules:
+#    - if: $ARCHIVE_PIPELINE == "true"
+#      when: never
+#    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+#      when: never
+#    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+#      when: never
+#    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingintelligence(?:$|,)/i'
+#      when: on_success
+#    - if: '$BUILD_PRODUCT != null'
+#      when: never
+#    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+#      when: never
+#    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+#      changes:
+#        - helm-tests/integration-tests/pa-pf-pi/*
+#        - pingbase/**/*
+#        - pingcommon/**/*
+#        - pingintelligence/**/*
+#        - ci_scripts/*
+#        - .gitlab-ci.yml
+#      when: on_success
+#    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+#      when: on_success
 
 ################################################
 # The purpose of the integration test below is
