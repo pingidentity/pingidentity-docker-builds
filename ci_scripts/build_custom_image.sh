@@ -102,6 +102,8 @@ if test -z "${CI_COMMIT_REF_NAME}"; then
     test -z "${CI_PROJECT_DIR}" && echo "Invalid call to dirname ${0}" && exit 97
 fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
+# shellcheck source=./ci_tools.lib.sh
+. "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
 # Handle pipeline environment variable that specifies zip download URL.
 if test -n "${CUSTOM_PRODUCT_ZIP_URL}"; then
@@ -131,7 +133,7 @@ test "${?}" != "0" && echo "ERROR: Failed to run serial_build.sh and build the c
 
 # Get this built docker image ID, tag the image and publish to Artifactory
 docker_image_id="$(docker images | awk 'NR==2' | awk '{print $3}')"
-target_image_name="${ARTIFACTORY_REGISTRY}/${product_name}:${sprint_git_tag}-${product_version}-$(echo "${os_image_tagged_name}" | awk '{gsub(/[:\/]/,"_");print}')-${jvm_id}-${ARCH}"
+target_image_name="${ARTIFACTORY_REGISTRY}/${product_name}:${sprint_git_tag}-${product_version}-$(_getLongTag "${os_image_tagged_name}")-${jvm_id}-${ARCH}"
 docker tag "${docker_image_id}" "${target_image_name}"
 test "${?}" != "0" && echo "ERROR: Failed to docker tag custom image" && exit 1
 docker push "${target_image_name}"
