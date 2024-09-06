@@ -131,7 +131,7 @@ test "${?}" != "0" && echo "ERROR: Failed to run serial_build.sh and build the c
 
 # Get this built docker image ID, tag the image and publish to Artifactory
 docker_image_id="$(docker images | awk 'NR==2' | awk '{print $3}')"
-target_image_name="${ARTIFACTORY_REGISTRY}/${product_name}:${sprint_git_tag}-${product_version}-$(_getLongTag "${os_image_tagged_name}")-${jvm_id}-${ARCH}"
+target_image_name="${ARTIFACTORY_REGISTRY}/${product_name}:${sprint_git_tag}-${product_version}-$(echo "${os_image_tagged_name}" | awk '{gsub(/[:\/]/,"_");print}')-${jvm_id}-${ARCH}"
 docker tag "${docker_image_id}" "${target_image_name}"
 test "${?}" != "0" && echo "ERROR: Failed to docker tag custom image" && exit 1
 docker push "${target_image_name}"
