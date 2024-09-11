@@ -243,7 +243,7 @@ for _version in ${versionsToBuild}; do
                 --build-arg IMAGE_VERSION="${imageVersion}" \
                 --build-arg IMAGE_GIT_REV="${GIT_REV_MED}" \
                 --build-arg LICENSE_VERSION="${licenseVersion}" \
-                --build-arg LATEST_ALPINE_VERSION="3.20.2" \
+                --build-arg LATEST_ALPINE_VERSION="3.20.3" \
                 ${VERBOSE:+--build-arg VERBOSE="true"} \
                 ${PING_IDENTITY_SNAPSHOT:+--build-arg SNAPSHOT_URL="${snapshot_url}"} \
                 ${_dependencies} \
