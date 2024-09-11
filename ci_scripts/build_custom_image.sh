@@ -19,7 +19,7 @@ Usage: ${0} {options}
         Ex: pingfederate
     -o, --os-shim
         Required. The docker image tagged name of the operating system for which to build a custom docker image.
-        Ex: alpine:3.20.2
+        Ex: alpine:3.20.3
     -j, --jvm
         Required. The id of the jvm to build
         Ex: al11
