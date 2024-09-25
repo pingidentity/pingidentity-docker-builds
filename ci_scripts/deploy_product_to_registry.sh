@@ -102,7 +102,7 @@ docker_config_default_dir="/root/.docker"
 _getSprintTagIfAvailable
 
 #Pull down Docker Trust JSON on signature data
-signed_tags=$(docker trust inspect "${DOCKER_HUB_REGISTRY}/${product_to_deploy}" | jq "[.[0].SignedTags[].SignedTag]")
+signed_tags=$(docker --config "${docker_config_hub_dir}" trust inspect "${DOCKER_HUB_REGISTRY}/${product_to_deploy}" | jq "[.[0].SignedTags[].SignedTag]")
 
 versions_to_deploy=$(_getAllVersionsToDeployForProduct "${product_to_deploy}")
 banner "Deploying ${product_to_deploy}"
