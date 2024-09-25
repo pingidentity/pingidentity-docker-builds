@@ -51,18 +51,6 @@ pf.admin.hostname=\${PF_ADMIN_PUBLIC_HOSTNAME}
 # com.unboundid.ldap.sdk.debug.type=LDAP
 " >> "/opt/staging/instance/bin/run.properties.subst.default"
 
-# shellcheck disable=SC2153
-version="${VERSION}"
-conf_dir="/opt/staging/instance/server/default/conf"
-
-#TODO: remove this logic once we are no longer building PF 11.1
-#Select the correct log4j2.xml file based on product version
-if test "${version#*"11.1."}" != "${version}"; then
-    mv "${conf_dir}/pre-11.2-log4j2.xml.subst.default" "${conf_dir}/log4j2.xml.subst.default"
-else
-    rm "${conf_dir}/pre-11.2-log4j2.xml.subst.default"
-fi
-
 # delete self
 rm -f "${0}"
 set +x

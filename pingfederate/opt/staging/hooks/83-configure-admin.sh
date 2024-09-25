@@ -32,7 +32,12 @@ case "${_acceptLicenseAgreement}" in
         # Toggle on debug logging if DEBUG=true is set
         start_debug_logging
         # Set script vars
-        _adminRoles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR"]'
+        # TODO Remove if-else logic when PF 12.1 is no longer built
+        if test "$(isImageVersionGtEq 12.2.0)" -eq "0"; then
+            admin_roles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR","DATA_COLLECTION_ADMINISTRATOR"]'
+        else
+            admin_roles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR"]'
+        fi
         _createAdminUser=$(
             curl \
                 --insecure \
@@ -45,7 +50,7 @@ case "${_acceptLicenseAgreement}" in
                 --data '{"username": "administrator", "password": "'"${PING_IDENTITY_PASSWORD}"'",
           "description": "Initial administrator user.", 
           "auditor": false,"active": true, 
-          "roles": '"${_adminRoles}"' }' \
+          "roles": '"${admin_roles}"' }' \
                 "https://localhost:${PF_ADMIN_PORT}/pf-admin-api/v1/administrativeAccounts" \
                 2> /dev/null
         )
