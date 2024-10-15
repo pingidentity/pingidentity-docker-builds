@@ -123,27 +123,75 @@ getDomainName() {
     echo "${_result}"
 }
 
-getSemanticImageVersion() {
-    major=$(echo "${PING_PRODUCT_VERSION}" | awk -F"." '{ print $1 }')
-    minor=$(echo "${PING_PRODUCT_VERSION}" | awk -F"." '{ print $2 }')
-    patch=$(echo "${PING_PRODUCT_VERSION}" | awk -F"." '{ print $3 }')
-}
-
 # send desired semantic version to be compared to image version.
-#   example: IMAGE_VERSION=10.1.0
+#   example: PING_PRODUCT_VERSION=10.1.0
 #   test $( isImageVersionGtEq 10.0.0 ) -eq 0 && echo "current image is greater or equal"
 isImageVersionGtEq() {
-    getSemanticImageVersion
-    aVersion=${1}
-    aMajor=$(echo "${aVersion}" | awk -F"." '{ print $1 }')
-    aMinor=$(echo "${aVersion}" | awk -F"." '{ print $2 }')
-    aPatch=$(echo "${aVersion}" | awk -F"." '{ print $3 }')
+    # Evaluate the image's product version
+    # This should fail if the the regex does not match
+    # Supports x.x.x and x.x.x.x formats
+    test -z "${1}" && echo_red "ERROR: No provided version given to isImageVersionGtEq()." && exit 1
+    test -z "${PING_PRODUCT_VERSION}" && echo_red "ERROR: Environment variable PING_PRODUCT_VERSION not set." && exit 1
 
-    test "${aMajor}" -gt "${major}" && echo 1 && return
-    test "${aMajor}" -eq "${major}" && test "${aMinor}" -gt "${minor}" && echo 1 && return
-    test "${aMajor}" -eq "${major}" && test "${aMinor}" -eq "${minor}" && test "${aPatch}" -gt "${patch}" && echo 1 && return
+    # Handle x.x.x.x formats
+    # Use -o flag to remove extra characters, mainly for SNAPSHOT image versions.
+    comparison_version="$(echo "${1}" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+")"
+    comparison_version_result_code="${?}"
+    image_version="$(echo "${PING_PRODUCT_VERSION}" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+")"
+    image_version_result_code="${?}"
+    if test "${comparison_version_result_code}" -eq "0" && test "${image_version_result_code}" -eq "0"; then
+        # Major versions
+        cv_major="$(echo "${comparison_version}" | cut -f 1 -d ".")"
+        iv_major="$(echo "${image_version}" | cut -f 1 -d ".")"
+        test "${cv_major}" -gt "${iv_major}" && echo 1 && return
+        test "${cv_major}" -lt "${iv_major}" && echo 0 && return
 
-    echo 0
+        # Minor versions
+        cv_minor="$(echo "${comparison_version}" | cut -f 2 -d ".")"
+        iv_minor="$(echo "${image_version}" | cut -f 2 -d ".")"
+        test "${cv_minor}" -gt "${iv_minor}" && echo 1 && return
+        test "${cv_minor}" -lt "${iv_minor}" && echo 0 && return
+
+        # Patch versions
+        cv_patch="$(echo "${comparison_version}" | cut -f 3 -d ".")"
+        iv_patch="$(echo "${image_version}" | cut -f 3 -d ".")"
+        test "${cv_patch}" -gt "${iv_patch}" && echo 1 && return
+        test "${cv_patch}" -lt "${iv_patch}" && echo 0 && return
+
+        # Feature versions
+        cv_feature="$(echo "${comparison_version}" | cut -f 4 -d ".")"
+        iv_feature="$(echo "${image_version}" | cut -f 4 -d ".")"
+        test "${cv_feature}" -gt "${iv_feature}" && echo 1 && return
+        echo 0 && return
+    fi
+
+    # Handle x.x.x formats
+    # Use -o flag to remove extra characters, mainly for SNAPSHOT image versions.
+    comparison_version="$(echo "${1}" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+")"
+    comparison_version_result_code="${?}"
+    image_version="$(echo "${PING_PRODUCT_VERSION}" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+")"
+    image_version_result_code="${?}"
+    if test "${comparison_version_result_code}" -eq "0" && test "${image_version_result_code}" -eq "0"; then
+        # Major versions
+        cv_major="$(echo "${comparison_version}" | cut -f 1 -d ".")"
+        iv_major="$(echo "${image_version}" | cut -f 1 -d ".")"
+        test "${cv_major}" -gt "${iv_major}" && echo 1 && return
+        test "${cv_major}" -lt "${iv_major}" && echo 0 && return
+
+        # Minor versions
+        cv_minor="$(echo "${comparison_version}" | cut -f 2 -d ".")"
+        iv_minor="$(echo "${image_version}" | cut -f 2 -d ".")"
+        test "${cv_minor}" -gt "${iv_minor}" && echo 1 && return
+        test "${cv_minor}" -lt "${iv_minor}" && echo 0 && return
+
+        # Patch versions
+        cv_patch="$(echo "${comparison_version}" | cut -f 3 -d ".")"
+        iv_patch="$(echo "${image_version}" | cut -f 3 -d ".")"
+        test "${cv_patch}" -gt "${iv_patch}" && echo 1 && return
+        echo 0 && return
+    fi
+
+    echo_red "ERROR: Version '${1}' given is not of the X.X.X or X.X.X.X version formats. Unable to run a comparison of the image's product version" && exit 1
 }
 
 #check for newline for multi-line colored echo
