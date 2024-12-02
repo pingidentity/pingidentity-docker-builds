@@ -20,7 +20,7 @@
                     ]
                 },
                 {
-                    "shim": "redhat/ubi9-minimal:9.4-1227",
+                    "shim": "redhat/ubi9-minimal:9.5-1731604394",
                     "preferredJVM": "rl11",
                     "jvms": [
                         {
@@ -54,7 +54,7 @@
                     ]
                 },
                 {
-                    "shim": "redhat/ubi9-minimal:9.4-1227",
+                    "shim": "redhat/ubi9-minimal:9.5-1731604394",
                     "preferredJVM": "rl11",
                     "jvms": [
                         {

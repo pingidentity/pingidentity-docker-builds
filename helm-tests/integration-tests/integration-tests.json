@@ -12,25 +12,25 @@
                         {
                             "productName": "pingaccess-admin",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingaccess-engine",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingfederate-admin",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingfederate-engine",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
@@ -124,25 +124,25 @@
                         {
                             "productName": "pingaccess-admin",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingaccess-engine",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingfederate-admin",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingfederate-engine",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
@@ -168,25 +168,25 @@
                         {
                             "productName": "pingaccess-admin",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingaccess-engine",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingfederate-admin",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingfederate-engine",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
@@ -243,25 +243,25 @@
                         {
                             "productName": "pingaccess-admin",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingaccess-engine",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingfederate-admin",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingfederate-engine",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
@@ -287,25 +287,25 @@
                         {
                             "productName": "pingaccess-admin",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingaccess-engine",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingfederate-admin",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingfederate-engine",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
@@ -362,25 +362,25 @@
                         {
                             "productName": "pingaccess-admin",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingaccess-engine",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingfederate-admin",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {
                             "productName": "pingfederate-engine",
                             "version": "latest",
-                            "shim": "redhat/ubi9-minimal:9.4-1227",
+                            "shim": "redhat/ubi9-minimal:9.5-1731604394",
                             "jvm": "rl11"
                         },
                         {

@@ -23,7 +23,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.96"
+                    "version": "9.0.97"
                 }
             ]
         },
@@ -49,7 +49,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.96"
+                    "version": "9.0.97"
                 }
             ]
         }
