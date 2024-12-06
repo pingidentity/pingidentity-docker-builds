@@ -308,7 +308,7 @@
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
-                SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
+                <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
             </Policies>
             <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
         </RollingFile>
