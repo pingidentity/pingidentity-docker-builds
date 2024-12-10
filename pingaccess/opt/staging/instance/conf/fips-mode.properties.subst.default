@@ -1,1 +1,38 @@
+# FIPS Mode Properties File
+
+#   This property determines if PingAccess will run in FIPS mode.
+#
+#   Enabling this property guarantees that only FIPS compliant algorithms are used for all cryptographic
+#   operations. In order to accomplish this, the Java Security.providers list is updated such that the BCFIPS provider
+#   is used by default and all other unnecessary providers are removed.
+#
+#   To ensure full compliance, this property must be set on every node in the PingAccess cluster - the Admin, Replica
+#   Admin, and all Engines.
 pa.fips.mode=${FIPS_MODE_ON}
+
+#   This optional property allows a comma-separated whitelist of provider classNames to be provided.
+#
+#   Any security providers listed in this property are kept in the Java providers list even when FIPS mode is enabled.
+pa.fips.additionalAllowedProviders=
+
+#   This property defines the protocols that should be used for HTTPS communication when running in FIPS mode.
+pa.fips.tls.protocols=TLSv1.2
+
+#   This property defines the set of ciphers used for HTTPS communication when running in FIPS mode.
+pa.fips.tls.ciphers=TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, \
+                      TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384, \
+                      TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, \
+                      TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256, \
+                      TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, \
+                      TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, \
+                      TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, \
+                      TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256, \
+                      TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384, \
+                      TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384, \
+                      TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256, \
+                      TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256, \
+                      TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384, \
+                      TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384, \
+                      TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256, \
+                      TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256, \
+                      TLS_EMPTY_RENEGOTIATION_INFO_SCSV

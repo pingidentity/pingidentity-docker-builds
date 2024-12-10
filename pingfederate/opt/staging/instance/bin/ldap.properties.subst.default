@@ -1,3 +1,4 @@
+
 ###############################################################################
 #                                                                             #
 # Configuration for LDAP-Based Authentication to the                          #
@@ -48,7 +49,7 @@
 # property, separated by a space.  PingFederate will attempt to make a
 # connection to each server in the order listed until a successful connection
 # is obtained.  Please note that if multiple servers are specified, they must
-# all use the same credentials and the same protocol.
+# all use the same credentials and the same protocol.  
 #
 # To enable SSL for a particular connection, use the LDAPS protocol.
 #
@@ -61,6 +62,19 @@
 #
 ldap.url=ldap://${PD_ENGINE_PRIVATE_HOSTNAME}:${LDAP_PORT}
 
+# -------------------------------
+# StartTLS for LDAP
+# -------------------------------
+# Uncomment the property below to use StartTLS for the connection.
+#
+# The allowed values for the following property are true|false.  The default
+# value is false if unspecified.
+#
+# Note: For StartTLS, the SSL certificate or any portion of the certificate
+# chain must be trusted either as part of cacerts in the Java runtime or
+# as a Trusted CA in PingFederate.
+#
+# ldap.startTLS=true
 
 # --------------------
 # LDAP Type (REQUIRED)
@@ -75,6 +89,7 @@ ldap.url=ldap://${PD_ENGINE_PRIVATE_HOSTNAME}:${LDAP_PORT}
 #     SunDirectoryServer        - for Oracle Directory servers
 #     OracleUnifiedDirectory    - for Oracle Unified Directory servers
 #     PingDirectory             - for PingDirectory servers
+#     PingDS                    - for PingDS servers
 #     Generic                   - for any other server types not specified
 #
 ldap.type=${PF_LDAP_TYPE}
@@ -97,12 +112,12 @@ ldap.type=${PF_LDAP_TYPE}
 
 
 
-# ------------------------------------------------------------
+# ------------------------------------------------------------ 
 # LDAP credentials (REQUIRED, if anonymous binding is not set)
 # ------------------------------------------------------------
 
-# Set credentials if the ldap.anonymousBinding property above is not used or
-# set to false.
+# Set credentials if the ldap.anonymousBinding property above is not used or 
+# set to false. 
 
 #   --------------------------------------------------------------------------------
 #   Username (REQUIRED, if anonymous binding and client TLS certificate are not set)
@@ -132,10 +147,10 @@ ldap.username=${PF_LDAP_USERNAME}
 #   On Windows:
 #     >obfuscate.bat <password>
 #
-#   On Linux:
+#   On Linux: 
 #     >./obfuscate.sh <password>
 #
-#   Example:
+#   Example: 
 #     obfuscate.bat secret
 #       Result:
 #       OBF:JWE:eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2Iiwia2lkIjoiVEU0dVZjcU1wayIsInZlcnNpb24iOiI3LjEuMjAwLjQtU05BUFNIT1QifQ..8Zf_xQ4PuXuYkdE0culPpA.E2Lh_zAne5YpaJo9wbl39A.Z8wVd6SFB8lcQbvutU1u-Q
@@ -181,7 +196,7 @@ ldap.password=${PF_LDAP_PASSWORD}
 #
 ldap.connectTimeout=10000
 
-# Read timeout period in milliseconds. This is the amount of time in milliseconds
+# Read timeout period in milliseconds. This is the amount of time in milliseconds 
 # that PF will wait for a response from the server.  If the value
 # is 0, the PF server will wait indefinitely for a read response from
 # the LDAP server.
@@ -213,7 +228,7 @@ search.base=ou=people,${USER_BASE_DN}
 
 # This is the mapping from the Username entered in the login form to the
 # attribute in the User object that contains the value of the Username that
-# matches.  This is used for both initial user authentication, as well as for
+# matches.  This is used for both initial user authentication, as well as for 
 # determining LDAP Username based permissions.
 #
 # The form of this entry is <attribute>={<value>}, where <attribute> is the
@@ -223,7 +238,7 @@ search.base=ou=people,${USER_BASE_DN}
 # In most cases, {<value>} should be {0}, which is the value of a variable
 # that contains the Username entered by the administrator in the login form.
 #
-#   Example for Oracle Directory Server:
+#   Example for Oracle Directory Server: 
 #     search.filter=uid={0}
 #     In this case, the uid attribute in the user object will be used for
 #     username matching.
@@ -271,7 +286,7 @@ search.filter=(uid={0})
 # - If permissions are specified using both LDAP user- and Group-based (a.k.a.:
 #   "role-based") assignments, the permissions associated with resolution of all
 #   of the assignments are merged.
-# - The PingFederate auditor role supersedes all other roles. If a user
+# - The PingFederate auditor role supersedes all other roles. If a user 
 #   is assigned multiple roles (regardless of the mechanism used) and one of those
 #   roles is auditor, the user will retain only those privileges that are
 #   associated with the auditor role.
@@ -300,9 +315,10 @@ search.filter=(uid={0})
 #     role.auditor=user3
 #     role.userAdmin=user1
 #     role.expressionAdmin=user1
-#   In this example, user1 will have permissions associated with the "admin" and "userAdmin"
-#   roles, and user2 will have permissions associated with both the "admin" role
-#   role and the "cryptoManager" role, while user3 will have permissions
+#     role.dataCollectionAdmin=user1
+#   In this example, user1 will have permissions associated with the "admin", "userAdmin",
+#   "expressionAdmin" and "dataCollectionAdmin" roles, and user2 will have permissions associated
+#   with both the "admin" role and the "cryptoManager" role, while user3 will have permissions
 #   associated only with the "auditor" role. (Note: the auditor role overrides
 #   the privileges associated with assignment of any other role for the same
 #   user.)
@@ -314,6 +330,9 @@ role.userAdmin=
 
 # The expressionAdmin role must only be granted to the administrators with admin role.
 role.expressionAdmin=
+
+# The dataCollectionAdmin role must only be granted to the administrators with all the admin, user admin and crypto manager roles.
+role.dataCollectionAdmin=
 
 
 # ============================
@@ -328,7 +347,7 @@ role.expressionAdmin=
 #    Directory).
 # B) By mapping an attribute stored in the LDAP Group object in the LDAP
 #    Directory to the PF Admin role.  This occurs if the role.search.attribute
-#    is set. This is more useful for those directory servers that support only
+#    is set. This is more useful for those directory servers that support only 
 #    a one-way mapping from the Group object to the User object (such as Oracle
 #    Directory Server).
 #
@@ -354,7 +373,7 @@ role.expressionAdmin=
 # - Role Mapping (the role.map.* attributes, based on the role assignments
 #   that need to be made)
 #
-# If both options A and B are used, option A takes precedence; properties
+# If both options A and B are used, option A takes precedence; properties 
 # associated with option B are ignored.
 
 
@@ -368,7 +387,7 @@ role.expressionAdmin=
 # mapped in the Role Mapping below, then the user will be given access and
 # the associated permissions based on that mapping.
 #
-# This property must be a string and can have multiple values.
+# This property must be a string and can have multiple values. 
 #
 #   Example for Active Directory
 #     role.search.user.attribute=memberOf
@@ -391,7 +410,7 @@ role.search.user.attribute=isMemberOf
 # object(s) returned from the search (as specified in the role.search.filter
 # property) that will be used to map to the Role Mapping as specified below.
 # This is typically the DN for the LDAP Group object.
-#
+# 
 # This property can have multiple values, but it must be a string.  It can be the
 # special four-character string "<DN>" which means that the Group entry DN should
 # be used instead of the value of a specific named attribute.
@@ -463,7 +482,7 @@ role.search.subtree=true
 #
 #   Example 1:
 #     role.search.filter=member={1}
-#     In this example, the search will be for all objects that contain an
+#     In this example, the search will be for all objects that contain an 
 #     attribute named member, with the value based on the User Object DN.
 #
 #   Example 2:
@@ -501,8 +520,9 @@ role.search.filter=(member={1})
 #     role.map.cryptoManager=CN=PFCryptoGroup,OU=People,DC=domain,DC=com
 #     role.map.userAdmin=CN=PFUserAdminGroup,OU=People,DC=domain,DC=com
 #     role.map.expressionAdmin=CN=PFUserAdminGroup,OU=People,DC=domain,DC=com
+#     role.map.dataCollectionAdmin=CN=PFDataCollectionAdminGroup,OU=People,DC=domain,DC=com
 #
-# Note:the auditor role overrides the privileges associated with assignment of
+# Note:the auditor role overrides the privileges associated with assignment of 
 # any other role for the same user.
 role.map.admin=cn=PFAdminGroup,ou=groups,${USER_BASE_DN}
 role.map.cryptoManager=cn=PFCryptoGroup,ou=groups,${USER_BASE_DN}
@@ -510,6 +530,9 @@ role.map.userAdmin=cn=PFUserAdminGroup,ou=groups,${USER_BASE_DN}
 
 # The expressionAdmin role must only be granted to the administrators with admin role.
 role.map.expressionAdmin=cn=PFExpressionAdminGroup,ou=groups,${USER_BASE_DN}
+
+# The dataCollectionAdmin role must only be granted to the administrators with all the admin, user admin and crypto manager roles.
+role.map.dataCollectionAdmin=
 
 #   -----------------------------
 #   Auditor Role mapping (OPTIONAL)
