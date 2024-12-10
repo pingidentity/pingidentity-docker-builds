@@ -33,8 +33,11 @@ pf.cluster.discovery.class=
 # Comma delimited list of hosts to be contacted for initial membership.
 pf.cluster.TCPPING.initial_hosts=${_DOLLAR_}{pf.cluster.tcp.discovery.initial.hosts}
 #
-# Whether to return the entire logical-physical address cache on a discovery request. Default is true.
-pf.cluster.TCPPING.return_entire_cache=true
+# Whether to return all cluster members on a discovery request. The default is false.
+# If pf.cluster.tcp.discovery.initial.hosts does not include all hosts in the cluster, then this field
+# must be set to true. However, for the best reliability and performance, it is recommended to leave
+# this as false and ensure that all cluster hosts are included in pf.cluster.tcp.discovery.initial.hosts.
+pf.cluster.TCPPING.return_entire_cache=false
 #
 # The number of additional ports to be probed for membership.
 pf.cluster.TCPPING.port_range=0

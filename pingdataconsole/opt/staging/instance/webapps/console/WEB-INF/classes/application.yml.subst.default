@@ -1,8 +1,3 @@
-# This application.yml file is used with the following product and product dependency versions :
-#   PingDataConsole: 9.0.0.0 and later
-#   Sprint Boot: 2.5.4 and later
-#   Spring Core: 5.3.9 and later
-
 # see http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#common-application-properties
 # default settings (optional: ldap.server)
 spring:
@@ -37,6 +32,8 @@ log.console: true
 #   client-secret: client-secret
 #   trust-store-file: /home/console/truststore
 #   trust-store-type: JKS
+#   trust-store-pin:
+#   trust-store-pin-environment-variable:
 #   strict-hostname-verification: true
 #   trust-all: false
 #   username-attributes:
@@ -48,6 +45,9 @@ ldap:
 #   init-user: cn=directory manager
 #   init-password: password
 #   trust-store-file: /home/console/truststore
+#   trust-store-type: JKS
+#   trust-store-pin:
+#   trust-store-pin-environment-variable:
 #   file-servlet-name: Instance Root File
     csd-task-enabled: false
 #   csd-destination-folder: csd-files

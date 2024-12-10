@@ -1,10 +1,135 @@
+# Properties in this file (or passed in as system properties or environment variables) can be encrypted using the host key.
+# The property "pingcentral.home" is available to be used in templates as "${pingcentral.home}" and is the path to the installed product.
+# This property is optional.  The driver to be used will determined from the spring.datasource.url.
+# If for some reason the driver cannot be determined automatically, it can be specified here.
+#   // PASS-6397 (altered 06/08/22)
+#spring.datasource.driver-class-name=
 spring.datasource.url=jdbc:h2:${pingcentral.home}/h2-data/pingcentral;TRACE_LEVEL_SYSTEM_OUT=0;TRACE_LEVEL_FILE=0;DB_CLOSE_ON_EXIT=FALSE;ALLOW_LITERALS=ALL
 spring.datasource.username=PingCentral
 spring.datasource.password=2PingCentral
 server.port=${PING_CENTRAL_SERVER_PORT}
+#
+# HikariCP connection pool settings
+# HikariCP recommends setting maximum-pool-size and minimum-idle to the same value, effectively acting as a fixed size
+# connection pool for maximum performance and responsiveness. PingCentral defaults these values to 10. If a value for
+# minimum-idle is not specified, it will be set to the same value of maximum-pool-size.
+#spring.datasource.hikari.maximum-pool-size=
+#spring.datasource.hikari.minimum-idle=
+#
+# Set connection timeout (in seconds) for outgoing http requests.
+# This setting only applies to front end http requests such as
+# retrieving OIDC metadata from PingFederate runtime. A default value
+# of 5 seconds is used, if this property is not specified.
+#orchestrator.request-framework.http-request.connection-timeout=5
+#
+# Indicate whether or not PingCentral is running behind a proxy or load balancer. When not utilizing SSO, the local
+# user management account lockout mechanism needs to determine the client's source IP address. When set to false (default),
+# PingCentral uses the request source IP address. When true, the Forwarded and X-Forwarded-For headers are accessed
+# if present.
+#pingcentral.proxied=false
+#
+# Trusted CA certificates are managed through PingCentral UI or API. CA certificates
+# within a trust store for earlier versions will be imported into PingCentral database
+# during upgrade. To add additional trusted CA certificates please refer to PingCentral
+# documentation.
+# The following commented out properties around trust configuration indicate
+# their default values. You need only define them to override the defaults.
+#
+# For development and testing. Setting this to true causes PingCentral to trust any certificate
 server.ssl.trust-any=${PING_CENTRAL_BLIND_TRUST}
+# Whether or not the HTTPS client performs server hostname validation
 server.ssl.https.verify-hostname=${PING_CENTRAL_VERIFY_HOSTNAME}
 spring.thymeleaf.check-template-location=false
+# When a trust store is configured below, by default certificate chain resolution is delegated to the system truststore
+# upon failure. If this property is set to false, only the certificates in the configured trust store are used.
+#server.ssl.delegate-to-system=true
+#
+#The following property enables support for OGNL expressions for SAML applications that are managed within PingCentral.
+#This will require that OGNL expression support is enabled in PingFederate.
+#To mitigate any security risks, only Administrators will be permitted to write and manage OGNL statements for Application Owners.
+pingcentral.expressions.enabled=true
+#
+# PingCentral SSO Configuration properties.
+# The following are required properties when enabling OpenID Connect (OIDC).
+#
+# Enable OIDC based on the properties configured below. When commented out or defined with a value of false, OIDC
+# and OAuth 2 Resource Server API access is not enabled and all other OIDC related properties are ignored.
+#pingcentral.sso.oidc.enabled=false
+# The issuer URI indicating the base of the OIDC Provider.
+# By appending "/.well-known/openid-configuration", endpoint discovery is performed.
+# This value is expected as the value of the "iss" claim present in the ID token.
+#pingcentral.sso.oidc.issuer-uri=<ISSUER_URI>
+# Configure the OAuth 2 client ID and secret to be utilized by PingCentral.
+# The secret may be secured by utilizing bin/obfuscate.sh and placing that value here rather than the cleartext secret.
+#pingcentral.sso.oidc.client-id=<CLIENT_ID>
+#pingcentral.sso.oidc.client-secret=<CLIENT_SECRET>
+#
+# Optional OIDC properties. The default values are indicated below.
+#
+# The name of the claim which identifies the PingCentral role associated with the user.
+#pingcentral.sso.oidc.role-claim-name=PingCentral-Role
+# The expected value of the role claim which indicates the user is a PingCentral administrator.
+#pingcentral.sso.oidc.role-claim-value-admin=IAM-Admin
+# The expected value of the role claim which indicates the user is a PingCentral application owner (non-administrator).
+#pingcentral.sso.oidc.role-claim-value-app-owner=Application-Owner
+# Set to false to manage user and group provisioning in PingCentral
+#pingcentral.sso.oidc.groups-claim-enabled=true
+# The name of the claim which identifies an array of group names associated with the user.
+#pingcentral.sso.oidc.groups-claim-name=PingCentral-Groups
+#
+# OAuth2 resource server configuration for Admin API access.
+#
+# PingCentral supports only signed JWT access tokens verifiable via a JWKS endpoint. The JWKS endpoint derived from
+# the OIDC well known configuration endpoint is used by default. This is appropriate for PingFederate 10.1 and above
+# when "Use Centralized Signing Key" is set to true in the Access Token Manager. If instead a separate JWKS endpoint
+# path is defined in the Access Token Manager, define that below.
+#pingcentral.sso.oidc.oauth-jwk-set-uri=<JWKS_ENDPOINT_URI>
+# The name of the claim which identifies the username as determined by the Authorization Server
+#pingcentral.sso.oidc.oauth-username-claim-name=Username
+# If the access token manager defines issuer and/or audience claim values, define those below and PingCentral
+# will validate them. Otherwise, validation will not be performed.
+#pingcentral.sso.oidc.oauth-iss-claim-value=<EXPECTED_ISS_CLAIM_VALUE>
+#pingcentral.sso.oidc.oauth-aud-claim-value=<EXPECTED_AUD_CLAIM_VALUE>
+# Security headers to include in API responses
+#pingcentral.admin.api-security-headers=Strict-Transport-Security,Content-Security-Policy,Feature-Policy
+#
+# PingCentral Actuator (Healthcheck, info, and more)
 management.endpoints.enabled-by-default=false
+#management.endpoints.web.exposure.include=*
 management.endpoint.health.enabled=true
 management.endpoint.info.enabled=true
+#
+# PingCentral Metrics
+#management.endpoint.metrics.enabled=false
+# Graphite Option
+#management.metrics.export.graphite.step=5s
+#management.metrics.export.graphite.enabled=true
+#management.metrics.export.graphite.host=127.0.0.1
+#management.metrics.export.graphite.port=2004
+# Prometheus Option
+#management.metrics.export.prometheus.enabled=true
+#management.metrics.export.prometheus.step=5s
+#
+# JPA Second level cache. Set hibernate.cache.use_second_level_cache to true
+# in order to use Groups cache.
+spring.jpa.properties.hibernate.cache.use_second_level_cache=false
+spring.jpa.properties.hibernate.cache.region.factory_class=org.hibernate.cache.ehcache.EhCacheRegionFactory
+#
+# Heartbeat Configuration
+# PingCentral actively monitors the online/offline status of the environment by periodically assessing the health of both
+# PingFederate and, where applicable, PingAccess instances. An environment is considered offline if any of its instances
+# become unreachable. This polling process involves PingCentral conducting health checks by calling either the heartbeat
+# endpoint or admin API version endpoint, depending on the PingFederate version in use.
+#
+# For PingFederate versions equal to or greater than 11.0.0, PingCentral initiates health checks for PingFederate instances
+# using the heartbeat endpoint.
+# Conversely, for PingFederate versions less than 11.0.0, PingCentral invokes the version endpoint for health checks.
+# For PingAccess instances, PingCentral always uses the heartbeat endpoint to initiate health checks, regardless of the
+# version in use.
+#
+# The interval, in milliseconds, at which the health check polling occurs.
+# Default: 30000
+orchestrator.heartbeat.polling-interval-ms=30000
+# The time, in milliseconds, that represents the offset or initial delay before polling begins.
+# Default: 120000
+orchestrator.heartbeat.offset-ms=120000

@@ -1,3 +1,4 @@
+
 ###############################################################################
 #                                                                             #
 # OAuth 2.0-based Administrative API Authorization                            #
@@ -11,6 +12,10 @@
 # username and administrative roles of the API caller.                        #
 #                                                                             #
 ###############################################################################
+
+#   Some special characters in the value that need to be evaluated must be escaped (e.g., "\ " for " ").  This is also true for
+#   spaces that occur at the beginning. See the Javadoc for the load method of the java.util.Properties class for a definitive
+#   description of what characters need to be escaped and how to do so.
 
 #   --------------------
 #   Client ID (REQUIRED)
@@ -27,6 +32,7 @@ client.id=${PF_OAUTH2_CLIENT_ID}
 #   Supported values are:
 #    client_secret_basic   - Client credentials sent using HTTP Basic authentication.
 #    client_secret_post    - Client credentials included in the HTTP request body.
+#    client_secret_jwt     - Client authenticates with a JWT that was created using an HMAC SHA algorithm. The client_secret is used as the key for HMAC SHA algorithms.
 #    private_key_jwt       - Client authenticates in accordance with RFC 7523. Public keys to enable the AS to validate JWT
 #                            signatures are published at the PingFederate runtime JWKS endpoint (e.g.: https://example.com:9031/pf/JWKS).
 #    none                  - No client authentication.
@@ -52,6 +58,10 @@ client.authn.method=${PF_OAUTH2_CLIENT_AUTHN_METHOD}
 #   Copy complete result into property value, as shown in the example below:
 #     client.secret=OBF:JWE:eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2Iiwia2lkIjoiVEU0dVZjcU1wayIsInZlcnNpb24iOiI3LjEuMjAwLjQtU05BUFNIT1QifQ..8Zf_xQ4PuXuYkdE0culPpA.E2Lh_zAne5YpaJo9wbl39A.Z8wVd6SFB8lcQbvutU1u-Q
 #
+#   This property can also be specified as a secret reference in the form OBF:MGR:{secretManagerId}:{secretId}.
+#       To use this form, a secret manager plugin must be configured.
+#       Secret manager plugins usually include a custom action to help with constructing secret references.
+#       Note: the client ID which may be returned by the secret manager is ignored.
 client.secret=${PF_OAUTH2_CLIENT_SECRET}
 
 #   ---------------------------------------
@@ -62,7 +72,7 @@ client.secret=${PF_OAUTH2_CLIENT_SECRET}
 introspection.endpoint=${PF_OAUTH2_INTROSPECTION_ENDPOINT}
 
 #   -----------------
-#   Scopes (REQUIRED)
+#   Scopes (OPTIONAL)
 #   -----------------
 #   The required scopes of validated ATs authorized to call the PingFederate administrative API. Space delimit multiple values.
 #
@@ -91,10 +101,6 @@ role.attribute.name=${PF_OAUTH2_ROLE_ATTRIBUTE_NAME}
 #   -------------------------------------
 #   The following set of properties maps the AT introspection response to roles to determine administrative permissions.
 #
-#   Some special characters in the value that need to be evaluated must be escaped (e.g., "\ " for " ").  This is also true for
-#   spaces that occur at the beginning. See the Javadoc for the load method of the java.util.Properties class for a definitive
-#   description of what characters need to be escaped and how to do so.
-#
 #   Example:
 #   Assume that admin_role is set for the Role Attribute Name (role.attribute.name) and mappings are set as follows:
 #
@@ -102,6 +108,7 @@ role.attribute.name=${PF_OAUTH2_ROLE_ATTRIBUTE_NAME}
 #   role.cryptoManager=cryptoadmin
 #   role.userAdmin=useradmin
 #   role.expressionAdmin=expressionadmin
+#   role.dataCollectionAdmin=datacollectionadmin
 #
 #   When admin_role claim has a single value:
 #   admin_role : "admin"
@@ -123,6 +130,9 @@ role.userAdmin=${PF_OAUTH2_ROLE_USERADMIN}
 
 # The expressionAdmin role must only be granted to the administrators with admin role.
 role.expressionAdmin=${PF_OAUTH2_ROLE_EXPRESSIONADMIN}
+
+# The dataCollectionAdmin role must only be granted to the administrators with all the admin, user admin and crypto manager roles.
+role.dataCollectionAdmin=
 
 #   -----------------------------------------------
 #   Auditor Role Attribute Value Mapping (OPTIONAL)

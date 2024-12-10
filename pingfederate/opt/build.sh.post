@@ -52,6 +52,21 @@ pf.admin.hostname=\${PF_ADMIN_PUBLIC_HOSTNAME}
 # com.unboundid.ldap.sdk.debug.type=LDAP
 " >> "/opt/staging/instance/bin/run.properties.subst.default"
 
+# Use the appropriate log4j2.xml file based on the PingFederate version.
+# TODO remove if there are no log4j differences between built PF versions.
+if test "${VERSION#*"12.0."}" != "${VERSION}"; then
+    # Use oldest log4j xml
+    rm -f "/opt/staging/instance/server/default/conf/log4j2.xml.subst.default.12.1" "/opt/staging/instance/server/default/conf/log4j2.xml.subst.default.12.2"
+elif test "${VERSION#*"12.1."}" != "${VERSION}"; then
+    # Use 12.1 log4j xml
+    mv "/opt/staging/instance/server/default/conf/log4j2.xml.subst.default.12.1" "/opt/staging/instance/server/default/conf/log4j2.xml.subst.default"
+    rm -f "/opt/staging/instance/server/default/conf/log4j2.xml.subst.default.12.2"
+else
+    # Use 12.2+ log4j xml
+    mv "/opt/staging/instance/server/default/conf/log4j2.xml.subst.default.12.2" "/opt/staging/instance/server/default/conf/log4j2.xml.subst.default"
+    rm -f "/opt/staging/instance/server/default/conf/log4j2.xml.subst.default.12.1"
+fi
+
 # On PF 12.2 and later, use the run.sh packaged with the product,
 # else use the custom run.sh file
 # TODO remove after deprecation of 12.1.x PF versions

@@ -27,7 +27,9 @@
    | It is important that the failover appenders are not referenced directly in the loggers.
    | Misconfiguration may cause PingFederate to enter a degraded state.
 -->
-<Configuration monitorInterval="30" packages="com.pingidentity.log4j.pattern,com.pingidentity.log4j.layout,com.pingidentity.log4j.appender" shutdownHook="disable">
+<Configuration monitorInterval="30"
+               packages="com.pingidentity.log4j.pattern,com.pingidentity.log4j.layout,com.pingidentity.log4j.appender"
+               shutdownHook="disable">
     <Appenders>
 
         <!-- ============================== -->
@@ -38,26 +40,66 @@
             <PatternLayout pattern="%d{ABSOLUTE} %-5p [%c{1}] %m%n" />
         </Console>
 
+        <Console name="CONSOLE-JSON" target="SYSTEM_OUT">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/server-log.json"/>
+        </Console>
+
         <Console name="CONSOLE-ERROR" target="SYSTEM_ERR">
             <PatternLayout pattern="%d{ABSOLUTE} %-5p [%c{1}] %m%n" />
         </Console>
 
         <Console name="CONSOLE-PROVISIONER" target="SYSTEM_OUT">
-            <PatternLayout
-                    pattern="%d{ABSOLUTE} %-5p [%c{1}] %m %x %X{ChannelCode}%n" />
+            <PatternLayout pattern="%d{ABSOLUTE} %-5p [%c{1}] %m %x %X{ChannelCode}%n" />
         </Console>
 
+        <Console name="CONSOLE-PROVISIONER-JSON" target="SYSTEM_OUT">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/provisioner-log.json"/>
+        </Console>
+
+        <Console name="CONSOLE-SamlTransaction-JSON" target="SYSTEM_OUT">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/transaction-log.json"/>
+        </Console>
+
+        <Console name="CONSOLE-ThreadDumpAppender-JSON" target="SYSTEM_OUT">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/thread-pool-exhaustion-dump-log.json"/>
+        </Console>
+
+        <Console name="CONSOLE-SecurityAudit-JSON" target="SYSTEM_OUT">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/runtime-audit-log.json"/>
+        </Console>
+
+        <Console name="CONSOLE-AdminAudit-JSON" target="SYSTEM_OUT">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/admin-audit-log.json"/>
+        </Console>
+
+        <Console name="CONSOLE-AdminEventDetailAudit-JSON" target="SYSTEM_OUT">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/admin-event-detail-log.json"/>
+        </Console>
+
+        <Console name="CONSOLE-AdminApiAudit-JSON" target="SYSTEM_OUT">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/admin-api-log.json"/>
+        </Console>
+
+        <Console name="CONSOLE-RuntimeApiAudit-JSON" target="SYSTEM_OUT">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/runtime-api-log.json"/>
+        </Console>
+
+        <Console name="CONSOLE-OutboundProvisionerEventToFile-JSON" target="SYSTEM_OUT">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/provisioner-audit-log.json"/>
+        </Console>
+        
         <!-- ================================= -->
         <!-- Preserve messages in a local file -->
         <!-- ================================= -->
 
         <!-- Main log : A size based file rolling appender -->
-        <RollingFile name="FILE" fileName="${sys:pf.log.dir}/server.log"
-                     filePattern="${sys:pf.log.dir}/server.log.%i" ignoreExceptions="false">
+        <RollingFile name="FILE"
+                     fileName="${sys:pf.log.dir}/server.log"
+                     filePattern="${sys:pf.log.dir}/server.log.%i"
+                     ignoreExceptions="false">
             <PatternLayout>
-                <!-- Uncomment this if you want to use UTF-8 encoding instead
-                    of system's default encoding.
-                <charset>UTF-8</charset> -->
+                <!-- Uncomment this if you want to use UTF-8 encoding instead of system's default encoding. -->
+                <!-- <charset>UTF-8</charset> -->
                 <pattern>%d %X{trackingid} %-5p [%c] %m%n</pattern>
             </PatternLayout>
             <Policies>
@@ -66,16 +108,40 @@
             <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
         </RollingFile>
 
+        <!-- Main log : A size based file rolling appender - JSON Formatted-->
+        <RollingFile name="FILE-JSON"
+                     fileName="${sys:pf.log.dir}/server.log"
+                     filePattern="${sys:pf.log.dir}/server.log.%i"
+                     ignoreExceptions="false">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/server-log.json"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
+        </RollingFile>
+
         <!-- SAML Transaction log : A time/date based rolling appender -->
-        <RollingFile name="SamlTransaction" fileName="${sys:pf.log.dir}/transaction.log"
+        <RollingFile name="SamlTransaction"
+                     fileName="${sys:pf.log.dir}/transaction.log"
                      filePattern="${sys:pf.log.dir}/transaction.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
-                <!-- Uncomment this if you want to use UTF-8 encoding instead
-                    of system's default encoding.
-                <charset>UTF-8</charset> -->
+                <!-- Uncomment this if you want to use UTF-8 encoding instead of system's default encoding. -->
+                <!-- <charset>UTF-8</charset> -->
                 <pattern>%d %m%n</pattern>
             </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
+        </RollingFile>
+
+        <RollingFile name="SamlTransaction-JSON"
+                     fileName="${sys:pf.log.dir}/transaction.log"
+                     filePattern="${sys:pf.log.dir}/transaction.%d{yyyy-MM-dd}.log"
+                     ignoreExceptions="false">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/transaction-log.json"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
                 <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
@@ -89,11 +155,21 @@
                      filePattern="${sys:pf.log.dir}/thread-pool-exhaustion-dump.log.%i"
                      ignoreExceptions="false">
             <PatternLayout>
-                <!-- Uncomment this if you want to use UTF-8 encoding instead
-                    of system's default encoding.
-                <charset>UTF-8</charset> -->
+                <!-- Uncomment this if you want to use UTF-8 encoding instead of system's default encoding. -->
+                <!-- <charset>UTF-8</charset> -->
                 <pattern>%d %m%n</pattern>
             </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
+        </RollingFile>
+
+        <RollingFile name="ThreadDumpAppender-JSON"
+                     fileName="${sys:pf.log.dir}/thread-pool-exhaustion-dump.log"
+                     filePattern="${sys:pf.log.dir}/thread-pool-exhaustion-dump.log.%i"
+                     ignoreExceptions="false">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/thread-pool-exhaustion-dump-log.json"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
             </Policies>
@@ -130,12 +206,13 @@
         </RollingFile>
         -->
 
-        <RollingFile name="SecurityAudit2File" fileName="${sys:pf.log.dir}/audit.log"
+        <RollingFile name="SecurityAudit2File"
+                     fileName="${sys:pf.log.dir}/audit.log"
                      filePattern="${sys:pf.log.dir}/audit.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
-                <!-- Uncomment this if you want to use UTF-8 encoding instead
-                    of system's default encoding. <charset>UTF-8</charset> -->
+                <!-- Uncomment this if you want to use UTF-8 encoding instead of system's default encoding. -->
+                <!-- <charset>UTF-8</charset> -->
 
                 <!-- Available fields for ConversionPattern:
                 %d - transaction time
@@ -201,6 +278,8 @@
                 %trackedparameter{parameter-name} - Values for a configured tracked parameter that was stored at the start of the transaction
                 %X{tlsversion} - The TLS version for the inbound HTTPS connection. When a reverse proxy is deployed, use
                                  %header instead, with a header that is populated by the proxy.
+                %X{policyname} - The name of the policy that was invoked
+                %X{fragmentname} - The name of the fragment that was invoked
                 -->
                 <pattern>%d| %X{trackingid}| %X{transactionid}| %X{event}| %X{subject}| %X{ip} | %X{app}| %X{connectionid}| %X{protocol}| %X{host}| %X{role}| %X{status}| %X{adapterid}| %X{description}| %X{responsetime} %n</pattern>
             </PatternLayout>
@@ -211,14 +290,26 @@
             <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
         </RollingFile>
 
+        <RollingFile name="SecurityAudit2File-JSON"
+                     fileName="${sys:pf.log.dir}/audit.log"
+                     filePattern="${sys:pf.log.dir}/audit.%d{yyyy-MM-dd}.log"
+                     ignoreExceptions="false">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/runtime-audit-log.json"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
+        </RollingFile>
+
         <!-- Admin Audit log : A time/date based rolling appender -->
-        <RollingFile name="AdminAudit" fileName="${sys:pf.log.dir}/admin.log"
+        <RollingFile name="AdminAudit"
+                     fileName="${sys:pf.log.dir}/admin.log"
                      filePattern="${sys:pf.log.dir}/admin.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
-                <!-- Uncomment this if you want to use UTF-8 encoding instead
-                    of system's default encoding.
-                <charset>UTF-8</charset> -->
+                <!-- Uncomment this if you want to use UTF-8 encoding instead of system's default encoding. -->
+                <!-- <charset>UTF-8</charset> -->
 
                 <!-- Available fields for ConversionPattern:
                 %d - transaction time
@@ -241,14 +332,25 @@
             <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
         </RollingFile>
 
+        <RollingFile name="AdminAudit-JSON"
+                     fileName="${sys:pf.log.dir}/admin.log"
+                     filePattern="${sys:pf.log.dir}/admin.%d{yyyy-MM-dd}.log"
+                     ignoreExceptions="false">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/admin-audit-log.json"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
+        </RollingFile>
+
         <!-- Admin Event Detail Audit log : A time/date based rolling appender -->
         <RollingFile name="AdminEventDetailAudit" fileName="${sys:pf.log.dir}/admin-event-detail.log"
                      filePattern="${sys:pf.log.dir}/admin-event-detail.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
-                <!-- Uncomment this if you want to use UTF-8 encoding instead
-                    of system's default encoding.
-                <charset>UTF-8</charset> -->
+                <!-- Uncomment this if you want to use UTF-8 encoding instead of system's default encoding. -->
+                <!-- <charset>UTF-8</charset> -->
                 <pattern>%X{eventdetailid} | %X{filename} | %X{delta} | line %X{position} | %m%n</pattern>
             </PatternLayout>
             <Policies>
@@ -258,14 +360,25 @@
             <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
         </RollingFile>
 
+        <RollingFile name="AdminEventDetailAudit-JSON" fileName="${sys:pf.log.dir}/admin-event-detail.log"
+                     filePattern="${sys:pf.log.dir}/admin-event-detail.%d{yyyy-MM-dd}.log"
+                     ignoreExceptions="false">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/admin-event-detail-log.json"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
+        </RollingFile>
+
         <!-- Admin API Audit log : A time/date based rolling appender -->
-        <RollingFile name="AdminApiAudit" fileName="${sys:pf.log.dir}/admin-api.log"
+        <RollingFile name="AdminApiAudit"
+                     fileName="${sys:pf.log.dir}/admin-api.log"
                      filePattern="${sys:pf.log.dir}/admin-api.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
-                <!-- Uncomment this if you want to use UTF-8 encoding instead
-                    of system's default encoding.
-                <charset>UTF-8</charset> -->
+                <!-- Uncomment this if you want to use UTF-8 encoding instead of system's default encoding. -->
+                <!-- <charset>UTF-8</charset> -->
 
                 <!-- Available fields for ConversionPattern:
                 %d - transaction time
@@ -291,14 +404,26 @@
             <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
         </RollingFile>
 
+        <RollingFile name="AdminApiAudit-JSON"
+                     fileName="${sys:pf.log.dir}/admin-api.log"
+                     filePattern="${sys:pf.log.dir}/admin-api.%d{yyyy-MM-dd}.log"
+                     ignoreExceptions="false">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/admin-api-log.json"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
+        </RollingFile>
+
         <!-- Runtime API Audit log : A time/date based rolling appender -->
-        <RollingFile name="RuntimeApiAudit" fileName="${sys:pf.log.dir}/runtime-api.log"
+        <RollingFile name="RuntimeApiAudit"
+                     fileName="${sys:pf.log.dir}/runtime-api.log"
                      filePattern="${sys:pf.log.dir}/runtime-api.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
-                <!-- Uncomment this if you want to use UTF-8 encoding instead
-                    of system's default encoding.
-                    <charset>UTF-8</charset> -->
+                <!-- Uncomment this if you want to use UTF-8 encoding instead of system's default encoding. -->
+                <!-- <charset>UTF-8</charset> -->
 
                 <!-- Available fields for ConversionPattern:
                 %d - transaction time
@@ -322,13 +447,81 @@
             <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
         </RollingFile>
 
+        <RollingFile name="RuntimeApiAudit-JSON"
+                     fileName="${sys:pf.log.dir}/runtime-api.log"
+                     filePattern="${sys:pf.log.dir}/runtime-api.%d{yyyy-MM-dd}.log"
+                     ignoreExceptions="false">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/runtime-api-log.json"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
+        </RollingFile>
+
         <!-- Provisioner log : A time/date based rolling appender -->
-        <RollingFile name="ProvisionerLog" fileName="${sys:pf.log.dir}/provisioner.log"
+        <RollingFile name="ProvisionerLog"
+                     fileName="${sys:pf.log.dir}/provisioner.log"
                      filePattern="${sys:pf.log.dir}/provisioner.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
-                <pattern>%d %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
+                <!-- Uncomment this if you want to use UTF-8 encoding instead of system's default encoding. -->
+                <!-- <charset>UTF-8</charset> -->
+                <!-- Available fields for ConversionPattern:
+                %d 					  - transaction time
+                %X{cycle_id}          - Unique Identifier for each provisioning cycle
+                %X{ChannelCode}        - Unique Identifier for Provisioning Channel between source and target
+                -->
+                <pattern>%d %-5p %X{cycle_id} %X{ChannelCode} [%c{1}] %m %x %n</pattern>
             </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
+        </RollingFile>
+
+        <RollingFile name="ProvisionerLog-JSON"
+                     fileName="${sys:pf.log.dir}/provisioner.log"
+                     filePattern="${sys:pf.log.dir}/provisioner.%d{yyyy-MM-dd}.log"
+                     ignoreExceptions="false">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/provisioner-log.json"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
+        </RollingFile>
+
+        <!-- Provisioner Summary log : A time/date based rolling appender -->
+        <RollingFile name="ProvisionerChannelSummaryLog"
+                     fileName="${sys:pf.log.dir}/provisioner-channel-summary.log"
+                     filePattern="${sys:pf.log.dir}/provisioner-channel-summary.%d{yyyy-MM-dd}.log"
+                     ignoreExceptions="false">
+            <PatternLayout>
+                <!-- Uncomment this if you want to use UTF-8 encoding instead
+                   of the system's default encoding.
+               <charset>UTF-8</charset> -->
+
+                <!-- Available fields for ConversionPattern:
+                %d 					  - transaction time
+                %X{cycle_id}  		  - Unique Identifier for each provisioning cycle
+                %X{ChannelCode}        - Unique Identifier for Provisioning Channel between source and target
+                -->
+                <pattern>%d %-5p %X{cycle_id} %X{ChannelCode} [%c{1}] %m %x %n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
+        </RollingFile>
+
+        <RollingFile name="ProvisionerChannelSummaryLog-JSON"
+                     fileName="${sys:pf.log.dir}/provisioner-channel-summary.log"
+                     filePattern="${sys:pf.log.dir}/provisioner-channel-summary.%d{yyyy-MM-dd}.log"
+                     ignoreExceptions="false">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/provisioner-channel-summary-log.json"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
                 <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
@@ -342,9 +535,8 @@
                      filePattern="${sys:pf.log.dir}/provisioner-audit.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
-                <!-- Uncomment this if you want to use UTF-8 encoding instead
-                    of system's default encoding.
-                <charset>UTF-8</charset> -->
+                <!-- Uncomment this if you want to use UTF-8 encoding instead of system's default encoding. -->
+                <!-- <charset>UTF-8</charset> -->
 
                 <!-- Available fields for ConversionPattern:
                 %d 					  - transaction time
@@ -358,6 +550,18 @@
                 -->
                 <pattern>%d| %X{cycle_id}| %X{channel_id}| %X{event_type}| %X{source_id}| %X{target_id}| %X{is_success}| %X{non_success_cause} %n</pattern>
             </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${PF_LOG_NUMBER}" />
+        </RollingFile>
+
+        <RollingFile name="OutboundProvisionerEventToFile-JSON"
+                     fileName="${sys:pf.log.dir}/provisioner-audit.log"
+                     filePattern="${sys:pf.log.dir}/provisioner-audit.%d{yyyy-MM-dd}.log"
+                     ignoreExceptions="false">
+            <JsonTemplateLayout eventTemplateUri="${sys:pf.log4j.json.templates.uri}/provisioner-audit-log.json"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
                 <SizeBasedTriggeringPolicy size="${PF_LOG_SIZE_MAX}" />
@@ -1371,6 +1575,7 @@
         <Logger name="org.sourceid.util.log.PolicyTreeLogger" level="${sys:pf.log.level.policytree:-INFO}" />
         <Logger name="org.sourceid.saml20.domain.mgmt.impl.TrustedCAsManagerImpl" level="${sys:pf.log.level.trustedcas:-INFO}" />
         <Logger name="org.sourceid.common.dsig" level="${sys:pf.log.level.xmlsig:-INFO}" />
+        <Logger name="com.pingidentity.common.util.timers.EventTimer" level="${sys:pf.log.level.dsresponsetime:-INFO}" />
 
         <!--
             This logger logs all HTTP request header values at TRACE level.
@@ -1424,10 +1629,14 @@
         <AsyncLogger name="org.sourceid.saml20.bindings.BindingLogProxy"
                      level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="SamlTransaction" />
+            <!-- <appender-ref ref="SamlTransaction-JSON" /> -->
+            <!-- <appender-ref ref="CONSOLE-SamlTransaction-JSON" /> -->
         </AsyncLogger>
 
         <AsyncLogger name="ThreadDumpLogger" level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="ThreadDumpAppender" />
+            <!-- <appender-ref ref="ThreadDumpAppender-JSON" /> -->
+            <!-- <appender-ref ref="CONSOLE-ThreadDumpAppender-JSON" /> -->
         </AsyncLogger>
 
         <!--
@@ -1442,12 +1651,15 @@
             SecurityAuditToOracleDB-FAILOVER
 
             Each must be the only appender referenced in the logger org.sourceid.websso.profiles.sp.SpAuditLogger.
-            If one of these appenders is added, remove the existing reference to "SecurityAudit2File".
+            If one of these appenders is added, remove the existing reference to "SecurityAudit2File",
+            "SecurityAudit2File-JSON" and "CONSOLE-SecurityAudit-JSON".
         -->
         <Logger name="org.sourceid.websso.profiles.sp.SpAuditLogger"
                 level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="SecurityAudit2File" />
             <!--
+                <appender-ref ref="SecurityAudit2File-JSON" />
+                <appender-ref ref="CONSOLE-SecurityAudit-JSON" />
                 <appender-ref ref="SecurityAuditToSQLServerDB-FAILOVER"/>
                 <appender-ref ref="SecurityAuditToOracleDB-FAILOVER"/>
                 <appender-ref ref="SecurityAuditToCEFSyslog-FAILOVER"/>
@@ -1470,12 +1682,15 @@
             SecurityAuditToOracleDB-FAILOVER
 
             Each must be the only appender referenced in the logger org.sourceid.websso.profiles.idp.IdpAuditLogger.
-            If one of these appenders is added, remove the existing reference to "SecurityAudit2File".
+            If one of these appenders is added, remove the existing reference to "SecurityAudit2File",
+            "SecurityAudit2File-JSON" and "CONSOLE-SecurityAudit-JSON".
         -->
         <Logger name="org.sourceid.websso.profiles.idp.IdpAuditLogger"
                 level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="SecurityAudit2File" />
             <!--
+                <appender-ref ref="SecurityAudit2File-JSON" />
+                <appender-ref ref="CONSOLE-SecurityAudit-JSON" /
                 <appender-ref ref="SecurityAuditToCEFSyslog-FAILOVER"/>
                 <appender-ref ref="SecurityAuditToCEFFile"/>
                 <appender-ref ref="SecurityAuditToMySQLDB-FAILOVER"/>
@@ -1498,12 +1713,15 @@
             SecurityAuditToOracleDB-FAILOVER
 
             Each must be the only appender referenced in the logger org.sourceid.websso.profiles.idp.AsAuditLogger.
-            If one of these appenders is added, remove the existing reference to "SecurityAudit2File".
+            If one of these appenders is added, remove the existing reference to "SecurityAudit2File", 
+            "SecurityAudit2File-JSON" and "CONSOLE-SecurityAudit-JSON".
         -->
         <Logger name="org.sourceid.websso.profiles.idp.AsAuditLogger"
                 level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="SecurityAudit2File" />
             <!--
+                <appender-ref ref="SecurityAudit2File-JSON" />
+                <appender-ref ref="CONSOLE-SecurityAudit-JSON" />
                 <appender-ref ref="SecurityAuditToCEFSyslog-FAILOVER"/>
                 <appender-ref ref="SecurityAuditToCEFFile"/>
                 <appender-ref ref="SecurityAuditToMySQLDB-FAILOVER"/>
@@ -1526,12 +1744,15 @@
             SecurityAuditToPostgreSQLDB-FAILOVER
 
             Each must be the only appender referenced in the logger org.sourceid.websso.profiles.idp.ClientRegistrationAuditLogger.
-            If one of these appenders is added, remove the existing reference to "SecurityAudit2File".
+            If one of these appenders is added, remove the existing reference to "SecurityAudit2File",
+            "SecurityAudit2File-JSON" and "CONSOLE-SecurityAudit-JSON".
         -->
         <Logger name="org.sourceid.websso.profiles.idp.ClientRegistrationAuditLogger"
                 level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="SecurityAudit2File" />
             <!--
+                <appender-ref ref="SecurityAudit2File-JSON" />
+                <appender-ref ref="CONSOLE-SecurityAudit-JSON" />
                 <appender-ref ref="SecurityAuditToCEFSyslog-FAILOVER"/>
                 <appender-ref ref="SecurityAuditToCEFFile"/>
                 <appender-ref ref="SecurityAuditToMySQLDB-FAILOVER"/>
@@ -1554,12 +1775,15 @@
             SecurityAuditToOracleDB-FAILOVER
 
             Each must be the only appender referenced in the logger org.sourceid.websso.profiles.idp.STSAuditLogger.
-            If one of these appenders is added, remove the existing reference to "SecurityAudit2File".
+            If one of these appenders is added, remove the existing reference to "SecurityAudit2File",
+            "SecurityAudit2File-JSON" and "CONSOLE-SecurityAudit-JSON".
         -->
         <Logger name="org.sourceid.wstrust.log.STSAuditLogger"
                 level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="SecurityAudit2File" />
             <!--
+                <appender-ref ref="SecurityAudit2File-JSON" />
+                <appender-ref ref="CONSOLE-SecurityAudit-JSON" />
                 <appender-ref ref="SecurityAuditToCEFSyslog-FAILOVER"/>
                 <appender-ref ref="SecurityAuditToCEFFile"/>
                 <appender-ref ref="SecurityAuditToMySQLDB-FAILOVER"/>
@@ -1582,11 +1806,14 @@
             SecurityAuditToOracleDB-FAILOVER
 
             Each must be the only appender referenced in the logger com.pingidentity.sdk.logging.LoggingUtil.
-            If one of these appenders is added, remove the existing reference to "SecurityAudit2File".
+            If one of these appenders is added, remove the existing reference to "SecurityAudit2File",
+            "SecurityAudit2File-JSON" and "CONSOLE-SecurityAudit-JSON".
         -->
         <Logger name="com.pingidentity.sdk.logging.LoggingUtil" level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="SecurityAudit2File" />
             <!--
+                <appender-ref ref="SecurityAudit2File-JSON" />
+                <appender-ref ref="CONSOLE-SecurityAudit-JSON" />
                 <appender-ref ref="SecurityAuditToCEFSyslog-FAILOVER"/>
                 <appender-ref ref="SecurityAuditToCEFFile"/>
                 <appender-ref ref="SecurityAuditToMySQLDB-FAILOVER"/>
@@ -1608,13 +1835,44 @@
             ProvisionerLogToPostgreSQLDB-FAILOVER
 
             Each must be the only appender referenced in the logger com.pingidentity.provisioner.
-            If one of these appenders is added, remove the existing reference to "ProvisionerLog" and "CONSOLE-PROVISIONER".
+            If one of these appenders is added, remove the existing reference to "ProvisionerLog",
+            "ProvisionerLog-JSON", "CONSOLE-PROVISIONER" and "CONSOLE-PROVISIONER-JSON".
         -->
         <AsyncLogger name="com.pingidentity.provisioner"
                      level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="ProvisionerLog" />
             <!--
+                <appender-ref ref="ProvisionerLog-JSON" />
                 <appender-ref ref="CONSOLE-PROVISIONER" />
+                <appender-ref ref="CONSOLE-PROVISIONER-JSON" />
+                <appender-ref ref="ProvisionerLogToOracleDB-FAILOVER"/>
+                <appender-ref ref="ProvisionerLogToSQLServerDB-FAILOVER"/>
+                <appender-ref ref="ProvisionerLogToMySQLDB-FAILOVER"/>
+                <appender-ref ref="ProvisionerLogToPostgreSQLDB-FAILOVER" />
+            -->
+        </AsyncLogger>
+
+        <!--
+            IMPORTANT:
+
+            The following appenders cannot be configured with any others:
+
+            ProvisionerLogToOracleDB-FAILOVER
+            ProvisionerLogToSQLServerDB-FAILOVER
+            ProvisionerLogToMySQLDB-FAILOVER
+            ProvisionerLogToPostgreSQLDB-FAILOVER
+
+            Each must be the only appender referenced in the logger com.pingidentity.provisioner.
+            If one of these appenders is added, remove the existing reference to "ProvisionerChannelSummaryLog",
+            "ProvisionerChannelSummaryLog-JSON", "CONSOLE-PROVISIONER" and "CONSOLE-PROVISIONER-JSON".
+        -->
+        <AsyncLogger name="ProvisionerChannelSummaryLog"
+                     level="INFO" additivity="false" includeLocation="false">
+            <appender-ref ref="ProvisionerChannelSummaryLog" />
+            <!--
+                <appender-ref ref="ProvisionerChannelSummaryLog-JSON" />
+                <appender-ref ref="CONSOLE-PROVISIONER" />
+                <appender-ref ref="CONSOLE-PROVISIONER-JSON" />
                 <appender-ref ref="ProvisionerLogToOracleDB-FAILOVER"/>
                 <appender-ref ref="ProvisionerLogToSQLServerDB-FAILOVER"/>
                 <appender-ref ref="ProvisionerLogToMySQLDB-FAILOVER"/>
@@ -1624,18 +1882,26 @@
 
         <Logger name="AuditLogger" level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="AdminAudit" />
+            <!-- <appender-ref ref="AdminAudit-JSON" /> -->
+            <!-- <appender-ref ref="CONSOLE-AdminAudit-JSON" /> -->
         </Logger>
 
         <Logger name="EventDetailAuditLogger" level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="AdminEventDetailAudit" />
+            <!-- <appender-ref ref="AdminEventDetailAudit-JSON" /> -->
+            <!-- <appender-ref ref="CONSOLE-AdminEventDetailAudit-JSON" /> -->
         </Logger>
 
         <Logger name="AdminApiAuditLogger" level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="AdminApiAudit" />
+            <!-- <appender-ref ref="AdminApiAudit-JSON" /> -->
+            <!-- <appender-ref ref="CONSOLE-AdminApiAudit-JSON" /> -->
         </Logger>
 
         <Logger name="RuntimeApiAuditLogger" level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="RuntimeApiAudit" />
+            <!-- <appender-ref ref="RuntimeApiAudit-JSON" /> -->
+            <!-- <appender-ref ref="CONSOLE-RuntimeApiAudit-JSON" /> -->
         </Logger>
 
         <!-- ======================= -->
@@ -1653,12 +1919,15 @@
         OutboundProvisionerEventToCEFSyslog-FAILOVER
 
         Each must be the only appender referenced in the logger com.pingidentity.provisioner.monitor.ProvisionerAuditLogger".
-        If one of these appenders is added, remove the existing reference to "OutboundProvisionerEventToFile".
+        If one of these appenders is added, remove the existing reference to "OutboundProvisionerEventToFile", 
+        "OutboundProvisionerEventToFile-JSON" and "CONSOLE-OutboundProvisionerEventToFile-JSON".
         -->
 
         <Logger name="ProvisionerAuditLogger" level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="OutboundProvisionerEventToFile" />
             <!--
+            <appender-ref ref="OutboundProvisionerEventToFile-JSON" />
+            <appender-ref ref="CONSOLE-OutboundProvisionerEventToFile-JSON" />
             <appender-ref ref="OutboundProvisionerEventToSQLServerDB-FAILOVER"/>
             <appender-ref ref="OutboundProvisionerEventToOracleDB-FAILOVER"/>
             <appender-ref ref="OutboundProvisionerEventToMySQLDB-FAILOVER"/>
@@ -1681,7 +1950,9 @@
         -->
         <AsyncRoot level="INFO" includeLocation="false">
             <!-- <AppenderRef ref="CONSOLE" /> -->
+            <!-- <AppenderRef ref="CONSOLE-JSON" />-->
             <AppenderRef ref="FILE" />
+            <!-- <AppenderRef ref="FILE-JSON" />-->
         </AsyncRoot>
 
         <!--
