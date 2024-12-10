@@ -2,6 +2,7 @@
 echo "Post-build stage (like fixing permissions)"
 set -x
 osID="unknown"
+bin_dir="/opt/server/bin"
 test -f "/etc/os-release" && osID="$(awk -F = '$1~/^ID$/{gsub(/"/,"");print $2}' "/etc/os-release")"
 
 if test "${osID}" = "rhel"; then
@@ -50,6 +51,15 @@ echo "
 pf.admin.hostname=\${PF_ADMIN_PUBLIC_HOSTNAME}
 # com.unboundid.ldap.sdk.debug.type=LDAP
 " >> "/opt/staging/instance/bin/run.properties.subst.default"
+
+# On PF 12.2 and later, use the run.sh packaged with the product,
+# else use the custom run.sh file
+# TODO remove after deprecation of 12.1.x PF versions
+if test "${VERSION#*"12.1."}" != "${VERSION}" || test "${VERSION#*"12.0."}" != "${VERSION}"; then
+    mv "${bin_dir}/pre-12.2-run.sh" "${bin_dir}/run.sh"
+else
+    rm -f "${bin_dir}/pre-12.2-run.sh"
+fi
 
 # delete self
 rm -f "${0}"
