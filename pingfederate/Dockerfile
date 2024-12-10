@@ -58,10 +58,9 @@ RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
 
 FROM ${DEPS}${SHIM} as final-staging
 
-# ARGS used in build.sh RUN command
-# Use correct run.sh file based on $VERSION
-# in the build.sh.post script.
-# TODO This should be removed upon deprecation of PF 11.1.x
+# On PF 12.2 and later, use the run.sh packaged with the product,
+# else use the custom run.sh file
+# TODO remove after deprecation of 12.1.x PF versions
 ARG VERSION
 
 # get the product bits FIRST
@@ -158,9 +157,6 @@ ENV IN_DIR=${BASE}/in \
     LICENSE_DIR="${SERVER_ROOT_DIR}" \
 #-- PD License directory. Separating from above LICENSE_DIR to differentiate for different products
     PD_LICENSE_DIR="${STAGING_DIR}/pd.profile/server-root/pre-setup" \
-#-- The command that the entrypoint will execute in the foreground to
-#-- instantiate the container
-    STARTUP_COMMAND="" \
 #-- The command-line options to provide to the the startup command when
 #-- the container starts with the server in the foreground. This is the
 #-- normal start flow for the container
@@ -295,7 +291,6 @@ ARG DATE
 ARG VERSION
 ARG LICENSE_VERSION
 
-#TODO: Remove PF_LOG_LEVEL upon deprecation of PF 11.1.x
 ENV SHIM=${SHIM} \
     IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
@@ -324,11 +319,6 @@ ENV SHIM=${SHIM} \
 
 #-- Defines the maximum of log files to retain upon rotation
     PF_LOG_NUMBER=2 \
-
-#-- General log level -- provide custom log4j2.xml in profile for more detailed control
-#-- valid values are OFF, ERROR, WARN, INFO, DEBUG
-#-- NOTE: PF_LOG_LEVEL only applies to PF versions before 11.2.0
-    PF_LOG_LEVEL="INFO" \
 
 #-- Defines the port on which the PingFederate administrative
 #-- console and API runs.
@@ -509,7 +499,12 @@ ENV SHIM=${SHIM} \
 
 #-- Set to true to create the initial admin user after PingFederate starts up.
 #-- The initial admin user will only be created on the first startup of the server after the license is accepted.
-    CREATE_INITIAL_ADMIN_USER=false
+    CREATE_INITIAL_ADMIN_USER=false \
+
+#-- Set to true to add the following Java flags and enable memory dumps
+#-- -XX:+HeapDumpOnOutOfMemoryError
+#-- -XX:HeapDumpPath=$PF_HOME_ESC/log"
+    ENABLE_AUTOMATIC_HEAP_DUMP=true
 
 # the method by which the framework can assess whether the container is viable or not
 HEALTHCHECK --interval=31s --timeout=29s --start-period=241s --retries=7 CMD [ "liveness.sh" ]
