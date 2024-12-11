@@ -59,6 +59,10 @@ RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
 
 FROM ${DEPS}${SHIM} as final-staging
 
+# On PA 8.2 and later, need to use an updated run.sh file with extra CLASSPATH handling.
+# TODO remove after deprecation of 8.1.x PA versions
+ARG VERSION
+
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
 
