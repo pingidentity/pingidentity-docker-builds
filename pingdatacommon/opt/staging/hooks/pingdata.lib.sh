@@ -670,7 +670,7 @@ is_version_ge() {
 
 # Build environment variables needed for starting up the container and joining a
 # topology, and print out the resulting plan.
-# The run plan is based on what is orchestrating the containers (kubernetes, docker-compose, etc.).
+# The run plan is based on what is orchestrating the containers (kubernetes, etc.).
 # Orchestration is necessary for containers to find a seed server to join a topology with.
 # Needed for PingDirectory replication setup and PingDataSync failover setup.
 buildRunPlan() {

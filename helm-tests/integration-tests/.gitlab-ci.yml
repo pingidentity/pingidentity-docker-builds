@@ -46,6 +46,7 @@ intel.pd-repl.v1:
 arm.pd-repl.v2:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:
@@ -310,6 +311,7 @@ intel.pa-pf-pd.v2:
 arm.pa-pf-pd.v3:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:
@@ -440,6 +442,7 @@ intel.pds-pd.v1:
 arm.pds-pd.v2:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:
@@ -525,6 +528,7 @@ intel.pdp-pd.v1:
 arm.pdp-pd.v2:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:
@@ -610,6 +614,7 @@ intel.paz-pd.v1:
 arm.paz-pd.v2:
   stage: test.integration
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:

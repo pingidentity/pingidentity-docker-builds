@@ -35,6 +35,7 @@ intel.b.pingauthorizepap:
 arm.b.pingauthorizepap:
   stage: products
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:
@@ -102,6 +103,7 @@ intel.t.pingauthorizepap:
 arm.t.pingauthorizepap:
   stage: test.smoke
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:

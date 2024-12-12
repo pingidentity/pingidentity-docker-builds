@@ -24,7 +24,6 @@ if test "${_sharedMemoryCheckFailed}" = "true"; then
     echo_red "PingIntelligence API Security Enforcer requires at least 256MB of shared memory."
     echo_red "Use one of the following depending on your deployment framework:"
     echo_red "  - docker         : --shm-size 256m"
-    echo_red "  - docker-compose : shm_size: 256m"
     echo_red "  - kubernetes     : https://stackoverflow.com/questions/46085748/define-size-for-dev-shm-on-container-engine"
     echo_red "  - openshift      : https://docs.openshift.com/container-platform/3.6/dev_guide/shared_memory.html"
     _sharedMemoryCheckFailed=true
@@ -45,11 +44,6 @@ CURRENT_ULIMIT=$(ulimit -n 2> /dev/null || echo 0)
 if test "${CURRENT_ULIMIT}" -lt "65535"; then
     echo "limit for open files is very low ($CURRENT_ULIMIT), please set it to at least 65535"
     echo_red "  - docker         : --ulimit nofile=65536:65536"
-    echo_red "  - docker-compose : "
-    echo_red "    ulimits:"
-    echo_red "      nofile:"
-    echo_red "        soft: 65535"
-    echo_red "        hard: 65535"
     exit 1
 else
     echo_green "Sufficient file descriptor limit: ${CURRENT_ULIMIT}"

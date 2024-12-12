@@ -32,6 +32,7 @@ intel.b.ldap-sdk-tools:
 arm.b.ldap-sdk-tools:
   stage: products
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:
@@ -94,6 +95,7 @@ intel.t.ldap-sdk-tools:
 arm.t.ldap-sdk-tools:
   stage: test.smoke
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:
