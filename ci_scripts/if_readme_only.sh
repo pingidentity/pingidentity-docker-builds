@@ -11,9 +11,10 @@ test "${VERBOSE}" = "true" && set -x
 # echo "edited files: " $CHANGED_FILES
 
 # for gitlab:
-echo "${CI_COMMIT_BEFORE_SHA}"
-CHANGED_FILES=$(git diff --name-only "${CI_COMMIT_SHA}" "${CI_COMMIT_BEFORE_SHA}")
-echo "CHANGED_FILES: " "${CHANGED_FILES}"
+# set all file ownership to the gitlab-runner user
+sudo chown -R gitlab-runner:gitlab-runner .
+CHANGED_FILES=$(git diff --name-only "${CI_COMMIT_BEFORE_SHA}" "${CI_COMMIT_SHA}")
+echo "CHANGED_FILES:  ${CHANGED_FILES}"
 
 ONLY_READMES="True"
 MD="\.md"
