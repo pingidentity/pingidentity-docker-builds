@@ -39,6 +39,7 @@ intel.b.pingaccess:
 arm.b.pingaccess:
   stage: products
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:
@@ -110,6 +111,7 @@ intel.t.pingaccess:
 arm.t.pingaccess:
   stage: test.smoke
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:
@@ -173,6 +175,7 @@ intel.t.pingaccess-cluster:
 arm.t.pingaccess-cluster:
   stage: test.smoke
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:

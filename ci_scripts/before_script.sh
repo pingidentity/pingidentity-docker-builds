@@ -22,7 +22,7 @@ docker-compose version
 type envsubst
 envsubst --version
 type kubectl
-kubectl version
+kubectl version --client=true
 
 #Uncomment these lines and update docker-builds-runner image if google_tools.lib.sh is used in the pipeline. See $PIPELINE_BUILD_REGISTRY_VENDOR.
 #type gcloud

@@ -37,6 +37,7 @@ intel.b.pingdatasync:
 arm.b.pingdatasync:
   stage: products
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:
@@ -106,6 +107,7 @@ intel.t.pingdatasync:
 arm.t.pingdatasync:
   stage: test.smoke
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:

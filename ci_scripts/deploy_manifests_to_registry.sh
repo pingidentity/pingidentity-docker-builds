@@ -124,8 +124,8 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 sprint="$(_getSprintTagIfAvailable)"
 
 #Define docker config file locations based on different image registry providers
-docker_config_hub_dir="/root/.docker-hub"
-#docker_config_default_dir="/root/.docker"
+docker_config_hub_dir="$HOME/.docker-hub"
+#docker_config_default_dir="$HOME/.docker"
 
 versions_to_deploy=$(_getAllVersionsToDeployForProduct "${product_to_deploy}")
 latest_version=$(_getLatestVersionForProduct "${product_to_deploy}")

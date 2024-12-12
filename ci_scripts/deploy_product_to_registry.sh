@@ -95,8 +95,8 @@ CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
 
 #Define docker config file locations based on different image registry providers
-docker_config_hub_dir="/root/.docker-hub"
-docker_config_default_dir="/root/.docker"
+docker_config_hub_dir="$HOME/.docker-hub"
+docker_config_default_dir="$HOME/.docker"
 
 # Do PIPELINE_VERSIONS_JSON_OVERRIDE validation
 _getSprintTagIfAvailable

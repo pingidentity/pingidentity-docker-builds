@@ -32,7 +32,12 @@ default:
     - ci_scripts/before_script.sh
   services:
     - $PIPELINE_DEPS_REGISTRY/docker:23.0.2-dind
+  # Toggle the comment status of the next two lines to test a new X86_64 runner image
+  # Update the variable in the repository accordingly
+  # There are similar toggle lines across the other pipeline files for the ARM runner image
+  # Search for $RUNNER_IMAGE_AARCH64 across all files
   image: $RUNNER_IMAGE_X86_64
+  #image: $RUNNER_IMAGE_X86_64_TEST
 ################################################
 # Default variables used by all jobs unless they
 # are overridden by the job
@@ -138,6 +143,7 @@ intel.f.pingfoundation:
 arm.f.pingfoundation:
   stage: foundation
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:
@@ -203,6 +209,7 @@ intel.clean-k8s:
 arm.clean-k8s:
   stage: final
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:
@@ -218,6 +225,7 @@ intel.delete-old-k8s:
 arm.delete-old-k8s:
   stage: final
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST  
   tags:
     - platform=aarch64
   script:
@@ -384,6 +392,7 @@ intel.custom.image:
 arm.custom.image:
   stage: custom.image
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:

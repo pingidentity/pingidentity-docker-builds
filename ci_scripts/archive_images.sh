@@ -60,8 +60,8 @@ dockerhub_api_domain="https://hub.docker.com"
 artifactory_api_domain="${ARTIFACTORY_SHORT_URL}"
 api_namespace="pingidentity"
 api_output_file=$(mktemp)
-docker_config_hub_dir="/root/.docker-hub"
-docker_config_default_dir="/root/.docker"
+docker_config_hub_dir="$HOME/.docker-hub"
+docker_config_default_dir="$HOME/.docker"
 art_auth_token="${ARTIFACTORY_AUTH_TOKEN}"
 
 # Make a reliable curl call

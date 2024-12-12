@@ -34,6 +34,7 @@ intel.b.pingcentral:
 arm.b.pingcentral:
   stage: products
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:
@@ -98,6 +99,7 @@ intel.t.pingcentral:
 arm.t.pingcentral:
   stage: test.smoke
   image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
     - platform=aarch64
   script:

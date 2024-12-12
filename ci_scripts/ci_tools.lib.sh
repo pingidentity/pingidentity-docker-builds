@@ -677,8 +677,8 @@ setupDockerConfigJson() {
 }
 
 #Define docker config file locations based on different image registry providers
-docker_config_hub_dir="/root/.docker-hub"
-docker_config_default_dir="/root/.docker"
+docker_config_hub_dir="$HOME/.docker-hub"
+docker_config_default_dir="$HOME/.docker"
 
 if test -n "${PING_IDENTITY_SNAPSHOT}" && test -n "${CI_COMMIT_REF_NAME}"; then
     #we are in building snapshot
