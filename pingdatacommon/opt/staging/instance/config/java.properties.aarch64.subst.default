@@ -43,7 +43,7 @@ tuning-param.VERBOSE_GC=false
 # The maximum heap size for all scripts was capped at 768m during setup.  The
 # suggested maximum heap size is 768m for a non-aggressive tuning and 2g for an
 # aggressive tuning
-maxHeapSize=768m
+maxHeapSize=${MAX_HEAP_SIZE}
 
 
 # These JVM options have been added to the start-server.java-args options to
