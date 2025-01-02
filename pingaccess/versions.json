@@ -1,12 +1,12 @@
 {
-    "latest": "8.1.2",
+    "latest": "8.2.0",
     "versions": [
         {
-            "version": "8.1.2",
-            "preferredShim": "alpine:3.20.3",
+            "version": "8.2.0",
+            "preferredShim": "alpine:3.21.0",
             "shims": [
                 {
-                    "shim": "alpine:3.20.3",
+                    "shim": "alpine:3.21.0",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
@@ -20,7 +20,7 @@
                     ]
                 },
                 {
-                    "shim": "redhat/ubi9-minimal:9.5-1731604394",
+                    "shim": "redhat/ubi9-minimal:9.5-1734497536",
                     "preferredJVM": "rl11",
                     "jvms": [
                         {
@@ -36,11 +36,11 @@
             ]
         },
         {
-            "version": "8.0.5",
-            "preferredShim": "alpine:3.20.3",
+            "version": "8.1.2",
+            "preferredShim": "alpine:3.21.0",
             "shims": [
                 {
-                    "shim": "alpine:3.20.3",
+                    "shim": "alpine:3.21.0",
                     "preferredJVM": "al11",
                     "jvms": [
                         {
@@ -54,7 +54,7 @@
                     ]
                 },
                 {
-                    "shim": "redhat/ubi9-minimal:9.5-1731604394",
+                    "shim": "redhat/ubi9-minimal:9.5-1734497536",
                     "preferredJVM": "rl11",
                     "jvms": [
                         {
