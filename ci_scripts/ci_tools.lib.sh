@@ -799,7 +799,7 @@ elif test -n "${CI_COMMIT_REF_NAME}"; then
 
     requirePipelineVar ARTIFACTORY_NOTARY_SERVER_IP
     echo "Using notary server IP value'${ARTIFACTORY_NOTARY_SERVER_IP}'"
-    echo "${ARTIFACTORY_NOTARY_SERVER_IP} notaryserver" >> /etc/hosts
+    echo "${ARTIFACTORY_NOTARY_SERVER_IP} notaryserver" | sudo tee -a /etc/hosts > /dev/null
 
     GIT_REV_SHORT=$(git rev-parse --short=4 "$CI_COMMIT_SHA")
     GIT_REV_MED=$(git rev-parse --short "$CI_COMMIT_SHA")

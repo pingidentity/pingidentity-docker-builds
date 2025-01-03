@@ -114,8 +114,8 @@ fi
 # If no sprint version is specified, build will be on master branch
 if test -n "${sprint_git_tag}"; then
     # This places the local repository in a detached HEAD state.
-    git checkout tags/"${sprint_git_tag}"
-    test "${?}" != "0" && echo "ERROR: Failed to checkout tag reference ${sprint_git_tag}" && exit 1
+    git checkout "SPRINT-${sprint_git_tag}"
+    test "${?}" != "0" && echo "ERROR: Failed to checkout SPRINT branch reference 'SPRINT-${sprint_git_tag}'" && exit 1
 fi
 
 # If a zip download URL is specified, download the zip file and place the product.zip in the tmp folder of the specified
