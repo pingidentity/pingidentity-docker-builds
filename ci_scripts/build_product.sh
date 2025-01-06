@@ -207,10 +207,6 @@ for _version in ${versionsToBuild}; do
             # Handle jvms to build for snapshot images
             if test -n "${PING_IDENTITY_SNAPSHOT}"; then
                 _jvmsToBuild=$(_getJVMsToBuildForProductVersionShim "${productToBuild}" "${latestVersion}" "${_shim}")
-                #TODO remove this al17 logic, once al17 is being built in product versions.json files
-                if test "${productToBuild}" = "pingaccess" || test "${productToBuild}" = "pingfederate" && test "${_shim#*"alpine"}" != "${_shim}"; then
-                    _jvmsToBuild="${_jvmsToBuild:+${_jvmsToBuild} }al17"
-                fi
             else
                 _jvmsToBuild=$(_getJVMsToBuildForProductVersionShim "${productToBuild}" "${_version}" "${_shim}")
             fi
@@ -263,7 +259,7 @@ for _version in ${versionsToBuild}; do
                 _result=PASS
                 if test -z "${IS_LOCAL_BUILD}"; then
                     exec_cmd_or_fail docker push "${_image}"
-                    if test -n "${PING_IDENTITY_SNAPSHOT}" && test "${_jvm}" = "al11"; then
+                    if test -n "${PING_IDENTITY_SNAPSHOT}" && test "${_jvm}" = "al17"; then
                         exec_cmd_or_fail docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
                         exec_cmd_or_fail docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
                         exec_cmd_or_fail docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"

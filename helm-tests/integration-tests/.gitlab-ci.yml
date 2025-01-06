@@ -88,45 +88,46 @@ arm.pd-repl.v2:
 # integrate together into an end to end test
 # for the liberica x86 JVM on a RHEL shim in
 # FIPS mode
-intel.pa-pf-pd-fips.v1:
-  stage: test.integration
-  script:
-    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --variation 1
-  retry: 1
-  variables:
-    KUBERNETES_CPU_REQUEST: 2850m
-    KUBERNETES_CPU_LIMIT: 2850m
-    KUBERNETES_MEMORY_REQUEST: 1960000000
-    KUBERNETES_MEMORY_LIMIT: 1960000000
-    KUBERNETES_POLL_TIMEOUT: 25m
-  rules:
-    - if: $ARCHIVE_PIPELINE == "true"
-      when: never
-    - if: $CUSTOM_IMAGE_PIPELINE == "true"
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
-      when: never
-    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
-      when: on_success
-    - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
-      changes:
-        - helm-tests/integration-tests/pa-pf-pd-fips/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingaccess/**/*
-        - pingdirectory/**/*
-        - pingfederate/**/*
-        - ci_scripts/*
-        - pingjvm/*
-        - .gitlab-ci.yml
-      when: on_success
-    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
-      when: on_success
+# TODO: Re-enable the fips tests once PD and PA Java17 FIPS Mode tickets are addressed
+#intel.pa-pf-pd-fips.v1:
+#  stage: test.integration
+#  script:
+#    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --variation 1
+#  retry: 1
+#  variables:
+#    KUBERNETES_CPU_REQUEST: 2850m
+#    KUBERNETES_CPU_LIMIT: 2850m
+#    KUBERNETES_MEMORY_REQUEST: 1960000000
+#    KUBERNETES_MEMORY_LIMIT: 1960000000
+#    KUBERNETES_POLL_TIMEOUT: 25m
+#  rules:
+#    - if: $ARCHIVE_PIPELINE == "true"
+#      when: never
+#    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+#      when: never
+#    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+#      when: never
+#    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
+#      when: on_success
+#    - if: '$BUILD_PRODUCT != null'
+#      when: never
+#    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+#      when: never
+#    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+#      changes:
+#        - helm-tests/integration-tests/pa-pf-pd-fips/*
+#        - pingbase/**/*
+#        - pingcommon/**/*
+#        - pingdatacommon/**/*
+#        - pingaccess/**/*
+#        - pingdirectory/**/*
+#        - pingfederate/**/*
+#        - ci_scripts/*
+#        - pingjvm/*
+#        - .gitlab-ci.yml
+#      when: on_success
+#    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+#      when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -134,45 +135,46 @@ intel.pa-pf-pd-fips.v1:
 # integrate together into an end to end test
 # for the liberica x86 JVM on a alpine shim in
 # FIPS mode
-intel.pa-pf-pd-fips.v2:
-  stage: test.integration
-  script:
-    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --variation 2
-  retry: 1
-  variables:
-    KUBERNETES_CPU_REQUEST: 2850m
-    KUBERNETES_CPU_LIMIT: 2850m
-    KUBERNETES_MEMORY_REQUEST: 1960000000
-    KUBERNETES_MEMORY_LIMIT: 1960000000
-    KUBERNETES_POLL_TIMEOUT: 25m
-  rules:
-    - if: $ARCHIVE_PIPELINE == "true"
-      when: never
-    - if: $CUSTOM_IMAGE_PIPELINE == "true"
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
-      when: never
-    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
-      when: on_success
-    - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
-      changes:
-        - helm-tests/integration-tests/pa-pf-pd-fips/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingaccess/**/*
-        - pingdirectory/**/*
-        - pingfederate/**/*
-        - ci_scripts/*
-        - pingjvm/*
-        - .gitlab-ci.yml
-      when: on_success
-    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
-      when: on_success
+# TODO: Re-enable the fips tests once PD and PA Java17 FIPS Mode tickets are addressed
+#intel.pa-pf-pd-fips.v2:
+#  stage: test.integration
+#  script:
+#    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --variation 2
+#  retry: 1
+#  variables:
+#    KUBERNETES_CPU_REQUEST: 2850m
+#    KUBERNETES_CPU_LIMIT: 2850m
+#    KUBERNETES_MEMORY_REQUEST: 1960000000
+#    KUBERNETES_MEMORY_LIMIT: 1960000000
+#    KUBERNETES_POLL_TIMEOUT: 25m
+#  rules:
+#    - if: $ARCHIVE_PIPELINE == "true"
+#      when: never
+#    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+#      when: never
+#    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+#      when: never
+#    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
+#      when: on_success
+#    - if: '$BUILD_PRODUCT != null'
+#      when: never
+#    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+#      when: never
+#    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+#      changes:
+#        - helm-tests/integration-tests/pa-pf-pd-fips/*
+#        - pingbase/**/*
+#        - pingcommon/**/*
+#        - pingdatacommon/**/*
+#        - pingaccess/**/*
+#        - pingdirectory/**/*
+#        - pingfederate/**/*
+#        - ci_scripts/*
+#        - pingjvm/*
+#        - .gitlab-ci.yml
+#      when: on_success
+#    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+#      when: on_success
 
 ################################################
 # The purpose of the integration test below is

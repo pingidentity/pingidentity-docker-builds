@@ -82,10 +82,10 @@ arm.b.pingdirectory:
 #                  SMOKE TESTS
 ################################################
 
-intel.t.pd.al11:
+intel.t.pingdirectory:
   stage: test.smoke
   script:
-    - ci_scripts/run_helm_smoke.sh --product pingdirectory --jvm al11
+    - ci_scripts/run_helm_smoke.sh --product pingdirectory
   retry: 2
   rules:
     - if: $ARCHIVE_PIPELINE == "true"

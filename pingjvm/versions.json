@@ -2,12 +2,6 @@
     "versions":[
         {
             "shims": ["alpine"],
-            "id": "al11",
-            "version": "11",
-            "archs": ["x86_64","aarch64"]
-        },
-        {
-            "shims": ["alpine"],
             "id": "al17",
             "version": "17",
             "archs": ["x86_64","aarch64"]
@@ -26,8 +20,8 @@
         },
         {
             "shims": ["redhat/ubi/ubi9-minimal"],
-            "id": "rl11",
-            "version": "11",
+            "id": "rl17",
+            "version": "17",
             "archs": ["x86_64"]
         }
     ]
