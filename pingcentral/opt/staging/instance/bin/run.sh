@@ -14,6 +14,8 @@ cd "${SERVER_ROOT_DIR}" || exit 99
 "${JAVA_HOME}"/bin/java -jar ${JAVA_OPTS} \
     --add-opens java.base/java.lang=ALL-UNNAMED \
     --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
+    --add-exports java.base/sun.security.util=ALL-UNNAMED \
+    --add-exports java.base/sun.security.x509=ALL-UNNAMED \
     -Dlogging.config="${LOG4J2_PROPS}" \
     -Dspring.config.additional-location="file:${CONFIG_DIR}/" \
     -Dpingcentral.jwk="${CONFIG_DIR}/pingcentral.jwk" \

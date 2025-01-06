@@ -60,12 +60,14 @@ cd "${SERVER_ROOT_DIR}" || exit 99
 # Word-split is expected behavior for $JAVA_OPTS, $JVM_OPTS. Disable shellcheck.
 # shellcheck disable=SC2086
 exec "${JAVA_HOME}"/bin/java ${JAVA_OPTS} ${JVM_OPTS} \
-    --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
     --add-opens java.base/java.lang=ALL-UNNAMED \
-    --add-exports java.base/sun.security.x509=ALL-UNNAMED \
-    --add-exports java.base/sun.security.util=ALL-UNNAMED \
+    --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
+    --add-opens java.base/sun.security.internal.spec=ALL-UNNAMED \
+    --add-opens java.base/sun.security.x509=ALL-UNNAMED \
+    --add-opens java.base/sun.security.util=ALL-UNNAMED \
+    --add-opens java.base/sun.security.pkcs10=ALL-UNNAMED \
+    --add-opens java.base/sun.security.pkcs=ALL-UNNAMED \
     --add-exports java.base/sun.security.provider=ALL-UNNAMED \
-    --add-exports java.base/sun.security.pkcs=ALL-UNNAMED \
     -XX:ErrorFile="${PA_HOME_ESC}/log/java_error%p.log" \
     -XX:+HeapDumpOnOutOfMemoryError \
     -XX:HeapDumpPath="${PA_HOME_ESC}/log" \

@@ -10,12 +10,9 @@ if ! type java > /dev/null 2> /dev/null; then
     #Modify the following variables to update Alpine and RHEL image's JDK.
     case "${JVM_ID}" in
         al11 | rl11)
-            JDK_VERSION="11.0.25+11"
-            alpine_x86_64_checksum="85c934d13e47fda9e2513d7264477f48d5f61e8a"
-            alpine_aarch64_checksum="1cad159896c99941f8bde56c4ce432c6cebdaecf"
-            redhat_x86_64_checksum="4c3a81caeed927d1b30ecebfc9bbee67c8a7690b"
+            echo "ERROR: al11 and rl11 are no longer supported. Please specify al17 or rl17 to build with Java 17" && exit 1
             ;;
-        al17)
+        al17 | rl17)
             JDK_VERSION="17.0.13+12"
             alpine_x86_64_checksum="3ad55358a06fccdd3dd8e2c93d92f310e915467e"
             alpine_aarch64_checksum="b4ee244bbb104a55fe0c9cb15859b9f3db7cb3b7"
@@ -44,7 +41,7 @@ if ! type java > /dev/null 2> /dev/null; then
                     ;;
             esac
             download_libc="-musl"
-            # Get binutils for jlinking with Liberica JDK 17 on alpine
+            # Get binutils for jlinking with Liberica JDK 17
             # Add curl to download the JDK
             apk --no-cache --update add binutils curl
             ;;
@@ -60,8 +57,9 @@ if ! type java > /dev/null 2> /dev/null; then
                     ;;
             esac
             # Word-splitting expected in listing microdnf packages to install
+            # Get binutils for jlinking with Liberica JDK 17
             # shellcheck disable=SC2086
-            microdnf -y install tar gzip findutils wget
+            microdnf -y install tar gzip findutils wget binutils
             download_libc=""
             ;;
         *)

@@ -271,10 +271,6 @@ else
             # get a list of all jvms to build for the product/version from the versions.json file
             #
             _jvms=$(_getJVMsToBuildForProductVersionShim "${product}" "${_version}" "${_shim}")
-            #TODO remove this al17 logic, once al17 is being built in product versions.json files
-            if test "${product}" = "pingaccess" || test "${product}" = "pingfederate" && test "${_shim#*"alpine"}" != "${_shim}" && test -n "${PING_IDENTITY_SNAPSHOT}"; then
-                _jvms="${_jvms:+${_jvms} }al17"
-            fi
 
             for _jvm in ${_jvms}; do
                 if test -z "${jvmList}"; then
