@@ -13,10 +13,10 @@ if ! type java > /dev/null 2> /dev/null; then
             echo "ERROR: al11 and rl11 are no longer supported. Please specify al17 or rl17 to build with Java 17" && exit 1
             ;;
         al17 | rl17)
-            JDK_VERSION="17.0.13+12"
-            alpine_x86_64_checksum="3ad55358a06fccdd3dd8e2c93d92f310e915467e"
-            alpine_aarch64_checksum="b4ee244bbb104a55fe0c9cb15859b9f3db7cb3b7"
-            redhat_x86_64_checksum="58a6b13cd5e933acd4cb7a4a9247309c0f57cb15"
+            JDK_VERSION="17.0.14+10"
+            alpine_x86_64_checksum="5ef51851e0551625910f7cf5e0032278fb25735b"
+            alpine_aarch64_checksum="ebe50abf22f959ae960947771e9634656650b0f2"
+            redhat_x86_64_checksum="31c351fa80792868c158e438e11bf45175c41b70"
             ;;
         *)
             echo "ERROR: Unrecognized JVM_ID: ${JVM_ID}" && exit 1
