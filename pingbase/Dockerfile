@@ -5,7 +5,7 @@
 #-
 FROM scratch
 LABEL	name="Ping Identity Docker Image" \
-        maintainer="devops_program@pingidentity.com" \
+        maintainer="support@pingidentity.com" \
 		license="Ping Identity Proprietary" \
 		vendor="Ping Identity Corp."
 
