@@ -379,8 +379,13 @@ LABEL name="${PING_PRODUCT}" \
       release="${IMAGE_GIT_REV}" \
       date="${DATE}" \
       summary="PingAccess is an identity-enabled access management product that protects web applications and APIs by applying security policies to client requests." \
-      description="PingAccess allows you to protect sites, APIs, and other resources using rules and other authentication criteria. It works in conjunction with PingFederate or other common token providers with the OAuth 2.0 and OpenID Connect (OIDC) protocols to integrate identity-based access management policies through a federated corporate identity store using open standards access protocols."
-
+      description="PingAccess allows you to protect sites, APIs, and other resources using rules and other authentication criteria. It works in conjunction with PingFederate or other common token providers with the OAuth 2.0 and OpenID Connect (OIDC) protocols to integrate identity-based access management policies through a federated corporate identity store using open standards access protocols." \
+      maintainer="support@pingidentity.com" \
+      license="Ping Identity Proprietary" \
+      vendor="Ping Identity Corp." \
+      io.k8s.description="PingAccess allows you to protect sites, APIs, and other resources using rules and other authentication criteria. It works in conjunction with PingFederate or other common token providers with the OAuth 2.0 and OpenID Connect (OIDC) protocols to integrate identity-based access management policies through a federated corporate identity store using open standards access protocols." \
+      io.k8s.display-name="${PING_PRODUCT}" \
+      url="https://www.pingidentity.com"
 
 EXPOSE ${PA_ADMIN_PORT} ${PA_ENGINE_PORT} ${HTTPS_PORT}
 COPY --from=final-staging ["/opt","/opt"]
