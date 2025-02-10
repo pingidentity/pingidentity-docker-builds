@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+# Copyright © 2025 Ping Identity Corporation
+
 # Ping Identity DevOps - Docker Build Hooks
 #
 # Prints out variables and startup information when the server is started.

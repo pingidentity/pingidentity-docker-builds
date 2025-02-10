@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+# Copyright © 2025 Ping Identity Corporation
+
 echo "Post-build stage (like fixing permissions)"
 set -x
 osID="unknown"

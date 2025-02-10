@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+# Copyright © 2025 Ping Identity Corporation
+
 test "${VERBOSE}" = "true" && set -x
 
 CLI="${SERVER_ROOT_DIR}/bin/cli.sh"

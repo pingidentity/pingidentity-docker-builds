@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+# Copyright © 2025 Ping Identity Corporation
+
 #
 # Patch the log4j libraries of an installed instance of PingFederate upon restart
 #

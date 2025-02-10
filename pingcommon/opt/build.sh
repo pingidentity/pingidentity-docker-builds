@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+# Copyright © 2025 Ping Identity Corporation
 
 if test -f "/opt/build.sh.pre"; then
     sh /opt/build.sh.pre
