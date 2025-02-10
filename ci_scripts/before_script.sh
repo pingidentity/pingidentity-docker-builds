@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+# Copyright © 2025 Ping Identity Corporation
+
 set -xe
 echo "hello from before script"
 

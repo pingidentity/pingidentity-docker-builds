@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+# Copyright © 2025 Ping Identity Corporation
+
 URL="https://127.0.0.1:${PING_ADMIN_PORT:-8444}/healthcheck"
 
 curl -sSk -o /dev/null "${URL}"

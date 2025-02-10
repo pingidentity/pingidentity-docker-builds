@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+# Copyright © 2025 Ping Identity Corporation
 
 TIMEOUT=15
 QUIET=0

@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+# Copyright © 2025 Ping Identity Corporation
+
 test "${VERBOSE}" = "true" && set -x
 
 jvmArgs="-XshowSettings:vm -XX:+UseContainerSupport -XX:InitialRAMPercentage=${JAVA_RAM_PERCENTAGE} -XX:MinRAMPercentage=${JAVA_RAM_PERCENTAGE} -XX:MaxRAMPercentage=${JAVA_RAM_PERCENTAGE}"

@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+# Copyright © 2025 Ping Identity Corporation
+
 # Automatically adjust the numbers of threads for Jetty based on available compute resources
 #
 

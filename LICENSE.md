@@ -1,6 +1,6 @@
 # License
 
-The containerization software, operating system software, and other third-party software that is not integral to the product below, are licensed under the applicable open source licenses for such software.
+The containerization software and the associated scripts, operating system software, and other third-party software that is not integral to the product below, are licensed under the applicable open source licenses for such software.
 
 For licenses applicable to the Ping Identity products (the “Software”) installed within the images:
 
