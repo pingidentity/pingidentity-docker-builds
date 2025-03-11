@@ -13,11 +13,17 @@ test "${_cores}" -gt 8 && _tuningBase=8
 
 if test -z "${PF_JETTY_THREADS_MIN}" && test -z "${PF_RUN_PF_RUNTIME_THREADS_MIN}"; then
     PF_JETTY_THREADS_MIN=$((_tuningBase * 25))
+    if test "${PF_JETTY_THREADS_MIN}" -lt 25; then
+        PF_JETTY_THREADS_MIN=25
+    fi
     PF_RUN_PF_RUNTIME_THREADS_MIN=$PF_JETTY_THREADS_MIN
 fi
 
 if test -z "${PF_JETTY_THREADS_MAX}" && test -z "${PF_RUN_PF_RUNTIME_THREADS_MAX}"; then
     PF_JETTY_THREADS_MAX=$((_tuningBase * 50))
+    if test "${PF_JETTY_THREADS_MAX}" -lt 50; then
+        PF_JETTY_THREADS_MAX=50
+    fi
     PF_RUN_PF_RUNTIME_THREADS_MAX=$PF_JETTY_THREADS_MAX
 fi
 
