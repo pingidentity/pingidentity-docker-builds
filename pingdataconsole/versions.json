@@ -1,8 +1,8 @@
 {
-    "latest": "10.2.0.0",
+    "latest": "10.2.0.1",
     "versions": [
         {
-            "version": "10.2.0.0",
+            "version": "10.2.0.1",
             "preferredShim": "alpine:3.21.3",
             "shims": [
                 {
@@ -23,7 +23,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.100"
+                    "version": "9.0.102"
                 }
             ]
         },
@@ -49,7 +49,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.100"
+                    "version": "9.0.102"
                 }
             ]
         }
