@@ -81,7 +81,7 @@ case "${product_name}" in
         if test -n "${SNAPSHOT_URL}"; then
             # Get snapshot ID from maven-metadata.xml
             product_version_metadata_url="${SNAPSHOT_URL}/products/${product_name}/${product_version}/maven-metadata.xml"
-            product_snapshot_id="$(wget -q -O - "${product_version_metadata_url}" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'concat(string(/metadata/versioning/snapshot/timestamp),"-",string(/metadata/versioning/snapshot/buildNumber))' -)"
+            product_snapshot_id="$(wget -T 20 -q -O - "${product_version_metadata_url}" | sed -e 's/xmlns=".*"//g' | xmllint --xpath 'concat(string(/metadata/versioning/snapshot/timestamp),"-",string(/metadata/versioning/snapshot/buildNumber))' -)"
 
             bits_file_name="${product_name}-${product_version%-SNAPSHOT}-${product_snapshot_id}.zip"
             bits_download_url="${SNAPSHOT_URL}/products/${product_name}/${product_version}/${bits_file_name}"
@@ -94,7 +94,7 @@ case "${product_name}" in
         if test -n "${SNAPSHOT_URL}"; then
             # Get snapshot ID from maven-metadata.xml
             product_version_metadata_url="${SNAPSHOT_URL}/com/unboundid/product/ds/broker/${product_version}/maven-metadata.xml"
-            product_snapshot_id="$(wget -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
+            product_snapshot_id="$(wget -T 20 -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
 
             bits_file_name="broker-${product_snapshot_id}-docker-image.zip"
             bits_download_url="${SNAPSHOT_URL}/com/unboundid/product/ds/broker/${product_version}/${bits_file_name}"
@@ -109,7 +109,7 @@ case "${product_name}" in
         if test -n "${SNAPSHOT_URL}"; then
             # Get snapshot ID from maven-metadata.xml
             product_version_metadata_url="${SNAPSHOT_URL}/com/pingidentity/pd/governance/symphonic-pap-packaged/${product_version}/maven-metadata.xml"
-            product_snapshot_id="$(wget -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
+            product_snapshot_id="$(wget -T 20 -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
 
             bits_file_name="symphonic-pap-packaged-${product_snapshot_id}-image.zip"
             bits_download_url="${SNAPSHOT_URL}/com/pingidentity/pd/governance/symphonic-pap-packaged/${product_version}/${bits_file_name}"
@@ -124,7 +124,7 @@ case "${product_name}" in
         if test -n "${SNAPSHOT_URL}"; then
             # Get lastSuccessfulBuild filename
             product_version_api_json_url="${SNAPSHOT_URL}/api/json"
-            bits_file_name="$(wget -q -O - "${product_version_api_json_url}" | jq -r '.artifacts[] | .fileName')"
+            bits_file_name="$(wget -T 20 -q -O - "${product_version_api_json_url}" | jq -r '.artifacts[] | .fileName')"
 
             bits_download_url="${SNAPSHOT_URL}/artifact/distribution/target/${bits_file_name}"
         else
@@ -136,7 +136,7 @@ case "${product_name}" in
         if test -n "${SNAPSHOT_URL}"; then
             # Get snapshot ID from maven-metadata.xml
             product_version_metadata_url="${SNAPSHOT_URL}/com/unboundid/product/ds/sync/${product_version}/maven-metadata.xml"
-            product_snapshot_id="$(wget -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
+            product_snapshot_id="$(wget -T 20 -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
 
             bits_file_name="sync-${product_snapshot_id}-docker-image.zip"
             bits_download_url="${SNAPSHOT_URL}/com/unboundid/product/ds/sync/${product_version}/${bits_file_name}"
@@ -151,7 +151,7 @@ case "${product_name}" in
         if test -n "${SNAPSHOT_URL}"; then
             # Get snapshot ID from maven-metadata.xml
             product_version_metadata_url="${SNAPSHOT_URL}/maven-metadata.xml"
-            product_snapshot_id="$(wget -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(/metadata/versioning/snapshotVersions/snapshotVersion/classifier)' -)"
+            product_snapshot_id="$(wget -T 20 -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(/metadata/versioning/snapshotVersions/snapshotVersion/classifier)' -)"
 
             bits_file_name="pingdirectory-delegator-${product_version}-${product_snapshot_id}.zip"
             bits_download_url="${SNAPSHOT_URL}/${bits_file_name}"
@@ -164,7 +164,7 @@ case "${product_name}" in
         if test -n "${SNAPSHOT_URL}"; then
             # Get snapshot ID from maven-metadata.xml
             product_version_metadata_url="${SNAPSHOT_URL}/com/unboundid/product/ds/directory/${product_version}/maven-metadata.xml"
-            product_snapshot_id="$(wget -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
+            product_snapshot_id="$(wget -T 20 -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
 
             bits_file_name="directory-${product_snapshot_id}-docker-image.zip"
             bits_download_url="${SNAPSHOT_URL}/com/unboundid/product/ds/directory/${product_version}/${bits_file_name}"
@@ -181,7 +181,7 @@ case "${product_name}" in
         if test -n "${SNAPSHOT_URL}"; then
             # Get snapshot ID from maven-metadata.xml
             product_version_metadata_url="${SNAPSHOT_URL}/com/unboundid/product/ds/proxy/${product_version}/maven-metadata.xml"
-            product_snapshot_id="$(wget -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
+            product_snapshot_id="$(wget -T 20 -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
 
             bits_file_name="proxy-${product_snapshot_id}-docker-image.zip"
             bits_download_url="${SNAPSHOT_URL}/com/unboundid/product/ds/proxy/${product_version}/${bits_file_name}"
@@ -231,7 +231,7 @@ esac
 # OR The user is not on the Ping Identity internal VPN
 # OR The user does not have the ARTIFACTORY_URL defined in their environment.
 echo "Retrieving product bits for ${product_name} ${product_version}..."
-wget -O "/tmp/${output_file}" "${bits_download_url}"
+wget -T 20 -O "/tmp/${output_file}" "${bits_download_url}"
 test $? -ne 0 && echo "Error: Could not retrieve artifact ${bits_file_name} from ${bits_download_url}" && exit 1
 echo "Successfully retrieved artifact ${bits_file_name} from ${bits_download_url}."
 
@@ -239,7 +239,7 @@ echo "Successfully retrieved artifact ${bits_file_name} from ${bits_download_url
 # Only verify with this method if product bits are sourced from Artifactory, as some snapshot bits are not.
 if test "${bits_download_url#*"${ARTIFACTORY_URL}"}" != "${bits_download_url}"; then
     echo "Verifying product bits ${bits_file_name} via SHA-256..."
-    wget -O "/tmp/${output_file}.sha256" "${bits_download_url}.sha256"
+    wget -T 20 -O "/tmp/${output_file}.sha256" "${bits_download_url}.sha256"
     test $? -ne 0 && echo "Error: Could not retrieve sha256 of artifact ${bits_file_name} from ${bits_download_url}.sha256" && exit 1
     echo "$(cat "/tmp/${output_file}.sha256")  /tmp/${output_file}" | sha256sum -c -s -
     test $? -ne 0 && echo "Error: The SHA-256 check failed for the downloaded artifact ${bits_file_name} from ${bits_download_url}." && exit 1
@@ -249,7 +249,7 @@ if test "${bits_download_url#*"${ARTIFACTORY_URL}"}" != "${bits_download_url}"; 
 # Verify snapshot bits for PingData
 elif test -n "${SNAPSHOT_URL}" && test "${pingdata_products#*"${product_name}"}" != "${pingdata_products}"; then
     echo "Verifying PingData Snapshot bits ${bits_file_name} via SHA-1..."
-    wget -O "/tmp/${output_file}.sha1" "${bits_download_url}.sha1"
+    wget -T 20 -O "/tmp/${output_file}.sha1" "${bits_download_url}.sha1"
     test $? -ne 0 && echo "Error: Could not retrieve sha1 of artifact ${bits_file_name} from ${bits_download_url}.sha1" && exit 1
     echo "$(cat "/tmp/${output_file}.sha1")  /tmp/${output_file}" | sha1sum -c -s -
     test $? -ne 0 && echo "Error: The SHA-1 check failed for the downloaded artifact ${bits_file_name} from ${bits_download_url}." && exit 1
@@ -260,7 +260,7 @@ elif test -n "${SNAPSHOT_URL}" && test "${pingdata_products#*"${product_name}"}"
 elif test "${product_name}" = "apache-jmeter" || test "${product_name}" = "apache-tomcat"; then
     # Perform a SHA-512 check
     echo "Verifying ${product_name} product bits ${bits_file_name}..."
-    wget -O "/tmp/${output_file}.sha512" "${bits_download_url}.sha512"
+    wget -T 20 -O "/tmp/${output_file}.sha512" "${bits_download_url}.sha512"
     test $? -ne 0 && echo "Error: Could not retrieve sha512 of artifact ${bits_file_name} from ${bits_download_url}.sha512" && exit 1
     echo "$(awk 'FNR == 1 {print $1}' "/tmp/${output_file}.sha512")  /tmp/${output_file}" | sha512sum -c -s -
     test $? -ne 0 && echo "Error: The SHA-512 check failed for the artifact ${bits_file_name} from ${bits_download_url}." && exit 1
@@ -271,7 +271,7 @@ elif test "${product_name}" = "apache-jmeter" || test "${product_name}" = "apach
     test $? -ne 0 && echo "Error: Command gpg not found." && exit 1
     gpg --import "/tmp/keys.gpg"
     test $? -ne 0 && echo "Error: Public key import of ${product_name} signing keys failed." && exit 1
-    wget -O "/tmp/${output_file}.asc" "${bits_download_url}.asc"
+    wget -T 20 -O "/tmp/${output_file}.asc" "${bits_download_url}.asc"
     test $? -ne 0 && echo "Error: Could not retrieve asc of artifact ${bits_file_name} from ${bits_download_url}.asc" && exit 1
     gpg --verify "/tmp/${output_file}.asc" "/tmp/${output_file}"
     test $? -ne 0 && echo "Error: The signature verification failed for the artifact ${bits_file_name} from ${bits_download_url}." && exit 1
@@ -283,7 +283,7 @@ elif test "${product_name}" = "apache-jmeter" || test "${product_name}" = "apach
 elif test "${product_name}" = "tini"; then
     # Perform a SHA-256 check
     echo "Verifying Tini product bits ${bits_file_name}..."
-    wget -O "/tmp/${output_file}.sha256sum" "${bits_download_url}.sha256sum"
+    wget -T 20 -O "/tmp/${output_file}.sha256sum" "${bits_download_url}.sha256sum"
     test $? -ne 0 && echo "Error: Could not retrieve sha256 of artifact ${bits_file_name} from ${bits_download_url}.sha256sum" && exit 1
     echo "$(awk 'FNR == 1 {print $1}' "/tmp/${output_file}.sha256sum")  /tmp/${output_file}" | sha256sum -c -s -
     test $? -ne 0 && echo "Error: The SHA-256 check failed for the artifact ${bits_file_name} from ${bits_download_url}." && exit 1
@@ -294,7 +294,7 @@ elif test "${product_name}" = "tini"; then
     test $? -ne 0 && echo "Error: Command gpg not found." && exit 1
     gpg --import "/tmp/key.gpg"
     test $? -ne 0 && echo "Error: Public key import of Tini signing key failed." && exit 1
-    wget -O "/tmp/${output_file}.asc" "${bits_download_url}.asc"
+    wget -T 20 -O "/tmp/${output_file}.asc" "${bits_download_url}.asc"
     test $? -ne 0 && echo "Error: Could not retrieve asc of artifact ${bits_file_name} from ${bits_download_url}.asc" && exit 1
     gpg --verify "/tmp/${output_file}.asc" "/tmp/${output_file}"
     test $? -ne 0 && echo "Error: The signature verification failed for the artifact ${bits_file_name} from ${bits_download_url}." && exit 1
