@@ -248,6 +248,18 @@ ENV SHIM=${SHIM} \
 #-- Multiple algorithms can be specified here, separated by a `;` character
     LOAD_BALANCING_ALGORITHM_NAMES= \
 
+#-- Set to true to fail the container if it is found that replication is not enabled
+#-- for the USER_BASE_DN during startup. If replication is not enabled for the DN but this variable
+#-- is not set to true, then a warning will be printed, but the container will not fail.
+    FAIL_ON_DISABLED_BASE_DN=false \
+
+#-- Set to true to fail the container if it is found that a previous call to remove-defunct-server
+#-- in the hook scripts failed. If there was a failure but this variable
+#-- is not set to true, then a warning will be printed, but the container will not fail.
+#-- Failure of remove-defunct-server is marked by a file at ${SERVER_ROOT_DIR}/logs/remove-defunct-server-marker.
+#-- Logs for the tool can be found at ${SERVER_ROOT_DIR}/logs/tools/remove-defunct-server.log
+    FAIL_ON_UNSUCCESSFUL_REMOVE_DEFUNCT=false \
+
 #-- Sets the number of columns in PingDirectory command-line tool output
     COLUMNS=120
 

@@ -1359,6 +1359,20 @@ prepareToJoinTopology() {
         return 1
     fi
 
+    # Check for a remove-defunct-server marker file. If present, the command
+    # did not complete successfully which may have side effects
+    if test -f "${SERVER_ROOT_DIR}/logs/remove-defunct-server-marker"; then
+        echo_yellow "Warning: remove-defunct-server did not complete successfully the last time it was run in the hook scripts,"
+        echo_yellow "as indicated by the presence of the ${SERVER_ROOT_DIR}/logs/remove-defunct-server-marker file."
+        echo_yellow "This may have side effects on the topology. Please check the container and tool logs."
+        echo_yellow "It may be necessary to restart the server on a clean volume."
+        # Fail the container if appropriate
+        if test "$(toLower "${FAIL_ON_UNSUCCESSFUL_REMOVE_DEFUNCT}")" = "true"; then
+            echo_yellow "Failing the container because FAIL_ON_UNSUCCESSFUL_REMOVE_DEFUNCT is set to true."
+            container_failure 80 "Topology in unknown state after failed remove-defunct-server call"
+        fi
+    fi
+
     #
     #- * Updates the Server Instance hostname/ldaps-port
     #
@@ -1505,7 +1519,22 @@ prepareToJoinTopology() {
             case "${PING_PRODUCT}" in
                 PingDirectory)
                     echo "This instance (${_podInstanceName}) is already found in topology --> No need to enable replication"
-                    dsreplication status --displayServerTable --showAll
+                    dsreplication status --displayServerTable --showAll | tee /tmp/dsreplication-status.log
+
+                    # Only run this check if the log file was successfully written
+                    if test -f /tmp/dsreplication-status.log; then
+                        # Check if the expected replication base DN is not enabled, and if so report a warning
+                        grep "Replication Status for ${USER_BASE_DN}: Not Enabled" "/tmp/dsreplication-status.log"
+                        _returnCode=$?
+                        if test ${_returnCode} -eq 0; then
+                            echo_yellow "Warning: unexpected replication state: replication is not enabled for base DN: ${USER_BASE_DN}"
+                            # Fail the container if appropriate
+                            if test "$(toLower "${FAIL_ON_DISABLED_BASE_DN}")" = "true"; then
+                                echo_yellow "Failing the container because FAIL_ON_DISABLED_BASE_DN is set to true."
+                                container_failure 80 "Replication is not enabled for base DN: ${USER_BASE_DN}"
+                            fi
+                        fi
+                    fi
                     ;;
                 PingDataSync)
                     echo "This instance (${_podInstanceName}) is already found in topology --> No need to enable failover"
@@ -1571,6 +1600,7 @@ removeDefunctServer() {
         awk '{ print $2 }')
 
     echo "Removing ${HOST_NAME} (instance name: ${INSTANCE_NAME}) from the topology"
+    touch "${SERVER_ROOT_DIR}/logs/remove-defunct-server-marker"
     remove-defunct-server --no-prompt \
         --serverInstanceName "${INSTANCE_NAME}" \
         --retryTimeoutSeconds "${RETRY_TIMEOUT_SECONDS}" \
@@ -1578,7 +1608,12 @@ removeDefunctServer() {
         --bindDN "${ROOT_USER_DN}" \
         --bindPasswordFile "${ROOT_USER_PASSWORD_FILE}" \
         --enableDebug --globalDebugLevel verbose
-    echo "Server removal exited with return code: $?"
+    _returnCode=$?
+    echo "Server removal exited with return code: ${_returnCode}"
+    # Only remove the marker if remove-defunct-server succeeded
+    if test ${_returnCode} -eq 0; then
+        rm "${SERVER_ROOT_DIR}/logs/remove-defunct-server-marker"
+    fi
 }
 
 # Get dsconfig options, depending if the servers is running or not (offline)
