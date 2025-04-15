@@ -72,9 +72,13 @@ echo_vars PA_ADMIN_PUBLIC_HOSTNAME PA_ENGINE_PUBLIC_HOSTNAME
 echo_vars PF_ADMIN_PUBLIC_BASEURL
 echo_vars ROOT_USER_DN
 echo_vars ADDITIONAL_SETUP_ARGS
+echo_vars FAIL_ON_DISABLED_BASE_DN FAIL_ON_UNSUCCESSFUL_REMOVE_DEFUNCT
 
 echo_header "JVM Details"
 echo_vars MAX_HEAP_SIZE JVM_TUNING
+
+echo_header "Disk Filesystem"
+df -P
 
 echo_bar
 
