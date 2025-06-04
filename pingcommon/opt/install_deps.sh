@@ -17,10 +17,6 @@ case "${_osID}" in
 
         # install jq and dependency library
         apk --no-cache add oniguruma jq
-        # extract just the binary we need
-        cp /usr/bin/jq /usr/local/bin/jq
-        # wipe the jq from the apk installed list
-        apk --no-cache del jq
 
         apk --no-cache --update add fontconfig ttf-dejavu
 
