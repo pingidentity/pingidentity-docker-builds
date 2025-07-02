@@ -1,6 +1,32 @@
 {
-    "latest": "10.2.0.1",
+    "latest": "10.3.0.0",
     "versions": [
+        {
+            "version": "10.3.0.0",
+            "preferredShim": "alpine:3.22.0",
+            "shims": [
+                {
+                    "shim": "alpine:3.22.0",
+                    "preferredJVM": "al17",
+                    "jvms": [
+                        {
+                            "jvm": "al17",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "dependencies": [
+                {
+                    "product": "apache-tomcat",
+                    "version": "9.0.106"
+                }
+            ]
+        },
         {
             "version": "10.2.0.1",
             "preferredShim": "alpine:3.22.0",
@@ -23,33 +49,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.105"
-                }
-            ]
-        },
-        {
-            "version": "10.1.0.3",
-            "preferredShim": "alpine:3.22.0",
-            "shims": [
-                {
-                    "shim": "alpine:3.22.0",
-                    "preferredJVM": "al17",
-                    "jvms": [
-                        {
-                            "jvm": "al17",
-                            "build": true,
-                            "deploy": true,
-                            "registries": [
-                                "DockerHub"
-                            ]
-                        }
-                    ]
-                }
-            ],
-            "dependencies": [
-                {
-                    "product": "apache-tomcat",
-                    "version": "9.0.105"
+                    "version": "9.0.106"
                 }
             ]
         }
