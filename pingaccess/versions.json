@@ -1,6 +1,40 @@
 {
-    "latest": "8.2.1",
+    "latest": "8.3.0",
     "versions": [
+        {
+            "version": "8.3.0",
+            "preferredShim": "alpine:3.22.0",
+            "shims": [
+                {
+                    "shim": "alpine:3.22.0",
+                    "preferredJVM": "al17",
+                    "jvms": [
+                        {
+                            "jvm": "al17",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "shim": "redhat/ubi9-minimal:9.6-1751286687",
+                    "preferredJVM": "rl17",
+                    "jvms": [
+                        {
+                            "jvm": "rl17",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
         {
             "version": "8.2.1",
             "preferredShim": "alpine:3.22.0",
@@ -20,41 +54,7 @@
                     ]
                 },
                 {
-                    "shim": "redhat/ubi9-minimal:9.6-1747218906",
-                    "preferredJVM": "rl17",
-                    "jvms": [
-                        {
-                            "jvm": "rl17",
-                            "build": true,
-                            "deploy": true,
-                            "registries": [
-                                "DockerHub"
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "version": "8.1.3",
-            "preferredShim": "alpine:3.22.0",
-            "shims": [
-                {
-                    "shim": "alpine:3.22.0",
-                    "preferredJVM": "al17",
-                    "jvms": [
-                        {
-                            "jvm": "al17",
-                            "build": true,
-                            "deploy": true,
-                            "registries": [
-                                "DockerHub"
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "shim": "redhat/ubi9-minimal:9.6-1747218906",
+                    "shim": "redhat/ubi9-minimal:9.6-1751286687",
                     "preferredJVM": "rl17",
                     "jvms": [
                         {
