@@ -48,7 +48,6 @@ pingfederate-admin:
   envs:
     SERVER_PROFILE_URL: https://github.com/henryrecker-pingidentity/pingidentity-server-profiles.git
     SERVER_PROFILE_PATH: baseline/pingfederate-env-config-debug-logging
-    PF_ADMIN_PUBLIC_BASEURL: https://dbt-pa-pf-pd-integration-pingfederate-admin:9999
   container:
     waitFor:
       pingdirectory:

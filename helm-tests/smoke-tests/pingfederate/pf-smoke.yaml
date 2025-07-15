@@ -5,8 +5,6 @@
 ###############################################################################
 pingfederate-admin:
   enabled: true
-  envs:
-    PF_ADMIN_PUBLIC_BASEURL: https://dbt-pf-smoke-1-pingfederate-admin:9999
   container:
     resources:
       requests:

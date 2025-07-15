@@ -513,7 +513,8 @@ for _helmTest in ${_helmTests}; do
         --set "global.externalImage.pingtoolkit.image.repositoryFqn=pingidentity/pingtoolkit" \
         --set "global.externalImage.pingtoolkit.image.tag=latest" \
         --set "testFramework.finalStep.image=busybox:latest" \
-        --set "global.addReleaseNameToResource=prepend"
+        --set "global.addReleaseNameToResource=prepend" \
+        --set "pingfederate-admin.envs.PF_ADMIN_PUBLIC_BASEURL=https://${_helmRelease}-pingfederate-admin:9999"
 
     _returnCode=${?}
 
