@@ -6,7 +6,7 @@ if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" -o "${OPERATIONAL_MODE}" = "
     if ! test -f /tmp/ready; then
         exit 1
     fi
-    test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" && URL="https://127.0.0.1:${PF_ADMIN_PORT}/pingfederate/app"
+    test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" && URL="https://127.0.0.1:${PF_ADMIN_PORT}/pf/heartbeat.ping"
 fi
 curl -sSk -o /dev/null "${URL}"
 if test ${?} -ne 0; then
