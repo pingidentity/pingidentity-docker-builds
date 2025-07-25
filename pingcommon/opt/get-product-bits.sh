@@ -70,8 +70,9 @@ case "${product_name}" in
         bits_download_url="https://archive.apache.org/dist/jmeter/binaries/${bits_file_name}"
         ;;
     apache-tomcat)
+        tomcat_major_version=$(echo "$product_version" | cut -d'.' -f1)
         bits_file_name="${product_name}-${product_version}.zip"
-        bits_download_url="https://archive.apache.org/dist/tomcat/tomcat-9/v${product_version}/bin/${bits_file_name}"
+        bits_download_url="https://archive.apache.org/dist/tomcat/tomcat-${tomcat_major_version}/v${product_version}/bin/${bits_file_name}"
         ;;
     ldap-sdk-tools)
         bits_file_name="unboundid-ldapsdk-${product_version}.zip"
