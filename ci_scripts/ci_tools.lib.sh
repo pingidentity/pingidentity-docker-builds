@@ -808,7 +808,27 @@ else
     GIT_REV_LONG=$(git rev-parse HEAD)
     CI_TAG="${gitBranch}-${GIT_REV_SHORT}"
 fi
-ARCH="$(uname -m)"
+
+# Set ARCH based on DOCKER_DEFAULT_PLATFORM if available, otherwise use host architecture
+if [[ -n "${DOCKER_DEFAULT_PLATFORM}" ]]; then
+    # Extract architecture from DOCKER_DEFAULT_PLATFORM (format: os/arch)
+    ARCH=$(echo "${DOCKER_DEFAULT_PLATFORM}" | cut -d'/' -f2)
+    # Fallback to host architecture if extraction failed or produced empty result
+    if [[ -z "${ARCH}" ]]; then
+        echo_yellow "Warning: Failed to extract architecture from DOCKER_DEFAULT_PLATFORM environment variable. Falling back to host architecture.  Expected format is 'os/arch'."
+        ARCH="$(uname -m)"
+    fi
+else
+    # Use host architecture
+    ARCH="$(uname -m)"
+fi
+
+# Fail the script if ARCH is empty
+if [[ -z "${ARCH}" ]]; then
+    echo_red "Error: Architecture detection failed. This script cannot continue with an empty architecture value."
+    exit 1
+fi
+
 export ARCH
 export FOUNDATION_REGISTRY
 export DEPS_REGISTRY
