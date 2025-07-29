@@ -6,7 +6,6 @@
 #
 #- Creates a message of the day (MOTD) file based on information provided by:
 #- * Docker Variables
-#- * Github MOTD file from PingIdentity Devops Repo
 #- * Server-Profile motd file
 #
 test "${VERBOSE}" = "true" && set -x
@@ -15,7 +14,6 @@ test "${VERBOSE}" = "true" && set -x
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 motd_file="/etc/motd"
-motd_json_file="$(mktemp)"
 current_date=$(date +%Y%m%d)
 
 echo "
@@ -34,29 +32,6 @@ $(echo_bar)" > "${motd_file}"
 #
 if test -f "${STAGING_DIR}/motd"; then
     cat "${STAGING_DIR}/motd" >> "${motd_file}"
-fi
-
-if test -z "${MOTD_URL}"; then
-    echo "Not pulling MOTD since MOTD_URL is not set"
-else
-    motd_curl_result=$(curl -G -o "${motd_json_file}" -w '%{http_code}' "${MOTD_URL}" 2> /dev/null)
-
-    if test "${motd_curl_result}" = "200"; then
-        echo "Successfully downloaded MOTD from ${MOTD_URL}"
-        jq_expr=".[] | select(.validFrom <= ${current_date} and .validTo >= ${current_date}) |
-               \"\n---- SUBJECT: \" + .subject + \"\n\" +
-                         (.message | join(\"\n\")) +
-               \"\n\""
-        image_name="$(toLower "${PING_PRODUCT}")"
-
-        {
-            jq -r "select (.devops != null) | .devops | ${jq_expr}" "${motd_json_file}"
-            jq -r "select (.${image_name} != null) | .${image_name} | ${jq_expr}" "${motd_json_file}"
-            echo
-        } >> "${motd_file}"
-    else
-        echo_red "Unable to download MOTD from ${MOTD_URL}"
-    fi
 fi
 
 echo_bar >> "${motd_file}"
