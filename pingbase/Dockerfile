@@ -200,12 +200,6 @@ ENV IN_DIR=${BASE}/in \
     ROOT_USER_DN="cn=${ROOT_USER}" \
     ENV="${BASE}/.profile" \
 
-#-- Instructs the image to pull the MOTD json from the following URL.
-#-- If this MOTD_URL variable is empty, then no motd will be downloaded.
-#-- The format of this MOTD file must match the example provided in the
-#-- url: https://raw.githubusercontent.com/pingidentity/pingidentity-devops-getting-started/master/motd/motd.json
-    MOTD_URL="https://raw.githubusercontent.com/pingidentity/pingidentity-devops-getting-started/master/motd/motd.json" \
-
 #-- Default shell prompt (i.e. productName:hostname:workingDir)
     PS1="\${PING_PRODUCT}:\h:\w\n> " \
 
