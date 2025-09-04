@@ -23,12 +23,12 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "11.0.9"
+                    "version": "11.0.10"
                 }
             ]
         },
         {
-            "version": "10.2.0.1",
+            "version": "10.2.0.3",
             "preferredShim": "alpine:3.22.1",
             "shims": [
                 {
@@ -49,7 +49,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "9.0.107"
+                    "version": "9.0.108"
                 }
             ]
         }
