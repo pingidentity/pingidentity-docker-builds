@@ -21,6 +21,7 @@ server {
     location / {
         root   ${SERVER_ROOT_DIR}/html;
         index  index.html;
+        add_header X-Frame-Options  SAMEORIGIN;
     }
 
     # error_page  404              /404.html;
