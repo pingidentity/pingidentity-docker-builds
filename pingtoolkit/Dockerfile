@@ -25,12 +25,12 @@ ARG SHIM_TAG
 
 #################################################################################
 
-FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} as common
-FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
+FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} AS common
+FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} AS jvm
 
 #################################################################################
 
-FROM ${DEPS}${SHIM} as final-staging
+FROM ${DEPS}${SHIM} AS final-staging
 
 # get Ping-wide common scripts
 COPY --from=common ["/opt/","/opt/"]

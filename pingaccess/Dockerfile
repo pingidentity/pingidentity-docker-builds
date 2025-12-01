@@ -24,13 +24,13 @@ ARG SHIM_TAG
 
 #################################################################################
 
-FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} as common
-FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
+FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} AS common
+FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} AS jvm
 
 #################################################################################
 
 # Always use alpine to download product bits
-FROM ${DEPS}alpine:${LATEST_ALPINE_VERSION} as product-staging
+FROM ${DEPS}alpine:${LATEST_ALPINE_VERSION} AS product-staging
 
 # ARGS used in get-product-bits.sh RUN command
 ARG ARTIFACTORY_URL
@@ -57,7 +57,7 @@ RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
 
 #################################################################################
 
-FROM ${DEPS}${SHIM} as final-staging
+FROM ${DEPS}${SHIM} AS final-staging
 
 # On PA 8.2 and later, need to use an updated run.sh file with extra CLASSPATH handling.
 # TODO remove after deprecation of 8.1.x PA versions
@@ -85,7 +85,7 @@ RUN ["/opt/build.sh"]
 
 #################################################################################
 
-FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH} as base
+FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH} AS base
 
 # the final image
 FROM ${DEPS}${SHIM}
