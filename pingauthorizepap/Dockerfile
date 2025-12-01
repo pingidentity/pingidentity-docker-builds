@@ -23,13 +23,13 @@ ARG SHIM_TAG
 
 #################################################################################
 
-FROM ${REGISTRY}/pingdatacommon:${GIT_TAG}-${ARCH} as common
-FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} as jvm
+FROM ${REGISTRY}/pingdatacommon:${GIT_TAG}-${ARCH} AS common
+FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} AS jvm
 
 #################################################################################
 
 # Always use alpine to download product bits
-FROM ${DEPS}alpine:${LATEST_ALPINE_VERSION} as product-staging
+FROM ${DEPS}alpine:${LATEST_ALPINE_VERSION} AS product-staging
 
 # ARGS used in get-product-bits.sh RUN command
 ARG ARTIFACTORY_URL
@@ -61,7 +61,7 @@ RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
 
 #################################################################################
 
-FROM ${DEPS}${SHIM} as final-staging
+FROM ${DEPS}${SHIM} AS final-staging
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]

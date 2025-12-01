@@ -2,7 +2,7 @@
 ARG SHIM
 ARG DEPS
 
-FROM ${DEPS}${SHIM} as jvm-staging
+FROM ${DEPS}${SHIM} AS jvm-staging
 
 # Arguments used in build-jvm.sh
 ARG VERBOSE

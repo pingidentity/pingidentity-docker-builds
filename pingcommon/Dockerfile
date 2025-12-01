@@ -14,7 +14,7 @@ ARG LATEST_ALPINE_VERSION
 #################################################################################
 
 # Always use alpine to download product bits
-FROM ${DEPS}alpine:${LATEST_ALPINE_VERSION} as product-staging
+FROM ${DEPS}alpine:${LATEST_ALPINE_VERSION} AS product-staging
 
 # ARGS used in get-product-bits.sh RUN command
 ARG ARTIFACTORY_URL
