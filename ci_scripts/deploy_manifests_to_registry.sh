@@ -85,7 +85,7 @@ publish_manifest_to_redhat_registry() {
 
     # Run preflight on redhat manifests
     echo "Running redhat preflight check on manifest: ${product_to_deploy}:${target_manifest_name}"
-    exec_cmd_or_fail preflight check container "${DOCKER_HUB_REGISTRY}/${product_to_deploy}:${target_manifest_name}" --submit --certification-project-id="${openshift_project_id}" --docker-config="${docker_config_dir}/config.json" --pyxis-api-token="${PYXIS_API_TOKEN}"
+    exec_cmd_or_fail preflight check container "${DOCKER_HUB_REGISTRY}/${product_to_deploy}:${target_manifest_name}" --submit --certification-component-id="${openshift_project_id}" --docker-config="${docker_config_dir}/config.json" --pyxis-api-token="${PYXIS_API_TOKEN}"
     echo "Successfully pushed manifest: ${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
 }
 
