@@ -7,13 +7,7 @@ _osID=$(awk '$0~/^ID=/ {split($1,id,"="); gsub(/"/,"",id[2]); print id[2];}' < /
 
 case "${_osID}" in
     alpine)
-        apk --no-cache --update add git git-lfs curl ca-certificates zip libintl openssh-client
-        # install package dependency for variable substitution
-        apk --no-cache --update add gettext
-        # extract just the binary we need
-        cp /usr/bin/envsubst /usr/local/bin/envsubst
-        # wipe the dependency
-        apk --no-cache --update del gettext
+        apk --no-cache --update add git git-lfs curl ca-certificates zip libintl openssh-client gettext
 
         # install jq and dependency library
         apk --no-cache add oniguruma jq

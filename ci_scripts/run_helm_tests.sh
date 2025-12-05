@@ -549,7 +549,7 @@ for _helmTest in ${_helmTests}; do
         banner "Generating test & global ConfigMaps"
 
         for _asset in "${_helmTestDir}"/* "${_globalAssets}"/*; do
-            _assetName=$(basename "${_asset}")
+            _assetName=$(toLower "$(basename "${_asset}")")
 
             _assetConfigMapName="${_helmRelease}-${_assetName}"
 
