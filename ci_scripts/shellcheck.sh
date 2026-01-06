@@ -18,7 +18,7 @@ if ! type shellcheck; then
         shellcheck_filename="shellcheck.tar.xz"
 
         # Download the latest version of shellcheck for linux x86_64 from GitHub.
-        shellcheck_download_url=$(curl --silent https://api.github.com/repos/koalaman/shellcheck/releases/latest | jq -r '.assets[] | select(.name|test("linux.x86_64")) | .browser_download_url')
+        shellcheck_download_url=$(curl --silent https://api.github.com/repos/koalaman/shellcheck/releases/latest | jq -r '.assets[] | select(.name|test("linux.x86_64.tar.xz")) | .browser_download_url')
         test -z "${shellcheck_download_url}" && echo "Error: Failed to retrieve shellcheck download URL" && exit 1
         curl --location --silent --output "${shellcheck_filename}" "${shellcheck_download_url}"
         test $? -ne 0 && echo "Error: Failed to retrieve shellcheck tar file from GitHub" && exit 1

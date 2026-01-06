@@ -94,12 +94,12 @@ while test -n "${1}"; do
         --helm-file-values)
             test -z "${2}" && usage "You must specify a helm values yaml file if you specify the ${1} option"
             shift
-            _addl_helm_file_values=("${_addl_helm_file_values}" --helm-file-values "${1}")
+            _addl_helm_file_values=("${_addl_helm_file_values[@]}" --helm-file-values "${1}")
             ;;
         --helm-set-values)
             test -z "${2}" && usage "You must specify a helm set values (name=value) if you specify the ${1} option"
             shift
-            _addl_helm_set_values=("${_addl_helm_set_values}" --helm-set-values "${1}")
+            _addl_helm_set_values=("${_addl_helm_set_values[@]}" --helm-set-values "${1}")
             ;;
         --image-tag-override)
             test -z "${2}" && usage "You must specify an image-tag-override ${1} option (i.e. 2105)"
