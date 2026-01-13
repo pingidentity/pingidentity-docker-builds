@@ -3,6 +3,14 @@
 #
 #
 ###############################################################################
+httpcan:
+  enabled: true
+  containerPort: 8080
+  service:
+    name: httpcan
+    port: 80
+    targetPort: 8080
+
 pingdirectory:
   container:
     resources:

@@ -1671,7 +1671,8 @@
                             "",
                             "    pm.test(\"response has correct run ID\", function(){",
                             "        var jsonData = pm.response.json();",
-                            "        pm.expect(jsonData.headers[\"X-Ping-Build-Run-Id\"]).to.equal(\"\"+pm.variables.get(\"_runId\"));",
+                            "        var runIdHeader = jsonData.headers[\"X-Ping-Build-Run-Id\"] || jsonData.headers[\"x-ping-build-run-id\"];",
+                            "        pm.expect(runIdHeader).to.equal(\"\"+pm.variables.get(\"_runId\"));",
                             "    });    "
                         ],
                         "type": "text/javascript"

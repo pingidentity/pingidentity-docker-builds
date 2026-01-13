@@ -768,12 +768,20 @@ elif test -n "${CI_COMMIT_REF_NAME}"; then
 
     #Use private key file with DockerHub
     mkdir -p "${docker_config_hub_dir}/trust/private"
-    (cd "${docker_config_hub_dir}/trust/private" && base64 --decode "${VAULT_SECRET_FILE}" | tar -xz)
+    if test -n "${VAULT_SECRET_FILE}" && test -f "${VAULT_SECRET_FILE}"; then
+        (cd "${docker_config_hub_dir}/trust/private" && base64 --decode "${VAULT_SECRET_FILE}" | tar -xz)
+    else
+        echo_yellow "Warning: VAULT_SECRET_FILE not found or empty. Skipping docker trust key extraction for DockerHub."
+    fi
     docker --config "${docker_config_hub_dir}" trust key load "${docker_config_hub_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
 
     #Use private key file with Artifactory
     mkdir -p "${docker_config_default_dir}/trust/private"
-    (cd "${docker_config_default_dir}/trust/private" && base64 --decode "${VAULT_SECRET_FILE}" | tar -xz)
+    if test -n "${VAULT_SECRET_FILE}" && test -f "${VAULT_SECRET_FILE}"; then
+        (cd "${docker_config_default_dir}/trust/private" && base64 --decode "${VAULT_SECRET_FILE}" | tar -xz)
+    else
+        echo_yellow "Warning: VAULT_SECRET_FILE not found or empty. Skipping docker trust key extraction for Artifactory."
+    fi
     docker --config "${docker_config_default_dir}" trust key load "${docker_config_default_dir}/trust/private/${DOCKER_TRUST_PRIVATE_KEY}" --name "${DOCKER_TRUST_PRIVATE_KEY_SIGNER}"
 
     rm -f "${VAULT_SECRET_FILE}"

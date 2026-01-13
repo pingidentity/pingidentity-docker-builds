@@ -3,13 +3,21 @@
 #
 #
 ###############################################################################
+httpcan:
+  enabled: true
+  containerPort: 8080
+  service:
+    name: httpcan
+    port: 80
+    targetPort: 8080
+
 pingaccess-admin:
   enabled: true
   privateCert:
     generate: true
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
-    SERVER_PROFILE_PATH: baseline/pingaccess-env-config
+    SERVER_PROFILE_PATH: baseline-integration-tests/pingaccess-env-config
   container:
     waitFor:
       pingfederate-engine:
@@ -20,7 +28,7 @@ pingaccess-engine:
   enabled: true
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
-    SERVER_PROFILE_PATH: baseline/pingaccess-env-config
+    SERVER_PROFILE_PATH: baseline-integration-tests/pingaccess-env-config
   container:
     waitFor:
       pingdirectory:
@@ -38,7 +46,7 @@ pingdirectory:
   enabled: true
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
-    SERVER_PROFILE_PATH: baseline/pingdirectory
+    SERVER_PROFILE_PATH: baseline-integration-tests/pingdirectory
     MAX_HEAP_SIZE: 2g
 
 pingfederate-admin:
@@ -47,7 +55,7 @@ pingfederate-admin:
     generate: true
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
-    SERVER_PROFILE_PATH: baseline/pingfederate-env-config
+    SERVER_PROFILE_PATH: baseline-integration-tests/pingfederate-env-config
   container:
     waitFor:
       pingdirectory:
@@ -57,7 +65,7 @@ pingfederate-engine:
   enabled: true
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
-    SERVER_PROFILE_PATH: baseline/pingfederate-env-config
+    SERVER_PROFILE_PATH: baseline-integration-tests/pingfederate-env-config
 
 ###############################################################################
 # Test Steps

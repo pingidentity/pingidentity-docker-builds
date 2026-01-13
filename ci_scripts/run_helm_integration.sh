@@ -71,6 +71,12 @@ fi
 _tmpDir=$(mktemp -d)
 _integration_helm_tests_dir="${CI_PROJECT_DIR}/helm-tests/integration-tests"
 
+declare -a _addl_helm_file_values
+declare -a _addl_helm_set_values
+_post_renderer_script=""
+POST_RENDERER_OPT=()
+_httpcan_env_values_file=""
+
 while test -n "${1}"; do
     case "${1}" in
         --integration-test)
@@ -100,6 +106,7 @@ while test -n "${1}"; do
             test -z "${2}" && usage "You must specify a helm set values (name=value) if you specify the ${1} option"
             shift
             _addl_helm_set_values=("${_addl_helm_set_values[@]}" --helm-set-values "${1}")
+            _addl_helm_set_values+=(--helm-set-values "${1}")
             ;;
         --image-tag-override)
             test -z "${2}" && usage "You must specify an image-tag-override ${1} option (i.e. 2105)"
@@ -123,7 +130,7 @@ while test -n "${1}"; do
             usage
             ;;
         *)
-            echo "Unrecognized option"
+            echo "Unrecognized option: ${1}"
             usage
             ;;
     esac
@@ -219,6 +226,41 @@ platform=$(_getIntTestPlatform "${integration_test_name}" "${variation_id}")
 # Get the defined products for the test
 products=$(_getIntTestProducts "${integration_test_name}" "${variation_id}")
 
+# Auto-detect httpcan requirement
+_httpcan_config_source=""
+_httpcan_candidate_files=()
+if test -d "${_integration_to_run}"; then
+    while IFS= read -r _candidate; do
+        _httpcan_candidate_files+=("${_candidate}")
+    done < <(find "${_integration_to_run}" -maxdepth 1 -type f \( -name '*.yaml' -o -name '*.yml' \) | sort)
+else
+    _httpcan_candidate_files=("${_integration_to_run}")
+fi
+
+for _candidate in "${_httpcan_candidate_files[@]}"; do
+    if perl -0777 -ne 'exit 0 if /httpcan:[^\n]*\n(?:[ \t]+.*\n)*?[ \t]+enabled:\s*true\b/; exit 1' "${_candidate}"; then
+        _httpcan_config_source="${_candidate}"
+        break
+    fi
+done
+
+if test -n "${_httpcan_config_source}"; then
+    echo "Auto-detected httpcan requirement from ${_httpcan_config_source}. Applying post-renderer."
+    _auto_pr_script="${CI_SCRIPTS_DIR}/httpcan/post-renderer.sh"
+    if test -f "${_auto_pr_script}"; then
+        _post_renderer_script="${_auto_pr_script}"
+
+        _httpcan_env_values_file="${_tmpDir}/httpcan-env-values.yaml"
+        cat > "${_httpcan_env_values_file}" << EOF
+global:
+  envs:
+    HTTPCAN_PRIVATE_HOSTNAME: httpcan
+    HTTPCAN_PRIVATE_PORT_HTTP: "80"
+EOF
+        _httpcan_values_opt=(--helm-file-values "${_httpcan_env_values_file}")
+    fi
+fi
+
 _helmValues="${_tmpDir}/helmValues.yaml"
 for _productName in ${products}; do
     short_product_name="$(echo "${_productName}" | sed -e "s/-admin//" -e "s/-engine//")"
@@ -284,12 +326,15 @@ _start=$(date '+%s')
 
 test -n "${_namespace_to_use}" && NS_OPT=(--namespace "${_namespace_to_use}")
 test -n "${HELM_CHART_NAME}" && HELM_CHART_OPT=(--helm-chart "${HELM_CHART_NAME}")
+test -n "${_post_renderer_script}" && POST_RENDERER_OPT=(--post-renderer "${_post_renderer_script}")
 "${CI_SCRIPTS_DIR}/run_helm_tests.sh" \
     --helm-test "${_integration_to_run}" \
     --platform "${platform}" \
     --helm-file-values "${_helmValues}" \
+    "${_httpcan_values_opt[@]}" \
     "${_addl_helm_file_values[@]}" \
     "${_addl_helm_set_values[@]}" \
+    "${POST_RENDERER_OPT[@]}" \
     "${NS_OPT[@]}" \
     "${HELM_CHART_OPT[@]}"
 
@@ -305,7 +350,7 @@ if test "${platform}" = "openshift"; then
 fi
 
 # Remove daemonSet
-if test -n "$(kubectl get daemonsets.apps haveged --namespace default 2>&1 > /dev/null)"; then
+if kubectl get daemonsets.apps haveged --namespace default > /dev/null 2>&1; then
     kubectl delete -n default daemonsets.apps haveged
 fi
 
