@@ -7,7 +7,7 @@ pingdirectory:
   enabled: true
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
-    SERVER_PROFILE_PATH: baseline/pingdirectory
+    SERVER_PROFILE_PATH: baseline-integration-tests/pingdirectory
   services:
     https:
       containerPort: 1443
@@ -17,7 +17,7 @@ pingauthorize:
   enabled: true
   envs:
     SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
-    SERVER_PROFILE_PATH: baseline/pingauthorize
+    SERVER_PROFILE_PATH: baseline-integration-tests/pingauthorize
   container:
     waitFor:
       pingdirectory:

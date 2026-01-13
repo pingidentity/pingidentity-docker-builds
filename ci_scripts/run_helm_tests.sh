@@ -72,6 +72,8 @@ if test -z "${CI_COMMIT_REF_NAME}"; then
 fi
 
 _helm_tests_dir="${CI_PROJECT_DIR}/helm-tests"
+_post_renderer_script=""
+declare -a _external_resource_files
 
 while test -n "${1}"; do
     case "${1}" in
@@ -123,6 +125,11 @@ while test -n "${1}"; do
             shift
             _addl_helm_set_values="${_addl_helm_set_values} --set ${1}"
             ;;
+        --post-renderer)
+            test -z "${2}" && usage "You must specify a post-renderer script if you specify the ${1} option"
+            shift
+            _post_renderer_script="$(cd "$(dirname "${1}")" && pwd)/$(basename "${1}")"
+            ;;
         --namespace)
             test -z "${2}" && usage "You must specify a namespace to deploy to if you specify the ${1} option"
             shift
@@ -148,7 +155,7 @@ while test -n "${1}"; do
             usage
             ;;
         *)
-            echo "Unrecognized option"
+            echo "Unrecognized option: ${1}"
             usage
             ;;
     esac
@@ -193,6 +200,13 @@ _final() {
         #
         banner "CleanUp: Uninstalling Release"
         helm uninstall "${_helmRelease}" "${NS_OPT[@]}"
+    fi
+
+    if test ${#_external_resource_files[@]} -gt 0; then
+        banner "CleanUp: Deleting external resources"
+        for _external_manifest in "${_external_resource_files[@]}"; do
+            test -f "${_external_manifest}" && kubectl delete -n "${NS}" -f "${_external_manifest}" --ignore-not-found
+        done
     fi
 
     if test -z "${_namespace_to_use}"; then
@@ -491,8 +505,8 @@ for _helmTest in ${_helmTests}; do
     envsubst '${DEPS_REGISTRY}' < "${_helmTest}" > "${_substHelmTest}"
 
     # Deploy daemonSet with haveged to create more entropy on openshift/fips testing
-    if test -n "$(kubectl get daemonsets.apps haveged --namespace default 2>&1 > /dev/null)"; then
-        if test "${platform}" = "openshift" || [[ "${_helmTest}" == *"fips"* ]]; then
+    if test "${platform}" = "openshift" || [[ "${_helmTest}" == *"fips"* ]]; then
+        if ! kubectl get daemonsets.apps haveged --namespace default > /dev/null 2>&1; then
             kubectl apply -n default -f "${_helm_tests_dir}/integration-tests/haveged.yaml"
         fi
     fi
@@ -517,6 +531,20 @@ for _helmTest in ${_helmTests}; do
         --set "pingfederate-admin.envs.PF_ADMIN_PUBLIC_BASEURL=https://${_helmRelease}-pingfederate-admin:9999"
 
     _returnCode=${?}
+
+    if test ${_returnCode} -eq 0 && test -n "${_post_renderer_script}"; then
+        _extra_manifest_file="${_tmpDir}/${_helmRelease}-post-renderer.yaml"
+        if "${_post_renderer_script}" < /dev/null > "${_extra_manifest_file}"; then
+            echo "Applying external resources from ${_post_renderer_script}"
+            if kubectl apply -n "${NS}" -f "${_extra_manifest_file}"; then
+                _external_resource_files+=("${_extra_manifest_file}")
+            else
+                echo "Warning: Failed to apply external resources from ${_extra_manifest_file}"
+            fi
+        else
+            echo "Warning: Unable to generate resources via ${_post_renderer_script}"
+        fi
+    fi
 
     banner "Helm Release Values Provided"
     helm get values "${_helmRelease}" "${NS_OPT[@]}"
