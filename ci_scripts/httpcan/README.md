@@ -32,6 +32,12 @@ httpcan:
     targetPort: 8080
 ```
 
+### Prerequisites
+
+If testing locally, you must also have the ARTIFACTORY_REGISTRY environment variable set so that the post-renderer can pull the image from the internal registry. This value is already set in the CI environment.
+
+```bash
+
 ## Related Scripts
 
 - [post-renderer.sh](post-renderer.sh) - Helm post-renderer implementation
