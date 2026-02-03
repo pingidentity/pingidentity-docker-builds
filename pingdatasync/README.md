@@ -23,4 +23,5 @@ Non-Ping Identity customers can use the PingDevOps Community. [PingDevOps Commun
 
 ## Copyright
 
-Copyright © 2025 Ping Identity Corporation. All rights reserved.
+Copyright © 2026 Ping Identity Corporation
+

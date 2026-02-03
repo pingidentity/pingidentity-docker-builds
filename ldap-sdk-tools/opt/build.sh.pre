@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Copyright © 2025 Ping Identity Corporation
+# Copyright © 2026 Ping Identity Corporation
 
 echo "Pre-build stage (before package are laid down on the shim)"
 set -x

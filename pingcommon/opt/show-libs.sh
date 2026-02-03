@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Copyright © 2025 Ping Identity Corporation
+# Copyright © 2026 Ping Identity Corporation
 
 # shellcheck disable=SC1091
 . "${HOOKS_DIR}/pingcommon.lib.sh"

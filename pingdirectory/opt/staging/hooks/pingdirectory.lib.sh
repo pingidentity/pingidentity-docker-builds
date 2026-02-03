@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Copyright © 2025 Ping Identity Corporation
+# Copyright © 2026 Ping Identity Corporation
 
 # shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
 . "${HOOKS_DIR}/pingdata.lib.sh"
