@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright © 2025 Ping Identity Corporation
+# Copyright © 2026 Ping Identity Corporation
 
 #
 # Ping Identity DevOps - CI scripts
@@ -69,7 +69,7 @@ append_footer() {
     append_doc "---"
     test -n "${_srcFile}" && append_doc "This document is auto-generated from _[${_srcFile}](https://github.com/pingidentity/pingidentity-docker-builds/blob/master/${_srcFile})_"
     append_doc ""
-    append_doc "Copyright © 2025 Ping Identity Corporation. All rights reserved."
+    append_doc "Copyright © 2026 Ping Identity Corporation"
 }
 
 #

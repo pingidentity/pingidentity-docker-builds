@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Copyright © 2025 Ping Identity Corporation
+# Copyright © 2026 Ping Identity Corporation
 
 #
 # CDDL HEADER START
@@ -25,7 +25,7 @@
 # CDDL HEADER END
 #
 #
-#      Portions Copyright 2008-2025 Ping Identity Corporation
+#      Portions Copyright 2008-2026 Ping Identity Corporation
 #      Portions Copyright 2008 Sun Microsystems, Inc.
 
 #

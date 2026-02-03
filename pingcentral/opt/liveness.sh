@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Copyright © 2025 Ping Identity Corporation
+# Copyright © 2026 Ping Identity Corporation
 
 URL="https://127.0.0.1:9022"
 curl -sSk -o /dev/null "${URL}"

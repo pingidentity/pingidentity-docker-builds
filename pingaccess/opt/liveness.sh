@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Copyright © 2025 Ping Identity Corporation
+# Copyright © 2026 Ping Identity Corporation
 
 case "${OPERATIONAL_MODE}" in
     "CLUSTERED_CONSOLE" | "STANDALONE")

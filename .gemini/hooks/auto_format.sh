@@ -1,0 +1,1 @@
+../../shared-configs/common/ai/docker-builds/.gemini/hooks/auto_format.sh

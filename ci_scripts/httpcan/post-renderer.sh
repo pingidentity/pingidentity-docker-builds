@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Copyright © 2026 Ping Identity Corporation
+
 set -euo pipefail
 
 # Pass through the standard Helm manifest
