@@ -22,7 +22,7 @@
             ]
         },
         {
-            "version": "10.3.0.2",
+            "version": "10.3.0.3",
             "preferredShim": "alpine:3.23.3",
             "shims":[
                 {
