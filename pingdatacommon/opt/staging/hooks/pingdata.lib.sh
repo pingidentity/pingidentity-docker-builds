@@ -1773,7 +1773,6 @@ update_java_properties_on_restart() {
     # if a java.properties is delivered, we use it if there are changes.
     #
     _candidateProperties="${STAGING_DIR}/instance/config/java.properties"
-    test -f "${_candidateProperties}" || _candidateProperties="${_candidateProperties}.$(uname -m)"
 
     #
     # Generate the jvm options
