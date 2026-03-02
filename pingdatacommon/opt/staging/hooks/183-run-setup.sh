@@ -41,7 +41,6 @@ fi
 # if a java.properties is delivered, we use it
 #
 _candidateProperties="${STAGING_DIR}/instance/config/java.properties"
-test -f "${_candidateProperties}" || _candidateProperties="${_candidateProperties}.$(uname -m)"
 if test -f "${_candidateProperties}"; then
     echo_green "Applying custom java properties from $(basename "${_candidateProperties}")"
     cp "${_candidateProperties}" "${SERVER_ROOT_DIR}/config/java.properties"
