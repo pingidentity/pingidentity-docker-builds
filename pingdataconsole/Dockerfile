@@ -4,7 +4,6 @@
 #- deployed to be used in configuration of the PingData products.
 #-
 #- ## Related Docker Images
-#- - `tomcat:9-jre17` - Tomcat engine to serve PingDataConsole .war file (PingDataConsole 10.2.x and older)
 #- - `tomcat:11-jre17` - Tomcat engine to serve PingDataConsole .war file
 #-
 
