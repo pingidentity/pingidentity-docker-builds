@@ -306,7 +306,7 @@ ENV SHIM=${SHIM} \
 #-- Specify a password for administrator user for interaction with admin API
     PING_IDENTITY_PASSWORD="2FederateM0re" \
 #-- Files tailed once container has started
-    TAIL_LOG_FILES=${SERVER_ROOT_DIR}/log/server.log \
+    TAIL_LOG_FILES="${SERVER_ROOT_DIR}/log/server.log ${SERVER_ROOT_DIR}/log/init.log" \
 
 #-- Defines the log file size max for ALL appenders
     PF_LOG_SIZE_MAX="10000 KB" \
