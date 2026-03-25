@@ -6,15 +6,36 @@
 	},
 	"item": [
 		{
-			"name": "https://pingdataconsole/console",
+			"name": "PingDataConsole landing redirect",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"PingDataConsole Redirects\", function () {",
+							"var locationHeader = pm.response.headers.get(\"Location\") || pm.response.headers.get(\"location\");",
+							"var normalizedLocation = (locationHeader || \"\").replace(/^https?:\\/\\/[^/]+/, \"\");",
+							"",
+							"pm.test(\"PingDataConsole redirects\", function () {",
 							"    pm.response.to.have.status(302);",
 							"});",
+							"",
+							"pm.test(\"PingDataConsole exposes a redirect target\", function () {",
+							"    pm.expect(locationHeader).to.exist;",
+							"});",
+							"",
+							"pm.test(\"PingDataConsole redirect target is supported\", function () {",
+							"    pm.expect([\"/console/\", \"/console/login\", \"/console/login/\", \"/console/index.html\"]).to.include(normalizedLocation);",
+							"});",
+							"",
+							"if (normalizedLocation === \"/console/\") {",
+							"    postman.setNextRequest(\"PingDataConsole routed landing redirect\");",
+							"} else if (normalizedLocation === \"/console/login\" || normalizedLocation === \"/console/login/\") {",
+							"    postman.setNextRequest(\"PingDataConsole login page\");",
+							"} else if (normalizedLocation === \"/console/index.html\") {",
+							"    postman.setNextRequest(\"PingDataConsole SPA index page\");",
+							"} else {",
+							"    postman.setNextRequest(null);",
+							"}",
 							""
 						],
 						"type": "text/javascript"
@@ -33,6 +54,135 @@
 					"port": "{{PD_CONSOLE_PRIVATE_PORT_HTTPS}}",
 					"path": [
 						"console"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PingDataConsole routed landing redirect",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var locationHeader = pm.response.headers.get(\"Location\") || pm.response.headers.get(\"location\");",
+							"var normalizedLocation = (locationHeader || \"\").replace(/^https?:\\/\\/[^/]+/, \"\");",
+							"",
+							"pm.test(\"PingDataConsole routed landing redirects\", function () {",
+							"    pm.response.to.have.status(302);",
+							"});",
+							"",
+							"pm.test(\"PingDataConsole routed redirect target is supported\", function () {",
+							"    pm.expect([\"login\", \"login/\", \"index.html\", \"/console/login\", \"/console/login/\", \"/console/index.html\"]).to.include(normalizedLocation);",
+							"});",
+							"",
+							"if (normalizedLocation === \"login\" || normalizedLocation === \"login/\" || normalizedLocation === \"/console/login\" || normalizedLocation === \"/console/login/\") {",
+							"    postman.setNextRequest(\"PingDataConsole login page\");",
+							"} else if (normalizedLocation === \"index.html\" || normalizedLocation === \"/console/index.html\") {",
+							"    postman.setNextRequest(\"PingDataConsole SPA index page\");",
+							"} else {",
+							"    postman.setNextRequest(null);",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{PD_CONSOLE_PRIVATE_HOSTNAME}}:{{PD_CONSOLE_PRIVATE_PORT_HTTPS}}/console/",
+					"protocol": "https",
+					"host": [
+						"{{PD_CONSOLE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PD_CONSOLE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"console",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PingDataConsole login page",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"PingDataConsole login page returns 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"PingDataConsole login page contains product title\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"PingData Administrative Console\");",
+							"});",
+							"",
+							"postman.setNextRequest(null);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{PD_CONSOLE_PRIVATE_HOSTNAME}}:{{PD_CONSOLE_PRIVATE_PORT_HTTPS}}/console/login",
+					"protocol": "https",
+					"host": [
+						"{{PD_CONSOLE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PD_CONSOLE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"console",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PingDataConsole SPA index page",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"PingDataConsole SPA index page returns 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"PingDataConsole SPA index page contains root element\", function () {",
+							"    pm.expect(pm.response.text()).to.include('<div id=\"root\"');",
+							"});",
+							"",
+							"postman.setNextRequest(null);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{PD_CONSOLE_PRIVATE_HOSTNAME}}:{{PD_CONSOLE_PRIVATE_PORT_HTTPS}}/console/index.html",
+					"protocol": "https",
+					"host": [
+						"{{PD_CONSOLE_PRIVATE_HOSTNAME}}"
+					],
+					"port": "{{PD_CONSOLE_PRIVATE_PORT_HTTPS}}",
+					"path": [
+						"console",
+						"index.html"
 					]
 				}
 			},
