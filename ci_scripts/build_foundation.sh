@@ -200,7 +200,7 @@ if test -n "${PING_IDENTITY_SNAPSHOT}"; then
     # TODO: Fix artifactory caching issue. Shim is hardcoded to avoid incorrect arch pull from artifactory.
     shimsToBuild="alpine:3.23.3"
     if test "${ARCH}" = "x86_64"; then
-        shimsToBuild="${shimsToBuild} redhat/ubi9-minimal:9.7-1771346502"
+        shimsToBuild="${shimsToBuild} redhat/ubi9-minimal:9.7-1773939694"
     fi
 fi
 
