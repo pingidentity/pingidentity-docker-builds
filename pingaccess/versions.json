@@ -1,8 +1,8 @@
 {
-    "latest": "9.0.1",
+    "latest": "9.0.2",
     "versions": [
         {
-            "version": "9.0.1",
+            "version": "9.0.2",
             "preferredShim": "alpine:3.23.3",
             "shims": [
                 {
@@ -20,7 +20,7 @@
                     ]
                 },
                 {
-                    "shim": "redhat/ubi9-minimal:9.7-1771346502",
+                    "shim": "redhat/ubi9-minimal:9.7-1773939694",
                     "preferredJVM": "rl17",
                     "jvms": [
                         {
@@ -36,7 +36,7 @@
             ]
         },
         {
-            "version": "8.3.2",
+            "version": "8.3.3",
             "preferredShim": "alpine:3.23.3",
             "shims": [
                 {
@@ -54,7 +54,7 @@
                     ]
                 },
                 {
-                    "shim": "redhat/ubi9-minimal:9.7-1771346502",
+                    "shim": "redhat/ubi9-minimal:9.7-1773939694",
                     "preferredJVM": "rl17",
                     "jvms": [
                         {
