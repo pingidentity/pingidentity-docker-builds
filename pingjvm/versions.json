@@ -1,28 +1,46 @@
 {
-    "versions":[
+    "versions": [
         {
-            "shims": ["alpine"],
+            "shims": [
+                "alpine"
+            ],
             "id": "al17",
             "version": "17",
-            "archs": ["x86_64","aarch64"]
+            "archs": [
+                "x86_64",
+                "aarch64"
+            ]
         },
         {
-            "shims": ["centos"],
+            "shims": [
+                "centos"
+            ],
             "id": "conoj",
             "version": "0",
-            "archs": ["x86_64"]
+            "archs": [
+                "x86_64"
+            ]
         },
         {
-            "shims": ["alpine"],
+            "shims": [
+                "alpine"
+            ],
             "id": "alnoj",
             "version": "0",
-            "archs": ["x86_64","aarch64"]
+            "archs": [
+                "x86_64",
+                "aarch64"
+            ]
         },
         {
-            "shims": ["redhat/ubi9-minimal:9.7-1773939694"],
+            "shims": [
+                "redhat/ubi9-minimal:9.7-1777857961"
+            ],
             "id": "rl17",
             "version": "17",
-            "archs": ["x86_64"]
+            "archs": [
+                "x86_64"
+            ]
         }
     ]
 }
