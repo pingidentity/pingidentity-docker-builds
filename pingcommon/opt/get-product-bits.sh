@@ -196,7 +196,7 @@ case "${product_name}" in
     pingfederate)
         if test -n "${SNAPSHOT_URL}"; then
             bits_file_name="${product_name}-base-${product_version}.zip"
-            bits_download_url="${SNAPSHOT_URL}/artifact/pf-server/HuronPeak/assembly/base/target/${bits_file_name}"
+            bits_download_url="${SNAPSHOT_URL}/lastSuccessfulBuild/artifact/pf-server/HuronPeak/assembly/base/target/${bits_file_name}"
         else
             bits_file_name="${product_name}-${product_version}.zip"
             bits_download_url="${ARTIFACTORY_URL}/libs-releases-local/${product_name}/${product_name}/${product_version}/${bits_file_name}"
