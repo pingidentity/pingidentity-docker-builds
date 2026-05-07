@@ -34,12 +34,7 @@ case "${_acceptLicenseAgreement}" in
         # Toggle on debug logging if DEBUG=true is set
         start_debug_logging
         # Set script vars
-        # TODO Remove if-else logic when PF 12.1 is no longer built
-        if test "$(isImageVersionGtEq 12.2.0)" -eq "0"; then
-            admin_roles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR","DATA_COLLECTION_ADMINISTRATOR"]'
-        else
-            admin_roles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR"]'
-        fi
+        admin_roles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR","DATA_COLLECTION_ADMINISTRATOR"]'
         _createAdminUser=$(
             curl \
                 --insecure \
