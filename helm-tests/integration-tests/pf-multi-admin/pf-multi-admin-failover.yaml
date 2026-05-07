@@ -1,0 +1,127 @@
+###############################################################################
+# Ping Identity Test - PingFederate Multi-Admin: Pod-0 Restart After Failover
+#
+# Variation 1 (intel) / Variation 2 (arm)
+# Asserts that pod-0 does not self-promote when it restarts after a failover:
+#   - Start two-node cluster; admin-0 becomes active
+#   - Promote admin-1 to active via cluster API
+#   - Delete (restart) admin-0 pod
+#   - Wait for admin-0 to come back
+#   - Assert cluster still has exactly 1 ACTIVE (admin-1) and admin-0 is PASSIVE
+###############################################################################
+pingfederate-admin:
+  enabled: true
+  envs:
+    SERVER_PROFILE_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
+    SERVER_PROFILE_PATH: getting-started/pingfederate
+    OPERATIONAL_MODE: CLUSTERED_CONSOLE
+    PF_CLUSTER_ADMIN_NODES_SYNC_ENABLED: "true"
+  workload:
+    type: StatefulSet
+    statefulSet:
+      podManagementPolicy: OrderedReady
+      persistentvolume:
+        enabled: false
+  container:
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: "1"
+        memory: 2Gi
+      limits:
+        cpu: "1"
+        memory: 2Gi
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+  testConfigMaps:
+    files:
+      - wait-for-url.sh
+
+  testSteps:
+    - name: 01-wait-for-admin-0-active
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - /var/run/wait-for-url.sh
+        - https://${PF_ADMIN_PRIVATE_HOSTNAME}-0.${PF_ADMIN_PRIVATE_HOSTNAME}-cluster:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pf/heartbeat.ping?checkActive=true
+        - "900"
+
+    - name: 02-promote-admin-1
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Promoting admin-1 to active..."
+          CODE=$(curl -sk -o /tmp/promote.out -w '%{http_code}' \
+            -X POST \
+            -u "administrator:${PING_IDENTITY_PASSWORD}" \
+            -H "X-XSRF-Header: PingFederate" \
+            "https://${PF_ADMIN_PRIVATE_HOSTNAME}-1.${PF_ADMIN_PRIVATE_HOSTNAME}-cluster:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pf-admin-api/v1/cluster/adminNode/role/active")
+          echo "Promote response (HTTP ${CODE}):"
+          cat /tmp/promote.out
+          if test "${CODE}" != "200"; then
+            echo "FAIL: promote returned HTTP ${CODE}"
+            exit 1
+          fi
+          echo "PASS: admin-1 promoted to active"
+
+    - name: 03-delete-admin-0-pod
+      image: bitnami/kubectl:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Deleting admin-0 pod to simulate restart..."
+          kubectl delete pod "${PF_ADMIN_PRIVATE_HOSTNAME}-0" --wait=false
+          echo "Pod deleted."
+
+    - name: 04-wait-for-admin-0-back
+      image: bitnami/kubectl:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Waiting for admin-0 pod to be Running again..."
+          kubectl wait pod "${PF_ADMIN_PRIVATE_HOSTNAME}-0" \
+            --for=condition=Ready \
+            --timeout=600s
+          echo "admin-0 is Ready."
+
+    - name: 05-assert-admin-1-still-active
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          STATUS=$(curl -sk -u "administrator:${PING_IDENTITY_PASSWORD}" \
+            -H "X-XSRF-Header: PingFederate" \
+            "https://${PF_ADMIN_PRIVATE_HOSTNAME}-1.${PF_ADMIN_PRIVATE_HOSTNAME}-cluster:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pf-admin-api/v1/cluster/status")
+          ACTIVE=$(echo "${STATUS}" | grep -o '"consoleRole":"ACTIVE"' | wc -l | tr -d ' ')
+          echo "Active node count: ${ACTIVE}"
+          if test "${ACTIVE}" != "1"; then
+            echo "FAIL: expected exactly 1 ACTIVE, got ${ACTIVE}"
+            echo "${STATUS}"
+            exit 1
+          fi
+          ADMIN1_ROLE=$(echo "${STATUS}" | grep -o '"consoleRole":"[A-Z]*"' | tail -1 | grep -o '[A-Z]*"' | tr -d '"')
+          echo "admin-1 role in status: ${ADMIN1_ROLE}"
+          CODE=$(curl -sk -o /dev/null -w '%{http_code}' \
+            "https://${PF_ADMIN_PRIVATE_HOSTNAME}-1.${PF_ADMIN_PRIVATE_HOSTNAME}-cluster:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pf/heartbeat.ping?checkActive=true")
+          echo "admin-1 heartbeat?checkActive=true: HTTP ${CODE}"
+          if test "${CODE}" != "200"; then
+            echo "FAIL: admin-1 heartbeat returned ${CODE}, expected 200 (active)"
+            exit 1
+          fi
+          CODE0=$(curl -sk -o /dev/null -w '%{http_code}' \
+            "https://${PF_ADMIN_PRIVATE_HOSTNAME}-0.${PF_ADMIN_PRIVATE_HOSTNAME}-cluster:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pf/heartbeat.ping?checkActive=true")
+          echo "admin-0 heartbeat?checkActive=true: HTTP ${CODE0}"
+          if test "${CODE0}" != "403"; then
+            echo "FAIL: admin-0 heartbeat returned ${CODE0}, expected 403 (passive)"
+            exit 1
+          fi
+          echo "PASS: admin-1 is active (200), admin-0 is passive (403)"
