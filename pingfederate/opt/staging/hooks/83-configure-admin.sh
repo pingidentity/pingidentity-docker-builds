@@ -62,6 +62,9 @@ case "${_acceptLicenseAgreement}" in
 401)
 	echo "INFO: Found existing admin PingFederate instance. Skipping creation of new admin user."
 	;;
+403)
+	echo "INFO: License already accepted on this cluster. Skipping admin configuration."
+	;;
 *)
 	echo_red "$(jq -r . /tmp/license.acceptance)"
 	echo_red "License Agreement Failed"
