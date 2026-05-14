@@ -4,8 +4,8 @@
             "shims": [
                 "alpine"
             ],
-            "id": "al17",
-            "version": "17",
+            "id": "al21",
+            "version": "21",
             "archs": [
                 "x86_64",
                 "aarch64"
@@ -36,8 +36,8 @@
             "shims": [
                 "redhat/ubi9-minimal:9.7-1777857961"
             ],
-            "id": "rl17",
-            "version": "17",
+            "id": "rl21",
+            "version": "21",
             "archs": [
                 "x86_64"
             ]

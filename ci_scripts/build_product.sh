@@ -261,7 +261,7 @@ for _version in ${versionsToBuild}; do
                 _result=PASS
                 if test -z "${IS_LOCAL_BUILD}"; then
                     exec_cmd_or_fail docker push "${_image}"
-                    if test -n "${PING_IDENTITY_SNAPSHOT}" && test "${_jvm}" = "al17"; then
+                    if test -n "${PING_IDENTITY_SNAPSHOT}" && test "${_jvm}" = "al21"; then
                         exec_cmd_or_fail docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
                         exec_cmd_or_fail docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
                         exec_cmd_or_fail docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
