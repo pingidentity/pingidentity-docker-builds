@@ -7,10 +7,10 @@
             "shims":[
                 {
                     "shim": "alpine:3.23.3",
-                    "preferredJVM": "al17",
+                    "preferredJVM": "al21",
                     "jvms": [
                         {
-                            "jvm": "al17",
+                            "jvm": "al21",
                             "build": true,
                             "deploy": true,
                             "registries": [

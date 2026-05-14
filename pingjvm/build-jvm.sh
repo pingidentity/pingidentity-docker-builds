@@ -11,14 +11,14 @@ download_cmd="curl -o"
 if ! type java > /dev/null 2> /dev/null; then
     #Modify the following variables to update Alpine and RHEL image's JDK.
     case "${JVM_ID}" in
-        al11 | rl11)
-            echo "ERROR: al11 and rl11 are no longer supported. Please specify al17 or rl17 to build with Java 17" && exit 1
+        al11 | rl11 | al17 | rl17)
+            echo "ERROR: al11, rl11, al17, and rl17 are no longer supported. Please specify al21 or rl21 to build with Java 21" && exit 1
             ;;
-        al17 | rl17)
-            JDK_VERSION="17.0.19+11"
-            alpine_x86_64_checksum="9bc26e12b40d82b5e82a9292b83f9120acacf508"
-            alpine_aarch64_checksum="fe0f3209c4ea588755bbcab5c031597bfe5dea6a"
-            redhat_x86_64_checksum="0531efcbc52548d90dc35c562a5736b1887287bd"
+        al21 | rl21)
+            JDK_VERSION="21.0.11+11"
+            alpine_x86_64_checksum="b1a00129b87bed0fabd6bf4ac1dfd37c74f8903b"
+            alpine_aarch64_checksum="7842d7b20904881c08b958e71b441fc1d61686e6"
+            redhat_x86_64_checksum="96494958be6e7fe41472596a4d62ef798f26c77c"
             ;;
         *)
             echo "ERROR: Unrecognized JVM_ID: ${JVM_ID}" && exit 1
@@ -43,7 +43,7 @@ if ! type java > /dev/null 2> /dev/null; then
                     ;;
             esac
             download_libc="-musl"
-            # Get binutils for jlinking with Liberica JDK 17
+            # Get binutils for jlinking with Liberica JDK 21
             # Add curl to download the JDK
             apk --no-cache --update add binutils curl
             ;;
@@ -59,7 +59,7 @@ if ! type java > /dev/null 2> /dev/null; then
                     ;;
             esac
             # Word-splitting expected in listing microdnf packages to install
-            # Get binutils for jlinking with Liberica JDK 17
+            # Get binutils for jlinking with Liberica JDK 21
             # shellcheck disable=SC2086
             microdnf -y install tar gzip findutils wget binutils
             download_libc=""

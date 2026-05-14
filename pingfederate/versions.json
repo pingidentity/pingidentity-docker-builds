@@ -7,10 +7,10 @@
             "shims": [
                 {
                     "shim": "alpine:3.23.4",
-                    "preferredJVM": "al17",
+                    "preferredJVM": "al21",
                     "jvms": [
                         {
-                            "jvm": "al17",
+                            "jvm": "al21",
                             "build": true,
                             "deploy": true,
                             "registries": [
@@ -21,10 +21,10 @@
                 },
                 {
                     "shim": "redhat/ubi9-minimal:9.7-1777857961",
-                    "preferredJVM": "rl17",
+                    "preferredJVM": "rl21",
                     "jvms": [
                         {
-                            "jvm": "rl17",
+                            "jvm": "rl21",
                             "build": true,
                             "deploy": true,
                             "registries": [
@@ -41,10 +41,10 @@
             "shims": [
                 {
                     "shim": "alpine:3.23.4",
-                    "preferredJVM": "al17",
+                    "preferredJVM": "al21",
                     "jvms": [
                         {
-                            "jvm": "al17",
+                            "jvm": "al21",
                             "build": true,
                             "deploy": true,
                             "registries": [
@@ -55,10 +55,10 @@
                 },
                 {
                     "shim": "redhat/ubi9-minimal:9.7-1777857961",
-                    "preferredJVM": "rl17",
+                    "preferredJVM": "rl21",
                     "jvms": [
                         {
-                            "jvm": "rl17",
+                            "jvm": "rl21",
                             "build": true,
                             "deploy": true,
                             "registries": [
