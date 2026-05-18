@@ -676,6 +676,11 @@ setupDockerConfigJson() {
     echo "Using Docker config.json '${DOCKER_CONFIG_JSON}'"
     mkdir -p "${docker_config_default_dir}"
     cp "${DOCKER_CONFIG_JSON}" "${docker_config_default_dir}/config.json"
+
+    # Validate cosign signing variables (Phase 1 CI/CD vars)
+    requirePipelineVar COSIGN_KEY_URI
+    requirePipelineVar COSIGN_KEY_LABEL
+    requirePipelineVar COSIGN_KEY_FINGERPRINT_SHA256
 }
 
 #Define docker config file locations based on different image registry providers

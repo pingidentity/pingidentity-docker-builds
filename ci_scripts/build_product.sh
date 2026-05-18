@@ -107,6 +107,8 @@ fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
+# shellcheck source=./cosign_sign.sh
+. "${CI_SCRIPTS_DIR}/cosign_sign.sh"
 
 # Handle snapshot pipeline logic and requirements
 if test -n "${PING_IDENTITY_SNAPSHOT}"; then
@@ -262,15 +264,21 @@ for _version in ${versionsToBuild}; do
                 if test -z "${IS_LOCAL_BUILD}"; then
                     exec_cmd_or_fail docker push "${_image}"
                     if test -n "${PING_IDENTITY_SNAPSHOT}" && test "${_jvm}" = "al21"; then
-                        exec_cmd_or_fail docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
-                        exec_cmd_or_fail docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
-                        exec_cmd_or_fail docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-$(date "+%m%d%Y")"
-                        exec_cmd_or_fail docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-$(date "+%m%d%Y")"
-                        exec_cmd_or_fail docker push "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-$(date "+%m%d%Y")"
-                        exec_cmd_or_fail docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-$(date "+%m%d%Y")"
+                        _snap_date="$(date "+%m%d%Y")"
+                        exec_cmd_or_fail docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-${_snap_date}"
+                        exec_cmd_or_fail docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-${_snap_date}"
+                        # docker_config_default_dir is set by ci_tools.lib.sh (sourced above).
+                        # shellcheck disable=SC2154
+                        cosign_sign_image "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-${_snap_date}" "${docker_config_default_dir}" || exit 1
+                        exec_cmd_or_fail docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest-${ARCH}-${_snap_date}"
+                        exec_cmd_or_fail docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-${_snap_date}"
+                        exec_cmd_or_fail docker push "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-${_snap_date}"
+                        cosign_sign_image "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-${_snap_date}" "${docker_config_default_dir}" || exit 1
+                        exec_cmd_or_fail docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:${_version}-${ARCH}-${_snap_date}"
                         if test "${ARCH}" = "x86_64"; then
                             exec_cmd_or_fail docker tag "${_image}" "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
                             exec_cmd_or_fail docker push "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
+                            cosign_sign_image "${FOUNDATION_REGISTRY}/${productToBuild}:latest" "${docker_config_default_dir}" || exit 1
                             exec_cmd_or_fail docker image rm -f "${FOUNDATION_REGISTRY}/${productToBuild}:latest"
                         fi
                     fi
