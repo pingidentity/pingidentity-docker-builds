@@ -56,6 +56,8 @@ fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
+# shellcheck source=./cosign_sign.sh
+. "${CI_SCRIPTS_DIR}/cosign_sign.sh"
 
 # Define script variables
 dockerhub_api_domain="https://hub.docker.com"
@@ -101,10 +103,9 @@ archive_image() {
     # Tag the pulled image for Artifactory
     exec_cmd_or_fail docker tag "${source_image}" "${target_image}"
 
-    # Push and sign the images to the Artifactory archive
-    export DOCKER_CONTENT_TRUST_SERVER="https://notaryserver:4443"
-    exec_cmd_or_retry docker --config "${docker_config_default_dir}" trust sign "${target_image}"
-    unset DOCKER_CONTENT_TRUST_SERVER
+    # Push and sign the image to the Artifactory archive
+    exec_cmd_or_fail docker --config "${docker_config_default_dir}" push "${target_image}"
+    cosign_sign_image "${target_image}" "${docker_config_default_dir}"
 
     # Clean up image locally after it has been archived.
     exec_cmd_or_fail docker image rm -f "${target_image}"

@@ -25,25 +25,14 @@ END_USAGE
 }
 
 # Creates and Publishes Multi-Arch Image Manifests
-# Signs the Resulting Docker Manifest for Docker Content Trust
+# Signs the Resulting Manifest with Cosign
 create_manifest_and_push_and_sign() {
     target_manifest_name="${1}"
 
-    #Create a docker manifest and push it to DockerHub
     create_manifest_and_push "${target_manifest_name}"
-
-    #Grab the newly created manifest text
-    manifest_text=$(docker --config "${docker_config_dir}" manifest inspect "${target_registry_url}/${product_to_deploy}:${target_manifest_name}")
-
-    #Compute the byte size and sha256 of the manifest
-    manifest_byte_size=$(echo -n "${manifest_text}" | wc -c | awk '{print $1}')
-    manifest_sha256=$(echo -n "${manifest_text}" | sha256sum | awk '{print $1}')
-
-    #Sign new manifest with Docker Content Trust and Notary
-    NOTARY_AUTH="$(echo -n "${DOCKER_USERNAME}:${DOCKER_ACCESS_TOKEN}" | base64)"
-    export NOTARY_AUTH
-    exec_cmd_or_fail notary --server "${notary_server}" --trustDir "${docker_config_dir}/trust" addhash --publish "${target_registry_url}/${product_to_deploy}" "${target_manifest_name}" "${manifest_byte_size}" --sha256 "${manifest_sha256}"
-    unset NOTARY_AUTH
+    cosign_sign_image \
+        "${target_registry_url}/${product_to_deploy}:${target_manifest_name}" \
+        "${docker_config_dir}"
     echo "Successfully signed manifest: ${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
 }
 
@@ -119,6 +108,8 @@ fi
 CI_SCRIPTS_DIR="${CI_PROJECT_DIR:-.}/ci_scripts"
 # shellcheck source=./ci_tools.lib.sh
 . "${CI_SCRIPTS_DIR}/ci_tools.lib.sh"
+# shellcheck source=./cosign_sign.sh
+. "${CI_SCRIPTS_DIR}/cosign_sign.sh"
 
 # Grab the YYMM sprint tag from current commit if present
 # If PIPELINE_VERSIONS_JSON_OVERRIDE is set, grab most recent
@@ -156,7 +147,6 @@ for version in ${versions_to_deploy}; do
                     "dockerhub")
                         target_registry_url="${DOCKER_HUB_REGISTRY}"
                         docker_config_dir="${docker_config_hub_dir}"
-                        notary_server="https://notary.docker.io"
                         ;;
                     "fedramp")
                         echo_yellow "Registry ${target_registry} is not implemented in deploy_manifests.sh"
