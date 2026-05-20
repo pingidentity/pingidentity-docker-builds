@@ -26,7 +26,7 @@ _cosign_preflight() {
     if command -v aws > /dev/null; then
         # COSIGN_KEY_URI looks like: awskms:///arn:aws:kms:us-west-2:574…:key/<id>
         local key_id="${COSIGN_KEY_URI##*key/}"
-        aws kms describe-key --key-id "${key_id}" --region "${AWS_REGION:-us-west-2}" > /dev/null ||
+        aws kms describe-key --key-id "${key_id}" --region us-west-2 > /dev/null ||
             {
                 echo "ERROR: kms:DescribeKey failed for ${key_id} — check IAM" >&2
                 return 1
