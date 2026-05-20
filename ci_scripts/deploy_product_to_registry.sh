@@ -32,30 +32,19 @@ tag_and_push() {
 
     echo "Function tag_and_push() is deploying ${target}"
     if test -z "${IS_LOCAL_BUILD}"; then
-        #Use Docker Content Trust to Sign and push images to a specified registry
         if test -z "${DEPLOY_NO_PUSH}"; then
             exec_cmd_or_fail docker tag "${source}" "${target}"
             case "${target_registry}" in
                 "artifactory")
-                    export DOCKER_CONTENT_TRUST_SERVER="https://notaryserver:4443"
-                    docker --config "${docker_config_default_dir}" trust revoke --yes "${target}"
-                    exec_cmd_or_retry docker --config "${docker_config_default_dir}" trust sign "${target}"
-                    unset DOCKER_CONTENT_TRUST_SERVER
+                    exec_cmd_or_retry docker --config "${docker_config_default_dir}" push "${target}"
                     ;;
                 "dockerhub")
-                    #Check to see if signature data already exists for tag
-                    #If it does, remove the signature data
-                    tag_index=$(printf '%s' "${signed_tags}" | jq ". | index(\"${target_tag}\")")
-                    if test "${tag_index}" != "null"; then
-                        exec_cmd_or_fail docker --config "${docker_config_hub_dir}" trust revoke --yes "${target}"
-                    fi
-                    exec_cmd_or_retry docker --config "${docker_config_hub_dir}" trust sign "${target}"
+                    exec_cmd_or_retry docker --config "${docker_config_hub_dir}" push "${target}"
                     ;;
                 "fedramp")
                     AWS_PROFILE=govPreProd exec_cmd_or_retry docker --config "${docker_config_default_dir}" push "${target}"
                     ;;
                 *)
-                    #target registry not recognized, default to simple docker push.
                     echo_yellow "Non-default registry ${target_registry} -- Defaulting to unsigned docker push"
                     exec_cmd_or_fail docker push "${target}"
                     ;;
@@ -102,9 +91,6 @@ docker_config_default_dir="$HOME/.docker"
 
 # Do PIPELINE_VERSIONS_JSON_OVERRIDE validation
 _getSprintTagIfAvailable
-
-#Pull down Docker Trust JSON on signature data
-signed_tags=$(docker --config "${docker_config_hub_dir}" trust inspect "${DOCKER_HUB_REGISTRY}/${product_to_deploy}" | jq "[.[0].SignedTags[].SignedTag]")
 
 versions_to_deploy=$(_getAllVersionsToDeployForProduct "${product_to_deploy}")
 banner "Deploying ${product_to_deploy}"
