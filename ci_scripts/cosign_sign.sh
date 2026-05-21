@@ -75,9 +75,9 @@ cosign_sign_image() {
 
     echo "INFO: signing ${ref} with ${COSIGN_KEY_LABEL}"
     if test -n "${docker_config_dir}"; then
-        DOCKER_CONFIG="${docker_config_dir}" "${cmd[@]}"
+        DOCKER_CONFIG="${docker_config_dir}" AWS_REGION=us-west-2 "${cmd[@]}"
     else
-        "${cmd[@]}"
+        AWS_REGION=us-west-2 "${cmd[@]}"
     fi
 }
 
