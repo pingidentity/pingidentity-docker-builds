@@ -134,9 +134,12 @@ fi
 test "${?}" != "0" && echo "ERROR: Failed to run serial_build.sh and build the custom image" && exit 1
 
 # Get this built docker image ID, tag the image and publish to Artifactory
-docker_image_id="$(docker images | awk 'NR==2' | awk '{print $3}')"
+# When a zip file was downloaded, build_product.sh appends -fsoverride to the image tag
+_built_version="${product_version}"
+test -n "${zip_download_url}" && _built_version="${product_version}-fsoverride"
+source_image_name="${FOUNDATION_REGISTRY}/${product_name}:${_built_version}-$(_getLongTag "${os_image_tagged_name}")-${jvm_id}-${CI_TAG}-${ARCH}"
 target_image_name="${ARTIFACTORY_REGISTRY}/${product_name}:${sprint_git_tag}-${product_version}-$(_getLongTag "${os_image_tagged_name}")-${jvm_id}-${ARCH}"
-docker tag "${docker_image_id}" "${target_image_name}"
+docker tag "${source_image_name}" "${target_image_name}"
 test "${?}" != "0" && echo "ERROR: Failed to docker tag custom image" && exit 1
 docker push "${target_image_name}"
 test "${?}" != "0" && echo "ERROR: Failed to docker push custom image" && exit 1
