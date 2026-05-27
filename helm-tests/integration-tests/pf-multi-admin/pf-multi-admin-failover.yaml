@@ -1,0 +1,178 @@
+###############################################################################
+# Ping Identity Test - PingFederate Multi-Admin: Pod-0 Restart After Failover
+#
+# Variation 1 (intel) / Variation 2 (arm)
+# Asserts that pod-0 does not self-promote when it restarts after a failover:
+#   - Start two-node cluster; admin-0 becomes active
+#   - Promote admin-1 to active via cluster API
+#   - Delete (restart) admin-0 pod
+#   - Wait for admin-0 to come back
+#   - Assert admin-1 still responds 200 on ?checkActive=true, admin-0 returns 403
+#
+# Pod DNS:  <pod>.<release>-pingfederate-cluster  (headless service)
+# PF_ADMIN_PRIVATE_HOSTNAME = <release>-pingfederate-admin
+# Headless svc              = <release>-pingfederate-cluster
+###############################################################################
+global:
+  envs:
+    PING_IDENTITY_PASSWORD: 2FederateM0re
+
+pingfederate-admin:
+  enabled: true
+  envs:
+    OPERATIONAL_MODE: CLUSTERED_CONSOLE
+    CREATE_INITIAL_ADMIN_USER: "true"
+    PF_CLUSTER_ADMIN_NODES_SYNC_ENABLED: "true"
+  workload:
+    type: StatefulSet
+    statefulSet:
+      podManagementPolicy: OrderedReady
+      persistentvolume:
+        enabled: false
+  container:
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: "1"
+        memory: 2Gi
+      limits:
+        cpu: "1"
+        memory: 2Gi
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+  testConfigMaps:
+    files:
+      - wait-for-url.sh
+
+  testSteps:
+    - name: 01-wait-for-admin-0-active
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          CLUSTER_SVC=$(echo "${PF_ADMIN_PRIVATE_HOSTNAME}" | sed 's/-admin$/-cluster/')
+          URL="https://${PF_ADMIN_PRIVATE_HOSTNAME}-0.${CLUSTER_SVC}:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pf/heartbeat.ping?checkActive=true"
+          echo "Waiting for active admin-0: ${URL}"
+          i=0
+          while test "${i}" -lt 900; do
+            CODE=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 2 "${URL}" 2>/dev/null)
+            if test "${CODE}" = "200"; then echo "PASS: admin-0 is active"; exit 0; fi
+            echo "${i}: Response: ${CODE}"
+            sleep 2
+            i=$((i + 1))
+          done
+          echo "FAIL: admin-0 did not become active within timeout"
+          exit 1
+
+    - name: 02-wait-for-admin-1-passive
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          CLUSTER_SVC=$(echo "${PF_ADMIN_PRIVATE_HOSTNAME}" | sed 's/-admin$/-cluster/')
+          URL="https://${PF_ADMIN_PRIVATE_HOSTNAME}-1.${CLUSTER_SVC}:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pf/heartbeat.ping"
+          echo "Waiting for admin-1 to be reachable: ${URL}"
+          i=0
+          while test "${i}" -lt 450; do
+            CODE=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 2 "${URL}" 2>/dev/null)
+            if test "${CODE}" = "200" || test "${CODE}" = "403"; then
+              echo "PASS: admin-1 is reachable (HTTP ${CODE})"
+              exit 0
+            fi
+            echo "${i}: Response: ${CODE}"
+            sleep 2
+            i=$((i + 1))
+          done
+          echo "FAIL: admin-1 did not become reachable within timeout"
+          exit 1
+
+    - name: 03-promote-admin-1
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          CLUSTER_SVC=$(echo "${PF_ADMIN_PRIVATE_HOSTNAME}" | sed 's/-admin$/-cluster/')
+          echo "Promoting admin-1 to active..."
+          CODE=$(curl -sk -o /tmp/promote.out -w '%{http_code}' \
+            -X POST \
+            -u "administrator:${PING_IDENTITY_PASSWORD}" \
+            -H "X-XSRF-Header: PingFederate" \
+            "https://${PF_ADMIN_PRIVATE_HOSTNAME}-1.${CLUSTER_SVC}:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pf-admin-api/v1/cluster/adminNode/role/active")
+          echo "Promote response (HTTP ${CODE}):"
+          cat /tmp/promote.out
+          if test "${CODE}" != "200"; then
+            echo "FAIL: promote returned HTTP ${CODE}"
+            exit 1
+          fi
+          echo "PASS: admin-1 promoted to active"
+
+    - name: 04-delete-admin-0-pod
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Deleting admin-0 pod to simulate restart..."
+          kubectl delete pod "${PF_ADMIN_PRIVATE_HOSTNAME}-0" --wait=false
+          echo "Pod deleted."
+
+    - name: 05-wait-for-admin-0-back
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Waiting for admin-0 pod to be Ready again..."
+          kubectl wait pod "${PF_ADMIN_PRIVATE_HOSTNAME}-0" --for=condition=Ready --timeout=600s
+          echo "admin-0 is Ready."
+
+    - name: 06-wait-for-admin-0-reachable
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          CLUSTER_SVC=$(echo "${PF_ADMIN_PRIVATE_HOSTNAME}" | sed 's/-admin$/-cluster/')
+          URL="https://${PF_ADMIN_PRIVATE_HOSTNAME}-0.${CLUSTER_SVC}:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pf/heartbeat.ping"
+          echo "Waiting for admin-0 to be reachable after restart: ${URL}"
+          i=0
+          while test "${i}" -lt 300; do
+            CODE=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 2 "${URL}" 2>/dev/null)
+            if test "${CODE}" = "200" || test "${CODE}" = "403"; then
+              echo "PASS: admin-0 is reachable (HTTP ${CODE})"
+              exit 0
+            fi
+            echo "${i}: Response: ${CODE}"
+            sleep 2
+            i=$((i + 1))
+          done
+          echo "FAIL: admin-0 did not become reachable within timeout"
+          exit 1
+
+    - name: 07-assert-admin-1-still-active
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          CLUSTER_SVC=$(echo "${PF_ADMIN_PRIVATE_HOSTNAME}" | sed 's/-admin$/-cluster/')
+          CODE1=$(curl -sk -o /dev/null -w '%{http_code}' "https://${PF_ADMIN_PRIVATE_HOSTNAME}-1.${CLUSTER_SVC}:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pf/heartbeat.ping?checkActive=true")
+          echo "admin-1 heartbeat?checkActive=true: HTTP ${CODE1}"
+          CODE0=$(curl -sk -o /dev/null -w '%{http_code}' "https://${PF_ADMIN_PRIVATE_HOSTNAME}-0.${CLUSTER_SVC}:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pf/heartbeat.ping?checkActive=true")
+          echo "admin-0 heartbeat?checkActive=true: HTTP ${CODE0}"
+          if test "${CODE1}" != "200"; then
+            echo "FAIL: admin-1 returned ${CODE1}, expected 200 (active)"
+            exit 1
+          fi
+          if test "${CODE0}" != "403"; then
+            echo "FAIL: admin-0 returned ${CODE0}, expected 403 (passive)"
+            exit 1
+          fi
+          echo "PASS: admin-1 is active (200), admin-0 is passive (403)"

@@ -34,12 +34,7 @@ case "${_acceptLicenseAgreement}" in
         # Toggle on debug logging if DEBUG=true is set
         start_debug_logging
         # Set script vars
-        # TODO Remove if-else logic when PF 12.1 is no longer built
-        if test "$(isImageVersionGtEq 12.2.0)" -eq "0"; then
-            admin_roles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR","DATA_COLLECTION_ADMINISTRATOR"]'
-        else
-            admin_roles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR"]'
-        fi
+        admin_roles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR","DATA_COLLECTION_ADMINISTRATOR"]'
         _createAdminUser=$(
             curl \
                 --insecure \
@@ -59,13 +54,21 @@ case "${_acceptLicenseAgreement}" in
         # Toggle off debug logging
         stop_debug_logging
         if test "${_createAdminUser}" != "200"; then
-            echo_red "$(jq -r . /tmp/create.admin)"
-            echo_red "error attempting to create admin"
-            exit 83
+            if test "${_createAdminUser}" = "409"; then
+                echo "INFO: Admin user already created by another node (409). Continuing."
+            else
+                echo_red "$(jq -r . /tmp/create.admin)"
+                echo_red "error attempting to create admin"
+                exit 83
+            fi
         fi
         ;;
     401)
         echo "INFO: Found existing admin PingFederate instance. Skipping creation of new admin user."
+        ;;
+    403)
+        echo "INFO: License already accepted on this cluster. Skipping admin configuration."
+        echo "INFO: license/agreement response body: $(cat /tmp/license.acceptance)"
         ;;
     *)
         echo_red "$(jq -r . /tmp/license.acceptance)"

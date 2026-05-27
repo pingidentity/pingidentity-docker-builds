@@ -1,0 +1,58 @@
+###############################################################################
+# Ping Identity Test - PingFederate Multi-Admin: Single-Admin Regression
+#
+# Variation 1 (intel) / Variation 2 (arm)
+# Asserts that a single-admin deployment is unaffected by the hook changes:
+#   - Admin pod reaches /pingfederate/app
+#   - Hook 81 did NOT emit cluster-query log lines
+###############################################################################
+pingfederate-admin:
+  enabled: true
+  envs:
+    OPERATIONAL_MODE: CLUSTERED_CONSOLE
+    CREATE_INITIAL_ADMIN_USER: "true"
+  workload:
+    type: StatefulSet
+    statefulSet:
+      persistentvolume:
+        enabled: false
+  container:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: "1"
+        memory: 2Gi
+      limits:
+        cpu: "1"
+        memory: 2Gi
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+  testConfigMaps:
+    files:
+      - wait-for-url.sh
+
+  testSteps:
+    - name: 01-wait-for-admin
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - /var/run/wait-for-url.sh
+        - https://${PF_ADMIN_PRIVATE_HOSTNAME}:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pingfederate/app
+        - "900"
+
+    - name: 02-assert-no-cluster-query-log
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          POD="${PF_ADMIN_PRIVATE_HOSTNAME}-0"
+          if kubectl logs "${POD}" | grep -q "Querying cluster for existing active admin node"; then
+            echo "FAIL: cluster-query log line present in single-admin deployment"
+            exit 1
+          fi
+          echo "PASS: no cluster-query log lines in single-admin deployment"

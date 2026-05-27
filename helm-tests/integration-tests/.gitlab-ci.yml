@@ -755,4 +755,86 @@ arm.paz-pd.v2:
 #         - .gitlab-ci.yml
 #       when: on_success
 #     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+
+################################################
+# The purpose of the integration test below is
+# to verify the PingFederate active/passive multi-admin
+# hook logic on the x86_64 runner
+intel.pf-multi-admin.v1:
+  stage: test.integration
+  script:
+    - ci_scripts/run_helm_integration.sh --integration-test pf-multi-admin --variation 1
+  retry: 1
+  variables:
+    KUBERNETES_CPU_REQUEST: 2850m
+    KUBERNETES_CPU_LIMIT: 2850m
+    KUBERNETES_MEMORY_REQUEST: 5880000000
+    KUBERNETES_MEMORY_LIMIT: 5880000000
+    KUBERNETES_POLL_TIMEOUT: 30m
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - helm-tests/integration-tests/pf-multi-admin/*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingfederate/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
+
+################################################
+# The purpose of the integration test below is
+# to verify the PingFederate active/passive multi-admin
+# hook logic on the aarch64 runner
+arm.pf-multi-admin.v2:
+  stage: test.integration
+  image: $RUNNER_IMAGE_AARCH64
+  #image: $RUNNER_IMAGE_AARCH64_TEST
+  tags:
+    - platform=aarch64
+  script:
+    - ci_scripts/run_helm_integration.sh --integration-test pf-multi-admin --variation 2
+  retry: 1
+  variables:
+    KUBERNETES_CPU_REQUEST: 2850m
+    KUBERNETES_CPU_LIMIT: 2850m
+    KUBERNETES_MEMORY_REQUEST: 5880000000
+    KUBERNETES_MEMORY_LIMIT: 7840000000
+    KUBERNETES_POLL_TIMEOUT: 30m
+  rules:
+    - if: $ARCHIVE_PIPELINE == "true"
+      when: never
+    - if: $CUSTOM_IMAGE_PIPELINE == "true"
+      when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
+      when: never
+    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
+      when: on_success
+    - if: '$BUILD_PRODUCT != null'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
+      changes:
+        - helm-tests/integration-tests/pf-multi-admin/*
+        - pingbase/**/*
+        - pingcommon/**/*
+        - pingfederate/**/*
+        - ci_scripts/*
+        - pingjvm/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
+      when: on_success
 #       when: on_success

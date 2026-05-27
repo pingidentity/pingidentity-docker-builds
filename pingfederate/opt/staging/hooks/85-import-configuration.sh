@@ -8,10 +8,6 @@
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 pf_admin_password="$(get_value PING_IDENTITY_PASSWORD true)"
-if test -z "${pf_admin_password}"; then
-    echo_yellow "WARN: No PING_IDENTITY_PASSWORD variable found. Using default password"
-    pf_admin_password="2Federate"
-fi
 
 tmp_trace_file=$(mktemp)
 api_output_file=$(mktemp)
