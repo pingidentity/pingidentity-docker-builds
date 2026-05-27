@@ -551,6 +551,38 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "pf-multi-admin",
+            "directory": "pf-multi-admin",
+            "variations": [
+                {
+                    "id": "1",
+                    "architecture": "x86_64",
+                    "platform": "EKS",
+                    "products": [
+                        {
+                            "productName": "pingfederate-admin",
+                            "version": "latest",
+                            "shim": "alpine:3.23.4",
+                            "jvm": "al21"
+                        }
+                    ]
+                },
+                {
+                    "id": "2",
+                    "architecture": "aarch64",
+                    "platform": "EKS",
+                    "products": [
+                        {
+                            "productName": "pingfederate-admin",
+                            "version": "latest",
+                            "shim": "alpine:3.23.4",
+                            "jvm": "al21"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

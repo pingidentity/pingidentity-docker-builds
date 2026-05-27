@@ -1,0 +1,126 @@
+###############################################################################
+# Ping Identity Test - PingFederate Multi-Admin: Two-Node Cluster
+#
+# Variation 1 (intel) / Variation 2 (arm)
+# Asserts correct initial deploy and restart-loop behavior:
+#   - admin-0 reaches active state (heartbeat 200)
+#   - Cluster API reports exactly 1 ACTIVE and 1 PASSIVE
+#   - admin-1 has RESTARTS=0 (no restart loop)
+#
+# Pod DNS:  <pod>.<release>-pingfederate-cluster  (headless service)
+# PF_ADMIN_PRIVATE_HOSTNAME = <release>-pingfederate-admin
+# Headless svc              = <release>-pingfederate-cluster
+###############################################################################
+global:
+  envs:
+    PING_IDENTITY_PASSWORD: 2FederateM0re
+
+pingfederate-admin:
+  enabled: true
+  envs:
+    OPERATIONAL_MODE: CLUSTERED_CONSOLE
+    CREATE_INITIAL_ADMIN_USER: "true"
+    PF_CLUSTER_ADMIN_NODES_SYNC_ENABLED: "true"
+  workload:
+    type: StatefulSet
+    statefulSet:
+      podManagementPolicy: OrderedReady
+      persistentvolume:
+        enabled: false
+  container:
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: "1"
+        memory: 2Gi
+      limits:
+        cpu: "1"
+        memory: 2Gi
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+  testConfigMaps:
+    files:
+      - wait-for-url.sh
+
+  testSteps:
+    - name: 01-wait-for-admin-0-active
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          CLUSTER_SVC=$(echo "${PF_ADMIN_PRIVATE_HOSTNAME}" | sed 's/-admin$/-cluster/')
+          URL="https://${PF_ADMIN_PRIVATE_HOSTNAME}-0.${CLUSTER_SVC}:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pf/heartbeat.ping?checkActive=true"
+          echo "Waiting for active admin-0: ${URL}"
+          i=0
+          while test "${i}" -lt 900; do
+            CODE=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 2 "${URL}" 2>/dev/null)
+            if test "${CODE}" = "200"; then echo "PASS: admin-0 is active"; exit 0; fi
+            echo "${i}: Response: ${CODE}"
+            sleep 2
+            i=$((i + 1))
+          done
+          echo "FAIL: admin-0 did not become active within timeout"
+          exit 1
+
+    - name: 02-wait-for-admin-1-passive
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          CLUSTER_SVC=$(echo "${PF_ADMIN_PRIVATE_HOSTNAME}" | sed 's/-admin$/-cluster/')
+          URL="https://${PF_ADMIN_PRIVATE_HOSTNAME}-1.${CLUSTER_SVC}:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pf/heartbeat.ping"
+          echo "Waiting for admin-1 to be reachable: ${URL}"
+          i=0
+          while test "${i}" -lt 450; do
+            CODE=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 2 "${URL}" 2>/dev/null)
+            if test "${CODE}" = "200" || test "${CODE}" = "403"; then
+              echo "PASS: admin-1 is reachable (HTTP ${CODE})"
+              exit 0
+            fi
+            echo "${i}: Response: ${CODE}"
+            sleep 2
+            i=$((i + 1))
+          done
+          echo "FAIL: admin-1 did not become reachable within timeout"
+          exit 1
+
+    - name: 03-assert-cluster-roles
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          CLUSTER_SVC=$(echo "${PF_ADMIN_PRIVATE_HOSTNAME}" | sed 's/-admin$/-cluster/')
+          STATUS=$(curl -sk -u "administrator:${PING_IDENTITY_PASSWORD}" \
+            -H "X-XSRF-Header: PingFederate" \
+            "https://${PF_ADMIN_PRIVATE_HOSTNAME}-0.${CLUSTER_SVC}:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pf-admin-api/v1/cluster/status")
+          ACTIVE=$(echo "${STATUS}" | grep -o '"consoleRole":"ACTIVE"' | wc -l | tr -d ' ')
+          PASSIVE=$(echo "${STATUS}" | grep -o '"consoleRole":"PASSIVE"' | wc -l | tr -d ' ')
+          echo "Active nodes: ${ACTIVE}  Passive nodes: ${PASSIVE}"
+          if test "${ACTIVE}" != "1" || test "${PASSIVE}" != "1"; then
+            echo "FAIL: expected 1 ACTIVE + 1 PASSIVE, got ACTIVE=${ACTIVE} PASSIVE=${PASSIVE}"
+            echo "${STATUS}"
+            exit 1
+          fi
+          echo "PASS: cluster has 1 ACTIVE and 1 PASSIVE"
+
+    - name: 04-assert-admin-1-no-restarts
+      image: ${DEPS_REGISTRY}pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - -c
+        - |
+          RESTARTS=$(kubectl get pod "${PF_ADMIN_PRIVATE_HOSTNAME}-1" \
+            -o jsonpath='{.status.containerStatuses[0].restartCount}')
+          echo "admin-1 restart count: ${RESTARTS}"
+          if test "${RESTARTS}" != "0"; then
+            echo "FAIL: admin-1 has restarted ${RESTARTS} time(s)"
+            exit 1
+          fi
+          echo "PASS: admin-1 restart count is 0"
