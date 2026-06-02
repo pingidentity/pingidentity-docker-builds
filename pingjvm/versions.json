@@ -34,7 +34,7 @@
         },
         {
             "shims": [
-                "redhat/ubi9-minimal:9.7-1777857961"
+                "redhat/ubi9-minimal:9.8-1779809423"
             ],
             "id": "rl21",
             "version": "21",
