@@ -20,6 +20,12 @@ if ! type java > /dev/null 2> /dev/null; then
             alpine_aarch64_checksum="7842d7b20904881c08b958e71b441fc1d61686e6"
             redhat_x86_64_checksum="96494958be6e7fe41472596a4d62ef798f26c77c"
             ;;
+        al25 | rl25)
+            JDK_VERSION="25.0.3+11"
+            alpine_x86_64_checksum="34483ed114cb2611a81da37747b72e9981b90317"
+            alpine_aarch64_checksum="b393af379fa77e53b51fbbb3aa174ad6ee2d0d95"
+            redhat_x86_64_checksum="affc43c513b0255420db67cdad42ff1cd72f83ff"
+            ;;
         *)
             echo "ERROR: Unrecognized JVM_ID: ${JVM_ID}" && exit 1
             ;;

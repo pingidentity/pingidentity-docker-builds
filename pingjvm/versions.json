@@ -41,6 +41,27 @@
             "archs": [
                 "x86_64"
             ]
+        },
+        {
+            "shims": [
+                "alpine"
+            ],
+            "id": "al25",
+            "version": "25",
+            "archs": [
+                "x86_64",
+                "aarch64"
+            ]
+        },
+        {
+            "shims": [
+                "redhat/ubi9-minimal:9.8-1779809423"
+            ],
+            "id": "rl25",
+            "version": "25",
+            "archs": [
+                "x86_64"
+            ]
         }
     ]
 }
