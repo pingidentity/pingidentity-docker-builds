@@ -1423,8 +1423,16 @@ prepareToJoinTopology() {
         test "${PD_STATE}" = "SETUP" && test "${ORCHESTRATION_TYPE}" = "KUBERNETES"; then
         #TODO: GDO-997 multi-region may need to look for local cluster OR remote cluster for a seed.
         _IPList=$(getIPsForDomain "${K8S_STATEFUL_SET_SERVICE_NAME}")
+        _selfIP=$(getIP "${POD_HOSTNAME}")
         for ip in ${_IPList}; do
-            if test "$(getIP "${POD_HOSTNAME}")" != "${ip}"; then
+            if test "${_selfIP}" != "${ip}"; then
+                _httpCode=$(curl -sk -o /dev/null -w '%{http_code}' \
+                    --connect-timeout 2 \
+                    "https://${ip}:${HTTPS_PORT}/available-state" 2> /dev/null)
+                if test "${_httpCode}" != "200"; then
+                    echo_yellow "Skipping candidate seed ${ip}: available-state returned ${_httpCode}"
+                    continue
+                fi
                 SEED_HOSTNAME=${ip}
                 _seedInstanceName=${ip}
                 waitUntilLdapUp "${SEED_HOSTNAME}" "${SEED_LDAPS_PORT}" "" > /dev/null 2>&1
@@ -1433,6 +1441,9 @@ prepareToJoinTopology() {
                 break
             fi
         done
+        if test "${_seedInstanceName}" = "${_podInstanceName}"; then
+            echo_yellow "Alternative seed search exhausted: no eligible peer found (no candidates, or all failed available-state check). No seed selected."
+        fi
     fi
 
     #
