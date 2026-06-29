@@ -27,22 +27,63 @@ END_USAGE
 # Creates and Publishes Multi-Arch Image Manifests
 # Signs the Resulting Manifest with Cosign
 create_manifest_and_push_and_sign() {
-    target_manifest_name="${1}"
+    local target_manifest_name="${1}"
+    local ref="${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
 
+    LAST_PUSHED_DIGEST=""
     create_manifest_and_push "${target_manifest_name}"
-    cosign_sign_image \
-        "${target_registry_url}/${product_to_deploy}:${target_manifest_name}" \
-        "${docker_config_dir}"
-    echo "Successfully signed manifest: ${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
+
+    local dedup_key="${target_registry_url}::${LAST_PUSHED_DIGEST}"
+
+    if test -n "${LAST_PUSHED_DIGEST}" && test "${_signed_digests["${dedup_key}"]+_}" = "_"; then
+        echo "INFO: digest ${LAST_PUSHED_DIGEST} already signed for ${target_registry_url}; skipping sign of ${target_manifest_name}"
+        return 0
+    fi
+
+    # Record digest only on sign success — a transient failure should not suppress retries
+    # on subsequent tags for the same digest. Also skip recording when signing is disabled
+    # (cosign_sign_image returns 0 but no signature is written).
+    local sign_rc
+    cosign_sign_image "${ref}" "${docker_config_dir}"
+    sign_rc=${?}
+    if test "${sign_rc}" -eq 0; then
+        echo "Successfully signed manifest: ${ref}"
+        test -n "${LAST_PUSHED_DIGEST}" &&
+            test "${SIGNING_ENABLED:-true}" = "true" &&
+            _signed_digests["${dedup_key}"]=1
+    else
+        echo_red "cosign sign failed for ${ref}"
+        exit "${sign_rc}"
+    fi
 }
 
 create_manifest_and_push() {
-    target_manifest_name="${1}"
+    local target_manifest_name="${1}"
+    local ref="${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
+
     # Word-split is expected behavior for $images_list. Disable shellcheck.
     # shellcheck disable=SC2086
-    exec_cmd_or_fail docker --config "${docker_config_dir}" manifest create "${target_registry_url}/${product_to_deploy}:${target_manifest_name}" ${images_list}
-    exec_cmd_or_fail docker --config "${docker_config_dir}" manifest push --purge "${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
-    echo "Successfully created and pushed manifest: ${target_registry_url}/${product_to_deploy}:${target_manifest_name}"
+    exec_cmd_or_fail docker --config "${docker_config_dir}" manifest create "${ref}" ${images_list}
+
+    # $() subshell is limited to the push command only so that rc-check and exit
+    # run in the main shell (fail-fast preserved). Do not wrap the whole function in $().
+    local push_out
+    push_out=$(docker --config "${docker_config_dir}" manifest push --purge "${ref}")
+    local push_rc=${?}
+    if test "${push_rc}" -ne 0; then
+        echo_red "The following command resulted in an error: docker manifest push --purge ${ref}"
+        exit "${push_rc}"
+    fi
+
+    echo "${push_out}"
+    echo "Successfully created and pushed manifest: ${ref}"
+
+    # Extract the pushed OCI index digest. grep | head exit status is intentionally ignored —
+    # this script does not set pipefail. head -1 takes the pushed digest; --purge delete-
+    # confirmation tokens appear after it. See pre-merge verification gate in PDI-2432.
+    LAST_PUSHED_DIGEST=$(printf '%s\n' "${push_out}" | grep -Eo 'sha256:[0-9a-f]{64}' | head -1)
+    test -z "${LAST_PUSHED_DIGEST}" &&
+        echo_yellow "WARN: no sha256 digest found in push output for ${ref}; dedup signing guard disabled for this tag"
 }
 
 publish_manifest_to_redhat_registry() {
@@ -119,6 +160,11 @@ sprint="$(_getSprintTagIfAvailable)"
 #Define docker config file locations based on different image registry providers
 docker_config_hub_dir="$HOME/.docker-hub"
 #docker_config_default_dir="$HOME/.docker"
+
+# Tracks digests already signed this run to prevent duplicate cosign signatures
+# when multiple tags resolve to the same OCI index digest.
+declare -A _signed_digests=()
+LAST_PUSHED_DIGEST=""
 
 versions_to_deploy=$(_getAllVersionsToDeployForProduct "${product_to_deploy}")
 latest_version=$(_getLatestVersionForProduct "${product_to_deploy}")
