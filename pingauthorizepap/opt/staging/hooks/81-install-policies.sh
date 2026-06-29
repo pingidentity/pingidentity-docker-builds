@@ -27,7 +27,7 @@ if test -d "${STAGING_DIR}/policies"; then
     for policyFileName in $(find "${STAGING_DIR}/policies/" -iname \*.SNAPSHOT 2> /dev/null | sort | uniq); do
         policyName=$(basename "${policyFileName}")
         echo "Importing policy snapshot: ${policyName}"
-        snapshotId=$(curl -H "x-user-id: ${PAP_ADMIN}" -k -d @"${policyFileName}" "https://localhost:${HTTPS_PORT}/api/snapshot/${policyName}/import" | jq -r '.id')
+        snapshotId=$(curl -H "x-user-id: ${PAP_ADMIN}" -H 'Content-Type: application/json' -k --data-binary @"${policyFileName}" "https://localhost:${HTTPS_PORT}/api/snapshot/${policyName}/import" | jq -r '.id')
 
         echo "Created Snapshot ID: ${snapshotId}"
 
