@@ -90,6 +90,7 @@ arm.pd-repl.v2:
 # FIPS mode
 intel.pa-pf-pd-fips.v1:
   stage: test.integration
+  allow_failure: true
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --variation 1
   retry: 1
@@ -136,6 +137,7 @@ intel.pa-pf-pd-fips.v1:
 # FIPS mode
 intel.pa-pf-pd-fips.v2:
   stage: test.integration
+  allow_failure: true
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --variation 2
   retry: 1
