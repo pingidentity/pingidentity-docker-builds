@@ -105,13 +105,13 @@ intel.pa-pf-pd-fips.v1:
       when: never
     - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
       when: on_success
     - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
@@ -152,13 +152,13 @@ intel.pa-pf-pd-fips.v2:
       when: never
     - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
       when: on_success
     - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:

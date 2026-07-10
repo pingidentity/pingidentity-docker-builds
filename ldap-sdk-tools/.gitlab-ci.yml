@@ -11,13 +11,13 @@ intel.b.ldap-sdk-tools:
       when: never
     - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)ldap-sdk-tools(?:$|,)/i'
       when: on_success
     - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
@@ -42,13 +42,13 @@ arm.b.ldap-sdk-tools:
       when: never
     - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)ldap-sdk-tools(?:$|,)/i'
       when: on_success
     - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
@@ -73,13 +73,13 @@ intel.t.ldap-sdk-tools:
       when: never
     - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)ldap-sdk-tools(?:$|,)/i'
       when: on_success
     - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
@@ -105,13 +105,13 @@ arm.t.ldap-sdk-tools:
       when: never
     - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip smoke\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)ldap-sdk-tools(?:$|,)/i'
       when: on_success
     - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
@@ -138,13 +138,13 @@ d.ldap-sdk-tools:
       when: never
     - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip deploy\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)ldap-sdk-tools(?:$|,)/i'
       when: on_success
     - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
       when: never
     - if: '$CI_COMMIT_REF_NAME =~ /^master$/'
       changes:

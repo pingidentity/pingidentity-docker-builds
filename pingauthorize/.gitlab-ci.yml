@@ -152,13 +152,13 @@ d.pingauthorize:
       when: never
     - if: $CUSTOM_IMAGE_PIPELINE == "true"
       when: never
+    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
+      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip deploy\]/i'
       when: never
     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingauthorize(?:$|,)/i'
       when: on_success
     - if: '$BUILD_PRODUCT != null'
-      when: never
-    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
       when: never
     - if: '$CI_COMMIT_REF_NAME =~ /^master$/'
       changes:
