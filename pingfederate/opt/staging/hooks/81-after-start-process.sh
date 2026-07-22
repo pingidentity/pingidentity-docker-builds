@@ -48,29 +48,47 @@ if test "$(toLower "${PF_CLUSTER_ADMIN_NODES_SYNC_ENABLED}")" = "true" &&
     fi
 
     # ---- Determine ACTIVE / PASSIVE role -----------------------------------
+    # Retry loop: JGroups TCPPING discovery may not yet have propagated an
+    # already-active peer into cluster/status at the moment this hook runs.
+    # Without retries a fast-starting node sees 0 active peers and self-promotes,
+    # producing two simultaneous ACTIVE nodes after a failover/restart.
     echo "INFO: Querying cluster for existing active admin node..."
-    start_debug_logging
-    _statusCode=$(
-        curl --insecure --silent \
-            --write-out '%{http_code}' --output /tmp/cluster.status \
-            --user "${ROOT_USER}:${_pf_admin_password}" \
-            --header 'X-XSRF-Header: PingFederate' \
-            "https://localhost:${PF_ADMIN_PORT}/pf-admin-api/v1/cluster/status" \
-            2> /dev/null
-    )
-    stop_debug_logging
+    _activeCount="0"
+    _queryAttempt=0
+    _queryMaxAttempts=10
+    _queryDelaySecs=3
+    while test "${_queryAttempt}" -lt "${_queryMaxAttempts}"; do
+        start_debug_logging
+        _statusCode=$(
+            curl --insecure --silent \
+                --write-out '%{http_code}' --output /tmp/cluster.status \
+                --user "${ROOT_USER}:${_pf_admin_password}" \
+                --header 'X-XSRF-Header: PingFederate' \
+                "https://localhost:${PF_ADMIN_PORT}/pf-admin-api/v1/cluster/status" \
+                2> /dev/null
+        )
+        stop_debug_logging
 
-    if test "${_statusCode}" = "200"; then
-        _activeCount=$(jq -r '[.nodes[]? | select(.adminConsoleInfo.consoleRole == "ACTIVE")] | length' \
-            /tmp/cluster.status 2> /dev/null)
-        _activeCount="${_activeCount:-0}"
-    elif test "${_statusCode}" = "401"; then
-        echo_red "ERROR: HTTP 401 querying cluster status — credentials incorrect. Exiting."
-        exit 81
-    else
-        echo "WARN: Could not query cluster status (HTTP ${_statusCode}). Assuming no active admin."
-        _activeCount="0"
-    fi
+        if test "${_statusCode}" = "200"; then
+            _activeCount=$(jq -r '[.nodes[]? | select(.adminConsoleInfo.consoleRole == "ACTIVE")] | length' \
+                /tmp/cluster.status 2> /dev/null)
+            _activeCount="${_activeCount:-0}"
+            if test "${_activeCount}" != "0"; then
+                break
+            fi
+        elif test "${_statusCode}" = "401"; then
+            echo_red "ERROR: HTTP 401 querying cluster status — credentials incorrect. Exiting."
+            exit 81
+        else
+            echo "WARN: Could not query cluster status (HTTP ${_statusCode})."
+        fi
+
+        _queryAttempt=$((_queryAttempt + 1))
+        if test "${_queryAttempt}" -lt "${_queryMaxAttempts}"; then
+            echo "INFO: No active admin found yet (attempt ${_queryAttempt}/${_queryMaxAttempts}). Retrying in ${_queryDelaySecs}s..."
+            sleep "${_queryDelaySecs}"
+        fi
+    done
 
     if test "${_activeCount}" != "0"; then
         echo "INFO: Active admin already present in cluster. This node will remain passive."
