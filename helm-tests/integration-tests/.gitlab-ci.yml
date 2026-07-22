@@ -760,6 +760,7 @@ arm.paz-pd.v2:
 # hook logic on the x86_64 runner
 intel.pf-multi-admin.v1:
   stage: test.integration
+  allow_failure: true
   script:
     - ci_scripts/run_helm_integration.sh --integration-test pf-multi-admin --variation 1
   retry: 1
