@@ -11,8 +11,14 @@ download_cmd="curl -o"
 if ! type java > /dev/null 2> /dev/null; then
     #Modify the following variables to update Alpine and RHEL image's JDK.
     case "${JVM_ID}" in
-        al11 | rl11 | al17 | rl17)
-            echo "ERROR: al11, rl11, al17, and rl17 are no longer supported. Please specify al21 or rl21 to build with Java 21" && exit 1
+        al11 | rl11)
+            echo "ERROR: al11 and rl11 are no longer supported. Please specify al17/rl17 (Java 17) or al21/rl21 (Java 21)." && exit 1
+            ;;
+        al17 | rl17)
+            JDK_VERSION="17.0.20+10"
+            alpine_x86_64_checksum="2b4ee96cf2ec4a9cad1bff181f33ca17b1142511"
+            alpine_aarch64_checksum="abe2154d64d4ddde28d153eddbc6963f1e13c774"
+            redhat_x86_64_checksum="166912658a42fdd8fa00faca63174499b4d13844"
             ;;
         al21 | rl21)
             JDK_VERSION="21.0.11+11"

@@ -4,6 +4,17 @@
             "shims": [
                 "alpine"
             ],
+            "id": "al17",
+            "version": "17",
+            "archs": [
+                "x86_64",
+                "aarch64"
+            ]
+        },
+        {
+            "shims": [
+                "alpine"
+            ],
             "id": "al21",
             "version": "21",
             "archs": [
