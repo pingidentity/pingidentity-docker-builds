@@ -115,9 +115,25 @@ fi
 # git checkout the specified git tag for building the image with a specified sprint's hook scripts
 # If no sprint version is specified, build will be on master branch
 if test -n "${sprint_git_tag}"; then
+    # The requested --jvm is a caller-supplied pipeline variable, validated later by
+    # serial_build.sh against the checked-out pingjvm/versions.json. A sprint tag cut
+    # while a JVM id was absent from that catalog cannot validate it (e.g. al17 was
+    # dropped before SPRINT-2605 and restored afterward in ed1d5ef5). Capture the
+    # invoking ref's catalog now so we can fall back only in that case.
+    _jvm_versions_before_checkout=$(cat "${CI_PROJECT_DIR}/pingjvm/versions.json")
     # This places the local repository in a detached HEAD state.
     git checkout "SPRINT-${sprint_git_tag}"
     test "${?}" != "0" && echo "ERROR: Failed to checkout SPRINT branch reference 'SPRINT-${sprint_git_tag}'" && exit 1
+    if jq -e --arg jvm_id "${jvm_id}" \
+        'any(.versions[]; .id == $jvm_id)' \
+        "${CI_PROJECT_DIR}/pingjvm/versions.json" > /dev/null 2>&1; then
+        echo "INFO: Using SPRINT-${sprint_git_tag} pingjvm/versions.json for JVM '${jvm_id}'."
+    else
+        echo "WARNING: JVM '${jvm_id}' is not defined in SPRINT-${sprint_git_tag} pingjvm/versions.json."
+        echo "WARNING: Falling back to the invoking ref's pingjvm/versions.json so the build can proceed."
+        echo "WARNING: The JVM binary version baked into this image may differ from what SPRINT-${sprint_git_tag} shipped."
+        printf '%s\n' "${_jvm_versions_before_checkout}" > "${CI_PROJECT_DIR}/pingjvm/versions.json"
+    fi
 fi
 
 # If a zip download URL is specified, download the zip file and place the product.zip in the tmp folder of the specified
