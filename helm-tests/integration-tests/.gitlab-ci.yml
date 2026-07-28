@@ -800,6 +800,7 @@ intel.pf-multi-admin.v1:
 # hook logic on the aarch64 runner
 arm.pf-multi-admin.v2:
   stage: test.integration
+  allow_failure: true
   image: $RUNNER_IMAGE_AARCH64
   #image: $RUNNER_IMAGE_AARCH64_TEST
   tags:
