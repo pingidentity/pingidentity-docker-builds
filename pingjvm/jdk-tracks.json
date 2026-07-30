@@ -1,0 +1,23 @@
+{
+    "default_major": "21",
+    "tracks": [
+        {
+            "major": "17",
+            "role": "supported",
+            "jvm_ids": ["al17", "rl17"],
+            "deployed": false
+        },
+        {
+            "major": "21",
+            "role": "default",
+            "jvm_ids": ["al21", "rl21"],
+            "deployed": true
+        },
+        {
+            "major": "25",
+            "role": "newest",
+            "jvm_ids": ["al25", "rl25"],
+            "deployed": false
+        }
+    ]
+}

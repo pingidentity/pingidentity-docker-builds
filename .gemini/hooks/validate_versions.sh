@@ -1,1 +1,0 @@
-../../shared-configs/common/ai/docker-builds/.gemini/hooks/validate_versions.sh
