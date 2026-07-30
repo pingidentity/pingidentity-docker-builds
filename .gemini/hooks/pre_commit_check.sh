@@ -1,1 +1,0 @@
-../../shared-configs/common/ai/docker-builds/.gemini/hooks/pre_commit_check.sh

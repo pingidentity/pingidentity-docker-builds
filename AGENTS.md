@@ -1,1 +1,0 @@
-./shared-configs/common/ai/AGENTS.md

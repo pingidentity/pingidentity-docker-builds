@@ -7,3 +7,5 @@ scratch/
 .polaris/
 .claude/
 .playwright*
+__pycache__/
+*.pyc
