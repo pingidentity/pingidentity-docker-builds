@@ -21,16 +21,16 @@ if ! type java > /dev/null 2> /dev/null; then
             redhat_x86_64_checksum="166912658a42fdd8fa00faca63174499b4d13844"
             ;;
         al21 | rl21)
-            JDK_VERSION="21.0.11+11"
-            alpine_x86_64_checksum="b1a00129b87bed0fabd6bf4ac1dfd37c74f8903b"
-            alpine_aarch64_checksum="7842d7b20904881c08b958e71b441fc1d61686e6"
-            redhat_x86_64_checksum="96494958be6e7fe41472596a4d62ef798f26c77c"
+            JDK_VERSION="21.0.12+10"
+            alpine_x86_64_checksum="5d7814acbc516092f2766e8d22b5011e9ffb3cff"
+            alpine_aarch64_checksum="9932277d85c570cd03877afb9205af520a4ae82c"
+            redhat_x86_64_checksum="1527711e940663c6ca2c482f07aa87065e4e3fa6"
             ;;
         al25 | rl25)
-            JDK_VERSION="25.0.3+11"
-            alpine_x86_64_checksum="34483ed114cb2611a81da37747b72e9981b90317"
-            alpine_aarch64_checksum="b393af379fa77e53b51fbbb3aa174ad6ee2d0d95"
-            redhat_x86_64_checksum="affc43c513b0255420db67cdad42ff1cd72f83ff"
+            JDK_VERSION="25.0.4+9"
+            alpine_x86_64_checksum="18899f45059e490c847e968b2b0a6526029c28f1"
+            alpine_aarch64_checksum="c45f5bc35dce17628e101cdd38071bada308133e"
+            redhat_x86_64_checksum="6a0e58e66a2db0b6407140d6f2b4f5f9f1abddee"
             ;;
         *)
             echo "ERROR: Unrecognized JVM_ID: ${JVM_ID}" && exit 1
