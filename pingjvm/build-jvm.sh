@@ -15,22 +15,22 @@ if ! type java > /dev/null 2> /dev/null; then
             echo "ERROR: al11 and rl11 are no longer supported. Please specify al17/rl17 (Java 17) or al21/rl21 (Java 21)." && exit 1
             ;;
         al17 | rl17)
-            JDK_VERSION="17.0.20+10"
-            alpine_x86_64_checksum="2b4ee96cf2ec4a9cad1bff181f33ca17b1142511"
-            alpine_aarch64_checksum="abe2154d64d4ddde28d153eddbc6963f1e13c774"
-            redhat_x86_64_checksum="166912658a42fdd8fa00faca63174499b4d13844"
+            JDK_VERSION="17.0.20.1+1"
+            alpine_x86_64_checksum="eaf5f67124e7c6a77ebf116a84301636da531c8e"
+            alpine_aarch64_checksum="281c78710e57440328216112f4a22569cfcc7051"
+            redhat_x86_64_checksum="0f4362a7b0ff2c8f017048db8007fc706074f6cd"
             ;;
         al21 | rl21)
-            JDK_VERSION="21.0.12+10"
-            alpine_x86_64_checksum="5d7814acbc516092f2766e8d22b5011e9ffb3cff"
-            alpine_aarch64_checksum="9932277d85c570cd03877afb9205af520a4ae82c"
-            redhat_x86_64_checksum="1527711e940663c6ca2c482f07aa87065e4e3fa6"
+            JDK_VERSION="21.0.12.1+1"
+            alpine_x86_64_checksum="55c18449c581274ec34f7fdeca976ebf12342562"
+            alpine_aarch64_checksum="ae157f3935472d33fff3dbf35b96c620ffad7e18"
+            redhat_x86_64_checksum="351b0fc7ff5f7a0d250b2fc9c4c860ec3662d4de"
             ;;
         al25 | rl25)
-            JDK_VERSION="25.0.4+9"
-            alpine_x86_64_checksum="18899f45059e490c847e968b2b0a6526029c28f1"
-            alpine_aarch64_checksum="c45f5bc35dce17628e101cdd38071bada308133e"
-            redhat_x86_64_checksum="6a0e58e66a2db0b6407140d6f2b4f5f9f1abddee"
+            JDK_VERSION="25.0.4.1+1"
+            alpine_x86_64_checksum="e9ee84bdaacf42b2378fa8b8f4151f864ebc5b23"
+            alpine_aarch64_checksum="79e68b16171b713e416817d37de45b1ddbf56464"
+            redhat_x86_64_checksum="4fd81f4fb5cbf77006a3973aaf110f8d7968f8dd"
             ;;
         *)
             echo "ERROR: Unrecognized JVM_ID: ${JVM_ID}" && exit 1
