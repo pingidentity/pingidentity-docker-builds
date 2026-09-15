@@ -12,7 +12,7 @@ if ! type java > /dev/null 2> /dev/null; then
     #Modify the following variables to update Alpine and RHEL image's JDK.
     case "${JVM_ID}" in
         al11 | rl11)
-            echo "ERROR: al11 and rl11 are no longer supported. Please specify al17/rl17 (Java 17) or al21/rl21 (Java 21)." && exit 1
+            echo "ERROR: al11 and rl11 are no longer supported. Please specify al17/rl17 (Java 17), al21/rl21 (Java 21) or al25/rl25 (Java 25)." && exit 1
             ;;
         al17 | rl17)
             JDK_VERSION="17.0.20.1+1"
