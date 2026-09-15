@@ -48,8 +48,8 @@ Product schema — `versions[]`, each entry with `version`, `preferredShim`, `sh
 `ci_scripts/ci_tools.lib.sh` `_getAllJVMs` validates any `--jvm` against this file, so an
 id used anywhere else must exist here.
 
-JDK tracks (`pingjvm/build-jvm.sh` case blocks): 17, 21, 25. **21 is the default and
-every shipping product uses `al21`/`rl21`.** 17 and 25 exist for `CUSTOM_JVM_ID` builds
+JDK tracks (`pingjvm/build-jvm.sh` case blocks): 17, 21, 25. **25 is the default and
+every shipping product uses `al25`/`rl25`.** 17 and 21 exist for `CUSTOM_JVM_ID` builds
 only — no product `versions.json` or `helm-tests/integration-tests/integration-tests.json`
 references them.
 

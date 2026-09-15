@@ -1,5 +1,5 @@
 {
-    "default_major": "21",
+    "default_major": "25",
     "tracks": [
         {
             "major": "17",
@@ -9,15 +9,15 @@
         },
         {
             "major": "21",
-            "role": "default",
+            "role": "supported",
             "jvm_ids": ["al21", "rl21"],
             "deployed": true
         },
         {
             "major": "25",
-            "role": "newest",
+            "role": "default",
             "jvm_ids": ["al25", "rl25"],
-            "deployed": false
+            "deployed": true
         }
     ]
 }
