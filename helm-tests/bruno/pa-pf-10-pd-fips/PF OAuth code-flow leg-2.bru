@@ -1,0 +1,57 @@
+meta {
+  name: PF OAuth code-flow leg-2
+  type: http
+  seq: 27
+}
+
+post {
+  url: https://{{PF_ENGINE_PRIVATE_HOSTNAME}}:{{PF_ENGINE_PRIVATE_PORT_HTTPS}}/as/token.oauth2?grant_type=authorization_code&redirect_uri=https://{{PF_ENGINE_PUBLIC_HOSTNAME}}:{{PF_ENGINE_PUBLIC_PORT_HTTPS}}/OAuthPlayground/authorization_code/callback&code={{_authzCode}}
+  body: none
+  auth: basic
+}
+
+params:query {
+  grant_type: authorization_code
+  redirect_uri: https://{{PF_ENGINE_PUBLIC_HOSTNAME}}:{{PF_ENGINE_PUBLIC_PORT_HTTPS}}/OAuthPlayground/authorization_code/callback
+  code: {{_authzCode}}
+}
+
+auth:basic {
+  username: ac_client
+  password: 
+}
+
+script:post-response {
+  function parseJwt (token) {
+              var base64Url = token.split('.')[1];
+              var base64 = base64Url.replace('-', '+').replace('_', '/');
+              return JSON.parse(atob(base64));
+          }
+  
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  test("Tokens returned", function () {
+      expect(jsonData["access_token"]).not.equal(null);
+      expect(jsonData["access_token"]).not.empty;
+       bru.setEnvVar("accessToken",jsonData["access_token"]);
+      console.log("Access Token: ", parseJwt(jsonData.access_token));
+      console.log("--------------");
+  });
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

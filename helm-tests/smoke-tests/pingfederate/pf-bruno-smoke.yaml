@@ -1,0 +1,85 @@
+###############################################################################
+# Ping Identity Test - PingFederate Smoke Test (BRUNO)
+#
+# Bruno variant of pf-smoke.yaml. Runs the converted Bruno collection
+# (helm-tests/bruno/pingfederate); the check step installs
+# @usebruno/cli from npm at test time (scratch/postman-to-bruno-migration-plan.md
+# D2 phase 2).
+#
+# Parallel-run rollout (plan D7): this yaml coexists with pf-smoke.yaml
+# (newman) until Bruno passes in CI, then the newman yaml + Postman collection are
+# deleted per-suite (plan S4).
+#
+# ConfigMap assets (uploaded by run_helm_tests.sh):
+#   <release>-bruno-collection.tar.gz        tarball of helm-tests/bruno/pingfederate/
+#   <release>-generated.bruno-environment.json  env vars scraped from *-env-vars CMs
+###############################################################################
+pingfederate-admin:
+  enabled: true
+  container:
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+
+pingfederate-engine:
+  enabled: true
+  container:
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+
+###############################################################################
+# Test Steps
+###############################################################################
+testFramework:
+  enabled: true
+  testConfigMaps:
+    files:
+      - bruno-collection.tar.gz
+      - generated.bruno-environment.json
+      - wait-for-url.sh
+
+  testSteps:
+    - name: 01a-wait-for-pingfederate-admin
+      image: pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - /var/run/wait-for-url.sh
+        - https://${PF_ADMIN_PRIVATE_HOSTNAME}:${PF_ADMIN_PRIVATE_PORT_HTTPS}/pingfederate/app
+        - "900"
+
+    - name: 01b-wait-for-pingfederate-engine
+      image: pingidentity/pingtoolkit:latest
+      command:
+        - /bin/sh
+        - /var/run/wait-for-url.sh
+        - https://${PF_ENGINE_PRIVATE_HOSTNAME}:${PF_ENGINE_PRIVATE_PORT_HTTPS}/pf/heartbeat.ping
+        - "900"
+
+    - name: 02-check-pf-helm-bruno
+      image: node:22-alpine
+      env:
+        # npm needs a writable HOME for its cache; the chart runs this container
+        # as runAsUser 9031 and /var/run is the writable mount.
+        - name: HOME
+          value: /var/run/shared
+      command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          cd /var/run/shared
+          mkdir -p bruno-collection
+          tar -xzf /var/run/bruno-collection.tar.gz -C bruno-collection
+          npm install @usebruno/cli@4.1.0 --silent --no-audit --no-fund --no-save
+          cd bruno-collection
+          ../node_modules/.bin/bru run . --env-file /var/run/generated.bruno-environment.json --insecure --output ../bru-results.json
+

@@ -1,0 +1,71 @@
+meta {
+  name: PD REST API direct user reads other entry
+  type: http
+  seq: 9
+}
+
+get {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/uid=user.2,ou=people,{{_base_dn}}
+  body: json
+  auth: bearer
+}
+
+params:query {
+  ~: 
+}
+
+headers {
+  ~Authorization: Bearer {"active":true,"sub":"useasdfadsfr.0","scope":"accounts"}
+}
+
+auth:bearer {
+  token: { "active":true,"sub" : "user.1", "clientId":"client1","scope":"ds" }
+}
+
+script:post-response {
+  test("response is not ok", function () {
+      expect(res.getStatus()).to.not.be.within(200, 299);
+  });
+  
+  test("response is unauthorized", function(){
+      expect(res.getStatus()).to.equal(403);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  test("json data is not empty",function(){
+      expect(jsonData).to.not.be.empty;
+  });
+  
+  test("code is present",function(){
+      expect(jsonData["code"]).to.exist;
+  });
+  test("code is ACCESS_FAILED",function(){
+      expect(jsonData["code"]).to.be.equal("ACCESS_FAILED");
+  });
+  
+  test("details is present",function(){
+      expect(jsonData["details"]).to.exist;
+  });
+  test("details code is present",function(){
+      expect(jsonData["details"][0]["code"]).to.exist;
+  });
+  test("details code is INVALID_REQUEST",function(){
+      expect(jsonData["details"][0]["code"]).to.be.equal("INVALID_REQUEST");
+  });
+  test("mail is NOT present",function(){
+      expect(jsonData["mail"]).to.not.exist;
+  });
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

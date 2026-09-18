@@ -1,0 +1,85 @@
+meta {
+  name: PF CHECK PingFederate engine honors requests
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{PF_ENGINE_PRIVATE_HOSTNAME}}:{{pf_engine_port}}/pf/heartbeat.ping
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  var _host = bru.getCollectionVar("pf_engine_hostname");
+  var _port = bru.getCollectionVar("pf_engine_port");
+  console.log("Attempting connection to https://"+_host+":" +_port+ " ...");
+  
+}
+
+script:post-response {
+  var _retries = bru.getEnvVar("_retries");
+  // Checks to see if the server actually responded and is valid JSON
+  var isResponseBodyJson = false;
+  try {
+    res.getBody();
+    isResponseBodyJson = true;
+  } catch (e) {
+    console.log("Invalid: " + res.getBody());
+    // try again
+  }
+  if (res.getStatus() == 200 && isResponseBodyJson) {
+      bru.deleteEnvVar("_retries");
+      console.log("connection successful");
+  
+      test("response is ok", function () {
+          expect(res.getStatus()).to.equal(200);
+      });
+  
+      test("response is not empty", function () {
+          expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+      });
+  
+      test("response is JSON", function(){
+          // (postman no-op retained: pm.response.to.be.json)
+      });
+  
+      var jsonData = res.getBody();
+  
+      test("cpu.load key is present", function () {
+          expect(jsonData.hasOwnProperty("cpu.load")).to.be.true;
+      });
+  
+      var schema = res.getBody();
+      var data1 = [true, false];
+      var data2 = [true, 123];
+  
+      test('Schema is valid', function() {
+      expect(() => JSON.parse(JSON.stringify(data1))).to.not.throw;
+      expect(() => JSON.parse(JSON.stringify(data2))).to.not.throw;
+      });
+  } else {
+      if (!_retries) {
+          _retries = 10;
+      }
+  
+      if (_retries > 0) {
+          _retries--;
+          bru.setEnvVar("_retries", _retries);
+          var timeout = Math.floor(Math.random() * ((+15000) - (+1000) + 1) + (+1000));
+          console.log("Attempting next connection in " + timeout + "ms ...");
+          // loop back to this request (request.name) after the timeout elapses
+          await bru.sleep(timeout);
+          bru.runner.setNextRequest(req.getName());
+      } else {
+          bru.runner.setNextRequest(null);
+      }
+  }
+  
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

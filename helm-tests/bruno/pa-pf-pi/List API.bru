@@ -1,0 +1,49 @@
+meta {
+  name: List API
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{List_API}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  "{{Access_Key_Header}}": {{Access_Key}}
+  "{{Secret_Key_Header}}": {{Secret_key}}
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  
+  function _isContains(json, keyname, value) {
+  return Object.keys(json).some(key => {
+          return typeof json[key] === 'object' ? 
+          _isContains(json[key], keyname, value) : key === keyname && json[key] === value;
+      });
+  }
+  
+  test("api_id is present", function(){
+      expect(_isContains(jsonData.api, "api_id", "root")).to.be.true;
+  });
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

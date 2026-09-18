@@ -1,0 +1,28 @@
+meta {
+  name: pi-smoke
+}
+
+auth {
+  mode: none
+}
+
+vars:pre-request {
+  ASE_IP: {{PI_ASE_PRIVATE_HOSTNAME}}
+  Port: 8010
+  Access_Key_Header: x-ase-access-key
+  Secret_Key_Header: x-ase-secret-key
+  Access_Key: admin
+  Secret_key: 2FederateM0re
+  API_Name: pubatmapp
+  System_URL: https://{{ASE_IP}}:{{Port}}/v5/ase
+  List_API: {{System_URL}}/api
+  API: {{List_API}}?api_id
+  Cluster: {{System_URL}}/cluster
+  PersistentConnection: {{System_URL}}/persistentconnection?api_id
+  FireWall: {{System_URL}}/firewall
+  UpdateFireWall: {{FireWall}}?status
+  Blacklist: {{FireWall}}/blacklist?tag
+  Whitelist: {{FireWall}}/whitelist?tag
+  SideBandAuthentication: {{System_URL}}/sideband/authentication
+  Tokens: {{System_URL}}/sideband/token
+}

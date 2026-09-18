@@ -1,0 +1,26 @@
+meta {
+  name: PD SOURCE - Delete User
+  type: http
+  seq: 8
+}
+
+delete {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/uid={{regular_user}},ou=people,ou=source,{{base_dn}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+script:post-response {
+  test('Status code is ' + res.getStatus(), function(){
+      expect(res.getStatus()).to.equal(204);
+  });
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

@@ -1,0 +1,122 @@
+meta {
+  name: Create API
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{API}}=shopapi
+  body: json
+  auth: inherit
+}
+
+headers {
+  "{{Access_Key_Header}}": {{Access_Key}}
+  "{{Secret_Key_Header}}": {{Secret_key}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+      "api_metadata": {
+          "protocol": "http",
+          "url": "/shopapi",
+          "cookie": "JSESSIONID",
+          "hostname": "*",
+          "cookie_idle_timeout": "200m",
+          "logout_api_enabled": false,
+          "cookie_persistence_enabled": false,
+          "login_url": "/shopapi/login",
+          "oauth2_access_token": false,
+          "apikey_qs": "",
+          "apikey_header": "MyAPIKey",
+          "enable_blocking": true,
+          "api_mapping": {
+              "internal_url": "/app"
+          },
+          "api_pattern_enforcement": {
+              "protocol_allowed": "",
+              "http_redirect": {
+                  "response_code": "",
+                  "response_def": "",
+                  "https_url": ""
+              },
+              "methods_allowed": [
+                  "GET",
+                  "PUT",
+                  "POST",
+                  "DELETE",
+                  "HEAD"
+              ],
+              "content_type_allowed": "application/text",
+              "error_code": "401",
+              "error_def": "Unauthorized",
+              "error_message_body": "401 Unauthorized"
+          },
+          "flow_control": {
+              "client_spike_threshold": "500/second",
+              "server_connection_queueing": false
+          },
+          "api_memory_size": "128mb",
+          "health_check": true,
+          "health_check_interval": 60,
+          "health_retry_count": 4,
+          "health_url": "/app/home",
+          "server_ssl": false,
+          "servers": [
+              {
+                  "host": "3.85.169.62",
+                  "port": 4100,
+                  "server_connection_quota": 4500,
+                  "server_spike_threshold": "200/second"
+              },
+              {
+                  "host": "10.96.2.31",
+                  "port": 4200,
+                  "server_connection_quota": 4500,
+                  "server_spike_threshold": "200/second"
+              }
+          ],
+          "decoy_config": {
+              "decoy_enabled": true,
+              "response_code": 200,
+              "response_def": "200 OK",
+              "response_message": "200 OK",
+              "decoy_subpaths": [
+                  "/shopapi/online",
+                  "/shopapi/offline"
+              ]
+           },
+          "username_header": "x-username-header"
+      }
+  }
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  
+  test("status is present", function(){
+      expect(jsonData["status"]).to.exist;
+  });
+  
+  test("status is success", function(){
+      expect(jsonData["status"]).to.be.equal("success");
+  });
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

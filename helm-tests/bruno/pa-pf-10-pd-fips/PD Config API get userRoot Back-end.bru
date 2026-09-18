@@ -1,0 +1,44 @@
+meta {
+  name: PD Config API get userRoot Back-end
+  type: http
+  seq: 13
+}
+
+get {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{PD_ENGINE_PUBLIC_PORT_HTTPS}}/config/backends/userRoot
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  
+  test("baseDN  key is present", function(){
+      expect(jsonData["baseDN"]).to.exist;
+      console.log("Base DNs reported in userRoot configuration:");
+      jsonData["baseDN"].forEach(function(baseDN){console.log("  - "+baseDN);});
+  });
+  
+  test("Base DN is as expected", function(){
+      expect(jsonData["baseDN"][0]).to.be.equal("dc=example,dc=com");
+  });
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

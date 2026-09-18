@@ -1,0 +1,43 @@
+meta {
+  name: PF OAuth code-flow leg-1 Copy
+  type: http
+  seq: 26
+}
+
+get {
+  url: https://{{PF_ENGINE_PRIVATE_HOSTNAME}}:{{PF_ENGINE_PRIVATE_PORT_HTTPS}}/as/authorization.oauth2?client_id=ac_client&response_type=token&response_mode=pi.flow
+  body: none
+  auth: inherit
+}
+
+params:query {
+  client_id: ac_client
+  response_type: token
+  response_mode: pi.flow
+}
+
+headers {
+  Content-Type: application/x-www-form-urlencoded
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  test("OIDC AuthZ Code returned", function () {
+      bru.setEnvVar("flowid",jsonData["id"]);
+      // Parse out the Code value
+      //bru.setEnvVar("_authzCode", _authzCode);
+  });
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

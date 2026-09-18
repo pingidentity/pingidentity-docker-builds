@@ -1,0 +1,53 @@
+meta {
+  name: PD Heartbeat
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/available-state
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  
+  
+}
+
+script:post-response {
+  var _retries=bru.hasVar("_retries")?bru.getVar("_retries"):bru.getCollectionVar("request_retry_count");
+  
+  // Checks to see if the server actually responded
+  if (res.getStatus() == 200 ) {
+      test('Status code is ' + res.getStatus(), function(){
+          expect(res.getStatus()).to.equal(200);
+      });
+      var jsonData = res.getBody();
+      test('State = ' + jsonData['availability-state'], function(){
+          expect(jsonData['availability-state']).to.equal("AVAILABLE");
+      });
+  } else {
+      if (!_retries){
+          _retries=10;
+      }
+      
+      if ( _retries > 0 ) {
+          _retries--;
+          bru.setVar("_retries", _retries);
+          var timeout=Math.floor(Math.random() * ((+15000) - (+1000) + 1) + (+1000));
+          console.log("Attempting next connection in "+timeout+"ms ...");
+          // loop back to this request (request.name) after the timeout elapses
+          await bru.sleep(timeout);
+          bru.runner.setNextRequest(req.getName());
+      } else { 
+          bru.runner.setNextRequest(null);
+      }
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

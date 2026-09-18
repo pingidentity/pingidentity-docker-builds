@@ -1,0 +1,20 @@
+{
+  "source": "helm-tests/integration-tests/pa-pf-pi/pa-pf-pi.postman-collection.json",
+  "convertedAt": "2026-09-16T16:09:03.751Z",
+  "converter": {
+    "postmanToBruno": "0.23.0",
+    "filestore": "0.12.0"
+  },
+  "requests": 7,
+  "folders": 0,
+  "envs": 0,
+  "issues": 0,
+  "needsRewrite": {
+    "devMode": [
+      "lodash"
+    ],
+    "needsInstall": [
+      "tv4"
+    ]
+  }
+}

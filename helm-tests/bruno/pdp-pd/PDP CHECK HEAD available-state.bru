@@ -1,0 +1,27 @@
+meta {
+  name: PDP CHECK HEAD available-state
+  type: http
+  seq: 6
+}
+
+head {
+  url: https://{{PDP_ENGINE_PRIVATE_HOSTNAME}}:{{PDP_ENGINE_PRIVATE_PORT_HTTPS}}/available-state
+  body: none
+  auth: none
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("response is empty", function(){
+      expect(res.getBody()).to.not.equal();
+  });
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

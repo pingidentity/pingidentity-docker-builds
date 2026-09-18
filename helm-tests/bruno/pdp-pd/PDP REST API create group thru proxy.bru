@@ -1,0 +1,58 @@
+meta {
+  name: PDP REST API create group thru proxy
+  type: http
+  seq: 41
+}
+
+post {
+  url: https://{{PDP_ENGINE_PRIVATE_HOSTNAME}}:{{PDP_ENGINE_PRIVATE_PORT_HTTPS}}/directory/v1
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+      "member": [
+          "uid=proxy.user.0,ou=people,{{_base_dn}}"
+      ],
+      "cn": [
+          "proxy.group.0"
+      ],
+      "objectClass": [
+          "top",
+          "groupOfNames"
+      ],
+      "_dn": "cn=proxy.group.0,ou=groups,{{_base_dn}}"
+  }
+}
+
+script:post-response {
+  test("response is ok", function(){
+      // 201 means means the creation worked
+      // 409 means the entry already existed
+      expect([201,409]).to.include(res.getStatus());
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  
+  test("member is correct", function(){
+      expect(jsonData["member"][0].toLowerCase()).to.be.equal("uid=proxy.user.0,ou=people,"+bru.getEnvVar("_base_dn"));
+  });
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

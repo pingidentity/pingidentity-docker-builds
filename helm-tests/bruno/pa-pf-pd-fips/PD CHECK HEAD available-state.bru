@@ -1,0 +1,27 @@
+meta {
+  name: PD CHECK HEAD available-state
+  type: http
+  seq: 6
+}
+
+head {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{PD_ENGINE_PUBLIC_PORT_HTTPS}}/available-state
+  body: none
+  auth: none
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("response is empty", function(){
+      expect(res.getBody()).to.not.equal();
+  });
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

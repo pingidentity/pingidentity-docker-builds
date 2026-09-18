@@ -8,7 +8,7 @@ Lives on GitLab (`devops-program/docker-builds`); mirrored to GitHub
 ## Repository map
 
 - `ci_scripts/` — CI helpers, build entry points, integration test runners.
-- `helm-tests/` — `integration-tests/`, `smoke-tests/`, `_global/`.
+- `helm-tests/` — `integration-tests/`, `smoke-tests/`, `_global/`, `bruno/`.
 - `pingbase`, `pingcommon`, `pingdatacommon`, `pingjvm` — foundation layers.
 - `ping*`, `ldap-sdk-tools/`, `apache-jmeter/`, `pingtoolkit/` — product build contexts.
 - `shared-configs/` — submodule (`ping-internal/cdi-shared-configs`), pinned to a release
@@ -95,6 +95,12 @@ No repo-wide test runner. Layers:
   `ci_scripts/run_helm_integration.sh`. Matrix is driven by
   `helm-tests/integration-tests/integration-tests.json`
   (`tests[].variations[].products[]` with `productName`, `version`, `shim`, `jvm`).
+- `helm-tests/bruno/` — Bruno collections (`<test-dir-slug>/*.bru`, classic `bru`
+  format) driving the `*-bruno*.yaml` testFramework suites; converted from Postman
+  via `scratch/postman-2-bruno/` (gitignored; provenance in each slug's
+  `convert-meta.json`). Re-run `rewrite.mjs` after any `convert.mjs` run — it wipes
+  and reapplies the scripted request rewrites. `run_helm_tests.sh` uploads each
+  slug as `<release>-bruno-collection.tar.gz` + `<release>-generated.bruno-environment.json`.
 
 `ci_scripts/` target CI environments. Verify local prerequisites (Kubernetes context,
 Docker daemon) before running the helm runners locally.

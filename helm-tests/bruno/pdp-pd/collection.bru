@@ -1,0 +1,40 @@
+meta {
+  name: integrationtest_pdp+pd
+}
+
+auth {
+  mode: basic
+}
+
+auth:basic {
+  username: {{pd_admin_user}}
+  password: {{pd_admin_pwd}}
+}
+
+vars:pre-request {
+  request_retry_count: 10
+  request_retry_delay_max_ms: 15000
+  request_retry_delay_min_ms: 1000
+  admin_user: administrator
+  admin_pwd: 2FederateM0re
+  pd_admin_user: cn={{admin_user}}
+  pd_admin_pwd: {{admin_pwd}}
+  pd_hostname: pingdirectory
+  pd_port_https: 1443
+  pd_port_ldaps: 1636
+  pd_port_ldap: 1389
+  pf_engine_hostname: pingfederate
+  pf_engine_port: 9031
+  pf_admin_hostname: pingfederate
+  pf_admin_port: 9999
+  regular_user: postman.user.0
+  regular_pwd: {{admin_pwd}}
+  pa_engine_hostname: pingaccess
+  pa_engine_port: 1443
+  pa_admin_hostname: pingaccess
+  pa_admin_port: 9000
+  pdp_hostname: pingdirectoryproxy
+  pdp_port_https: 1443
+  pdp_port_ldap: 1389
+  pdp_port_ldaps: 1636
+}

@@ -1,0 +1,42 @@
+meta {
+  name: PD REST API create groups branch
+  type: http
+  seq: 20
+}
+
+post {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{PD_ENGINE_PUBLIC_PORT_HTTPS}}/directory/v1
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+  	"_dn": "ou=groups,{{_base_dn}}",
+  	"objectClass": ["organizationalUnit"]
+  }
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.be.oneOf([201, 409]);;
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

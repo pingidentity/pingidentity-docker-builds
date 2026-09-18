@@ -1,0 +1,60 @@
+meta {
+  name: PDP CHECK PingDiretory honors requests
+  type: http
+  seq: 1
+}
+
+options {
+  url: https://{{PDP_ENGINE_PRIVATE_HOSTNAME}}:{{PDP_ENGINE_PRIVATE_PORT_HTTPS}}/available-state
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  var _host = bru.getEnvVar("PDP_ENGINE_PRIVATE_HOSTNAME");
+  var _port = bru.getEnvVar("PDP_ENGINE_PRIVATE_PORT_HTTPS");
+  console.log("Attempting connection to https://"+_host+":" +_port+ " ...");
+  
+}
+
+script:post-response {
+  var _retries=bru.hasVar("_retries")?bru.getVar("_retries"):bru.getCollectionVar("request_retry_count");
+  
+  // Checks to see if the server actually responded
+  if (res.getStatus() == 200 ) {
+      bru.deleteVar("_retries");
+      console.log("connection successful");
+      
+      test("response is ok", function(){
+          expect(res.getStatus()).to.equal(200);
+      });
+      
+      test("response is empty", function(){
+          expect(res.getBody()).to.not.equal();
+      });
+  } else {
+      console.log(". retries: "+_retries);
+      _retries--;
+      console.log("- retries: "+_retries);
+      
+      if ( _retries > 0 ) {
+          bru.setVar("_retries", _retries);
+          var _retry_min=bru.getCollectionVar("request_retry_delay_min_ms");
+          var _retry_max=bru.getCollectionVar("request_retry_delay_max_ms");
+          var _timeout=Math.floor(Math.random() * ((+_retry_max) - (+_retry_min) + 1) + (+_retry_min));
+          console.log(_retries+" retries left. Attempting next connection in "+_timeout+"ms ...");
+          // loop back to this request (request.name) after the timeout elapses
+          await bru.sleep(_timeout);
+          bru.runner.setNextRequest(req.getName());
+      } else { 
+          console.log("Attempts exhausted");
+          bru.runner.setNextRequest(null);
+      }
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

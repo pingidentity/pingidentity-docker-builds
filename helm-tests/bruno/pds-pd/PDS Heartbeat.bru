@@ -1,0 +1,66 @@
+meta {
+  name: PDS Heartbeat
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{PDS_ENGINE_PRIVATE_HOSTNAME}}:{{PDS_ENGINE_PRIVATE_PORT_HTTPS}}/directory/v1/cn=Sync Pipe Monitor: {{sync_pipe_name}},cn=monitor
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  
+  
+}
+
+script:post-response {
+  var _retries=bru.hasVar("_retries")?bru.getVar("_retries"):bru.getCollectionVar("request_retry_count");
+  var jsonData = res.getBody();
+  var _sync_pipe_name=bru.getCollectionVar("sync_pipe_name");
+  
+  // Checks to see if the server actually responded
+  if (res.getStatus() == 200 && 
+      jsonData['started'] === "true" &&
+      jsonData['source-is-connected'] === "true" && 
+      jsonData['destination-is-connected'] === "true") {
+      test('Status code is ' + res.getStatus(), function(){
+          expect(res.getStatus()).to.equal(200);
+      });
+      test('pipe-name = ' + jsonData['sync-pipe-name'], function(){
+          expect(jsonData['sync-pipe-name']).to.equal(_sync_pipe_name);
+      });
+      test('started = ' + jsonData['started'], function(){
+          expect(jsonData['started']).to.equal("true");
+      });
+      test('source-is-connected = ' + jsonData['source-is-connected'], function(){
+          expect(jsonData['source-is-connected']).to.equal("true");
+      });
+      test('destination-is-connected = ' + jsonData['destination-is-connected'], function(){
+          expect(jsonData['destination-is-connected']).to.equal("true");
+      });
+  } else {
+      if (!_retries){
+          _retries=10;
+      }
+      
+      if ( _retries > 0 ) {
+          _retries--;
+          bru.setVar("_retries", _retries);
+          var timeout=Math.floor(Math.random() * ((+15000) - (+1000) + 1) + (+1000));
+          console.log("Attempting next connection in "+timeout+"ms ...");
+          // loop back to this request (request.name) after the timeout elapses
+          await bru.sleep(timeout);
+          bru.runner.setNextRequest(req.getName());
+      } else { 
+          bru.runner.setNextRequest(null);
+      }
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

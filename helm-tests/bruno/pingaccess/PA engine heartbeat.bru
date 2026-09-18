@@ -1,0 +1,39 @@
+meta {
+  name: PA engine heartbeat
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{PA_ENGINE_PRIVATE_HOSTNAME}}:{{pa_engine_port}}/pa/heartbeat.ping
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  var _host = bru.getEnvVar("PA_ENGINE_PRIVATE_HOSTNAME");
+  var _port = bru.getCollectionVar("pa_engine_port");
+  console.log("Attempting connection to https://"+_host+":" +_port+ " ...");
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("Body is correct", function () {
+      expect(res.getBody()).to.equal("OK");
+  });
+  
+  
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

@@ -1,0 +1,30 @@
+meta {
+  name: pds-pd
+}
+
+auth {
+  mode: basic
+}
+
+auth:basic {
+  username: {{pd_admin_user}}
+  password: {{pd_admin_pwd}}
+}
+
+vars:pre-request {
+  request_retry_count: 10
+  request_retry_delay_max_ms: 15000
+  request_retry_delay_min_ms: 1000
+  admin_user: administrator
+  admin_pwd: 2FederateM0re
+  pd_admin_user: cn={{admin_user}}
+  pd_admin_pwd: {{admin_pwd}}
+  pd_hostname: pingdirectory
+  pds_hostname: pingdatasync
+  pd_port_https: 1443
+  pds_port_https: 1443
+  regular_user: postman.user.0
+  regular_pwd: {{admin_pwd}}
+  base_dn: o=sync
+  sync_pipe_name: pingdirectory_source-to-pingdirectory_destination
+}

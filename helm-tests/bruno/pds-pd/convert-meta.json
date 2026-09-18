@@ -1,0 +1,17 @@
+{
+  "source": "helm-tests/integration-tests/pds-pd/pds-pd.postman-collection.json",
+  "convertedAt": "2026-09-16T16:09:03.938Z",
+  "converter": {
+    "postmanToBruno": "0.23.0",
+    "filestore": "0.12.0"
+  },
+  "requests": 9,
+  "folders": 0,
+  "envs": 0,
+  "issues": 0,
+  "needsRewrite": {
+    "devMode": [
+      "lodash"
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+meta {
+  name: PD SOURCE - Modify User
+  type: http
+  seq: 6
+}
+
+put {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/uid={{regular_user}},ou=people,ou=source,{{base_dn}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "description": ["{{regular_user}}"]
+  }
+}
+
+script:pre-request {
+  
+  
+}
+
+script:post-response {
+  test('Status code is ' + res.getStatus(), function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  var jsonData = res.getBody();
+  test('description = ' + jsonData.description[0], function(){
+      expect(jsonData.description[0]).to.equal(bru.getCollectionVar("regular_user"));
+  });
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

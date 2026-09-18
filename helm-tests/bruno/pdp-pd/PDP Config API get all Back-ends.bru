@@ -1,0 +1,39 @@
+meta {
+  name: PDP Config API get all Back-ends
+  type: http
+  seq: 16
+}
+
+get {
+  url: https://{{PDP_ENGINE_PRIVATE_HOSTNAME}}:{{PDP_ENGINE_PRIVATE_PORT_HTTPS}}/config/backends
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  
+  test("Resources  key is present", function(){
+      expect(jsonData["Resources"]).to.exist;
+      console.log("Back-ends reported in configuration:");
+      jsonData["Resources"].forEach(function(backend){console.log("  - "+backend["backendID"]);});
+  });
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

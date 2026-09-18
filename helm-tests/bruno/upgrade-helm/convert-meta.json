@@ -1,0 +1,20 @@
+{
+  "source": "helm-tests/integration-tests/upgrade-helm/pf-helm-test.postman-collection.json",
+  "convertedAt": "2026-09-16T16:09:03.948Z",
+  "converter": {
+    "postmanToBruno": "0.23.0",
+    "filestore": "0.12.0"
+  },
+  "requests": 2,
+  "folders": 0,
+  "envs": 0,
+  "issues": 0,
+  "needsRewrite": {
+    "devMode": [
+      "lodash"
+    ],
+    "needsInstall": [
+      "tv4"
+    ]
+  }
+}

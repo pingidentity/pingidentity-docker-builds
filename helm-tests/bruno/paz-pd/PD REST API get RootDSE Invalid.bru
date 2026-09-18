@@ -1,0 +1,44 @@
+meta {
+  name: PD REST API get RootDSE Invalid
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(401);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  test("json data is not empty",function(){
+      expect(jsonData).to.not.be.empty;
+  });
+  test("Error has code",function(){
+      expect(jsonData["details"][0]["code"]).to.exist;
+  });
+  
+  test("Error code is correct",function(){
+      expect(jsonData["details"][0]["code"]).to.be.equal("INVALID_REQUEST");
+  });
+  
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

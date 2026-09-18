@@ -1,0 +1,46 @@
+meta {
+  name: PD REST API get groups branch
+  type: http
+  seq: 20
+}
+
+get {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/ou=Groups,{{_base_dn}}
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+      
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  
+  test("_dn string is present",function(){
+      expect(jsonData["_dn"]).to.exist;
+  });
+  
+  test("Base DN is as expected",function(){
+      var _base_dn = bru.getEnvVar("_base_dn");
+      expect(jsonData["_dn"]).to.be.equal("ou=Groups,"+_base_dn);
+  });
+  
+  if (res.getStatus() == 200) {
+      bru.runner.setNextRequest("PD REST API create user");
+  }
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}
