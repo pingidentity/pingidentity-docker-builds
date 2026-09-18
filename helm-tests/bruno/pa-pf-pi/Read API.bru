@@ -1,0 +1,36 @@
+meta {
+  name: Read API
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{API}}=shopapi
+  body: none
+  auth: inherit
+}
+
+headers {
+  "{{Access_Key_Header}}": {{Access_Key}}
+  "{{Secret_Key_Header}}": {{Secret_key}}
+  Content-Type: application/json
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

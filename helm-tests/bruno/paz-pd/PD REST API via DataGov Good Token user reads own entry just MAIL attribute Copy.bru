@@ -1,0 +1,65 @@
+meta {
+  name: PD REST API via DataGov Good Token user reads own entry just MAIL attribute Copy
+  type: http
+  seq: 13
+}
+
+get {
+  url: https://{{PAZ_ENGINE_PRIVATE_HOSTNAME}}:{{PAZ_ENGINE_PRIVATE_PORT_HTTPS}}/pd-rest-api/uid=user.1,ou=people,{{_base_dn}}?includeAttributes=MAIL
+  body: json
+  auth: bearer
+}
+
+params:query {
+  includeAttributes: MAIL
+}
+
+headers {
+  ~Authorization: Bearer {"active":true,"sub":"useasdfadsfr.0","scope":"accounts"}
+}
+
+auth:bearer {
+  token: {"active":true,"sub":"user.1","client_id":"client1","scope":"ds"}
+}
+
+script:post-response {
+  test("User Mail retrieved", function () {
+      expect(res.getStatus()).to.not.be.within(200, 299);
+  });
+  test("response is invalid", function(){
+      expect(res.getStatus()).to.equal(400);
+  });
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  // pm.test("json data is not empty",function(){
+  //     pm.expect(jsonData).to.not.be.empty;
+  // });
+  
+  test("mail is not present",function(){
+      expect(jsonData["mail"]).to.not.exist;
+  });
+  
+  test("uid is not present",function(){
+      expect(jsonData["uid"]).to.not.exist;
+  });
+  
+  // pm.test("code is present",function(){
+  //     pm.expect(jsonData["code"]).to.exist;
+  // });
+  
+  // pm.test("code is INVALID_REQUEST",function(){
+  //     pm.expect(jsonData["code"]).to.be.equal("INVALID_REQUEST");
+  // });
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

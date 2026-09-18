@@ -1,0 +1,73 @@
+meta {
+  name: PD REST API create user
+  type: http
+  seq: 22
+}
+
+post {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{PD_ENGINE_PUBLIC_PORT_HTTPS}}/directory/v1
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+      "mail": [
+          "{{regular_user}}@example.com"
+      ],
+      "sn": [
+          "postman"
+      ],
+      "cn": [
+          "Postman User.0"
+      ],
+      "givenName": [
+          "user.0"
+      ],
+      "userPassword": [
+      	"{{regular_pwd}}"
+      	],
+      "pf-connected-identity": [
+          "auth-source=pf-local-identity:user-id=postman.user.0"
+      ],
+      "uid": [
+          "{{regular_user}}"
+      ],
+      "objectClass": [
+          "top",
+          "person",
+          "organizationalPerson",
+          "inetOrgPerson",
+          "pf-connected-identities"
+      ],
+      "_dn": "uid={{regular_user}},ou=people,{{_base_dn}}"
+  }
+}
+
+script:post-response {
+  test("response is ok", function(){
+      // 201 means means the creation worked
+      // 409 means the entry already existed
+      expect([201,409]).to.include(res.getStatus());
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

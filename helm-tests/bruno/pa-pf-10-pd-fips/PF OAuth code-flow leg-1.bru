@@ -1,0 +1,54 @@
+meta {
+  name: PF OAuth code-flow leg-1
+  type: http
+  seq: 26
+}
+
+post {
+  url: https://{{PF_ENGINE_PRIVATE_HOSTNAME}}:{{PF_ENGINE_PRIVATE_PORT_HTTPS}}/as/authorization.oauth2?response_type=code&client_id=ac_client&redirect_uri=https://{{PF_ENGINE_PUBLIC_HOSTNAME}}:{{PF_ENGINE_PUBLIC_PORT_HTTPS}}/OAuthPlayground/authorization_code/callback
+  body: formUrlEncoded
+  auth: inherit
+}
+
+params:query {
+  response_type: code
+  client_id: ac_client
+  redirect_uri: https://{{PF_ENGINE_PUBLIC_HOSTNAME}}:{{PF_ENGINE_PUBLIC_PORT_HTTPS}}/OAuthPlayground/authorization_code/callback
+}
+
+headers {
+  Content-Type: application/x-www-form-urlencoded
+}
+
+body:form-urlencoded {
+  pf.username: {{regular_user}}
+  pf.pass: {{regular_pwd}}
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(302);
+  });
+  
+  test("response is empty", function(){
+      expect(res.getBody()).to.not.equal();
+  });
+  
+  test("OIDC AuthZ Code returned", function () {
+      var loc = res.getHeader("location").split("=");
+      var _authzCode = loc[1];
+      expect(_authzCode).to.not.equal(undefined);
+      expect(_authzCode).to.not.equal(null);
+      expect(_authzCode).to.not.be.empty;
+  
+      // Parse out the Code value
+      bru.setEnvVar("_authzCode", _authzCode);
+      console.log("AuthZ Code:", _authzCode);
+  });
+}
+
+settings {
+  followRedirects: false
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

@@ -1,0 +1,29 @@
+meta {
+  name: pa-pf-pi
+}
+
+auth {
+  mode: basic
+}
+
+auth:basic {
+  username: {{pd_admin_user}}
+  password: {{pd_admin_pwd}}
+}
+
+vars:pre-request {
+  ASE_IP: {{PI_ASE_PRIVATE_HOSTNAME}}
+  Port: 8010
+  Access_Key_Header: x-ase-access-key
+  Secret_Key_Header: x-ase-secret-key
+  Access_Key: admin
+  Secret_key: 2FederateM0re
+  API_Name: pubatmapp
+  System_URL: https://{{ASE_IP}}:{{Port}}/v5/ase
+  List_API: {{System_URL}}/api
+  API: {{List_API}}?api_id
+  admin_user: administrator
+  admin_pwd: 2FederateM0re
+  pd_admin_user: cn={{admin_user}}
+  pd_admin_pwd: {{admin_pwd}}
+}

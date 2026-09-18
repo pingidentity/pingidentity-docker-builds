@@ -1,0 +1,62 @@
+meta {
+  name: PF OAuth code-flow leg-2
+  type: http
+  seq: 27
+}
+
+post {
+  url: https://{{PF_ENGINE_PRIVATE_HOSTNAME}}:{{PF_ENGINE_PRIVATE_PORT_HTTPS}}/pf-ws/authn/flows/{{flowid}}
+  body: json
+  auth: basic
+}
+
+headers {
+  X-XSRF-Header: PingFederate
+  Content-Type: application/vnd.pingidentity.checkUsernamePassword+json
+}
+
+auth:basic {
+  username: ac_client
+  password: 
+}
+
+body:json {
+  {
+    "username": "{{regular_user}}",
+    "password": "{{regular_pwd}}"
+  }
+}
+
+script:post-response {
+  function parseJwt (token) {
+              var base64Url = token.split('.')[1];
+              var base64 = base64Url.replace('-', '+').replace('_', '/');
+              return JSON.parse(atob(base64));
+          }
+  
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  responseJson = res.getBody();
+  var jsonData = res.getBody();
+  test("Tokens returned", function () {
+      expect(responseJson.authorizeResponse.access_token).not.equal(null);
+      expect(responseJson.authorizeResponse.access_token).not.equal(null);
+      expect(responseJson.authorizeResponse.access_token).not.empty;
+       bru.setEnvVar("accessToken",responseJson.authorizeResponse.access_token);
+  });
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

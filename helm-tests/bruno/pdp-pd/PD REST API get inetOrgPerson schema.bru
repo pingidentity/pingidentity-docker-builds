@@ -1,0 +1,63 @@
+meta {
+  name: PD REST API get inetOrgPerson schema
+  type: http
+  seq: 20
+}
+
+get {
+  url: https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/directory/v1/schemas/inetOrgPerson
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  
+  test("Schema key is present",function(){
+      expect(jsonData["$schema"]).to.exist;
+  });
+  
+  test("classType key is present",function(){
+      expect(jsonData["classType"]).to.exist;
+  });
+  
+  test("classType is structural",function(){
+      expect(jsonData["classType"]).to.be.equal("structural");
+  });
+  
+  test("Type key is present",function(){
+      expect(jsonData["type"]).to.exist;
+  });
+  
+  test("Type is object",function(){
+      expect(jsonData["type"]).to.be.equal("object");
+  });
+  
+  test("properties key is present",function(){
+      expect(jsonData["properties"]).to.exist;
+  });
+  
+  console.log("Attributes of the inetOrgPerson class:");
+  for ( var key in jsonData["properties"] ) {
+      if (jsonData["properties"].hasOwnProperty(key)){
+          console.log(" - "+key);
+      }
+  }
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

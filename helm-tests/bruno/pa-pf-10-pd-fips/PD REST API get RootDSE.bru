@@ -1,0 +1,50 @@
+meta {
+  name: PD REST API get RootDSE
+  type: http
+  seq: 16
+}
+
+get {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{PD_ENGINE_PUBLIC_PORT_HTTPS}}/directory/v1
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  
+  test("Vendor string is present",function(){
+      expect(jsonData["vendorName"]).to.exist;
+  });
+  
+  test("Vendor string is as expected",function(){
+      expect(jsonData["vendorName"]).to.be.equal("Ping Identity Corporation");
+  });
+  
+  test("publicBaseDNs key is present", function(){
+      expect(jsonData["publicBaseDNs"]).to.exist;
+  });
+  
+  test("Base DN is as expected", function(){
+      expect(jsonData["publicBaseDNs"][0]).to.be.equal("dc=example,dc=com");
+      bru.setEnvVar("_base_dn",jsonData["publicBaseDNs"][0]);
+  });
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

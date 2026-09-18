@@ -1,0 +1,55 @@
+meta {
+  name: PD REST API via DataGov Good Token user reads own entry just mail attribute
+  type: http
+  seq: 12
+}
+
+get {
+  url: https://{{PAZ_ENGINE_PRIVATE_HOSTNAME}}:{{PAZ_ENGINE_PRIVATE_PORT_HTTPS}}/pd-rest-api/uid=user.1,ou=people,{{_base_dn}}?includeAttributes=mail
+  body: json
+  auth: bearer
+}
+
+params:query {
+  includeAttributes: mail
+}
+
+headers {
+  ~Authorization: Bearer {"active":true,"sub":"useasdfadsfr.0","scope":"accounts"}
+}
+
+auth:bearer {
+  token: {"active":true,"sub":"user.1","client_id":"client1","scope":"ds"}
+}
+
+script:post-response {
+  test("response is ok", function () {
+      expect(res.getStatus()).to.be.within(200, 299);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  test("json data is not empty",function(){
+      expect(jsonData).to.not.be.empty;
+  });
+  
+  test("mail is present",function(){
+      expect(jsonData["mail"]).to.exist;
+  });
+  test("uid is not present",function(){
+      expect(jsonData["uid"]).to.not.exist;
+  });
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

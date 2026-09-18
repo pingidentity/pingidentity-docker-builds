@@ -1,0 +1,51 @@
+meta {
+  name: pingfederate admin
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{PF_ADMIN_PRIVATE_HOSTNAME}}:{{PF_ADMIN_PRIVATE_PORT_HTTPS}}/pingfederate/app
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  var _retries = bru.getEnvVar("_retries");
+  
+  // Checks to see if the server actually responded
+  if (res.getStatus() == 200 ) {
+      bru.deleteEnvVar("_retries");
+      console.log("connection successful");
+  
+      test("response is ok", function(){
+          expect(res.getStatus()).to.equal(200);
+      });
+      
+      test("response is not empty", function(){
+          expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+      });
+  } else {
+      if (!_retries){
+          _retries=10;
+      }
+      
+      if ( _retries > 0 ) {
+          _retries--;
+          bru.setEnvVar("_retries", _retries);
+          var timeout=Math.floor(Math.random() * ((+15000) - (+1000) + 1) + (+1000));
+          console.log("Attempting next connection in "+timeout+"ms ...");
+          // loop back to this request (request.name) after the timeout elapses
+          await bru.sleep(timeout);
+          bru.runner.setNextRequest(req.getName());
+      } else { 
+          bru.runner.setNextRequest(null);
+      }
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

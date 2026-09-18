@@ -1,0 +1,30 @@
+meta {
+  name: PD SOURCE - Pull Users
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1/ou=people,ou=source,o=sync/subtree?searchScope=singlelevel
+  body: none
+  auth: inherit
+}
+
+params:query {
+  searchScope: singlelevel
+}
+
+script:post-response {
+  test('Status code is ' + res.getStatus(), function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  var jsonData = res.getBody();
+  test('# of source users = ' + jsonData.size, function(){
+      expect(jsonData.size).to.equal(4);
+  });
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

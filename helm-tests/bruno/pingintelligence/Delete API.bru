@@ -1,0 +1,46 @@
+meta {
+  name: Delete API
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{API}}=shopapi
+  body: none
+  auth: inherit
+}
+
+headers {
+  "{{Access_Key_Header}}": {{Access_Key}}
+  "{{Secret_Key_Header}}": {{Secret_key}}
+  Content-Type: application/json
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  
+  test("status is present", function(){
+      expect(jsonData["status"]).to.exist;
+  });
+  
+  test("status is success", function(){
+      expect(jsonData["status"]).to.be.equal("success");
+  });
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

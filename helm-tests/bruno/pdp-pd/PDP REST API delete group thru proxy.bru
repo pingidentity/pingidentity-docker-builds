@@ -1,0 +1,31 @@
+meta {
+  name: PDP REST API delete group thru proxy
+  type: http
+  seq: 43
+}
+
+delete {
+  url: https://{{PDP_ENGINE_PRIVATE_HOSTNAME}}:{{PDP_ENGINE_PRIVATE_PORT_HTTPS}}/directory/v1/cn=proxy.group.0,ou=groups,{{_base_dn}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(204);
+  });
+  
+  test("response is empty", function(){
+      expect(res.getBody()).to.not.equal();
+  });
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

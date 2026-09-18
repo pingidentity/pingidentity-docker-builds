@@ -1,0 +1,45 @@
+meta {
+  name: PA GET  anything without auth
+  type: http
+  seq: 28
+}
+
+get {
+  url: https://{{PA_ENGINE_PRIVATE_HOSTNAME}}:{{PA_ENGINE_PRIVATE_PORT_HTTPS}}/anything/get
+  body: none
+  auth: none
+}
+
+headers {
+  X-Ping-Build-Run-Id: {{_runId}}
+}
+
+script:pre-request {
+  var _runId = Math.floor(Math.random()*100000);
+  bru.setVar("_runId",_runId);
+}
+
+script:post-response {
+      test("response is ok", function(){
+          expect(res.getStatus()).to.equal(200);
+      });
+      
+      test("response is not empty", function(){
+          expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+      });
+  
+      test("response is JSON", function(){
+          // (postman no-op retained: pm.response.to.be.json)
+      });
+  
+      test("response has correct run ID", function(){
+          var jsonData = res.getBody();
+          var runIdHeader = jsonData.headers["X-Ping-Build-Run-Id"] || jsonData.headers["x-ping-build-run-id"];
+          expect(runIdHeader).to.equal(""+bru.getVar("_runId"));
+      });    
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

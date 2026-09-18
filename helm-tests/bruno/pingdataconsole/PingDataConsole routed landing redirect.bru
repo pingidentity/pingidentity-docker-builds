@@ -1,0 +1,39 @@
+meta {
+  name: PingDataConsole routed landing redirect
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{PD_CONSOLE_PRIVATE_HOSTNAME}}:{{PD_CONSOLE_PRIVATE_PORT_HTTPS}}/console/
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  var locationHeader = res.getHeader("Location") || res.getHeader("location");
+  var normalizedLocation = (locationHeader || "").replace(/^https?:\/\/[^/]+/, "");
+  
+  test("PingDataConsole routed landing redirects", function () {
+      expect(res.getStatus()).to.equal(302);
+  });
+  
+  test("PingDataConsole routed redirect target is supported", function () {
+      expect(["login", "login/", "index.html", "/console/login", "/console/login/", "/console/index.html"]).to.include(normalizedLocation);
+  });
+  
+  if (normalizedLocation === "login" || normalizedLocation === "login/" || normalizedLocation === "/console/login" || normalizedLocation === "/console/login/") {
+      bru.runner.setNextRequest("PingDataConsole login page");
+  } else if (normalizedLocation === "index.html" || normalizedLocation === "/console/index.html") {
+      bru.runner.setNextRequest("PingDataConsole SPA index page");
+  } else {
+      bru.runner.setNextRequest(null);
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  followRedirects: false
+  forwardAuthorizationHeader: false
+}

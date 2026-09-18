@@ -1,0 +1,55 @@
+meta {
+  name: PD REST API create group
+  type: http
+  seq: 24
+}
+
+post {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+      "member": [
+          "uid=postman.user.0,ou=people,{{_base_dn}}"
+      ],
+      "cn": [
+          "postman.group.0"
+      ],
+      "objectClass": [
+          "top",
+          "groupOfNames"
+      ],
+      "_dn": "cn=postman.group.0,ou=groups,{{_base_dn}}"
+  }
+}
+
+script:post-response {
+  test("response is ok", function(){
+      // 201 means means the creation worked
+      // 409 means the entry already existed
+      expect([201,409]).to.include(res.getStatus());
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

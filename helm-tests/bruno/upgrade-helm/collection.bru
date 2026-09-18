@@ -1,0 +1,12 @@
+meta {
+  name: pf-helm-test
+}
+
+auth {
+  mode: none
+}
+
+vars:pre-request {
+  PF_ADMIN_PRIVATE_PORT_HTTPS: 9999
+  pf_engine_port: 9031
+}

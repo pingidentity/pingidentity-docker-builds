@@ -1,0 +1,68 @@
+meta {
+  name: PD CHECK GET available-state on write node
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{PD_ENGINE_PRIVATE_HOSTNAME}}-0.{{PD_ENGINE_PRIVATE_HOSTNAME}}-cluster:{{pd_port_https}}/available-state
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  var _host = bru.getEnvVar("PD_ENGINE_PRIVATE_HOSTNAME");
+  var _port = bru.getCollectionVar("pd_port_https");
+  console.log("Attempting connection to https://" + _host + ":" + _port + " ...");
+}
+
+script:post-response {
+  var _retries = bru.hasVar("_retries") ? bru.getVar("_retries") : bru.getCollectionVar("request_retry_count");
+  if (_retries > 0) {
+      bru.setVar("_retries", _retries);
+      var _retry_min = bru.getCollectionVar("request_retry_delay_min_ms");
+      var _retry_max = bru.getCollectionVar("request_retry_delay_max_ms");
+      var _timeout = Math.floor(Math.random() * ((+_retry_max) - (+_retry_min) + 1) + (+_retry_min));
+  }
+  
+  // Checks to see if the server actually responded
+  if (res.getStatus() == 200) {
+      bru.deleteVar("_retries");
+      console.log("connection successful");
+  
+      var jsonData = res.getBody();
+  
+      test("availability-state  key is present", function () {
+          expect(jsonData["availability-state"]).to.exist;
+      });
+  
+      if (jsonData["availability-state"] != "AVAILABLE"){
+          // loop back to this request (request.name) after the timeout elapses
+          await bru.sleep(_timeout);
+          bru.runner.setNextRequest(req.getName());
+      } else {
+          console.log("Server available, proceeding...");
+      }
+  } else {
+      console.log(". retries: " + _retries);
+      _retries--;
+      console.log("- retries: " + _retries);
+      bru.setVar("_retries", _retries);
+  
+      if (_retries > 0) {
+          console.log(_retries + " retries left. Attempting next connection in " + _timeout + "ms ...");
+          // loop back to this request (request.name) after the timeout elapses
+          await bru.sleep(_timeout);
+          bru.runner.setNextRequest(req.getName());
+      } else {
+          console.log("Attempts exhausted");
+          bru.runner.setNextRequest(null);
+      }
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

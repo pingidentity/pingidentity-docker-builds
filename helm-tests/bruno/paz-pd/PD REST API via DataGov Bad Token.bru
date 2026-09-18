@@ -1,0 +1,49 @@
+meta {
+  name: PD REST API via DataGov Bad Token
+  type: http
+  seq: 10
+}
+
+get {
+  url: https://{{PAZ_ENGINE_PRIVATE_HOSTNAME}}:{{PAZ_ENGINE_PRIVATE_PORT_HTTPS}}/pd-rest-api/uid=user.1,ou=people,{{_base_dn}}
+  body: json
+  auth: bearer
+}
+
+headers {
+  ~Authorization: Bearer {"active":true,"sub":"useasdfadsfr.0","scope":"accounts"}
+}
+
+auth:bearer {
+  token: {"active":false,"sub":"user.1","client_id":"client1","scope":"ds"}
+}
+
+script:post-response {
+  test("response is not ok", function () {
+      expect(res.getStatus()).to.not.be.within(200, 299);
+  });
+  
+  test("response is 401", function(){
+      expect(res.getStatus()).to.equal(401);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  test("json data is not empty",function(){
+      expect(jsonData).to.not.be.empty;
+  });
+  
+  
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

@@ -1,0 +1,48 @@
+meta {
+  name: PD SOURCE - Create Initial User
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{pd_port_https}}/directory/v1
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+      "description": [ "na" ],
+      "sn": [ "postman" ],
+      "cn": [ "Postman User.0" ],
+      "givenName": [ "user.0" ],
+      "userPassword": [ "{{regular_pwd}}"	],
+      "uid": [ "{{regular_user}}" ],
+      "objectClass": [
+          "top",
+          "person",
+          "organizationalPerson",
+          "inetOrgPerson"
+      ],
+      "_dn": "uid={{regular_user}},ou=people,ou=source,{{base_dn}}"
+  }
+}
+
+script:post-response {
+  test('Status code is ' + res.getStatus(), function(){
+      expect(res.getStatus()).to.equal(201);
+  });
+  var jsonData = res.getBody();
+  test('Added ' + jsonData['_dn'], function(){
+      expect(jsonData['_dn']).to.equal("uid=" + bru.getCollectionVar("regular_user") + ",ou=people,ou=source," + bru.getCollectionVar("base_dn"));
+  });
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}

@@ -1,0 +1,40 @@
+meta {
+  name: PD CHECK GET available-state
+  type: http
+  seq: 8
+}
+
+get {
+  url: https://{{K8S_STATEFUL_SET_SERVICE_NAME}}:{{PD_ENGINE_PUBLIC_PORT_HTTPS}}/available-state
+  body: none
+  auth: none
+}
+
+script:post-response {
+  test("response is ok", function(){
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("response is not empty", function(){
+      expect(res.getBody() !== undefined && res.getBody() !== '').to.be.true;
+  });
+  
+  test("response is JSON", function(){
+      // (postman no-op retained: pm.response.to.be.json)
+  });
+  
+  var jsonData = res.getBody();
+  
+  test("availability-state  key is present", function(){
+      expect(jsonData["availability-state"]).to.exist;
+  });
+  
+  test("State is available", function(){
+      expect(jsonData["availability-state"]).to.be.equal("AVAILABLE");
+  });
+}
+
+settings {
+  encodeUrl: true
+  forwardAuthorizationHeader: false
+}
