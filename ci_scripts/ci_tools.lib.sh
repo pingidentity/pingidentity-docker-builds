@@ -240,6 +240,26 @@ _getShimsToBuildForJVM() {
         "${jvm_versions_file}"
 }
 
+# Echo the v2 base image for a jvm id, or nothing (exit 1) if unmapped.
+# Floating OS-major tags: alpine pins 3.24, redhat pins ubi9;
+# patch level floats on weekly rebuilds.
+# al25 -> pingbase-java:alpine3.24-jdk25
+# rl21 -> pingbase-java:ubi9-jdk21
+# alnoj -> pingbase:alpine3.24
+# al17/rl17 -> mapped like all other ids; conoj -> unmapped only
+# JDK tracks are explicitly listed (17/21/25, see pingjvm/jdk-tracks.json) so a
+# new track requires a conscious mapping change.
+_getV2BaseImageForJVM() {
+    test -z "${1}" && echo_red "ERROR: The function _getV2BaseImageForJVM requires a jvm ID input." && exit 1
+
+    case "${1}" in
+        alnoj) echo "${DEPS_REGISTRY}pingbase:alpine3.24" ;;
+        al17 | al21 | al25) echo "${DEPS_REGISTRY}pingbase-java:alpine3.24-jdk${1#al}" ;;
+        rl17 | rl21 | rl25) echo "${DEPS_REGISTRY}pingbase-java:ubi9-jdk${1#rl}" ;;
+        *) echo_red "ERROR: No v2 base image mapping for jvm ID ${1}." && exit 1 ;;
+    esac
+}
+
 # Get the all shims from versions.json file for a specified product name.
 _getAllShimsForProduct() {
     test -z "${1}" && echo_red "ERROR: The function _getAllShimsForProduct requires a product name input." && exit 1
