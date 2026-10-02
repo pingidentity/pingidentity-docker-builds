@@ -260,6 +260,23 @@ _getV2BaseImageForJVM() {
     esac
 }
 
+# Echo the in-image JAVA_HOME symlink target for a jvm id, or nothing (rc 0) for
+# alnoj (mapped but non-JVM: no java to link). Exits 1 for any other unmapped id.
+# Must stay consistent with _getV2BaseImageForJVM: alnoj is the only mapped
+# non-JVM id; JDK tracks mirror the same explicit list.
+# rl ids build x86_64-only (pingjvm/versions.json archs), so the .x86_64 suffix
+# in bellsoft's install path is safe; revisit if rl gains an arm track.
+_getV2JavaLinkForJVM() {
+    test -z "${1}" && echo_red "ERROR: The function _getV2JavaLinkForJVM requires a jvm ID input." && exit 1
+
+    case "${1}" in
+        alnoj) ;;
+        al17 | al21 | al25) echo "/usr/lib/jvm/bellsoft-java${1#al}-lite" ;;
+        rl17 | rl21 | rl25) echo "/usr/lib/jvm/bellsoft-java${1#rl}-lite.x86_64" ;;
+        *) echo_red "ERROR: No v2 java link mapping for jvm ID ${1}." && exit 1 ;;
+    esac
+}
+
 # Get the all shims from versions.json file for a specified product name.
 _getAllShimsForProduct() {
     test -z "${1}" && echo_red "ERROR: The function _getAllShimsForProduct requires a product name input." && exit 1
@@ -842,18 +859,29 @@ else
     CI_TAG="${gitBranch}-${GIT_REV_SHORT}"
 fi
 
+# Normalize arch names to the repo-canonical set (x86_64, aarch64):
+# pingjvm/versions.json, integration-tests.json and image tags use those,
+# while mac uname -m and Docker platforms use arm64/amd64.
+_normalizeArch() {
+    case "${1}" in
+        amd64) echo "x86_64" ;;
+        arm64) echo "aarch64" ;;
+        *) echo "${1}" ;;
+    esac
+}
+
 # Set ARCH based on DOCKER_DEFAULT_PLATFORM if available, otherwise use host architecture
 if [[ -n "${DOCKER_DEFAULT_PLATFORM}" ]]; then
     # Extract architecture from DOCKER_DEFAULT_PLATFORM (format: os/arch)
-    ARCH=$(echo "${DOCKER_DEFAULT_PLATFORM}" | cut -d'/' -f2)
+    ARCH="$(_normalizeArch "$(echo "${DOCKER_DEFAULT_PLATFORM}" | cut -d'/' -f2)")"
     # Fallback to host architecture if extraction failed or produced empty result
     if [[ -z "${ARCH}" ]]; then
         echo_yellow "Warning: Failed to extract architecture from DOCKER_DEFAULT_PLATFORM environment variable. Falling back to host architecture.  Expected format is 'os/arch'."
-        ARCH="$(uname -m)"
+        ARCH="$(_normalizeArch "$(uname -m)")"
     fi
 else
     # Use host architecture
-    ARCH="$(uname -m)"
+    ARCH="$(_normalizeArch "$(uname -m)")"
 fi
 
 # Fail the script if ARCH is empty

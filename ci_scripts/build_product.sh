@@ -43,7 +43,10 @@ END_USAGE
 
 # export PING_IDENTITY_SNAPSHOT=--snapshot to trigger snapshot build
 DOCKER_BUILDKIT=1
-noCache=${DOCKER_BUILD_CACHE}
+# noCache from DOCKER_BUILD_CACHE (e.g. --no-cache) or the --no-cache flag;
+# progress from --verbose-build. Words split into the build-arg array below.
+noCache=" ${DOCKER_BUILD_CACHE}"
+progress=""
 while ! test -z "${1}"; do
     case "${1}" in
         -p | --product)
@@ -160,9 +163,15 @@ _date=$(date +"%y%m%d")
 
 returnCode=0
 
-# Check if the given dryRun executes successfully
+# Check if the given dryRun executes successfully.
+# No eval: dry-run prints, otherwise runs directly. Callers that need word
+# splitting pass pre-split args (see the docker image cleanups below).
 exec_cmd_or_fail() {
-    eval "${dryRun} ${*}"
+    if test -n "${dryRun}"; then
+        echo "${*}"
+        return 0
+    fi
+    "${@}"
     result_code=${?}
     if test ${result_code} -ne 0; then
         echo_red "The following command resulted in an error: ${*}"
@@ -223,29 +232,65 @@ for _version in ${versionsToBuild}; do
             imageVersion="${_buildVersion}-${_shimLongTag}-${_jvm}"
             licenseVersion="$(_getLicenseVersion "${_version}")"
 
+            # Resolve the v2 base image args for this jvm id.
+            # conoj is unmapped by design: v1 path, no v2 args (it never had a
+            # pingjvm layer). Any other unmapped id is a fail-fast: a mapped-only
+            # product must not silently build without its v2 base.
+            _v2_base_image=""
+            _v2_java_link=""
+            _v2_stop=$(date '+%s')
+            _v2_duration=$((_v2_stop - _start))
+            if ! test "${_jvm}" = "conoj"; then
+                if ! _v2_base_image="$(_getV2BaseImageForJVM "${_jvm}")" ||
+                    ! _v2_java_link="$(_getV2JavaLinkForJVM "${_jvm}")"; then
+                    echo_red "ERROR: No v2 mapping for jvm ID ${_jvm}; refusing to build ${productToBuild} ${_buildVersion} ${_shim} without it."
+                    _result=FAIL
+                    append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${productToBuild}" "${_buildVersion}" "${_shim}" "${_jvm}" "${_v2_duration}" "${_result}"
+                    exit 1
+                fi
+            fi
+
             _image="${FOUNDATION_REGISTRY}/${productToBuild}:${fullTag}"
-            # Word-split is expected behavior for $progress. Disable shellcheck.
+            # No eval: values pass through as quoted array elements, so shell
+            # metacharacters in branch-derived strings (CI_TAG embeds the branch
+            # name) are inert. dry-run prints the command instead of running it.
+            _buildArgs=(-t "${_image}")
+            # progress/noCache are one-or-more single-word docker options; split
+            # them into the array (DOCKER_BUILD_CACHE may hold multiple tokens).
+            # shellcheck disable=SC2206
+            for _progress_word in ${progress}; do
+                _buildArgs+=("${_progress_word}")
+            done
+            # shellcheck disable=SC2206
+            for _no_cache_word in ${noCache}; do
+                _buildArgs+=("${_no_cache_word}")
+            done
+            _buildArgs+=(
+                --build-arg PRODUCT="${productToBuild}"
+                --build-arg REGISTRY="${FOUNDATION_REGISTRY}"
+                --build-arg DEPS="${DEPS_REGISTRY}"
+                --build-arg ARTIFACTORY_URL="${ARTIFACTORY_URL}"
+                --build-arg GIT_TAG="${CI_TAG}"
+                --build-arg JVM="${_jvm}"
+                --build-arg ARCH="${ARCH}"
+                --build-arg SHIM="${_shim}"
+                --build-arg SHIM_TAG="${_shimLongTag}"
+                --build-arg VERSION="${_buildVersion}"
+                --build-arg DATE="${_date}"
+                --build-arg IMAGE_VERSION="${imageVersion}"
+                --build-arg IMAGE_GIT_REV="${GIT_REV_MED}"
+                --build-arg LICENSE_VERSION="${licenseVersion}"
+                --build-arg LATEST_ALPINE_VERSION="3.24.2"
+            )
+            test -n "${_v2_base_image}" && _buildArgs+=(--build-arg V2_BASE_IMAGE="${_v2_base_image}")
+            test -n "${_v2_java_link}" && _buildArgs+=(--build-arg JAVA_LINK="${_v2_java_link}")
+            test -n "${VERBOSE}" && _buildArgs+=(--build-arg VERBOSE="true")
+            test -n "${PING_IDENTITY_SNAPSHOT}" && _buildArgs+=(--build-arg SNAPSHOT_URL="${snapshot_url}")
+            # Word-split is expected behavior for $_dependencies (list of
+            # --build-arg tokens). Disable shellcheck.
             # shellcheck disable=SC2086
-            DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
-                -t "${_image}" \
-                ${progress} ${noCache} \
-                --build-arg PRODUCT="${productToBuild}" \
-                --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
-                --build-arg DEPS="${DEPS_REGISTRY}" \
-                --build-arg ARTIFACTORY_URL="${ARTIFACTORY_URL}" \
-                --build-arg GIT_TAG="${CI_TAG}" \
-                --build-arg JVM="${_jvm}" \
-                --build-arg ARCH="${ARCH}" \
-                --build-arg SHIM="${_shim}" \
-                --build-arg SHIM_TAG="${_shimLongTag}" \
-                --build-arg VERSION="${_buildVersion}" \
-                --build-arg DATE="${_date}" \
-                --build-arg IMAGE_VERSION="${imageVersion}" \
-                --build-arg IMAGE_GIT_REV="${GIT_REV_MED}" \
-                --build-arg LICENSE_VERSION="${licenseVersion}" \
-                --build-arg LATEST_ALPINE_VERSION="3.24.2" \
-                ${VERBOSE:+--build-arg VERBOSE="true"} \
-                ${PING_IDENTITY_SNAPSHOT:+--build-arg SNAPSHOT_URL="${snapshot_url}"} \
+            ${dryRun} env DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
+                "${_buildArgs[@]}" \
                 ${_dependencies} \
                 "${CI_PROJECT_DIR}/${productToBuild}"
 
