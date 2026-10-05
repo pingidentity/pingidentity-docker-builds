@@ -43,7 +43,7 @@
             "dependencies": [
                 {
                     "product": "apache-tomcat",
-                    "version": "11.0.26"
+                    "version": "9.0.115"
                 }
             ]
         },
