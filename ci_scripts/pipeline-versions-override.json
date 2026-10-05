@@ -1,0 +1,77 @@
+{
+    "latest": "10.3.0.6",
+    "versions": [
+        {
+            "version": "10.3.0.6",
+            "preferredShim": "alpine:3.24.2",
+            "shims": [
+                {
+                    "shim": "alpine:3.24.2",
+                    "preferredJVM": "al21",
+                    "jvms": [
+                        {
+                            "jvm": "al21",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "version": "10.2.0.9",
+            "preferredShim": "alpine:3.24.2",
+            "shims": [
+                {
+                    "shim": "alpine:3.24.2",
+                    "preferredJVM": "al21",
+                    "jvms": [
+                        {
+                            "jvm": "al21",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "dependencies": [
+                {
+                    "product": "apache-tomcat",
+                    "version": "11.0.26"
+                }
+            ]
+        },
+        {
+            "version": "10.3.0.6",
+            "preferredShim": "alpine:3.24.2",
+            "shims": [
+                {
+                    "shim": "alpine:3.24.2",
+                    "preferredJVM": "al21",
+                    "jvms": [
+                        {
+                            "jvm": "al21",
+                            "build": true,
+                            "deploy": true,
+                            "registries": [
+                                "DockerHub"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "dependencies": [
+                {
+                    "product": "apache-tomcat",
+                    "version": "11.0.26"
+                }
+            ]
+        }
+    ]
+}
