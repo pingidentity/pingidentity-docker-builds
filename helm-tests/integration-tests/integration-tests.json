@@ -401,13 +401,13 @@
                             "productName": "pingauthorize",
                             "version": "latest",
                             "shim": "alpine:3.24.2",
-                            "jvm": "al25"
+                            "jvm": "al21"
                         },
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
                             "shim": "alpine:3.24.2",
-                            "jvm": "al25"
+                            "jvm": "al21"
                         }
                     ]
                 },
@@ -420,13 +420,13 @@
                             "productName": "pingauthorize",
                             "version": "latest",
                             "shim": "alpine:3.24.2",
-                            "jvm": "al25"
+                            "jvm": "al21"
                         },
                         {
                             "productName": "pingdirectory",
                             "version": "latest",
                             "shim": "alpine:3.24.2",
-                            "jvm": "al25"
+                            "jvm": "al21"
                         }
                     ]
                 }
@@ -445,7 +445,7 @@
                             "productName": "pingdirectory",
                             "version": "latest",
                             "shim": "alpine:3.24.2",
-                            "jvm": "al25"
+                            "jvm": "al21"
                         }
                     ]
                 },
@@ -458,7 +458,7 @@
                             "productName": "pingdirectory",
                             "version": "latest",
                             "shim": "alpine:3.24.2",
-                            "jvm": "al25"
+                            "jvm": "al21"
                         }
                     ]
                 }
@@ -477,13 +477,13 @@
                             "productName": "pingdirectory",
                             "version": "latest",
                             "shim": "alpine:3.24.2",
-                            "jvm": "al25"
+                            "jvm": "al21"
                         },
                         {
                             "productName": "pingdirectoryproxy",
                             "version": "latest",
                             "shim": "alpine:3.24.2",
-                            "jvm": "al25"
+                            "jvm": "al21"
                         }
                     ]
                 },
@@ -496,13 +496,13 @@
                             "productName": "pingdirectory",
                             "version": "latest",
                             "shim": "alpine:3.24.2",
-                            "jvm": "al25"
+                            "jvm": "al21"
                         },
                         {
                             "productName": "pingdirectoryproxy",
                             "version": "latest",
                             "shim": "alpine:3.24.2",
-                            "jvm": "al25"
+                            "jvm": "al21"
                         }
                     ]
                 }
@@ -521,13 +521,13 @@
                             "productName": "pingdirectory",
                             "version": "latest",
                             "shim": "alpine:3.24.2",
-                            "jvm": "al25"
+                            "jvm": "al21"
                         },
                         {
                             "productName": "pingdatasync",
                             "version": "latest",
                             "shim": "alpine:3.24.2",
-                            "jvm": "al25"
+                            "jvm": "al21"
                         }
                     ]
                 },
@@ -540,13 +540,13 @@
                             "productName": "pingdirectory",
                             "version": "latest",
                             "shim": "alpine:3.24.2",
-                            "jvm": "al25"
+                            "jvm": "al21"
                         },
                         {
                             "productName": "pingdatasync",
                             "version": "latest",
                             "shim": "alpine:3.24.2",
-                            "jvm": "al25"
+                            "jvm": "al21"
                         }
                     ]
                 }
