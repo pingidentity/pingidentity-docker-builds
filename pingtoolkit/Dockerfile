@@ -17,26 +17,35 @@
 ARG ARCH
 ARG DEPS
 ARG GIT_TAG
-ARG JVM
 ARG LATEST_ALPINE_VERSION
 ARG REGISTRY
 ARG SHIM
-ARG SHIM_TAG
+# v2 base adoption: CI passes V2_BASE_IMAGE (+ JAVA_LINK for JVM
+# products). Empty V2_BASE_IMAGE falls back to the v1 shim for review builds;
+# production CI fail-fasts on unmapped jvm ids before ever reaching here.
+ARG V2_BASE_IMAGE
+ARG JAVA_LINK
 
 #################################################################################
 
 FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} AS common
-FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} AS jvm
 
 #################################################################################
 
-FROM ${DEPS}${SHIM} AS final-staging
+FROM ${V2_BASE_IMAGE:-${DEPS}${SHIM}} AS final-staging
+
+# v2 base images end at USER 9031:0; staging RUN steps run as root (v1 built
+# from a root shim).
+USER 0:0
+# Re-declared: top-level ARGs are not inherited into stage RUN scope.
+ARG JAVA_LINK
+# Preserve the JAVA_HOME=/opt/java contract (pingbase env + PATH); the link
+# target lives inside the v2 base image. Empty JAVA_LINK (v1 fallback) leaves
+# /opt/java to the common scripts as today.
+RUN if test -n "${JAVA_LINK}"; then ln -s "${JAVA_LINK}" /opt/java; fi
 
 # get Ping-wide common scripts
 COPY --from=common ["/opt/","/opt/"]
-
-# get the jvm
-COPY --from=jvm ["/opt/java","/opt/java"]
 
 # apply product-specific hooks and patches
 COPY ["/opt","/opt"]
