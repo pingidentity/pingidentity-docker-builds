@@ -249,13 +249,17 @@ _getShimsToBuildForJVM() {
 # al17/rl17 -> mapped like all other ids; conoj -> unmapped only
 # JDK tracks are explicitly listed (17/21/25, see pingjvm/jdk-tracks.json) so a
 # new track requires a conscious mapping change.
+# V2 base images are published by the v2 base pipeline to the artifactory
+# registry (ARTIFACTORY_REGISTRY, e.g. docker.corp.pingidentity.com:5300), NOT
+# to the deps pull-through registry (PIPELINE_DEPS_REGISTRY, :5700) which only
+# proxies hub library images.
 _getV2BaseImageForJVM() {
     test -z "${1}" && echo_red "ERROR: The function _getV2BaseImageForJVM requires a jvm ID input." && exit 1
 
     case "${1}" in
-        alnoj) echo "${DEPS_REGISTRY}pingbase:alpine3.24" ;;
-        al17 | al21 | al25) echo "${DEPS_REGISTRY}pingbase-java:alpine3.24-jdk${1#al}" ;;
-        rl17 | rl21 | rl25) echo "${DEPS_REGISTRY}pingbase-java:ubi9-jdk${1#rl}" ;;
+        alnoj) echo "${ARTIFACTORY_REGISTRY}/pingbase:alpine3.24" ;;
+        al17 | al21 | al25) echo "${ARTIFACTORY_REGISTRY}/pingbase-java:alpine3.24-jdk${1#al}" ;;
+        rl17 | rl21 | rl25) echo "${ARTIFACTORY_REGISTRY}/pingbase-java:ubi9-jdk${1#rl}" ;;
         *) echo_red "ERROR: No v2 base image mapping for jvm ID ${1}." && exit 1 ;;
     esac
 }

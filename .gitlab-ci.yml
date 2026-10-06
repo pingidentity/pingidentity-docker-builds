@@ -34,7 +34,11 @@ default:
     VAULT_ID_TOKEN:
       aud: '$VAULT_HTTPS_ADDR'
   services:
-    - $PIPELINE_DEPS_REGISTRY/docker:23.0.2-dind
+    # 27-dind: 23.0.2-dind incompatible with AL2023 runner nodes (helm-charts
+    # rel0.16.0 fix, 2026-10-05). --host forces plain TCP on 2375 because
+    # docker:27-dind defaults to TLS-only on 2376, unlike 18.09/23.0.2.
+    - name: $PIPELINE_DEPS_REGISTRY/docker:27-dind
+      command: ["--host=tcp://0.0.0.0:2375"]
   # Toggle the comment status of the next two lines to test a new X86_64 runner image
   # Update the variable in the repository accordingly
   # There are similar toggle lines across the other pipeline files for the ARM runner image
