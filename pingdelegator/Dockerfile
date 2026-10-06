@@ -15,11 +15,14 @@
 ARG ARCH
 ARG DEPS
 ARG GIT_TAG
-ARG JVM
 ARG LATEST_ALPINE_VERSION
 ARG REGISTRY
 ARG SHIM
-ARG SHIM_TAG
+# v2 base adoption: CI passes V2_BASE_IMAGE (+ JAVA_LINK for JVM
+# products). Empty V2_BASE_IMAGE falls back to the v1 shim for review builds;
+# production CI fail-fasts on unmapped jvm ids before ever reaching here.
+# pingdelegator is non-JVM (alnoj): JAVA_LINK is never passed, so no symlink.
+ARG V2_BASE_IMAGE
 
 #################################################################################
 
@@ -52,7 +55,11 @@ RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
 
 #################################################################################
 
-FROM ${DEPS}${SHIM} AS final-staging
+FROM ${V2_BASE_IMAGE:-${DEPS}${SHIM}} AS final-staging
+
+# v2 base images end at USER 9031:0; staging RUN steps run as root (v1 built
+# from a root shim).
+USER 0:0
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
