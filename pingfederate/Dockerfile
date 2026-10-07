@@ -15,16 +15,18 @@
 ARG ARCH
 ARG DEPS
 ARG GIT_TAG
-ARG JVM
 ARG LATEST_ALPINE_VERSION
 ARG REGISTRY
 ARG SHIM
-ARG SHIM_TAG
+# v2 base adoption: CI passes V2_BASE_IMAGE (+ JAVA_LINK for JVM
+# products). Empty V2_BASE_IMAGE falls back to the v1 shim for review builds;
+# production CI fail-fasts on unmapped jvm ids before ever reaching here.
+ARG V2_BASE_IMAGE
+ARG JAVA_LINK
 
 #################################################################################
 
 FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} AS common
-FROM ${REGISTRY}/pingjvm:${JVM}-${SHIM_TAG}-${GIT_TAG}-${ARCH} AS jvm
 
 #################################################################################
 
@@ -56,12 +58,17 @@ RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
 
 #################################################################################
 
-FROM ${DEPS}${SHIM} AS final-staging
+FROM ${V2_BASE_IMAGE:-${DEPS}${SHIM}} AS final-staging
 
-# On PF 12.2 and later, use the run.sh packaged with the product,
-# else use the custom run.sh file
-# TODO remove after deprecation of 12.1.x PF versions
-ARG VERSION
+# v2 base images end at USER 9031:0; staging RUN steps run as root (v1 built
+# from a root shim).
+USER 0:0
+# Re-declared: top-level ARGs are not inherited into stage RUN scope.
+ARG JAVA_LINK
+# Preserve the JAVA_HOME=/opt/java contract (pingbase env + PATH); the link
+# target lives inside the v2 base image. Empty JAVA_LINK (v1 fallback) leaves
+# /opt/java to the common scripts as today.
+RUN if test -n "${JAVA_LINK}"; then ln -s "${JAVA_LINK}" /opt/java; fi
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
@@ -70,9 +77,6 @@ COPY --from=product-staging ["/opt/","/opt/"]
 #   this needs to happen after the bits have been laid down
 #   so they can be patched
 COPY --from=common ["/opt/","/opt/"]
-
-# get the jvm
-COPY --from=jvm ["/opt/java","/opt/java"]
 
 # apply product-specific hooks and patches
 COPY ["/opt","/opt"]
@@ -88,7 +92,7 @@ RUN ["/opt/build.sh"]
 FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH} AS base
 
 # The final image
-FROM ${DEPS}${SHIM}
+FROM ${V2_BASE_IMAGE:-${DEPS}${SHIM}}
 
 # from pingbase
 ARG BASE
@@ -529,6 +533,19 @@ COPY --from=base "/licenses/" "/licenses/"
 # get the staged bits
 COPY --from=final-staging ["/opt","/opt"]
 COPY --from=final-staging ["/etc/motd","/etc/motd"]
+
+# install_deps needs root (apk/yum); the v2 base image ends at USER 9031:0,
+# the v1 shim at root — force root for the run either way.
+USER 0:0
+
+# The v2 pingbase-java:ubi9 image ships the JDK's bellsoft.repo (enabled,
+# priority=1). Nothing downstream needs it, and if yum.bell-sw.com's
+# repodata is mid-rotation during a build, microdnf refuses to run at all
+# (any failing enabled repo aborts) — observed 2026-10-06 as a silent
+# install_deps skip (no error handling) producing an image without jq/
+# gettext, caught only by the pa-cluster smoke test. The JDK is already
+# baked into the base; drop the repo.
+RUN rm -f /etc/yum.repos.d/bellsoft.repo
 
 RUN ["/opt/install_deps.sh"]
 
