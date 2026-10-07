@@ -22,7 +22,7 @@ Usage: ${0} {options}
         The following are valid products to archive:
         ldap-sdk-tools pingaccess pingauthorize pingauthorizepap
         pingcentral pingdataconsole pingdatasync pingdelegator pingdirectory
-        pingdirectoryproxy pingfederate pingintelligence pingtoolkit
+        pingdirectoryproxy pingfederate pingtoolkit
     --help
         Display general usage information
 END_USAGE
@@ -222,7 +222,7 @@ authenticate_to_dockerhub
 dockerhub_auth_token=$(jq -r .token "${api_output_file}")
 
 # Define list of all DockerHub repositories for the PingDevops Integrations Team
-repository_list="ldap-sdk-tools pingaccess pingauthorize pingauthorizepap pingcentral pingdataconsole pingdatasync pingdelegator pingdirectory pingdirectoryproxy pingfederate pingintelligence pingtoolkit"
+repository_list="ldap-sdk-tools pingaccess pingauthorize pingauthorizepap pingcentral pingdataconsole pingdatasync pingdelegator pingdirectory pingdirectoryproxy pingfederate pingtoolkit"
 
 # Make sure repository is set by user, or exit
 if test -z "${repository}"; then

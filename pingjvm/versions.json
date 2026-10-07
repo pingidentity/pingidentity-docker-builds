@@ -34,16 +34,6 @@
         },
         {
             "shims": [
-                "centos"
-            ],
-            "id": "conoj",
-            "version": "0",
-            "archs": [
-                "x86_64"
-            ]
-        },
-        {
-            "shims": [
                 "alpine"
             ],
             "id": "alnoj",
