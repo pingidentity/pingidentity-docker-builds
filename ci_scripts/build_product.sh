@@ -152,11 +152,11 @@ if test -z "${versionsToBuild}"; then
 fi
 
 # result table header
-_resultsFile="/tmp/$$.results"
+_resultsFile="${TMPDIR:-/tmp}/$$.results"
 _reportPattern='%-23s| %-20s| %-20s| %-10s| %10s| %7s'
 
 # Add header to results file
-printf ' %-24s| %-20s| %-20s| %-10s| %10s| %7s\n' "PRODUCT" "VERSION" "SHIM" "JDK" "DURATION" "RESULT" > ${_resultsFile}
+printf ' %-24s| %-20s| %-20s| %-10s| %10s| %7s\n' "PRODUCT" "VERSION" "SHIM" "JDK" "DURATION" "RESULT" > "${_resultsFile}"
 _totalStart=$(date '+%s')
 
 _date=$(date +"%y%m%d")
@@ -343,8 +343,8 @@ if test -z "${IS_LOCAL_BUILD}"; then
     test -n "${imagesToClean}" && exec_cmd_or_fail docker image rm -f ${imagesToClean}
 fi
 
-cat ${_resultsFile}
-rm ${_resultsFile}
+cat "${_resultsFile}"
+rm "${_resultsFile}"
 _totalStop=$(date '+%s')
 _totalDuration=$((_totalStop - _totalStart))
 echo "Total duration: ${_totalDuration}s"
