@@ -257,7 +257,7 @@ for _shim in ${shims}; do
             echo_red "${valid_jvms}" &&
             exit 1
 
-        if test "${_jvm}" = "conoj" || test "${_jvm}" = "alnoj"; then
+        if test "${_jvm}" = "alnoj"; then
             continue
         fi
         banner "Building pingjvm for JDK ${_jvm} for ${_shim}"

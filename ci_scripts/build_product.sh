@@ -232,22 +232,18 @@ for _version in ${versionsToBuild}; do
             imageVersion="${_buildVersion}-${_shimLongTag}-${_jvm}"
             licenseVersion="$(_getLicenseVersion "${_version}")"
 
-            # Resolve the v2 base image args for this jvm id.
-            # conoj is unmapped by design: v1 path, no v2 args (it never had a
-            # pingjvm layer). Any other unmapped id is a fail-fast: a mapped-only
-            # product must not silently build without its v2 base.
+            # Resolve the v2 base image args for this jvm id. Fail-fast on any
+            # unmapped id: a product must not silently build without its v2 base.
             _v2_base_image=""
             _v2_java_link=""
             _v2_stop=$(date '+%s')
             _v2_duration=$((_v2_stop - _start))
-            if ! test "${_jvm}" = "conoj"; then
-                if ! _v2_base_image="$(_getV2BaseImageForJVM "${_jvm}")" ||
-                    ! _v2_java_link="$(_getV2JavaLinkForJVM "${_jvm}")"; then
-                    echo_red "ERROR: No v2 mapping for jvm ID ${_jvm}; refusing to build ${productToBuild} ${_buildVersion} ${_shim} without it."
-                    _result=FAIL
-                    append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${productToBuild}" "${_buildVersion}" "${_shim}" "${_jvm}" "${_v2_duration}" "${_result}"
-                    exit 1
-                fi
+            if ! _v2_base_image="$(_getV2BaseImageForJVM "${_jvm}")" ||
+                ! _v2_java_link="$(_getV2JavaLinkForJVM "${_jvm}")"; then
+                echo_red "ERROR: No v2 mapping for jvm ID ${_jvm}; refusing to build ${productToBuild} ${_buildVersion} ${_shim} without it."
+                _result=FAIL
+                append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${productToBuild}" "${_buildVersion}" "${_shim}" "${_jvm}" "${_v2_duration}" "${_result}"
+                exit 1
             fi
 
             _image="${FOUNDATION_REGISTRY}/${productToBuild}:${fullTag}"

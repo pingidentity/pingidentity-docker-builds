@@ -246,7 +246,7 @@ _getShimsToBuildForJVM() {
 # al25 -> pingbase-java:alpine3.24-jdk25
 # rl21 -> pingbase-java:ubi9-jdk21
 # alnoj -> pingbase:alpine3.24
-# al17/rl17 -> mapped like all other ids; conoj -> unmapped only
+# al17/rl17 -> mapped like all other ids (CUSTOM_JVM_ID builds)
 # JDK tracks are explicitly listed (17/21/25, see pingjvm/jdk-tracks.json) so a
 # new track requires a conscious mapping change.
 # V2 base images are published by the v2 base pipeline to the artifactory
