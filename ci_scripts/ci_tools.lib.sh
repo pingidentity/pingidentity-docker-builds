@@ -268,15 +268,21 @@ _getV2BaseImageForJVM() {
 # alnoj (mapped but non-JVM: no java to link). Exits 1 for any other unmapped id.
 # Must stay consistent with _getV2BaseImageForJVM: alnoj is the only mapped
 # non-JVM id; JDK tracks mirror the same explicit list.
-# rl ids build x86_64-only (pingjvm/versions.json archs), so the .x86_64 suffix
-# in bellsoft's install path is safe; revisit if rl gains an arm track.
+# rl ids are arch-suffixed in bellsoft's UBI install path (verified 2026-10-08:
+# amd64 -> bellsoft-javaNN-lite.x86_64, arm64 -> bellsoft-javaNN-lite.aarch64,
+# matching JAVA_ARCH_SUFFIX in the published pingbase-java configs). Alpine
+# installs are suffix-free on both arches. Requires ${ARCH} (set+validated on
+# lib source).
 _getV2JavaLinkForJVM() {
     test -z "${1}" && echo_red "ERROR: The function _getV2JavaLinkForJVM requires a jvm ID input." && exit 1
 
     case "${1}" in
         alnoj) ;;
         al17 | al21 | al25) echo "/usr/lib/jvm/bellsoft-java${1#al}-lite" ;;
-        rl17 | rl21 | rl25) echo "/usr/lib/jvm/bellsoft-java${1#rl}-lite.x86_64" ;;
+        rl17 | rl21 | rl25)
+            test -z "${ARCH}" && echo_red "ERROR: _getV2JavaLinkForJVM requires ARCH for rl ids." && exit 1
+            echo "/usr/lib/jvm/bellsoft-java${1#rl}-lite.${ARCH}"
+            ;;
         *) echo_red "ERROR: No v2 java link mapping for jvm ID ${1}." && exit 1 ;;
     esac
 }
