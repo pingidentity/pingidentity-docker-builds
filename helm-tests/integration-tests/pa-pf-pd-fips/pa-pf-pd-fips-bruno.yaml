@@ -140,7 +140,12 @@ testFramework:
       command:
         - /bin/sh
         - /var/run/wait-for-url.sh
-        - https://${PA_ENGINE_PRIVATE_HOSTNAME}:${PA_ENGINE_PRIVATE_PORT_HTTPS}/pa/heartbeat.ping
+        # Runtime-ready gate: /anything only serves 200 once the engine has
+        # loaded its runtime policy config from the admin console. The
+        # heartbeat endpoint returns 200 earlier (web tier up), which races
+        # the bruno check that hits /anything right after (observed locally
+        # as a stable 503 window; PDI-2487).
+        - https://${PA_ENGINE_PRIVATE_HOSTNAME}:${PA_ENGINE_PRIVATE_PORT_HTTPS}/anything/get
         - "900"
 
     - name: 02-check-pa-pf-pd-fips-bruno
