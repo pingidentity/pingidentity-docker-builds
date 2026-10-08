@@ -198,10 +198,10 @@ imagesToCleanup="${imagesToCleanup} ${_image}"
 
 if test -n "${PING_IDENTITY_SNAPSHOT}"; then
     # TODO: Fix artifactory caching issue. Shim is hardcoded to avoid incorrect arch pull from artifactory.
-    shimsToBuild="alpine:3.24.2"
-    if test "${ARCH}" = "x86_64"; then
-        shimsToBuild="${shimsToBuild} redhat/ubi9-minimal:9.8-1790754119"
-    fi
+    # The ubi9-minimal:9.8-1790754119 pin is resolved through the deps pull-through
+    # registry (:5700) which proxies Docker Hub — that pin is multi-arch upstream
+    # (amd64/arm64 verified 2026-10-08), so it is no longer x86_64-gated.
+    shimsToBuild="alpine:3.24.2 redhat/ubi9-minimal:9.8-1790754119"
 fi
 
 if test -n "${shimsToBuild}"; then
@@ -258,6 +258,15 @@ for _shim in ${shims}; do
             exit 1
 
         if test "${_jvm}" = "alnoj"; then
+            continue
+        fi
+        # Legacy build-from-scratch pingjvm images (pingjvm/build-jvm.sh) have no
+        # consumer: products get java from the multi-arch v2 pingbase-java base,
+        # and no deploy script assembles manifests for pingjvm tags. The script
+        # itself stays x86_64-only for rl* (PDI-2516 decision), so skip rl* on
+        # aarch64 instead of failing the foundation stage.
+        if test "${ARCH}" = "aarch64" && test "${_jvm#rl}" != "${_jvm}"; then
+            echo_yellow "Skipping pingjvm ${_jvm} on ${ARCH}: build-jvm.sh is x86_64-only for rl* (java comes from the multi-arch v2 base)."
             continue
         fi
         banner "Building pingjvm for JDK ${_jvm} for ${_shim}"
