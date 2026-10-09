@@ -261,10 +261,17 @@ for _shim in ${shims}; do
             continue
         fi
         # Legacy build-from-scratch pingjvm images (pingjvm/build-jvm.sh) have no
-        # consumer: products get java from the multi-arch v2 pingbase-java base,
-        # and no deploy script assembles manifests for pingjvm tags. The script
-        # itself stays x86_64-only for rl* (PDI-2516 decision), so skip rl* on
-        # aarch64 instead of failing the foundation stage.
+        # consumer (PDI-2514): build_product.sh fail-fasts any id without a v2
+        # mapping and products take java from the signed pingbase-java base, so
+        # the local pingjvm image is never referenced. Skip v2-mapped ids; the
+        # mapper exits non-zero only for unmapped ids, which keep the legacy
+        # build below. -j/--jvm stays accepted — it remains the mapping key.
+        if _v2_base_image="$(_getV2BaseImageForJVM "${_jvm}" 2> /dev/null)"; then
+            echo_yellow "Skipping pingjvm ${_jvm} for ${_shim}: java comes from v2 base ${_v2_base_image}."
+            continue
+        fi
+        # The script itself stays x86_64-only for rl* (PDI-2516 decision), so skip
+        # rl* on aarch64 instead of failing the foundation stage.
         if test "${ARCH}" = "aarch64" && test "${_jvm#rl}" != "${_jvm}"; then
             echo_yellow "Skipping pingjvm ${_jvm} on ${ARCH}: build-jvm.sh is x86_64-only for rl* (java comes from the multi-arch v2 base)."
             continue
