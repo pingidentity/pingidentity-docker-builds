@@ -115,7 +115,7 @@ ENV SHIM=${SHIM} \
 #-- The command that the entrypoint will execute in the foreground to
 #-- instantiate the container
     STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/start-server" \
-#-- The command-line options to provide to the the startup command when
+#-- The command-line options to provide to the startup command when
 #-- the container starts with the server in the foreground. This is the
 #-- normal start flow for the container
     STARTUP_FOREGROUND_OPTS="--nodetach" \

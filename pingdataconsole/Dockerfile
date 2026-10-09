@@ -138,11 +138,11 @@ ENV SHIM=${SHIM} \
 #-- The command that the entrypoint will execute in the foreground to
 #-- instantiate the container
     STARTUP_COMMAND="${SERVER_ROOT_DIR}/bin/catalina.sh" \
-#-- The command-line options to provide to the the startup command when
+#-- The command-line options to provide to the startup command when
 #-- the container starts with the server in the foreground. This is the
 #-- normal start flow for the container
     STARTUP_FOREGROUND_OPTS="run" \
-#-- The command-line options to provide to the the startup command when
+#-- The command-line options to provide to the startup command when
 #-- the container starts with the server in the background. This is the
 #-- debug start flow for the container
     STARTUP_BACKGROUND_OPTS="start" \
@@ -189,12 +189,14 @@ COPY --from=final-staging ["/","/"]
 #- ```
 #-
 #- If using the command above with the embedded [server profile](https://devops.pingidentity.com/reference/config/), log in with:
+#-
 #- * http://localhost:${HTTPS_PORT}/console/login (for versions prior to 11.0.x)
-#- or 
 #- * https://localhost:${HTTPS_PORT}/console (for versions 11.0.x and newer)
+#-
 #- ```
 #- Server: pingdirectory:1636
 #- Username: administrator
 #- Password: 2FederateM0re
 #- ```
+#-
 #- > make sure you have an accessible PingDirectory running
