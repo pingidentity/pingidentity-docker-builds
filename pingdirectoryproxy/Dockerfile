@@ -7,7 +7,7 @@
 #- ## Related Docker Images
 #- - `pingidentity/pingbase` - Parent Image
 #- > This image inherits, and can use, Environment Variables from [pingidentity/pingbase](https://devops.pingidentity.com/docker-images/pingbase/)
-#- - `pingidentity/pingdatacommon` - Common Ping files (i.e. hook scripts)\
+#- - `pingidentity/pingdatacommon` - Common Ping files (i.e. hook scripts)
 #-
 
 #################################################################################
@@ -123,12 +123,12 @@ ENV SHIM=${SHIM} \
 #-- Public hostname of the DA app
     PD_DELEGATOR_PUBLIC_HOSTNAME=localhost \
 
-#-- The command-line options to provide to the the startup command when
+#-- The command-line options to provide to the startup command when
 #-- the container starts with the server in the foreground. This is the
 #-- normal start flow for the container
     STARTUP_FOREGROUND_OPTS="--nodetach" \
 
-#-- The command-line options to provide to the the startup command when
+#-- The command-line options to provide to the startup command when
 #-- the container starts with the server in the background. This is the
 #-- debug start flow for the container
     STARTUP_BACKGROUND_OPTS="" \
@@ -216,7 +216,7 @@ COPY --from=final-staging ["/","/"]
 
 #- ## Running a PingDirectoryProxy container
 #-
-#- The easiest way to test test a simple standalone image of PingDirectoryProxy is to cut/paste the following command into a terminal on a machine with docker.
+#- The easiest way to test a simple standalone image of PingDirectoryProxy is to cut/paste the following command into a terminal on a machine with docker.
 #-
 #- ```
 #-   docker run \
@@ -239,7 +239,7 @@ COPY --from=final-staging ["/","/"]
 #-   docker logs -f pingdirectoryproxy
 #- ```
 #-
-#- You should see the output from a PingDirectoryProxy install and configuration, ending with a message the the PingDirectoryProxy has started.  After it starts, you will see some typical access logs.  Simply ``Ctrl-C`` after to stop tailing the logs.
+#- You should see the output from a PingDirectoryProxy install and configuration, ending with a message the PingDirectoryProxy has started.  After it starts, you will see some typical access logs.  Simply ``Ctrl-C`` after to stop tailing the logs.
 #-
 #- ## Running a sample 100/sec search rate test
 #- With the PingDirectoryProxy running from the previous section, you can run a ``searchrate`` job that will send load to the directory at a rate of 100/sec using the following command.

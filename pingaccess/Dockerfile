@@ -181,11 +181,11 @@ ENV IN_DIR=${BASE}/in \
     LICENSE_DIR="${SERVER_ROOT_DIR}" \
 #-- PD License directory. Separating from above LICENSE_DIR to differentiate for different products
     PD_LICENSE_DIR="${STAGING_DIR}/pd.profile/server-root/pre-setup" \
-#-- The command-line options to provide to the the startup command when
+#-- The command-line options to provide to the startup command when
 #-- the container starts with the server in the foreground. This is the
 #-- normal start flow for the container
     STARTUP_FOREGROUND_OPTS="" \
-#-- The command-line options to provide to the the startup command when
+#-- The command-line options to provide to the startup command when
 #-- the container starts with the server in the background. This is the
 #-- debug start flow for the container
     STARTUP_BACKGROUND_OPTS="" \
@@ -206,7 +206,9 @@ ENV IN_DIR=${BASE}/in \
 #-- K8S_CLUSTER, K8S_CLUSTERS and K8S_SEED_CLUSTER are defined,
 #-- LOCATION is ignored and K8S_CLUSTER is used as the location
     LOCATION=Docker \
-    LOCATION_VALIDATION="true|Any string denoting a logical/physical location|Must be a string" \
+#-- Validation toggle for LOCATION: true to require any string denoting a
+#-- logical/physical location, false to disable the check
+    LOCATION_VALIDATION=true \
 
 #-- Heap size (for java products)
     MAX_HEAP_SIZE=384m \
@@ -226,7 +228,9 @@ ENV IN_DIR=${BASE}/in \
 #-- The name of Ping product, i.e. PingFederate, PingDirectory - must be a valid Ping product type.
 #-- This variable should be overridden by child images. 
     PING_PRODUCT="" \
-    PING_PRODUCT_VALIDATION="true|i.e. PingFederate,PingDirectory|Must be a valid Ping product type" \
+#-- Validation toggle for PING_PRODUCT: true to require a valid Ping product
+#-- type (e.g. PingFederate,PingDirectory), false to disable the check
+    PING_PRODUCT_VALIDATION=true \
 
 #-- List of setup arguments passed to Ping Data setup-arguments.txt file
     ADDITIONAL_SETUP_ARGS="" \

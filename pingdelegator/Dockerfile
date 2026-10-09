@@ -143,11 +143,11 @@ ENV SHIM=${SHIM} \
 #-- The command that the entrypoint will execute in the foreground to
 #-- instantiate the container
     STARTUP_COMMAND="nginx" \
-#-- The command-line options to provide to the the startup command when
+#-- The command-line options to provide to the startup command when
 #-- the container starts with the server in the foreground. This is the
 #-- normal start flow for the container
     STARTUP_FOREGROUND_OPTS="-c ${SERVER_ROOT_DIR}/etc/nginx.conf"
-#-- The command-line options to provide to the the startup command when
+#-- The command-line options to provide to the startup command when
 #-- the container starts with the server in the background. This is the
 #-- debug start flow for the container
 ENV STARTUP_BACKGROUND_OPTS="${STARTUP_FOREGROUND_OPTS}"

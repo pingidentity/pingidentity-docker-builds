@@ -87,11 +87,11 @@ ENV IN_DIR=${BASE}/in \
 #-- The command that the entrypoint will execute in the foreground to
 #-- instantiate the container
     STARTUP_COMMAND="" \
-#-- The command-line options to provide to the the startup command when
+#-- The command-line options to provide to the startup command when
 #-- the container starts with the server in the foreground. This is the
 #-- normal start flow for the container
     STARTUP_FOREGROUND_OPTS="" \
-#-- The command-line options to provide to the the startup command when
+#-- The command-line options to provide to the startup command when
 #-- the container starts with the server in the background. This is the
 #-- debug start flow for the container
     STARTUP_BACKGROUND_OPTS="" \
@@ -108,11 +108,13 @@ ENV IN_DIR=${BASE}/in \
     COLORIZE_LOGS=true \
 
 #-- Location default value
-#-- If PingDirectory is deployed in multi cluster mode, that is, 
+#-- If PingDirectory is deployed in multi cluster mode, that is,
 #-- K8S_CLUSTER, K8S_CLUSTERS and K8S_SEED_CLUSTER are defined,
 #-- LOCATION is ignored and K8S_CLUSTER is used as the location
     LOCATION=Docker \
-    LOCATION_VALIDATION="true|Any string denoting a logical/physical location|Must be a string" \
+#-- Validation toggle for LOCATION: true to require any string denoting a
+#-- logical/physical location, false to disable the check
+    LOCATION_VALIDATION=true \
 
 #-- Heap size (for java products)
     MAX_HEAP_SIZE=384m \
@@ -130,9 +132,11 @@ ENV IN_DIR=${BASE}/in \
     PING_DEBUG=false \
 
 #-- The name of Ping product, i.e. PingFederate, PingDirectory - must be a valid Ping product type.
-#-- This variable should be overridden by child images. 
+#-- This variable should be overridden by child images.
     PING_PRODUCT="" \
-    PING_PRODUCT_VALIDATION="true|i.e. PingFederate,PingDirectory|Must be a valid Ping product type" \
+#-- Validation toggle for PING_PRODUCT: true to require a valid Ping product
+#-- type (e.g. PingFederate,PingDirectory), false to disable the check
+    PING_PRODUCT_VALIDATION=true \
 
 #-- List of setup arguments passed to Ping Data setup-arguments.txt file
     ADDITIONAL_SETUP_ARGS="" \

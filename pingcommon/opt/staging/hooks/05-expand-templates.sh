@@ -6,7 +6,7 @@
 #
 #- Using the envsubst command, this will look through any files in the
 #- STAGING_DIR that end in `.subst` or `.subst.default`
-#- and substitute any variables the files with the the value of those
+#- and substitute any variables the files with the value of those
 #- variables, if the variable is set.
 #-
 #- Variables may come from (in order of precedence):

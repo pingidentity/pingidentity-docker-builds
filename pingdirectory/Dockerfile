@@ -139,12 +139,12 @@ ENV SHIM=${SHIM} \
 #-- Public hostname of the DA app
     PD_DELEGATOR_PUBLIC_HOSTNAME=localhost \
 
-#-- The command-line options to provide to the the startup command when
+#-- The command-line options to provide to the startup command when
 #-- the container starts with the server in the foreground. This is the
 #-- normal start flow for the container
     STARTUP_FOREGROUND_OPTS="--nodetach" \
 
-#-- The command-line options to provide to the the startup command when
+#-- The command-line options to provide to the startup command when
 #-- the container starts with the server in the background. This is the
 #-- debug start flow for the container
     STARTUP_BACKGROUND_OPTS="" \
@@ -208,7 +208,7 @@ ENV SHIM=${SHIM} \
 #-- BCFIPS is the only provider currently supported -- do not edit
     FIPS_PROVIDER="BCFIPS" \
 
-#-- Force a rebuild (replace-profile) of a PingDirectoy on restart.
+#-- Force a rebuild (replace-profile) of a PingDirectory on restart.
 #-- Used to ensure that the server configuration exactly matches the server profile.
 #-- This variable will slow down startup times and should only be used
 #-- when necessary.
@@ -290,7 +290,7 @@ COPY --from=final-staging ["/","/"]
 
 #- ## Running a PingDirectory container
 #-
-#- The easiest way to test test a simple standalone image of PingDirectory is to cut/paste the following command into a terminal on a machine with docker.
+#- The easiest way to test a simple standalone image of PingDirectory is to cut/paste the following command into a terminal on a machine with docker.
 #-
 #- ```
 #-   docker run \
@@ -313,7 +313,7 @@ COPY --from=final-staging ["/","/"]
 #-   docker logs -f pingdirectory
 #- ```
 #-
-#- You should see the ouptut from a PingDirectory install and configuration, ending with a message the the PingDirectory has started.  After it starts, you will see some typical access logs.  Simply ``Ctrl-C`` after to stop tailing the logs.
+#- You should see the output from a PingDirectory install and configuration, ending with a message the PingDirectory has started.  After it starts, you will see some typical access logs.  Simply ``Ctrl-C`` after to stop tailing the logs.
 #-
 #- ## Running a sample 100/sec search rate test
 #- With the PingDirectory running from the previous section, you can run a ``searchrate`` job that will send load to the directory at a rate of 100/sec using the following command.
