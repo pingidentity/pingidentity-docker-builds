@@ -116,23 +116,29 @@ fi
 # If no sprint version is specified, build will be on master branch
 if test -n "${sprint_git_tag}"; then
     # The requested --jvm is a caller-supplied pipeline variable, validated later by
-    # serial_build.sh against the checked-out pingjvm/versions.json. A sprint tag cut
+    # serial_build.sh against the checked-out ci_scripts/jvms.json catalog. A sprint tag cut
     # while a JVM id was absent from that catalog cannot validate it (e.g. al17 was
     # dropped before SPRINT-2605 and restored afterward in ed1d5ef5). Capture the
-    # invoking ref's catalog now so we can fall back only in that case.
-    _jvm_versions_before_checkout=$(cat "${CI_PROJECT_DIR}/pingjvm/versions.json")
+    # invoking ref's catalog now so we can fall back only in that case. Refs cut
+    # before the catalog existed (T1) have no ci_scripts/jvms.json at all: the
+    # fallback would restore garbage, so fail loudly instead.
+    _jvm_versions_before_checkout=""
+    ! test -f "${CI_PROJECT_DIR}/ci_scripts/jvms.json" &&
+        echo "ERROR: ci_scripts/jvms.json not found on the invoking ref (${CI_COMMIT_REF_NAME:-checkout}); JVM-id validation against SPRINT-${sprint_git_tag} is not possible. Use a ref that contains the jvm catalog." &&
+        exit 1
+    _jvm_versions_before_checkout=$(cat "${CI_PROJECT_DIR}/ci_scripts/jvms.json")
     # This places the local repository in a detached HEAD state.
     git checkout "SPRINT-${sprint_git_tag}"
     test "${?}" != "0" && echo "ERROR: Failed to checkout SPRINT branch reference 'SPRINT-${sprint_git_tag}'" && exit 1
     if jq -e --arg jvm_id "${jvm_id}" \
-        'any(.versions[]; .id == $jvm_id)' \
-        "${CI_PROJECT_DIR}/pingjvm/versions.json" > /dev/null 2>&1; then
-        echo "INFO: Using SPRINT-${sprint_git_tag} pingjvm/versions.json for JVM '${jvm_id}'."
+        'any(.jvms[]; .id == $jvm_id)' \
+        "${CI_PROJECT_DIR}/ci_scripts/jvms.json" > /dev/null 2>&1; then
+        echo "INFO: Using SPRINT-${sprint_git_tag} ci_scripts/jvms.json for JVM '${jvm_id}'."
     else
-        echo "WARNING: JVM '${jvm_id}' is not defined in SPRINT-${sprint_git_tag} pingjvm/versions.json."
-        echo "WARNING: Falling back to the invoking ref's pingjvm/versions.json so the build can proceed."
+        echo "WARNING: JVM '${jvm_id}' is not defined in SPRINT-${sprint_git_tag} ci_scripts/jvms.json."
+        echo "WARNING: Falling back to the invoking ref's ci_scripts/jvms.json so the build can proceed."
         echo "WARNING: The JVM binary version baked into this image may differ from what SPRINT-${sprint_git_tag} shipped."
-        printf '%s\n' "${_jvm_versions_before_checkout}" > "${CI_PROJECT_DIR}/pingjvm/versions.json"
+        printf '%s\n' "${_jvm_versions_before_checkout}" > "${CI_PROJECT_DIR}/ci_scripts/jvms.json"
     fi
 fi
 

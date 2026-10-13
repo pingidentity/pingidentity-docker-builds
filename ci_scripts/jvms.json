@@ -1,0 +1,54 @@
+{
+    "default_major": "25",
+    "jvms": [
+        {
+            "id": "al17",
+            "archs": [
+                "x86_64",
+                "aarch64"
+            ]
+        },
+        {
+            "id": "al21",
+            "archs": [
+                "x86_64",
+                "aarch64"
+            ]
+        },
+        {
+            "id": "al25",
+            "archs": [
+                "x86_64",
+                "aarch64"
+            ]
+        },
+        {
+            "id": "rl17",
+            "archs": [
+                "x86_64",
+                "aarch64"
+            ]
+        },
+        {
+            "id": "rl21",
+            "archs": [
+                "x86_64",
+                "aarch64"
+            ]
+        },
+        {
+            "id": "rl25",
+            "archs": [
+                "x86_64",
+                "aarch64"
+            ]
+        },
+        {
+            "id": "alnoj",
+            "archs": [
+                "x86_64",
+                "aarch64"
+            ]
+        }
+    ]
+}

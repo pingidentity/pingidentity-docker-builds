@@ -228,18 +228,6 @@ _getShimsToDeployForProductVersion() {
         "${product_versions_file}"
 }
 
-# Get the all shims from pingjvm/versions.json file for a specified jvm ID.
-_getShimsToBuildForJVM() {
-    test -z "${1}" && echo_red "ERROR: The function _getShimsToBuildForJVM requires a jvm ID input." && exit 1
-
-    jvm_versions_file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    ! test -f "${jvm_versions_file}" && echo_red "ERROR: File ${jvm_versions_file} not found." && exit 1
-
-    jq -r --arg jvm_id \
-        "${1}" '[.versions[] | select(.id == $jvm_id) | .shims[] ] | unique | .[]' \
-        "${jvm_versions_file}"
-}
-
 # Echo the v2 base image for a jvm id, or nothing (exit 1) if unmapped.
 # Floating OS-major tags: alpine pins 3.24, redhat pins ubi9;
 # patch level floats on weekly rebuilds.
@@ -247,8 +235,10 @@ _getShimsToBuildForJVM() {
 # rl21 -> pingbase-java:ubi9-jdk21
 # alnoj -> pingbase:alpine3.24
 # al17/rl17 -> mapped like all other ids (CUSTOM_JVM_ID builds)
-# JDK tracks are explicitly listed (17/21/25, see pingjvm/jdk-tracks.json) so a
-# new track requires a conscious mapping change.
+# JDK tracks are explicitly listed (17/21/25, see ci_scripts/jvms.json
+# default_major) so a new track requires a conscious mapping change.
+# default_major is consumed by the release skill until we move away from
+# sprint releases; it is not consumed by any script.
 # V2 base images are published by the v2 base pipeline to the artifactory
 # registry (ARTIFACTORY_REGISTRY, e.g. docker.corp.pingidentity.com:5300), NOT
 # to the deps pull-through registry (PIPELINE_DEPS_REGISTRY, :5700) which only
@@ -325,32 +315,32 @@ _getJVMsToDeployForProductVersionShim() {
         "${product_versions_file}"
 }
 
-# Get the all architectures from pingjvm/versions.json file for a specified jvm ID.
+# Get the all architectures from ci_scripts/jvms.json for a specified jvm ID.
 _getAllArchsForJVM() {
     test -z "${1}" && echo_red "ERROR: The function _getAllArchsForJVM requires a jvm ID input." && exit 1
 
-    jvm_versions_file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    ! test -f "${jvm_versions_file}" && echo_red "ERROR: File ${jvm_versions_file} not found." && exit 1
+    jvm_catalog_file="${CI_PROJECT_DIR}/ci_scripts/jvms.json"
+    ! test -f "${jvm_catalog_file}" && echo_red "ERROR: File ${jvm_catalog_file} not found." && exit 1
 
     jq -r --arg jvm_id "${1}" \
-        '.versions[] | select(.id == $jvm_id) | .archs | .[]' \
-        "${jvm_versions_file}"
+        '.jvms[] | select(.id == $jvm_id) | .archs | .[]' \
+        "${jvm_catalog_file}"
 }
 
-# Return all jvm IDs from pingjvm/versions.json.
+# Return all jvm IDs from ci_scripts/jvms.json.
 _getAllJVMs() {
-    jvm_versions_file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    ! test -f "${jvm_versions_file}" && echo_red "ERROR: File ${jvm_versions_file} not found." && exit 1
+    jvm_catalog_file="${CI_PROJECT_DIR}/ci_scripts/jvms.json"
+    ! test -f "${jvm_catalog_file}" && echo_red "ERROR: File ${jvm_catalog_file} not found." && exit 1
 
-    jq -r '.versions[] | .id' "${jvm_versions_file}"
+    jq -r '.jvms[] | .id' "${jvm_catalog_file}"
 }
 
-# Return all jvm IDs from pingjvm/versions.json that contain an architecture mapping to $ARCH's value.
+# Return all jvm IDs from ci_scripts/jvms.json that contain an architecture mapping to $ARCH's value.
 _getJVMsForArch() {
-    jvm_versions_file="${CI_PROJECT_DIR}/pingjvm/versions.json"
-    ! test -f "${jvm_versions_file}" && echo_red "ERROR: File ${jvm_versions_file} not found." && exit 1
+    jvm_catalog_file="${CI_PROJECT_DIR}/ci_scripts/jvms.json"
+    ! test -f "${jvm_catalog_file}" && echo_red "ERROR: File ${jvm_catalog_file} not found." && exit 1
 
-    jq -r --arg arch "${ARCH}" '.versions[] | select(.archs[] | contains($arch)) | .id' "${jvm_versions_file}"
+    jq -r --arg arch "${ARCH}" '.jvms[] | select(.archs[] | contains($arch)) | .id' "${jvm_catalog_file}"
 }
 
 # Take each jvm ID from _getJVMsForArch() and parse them into a jq regex of the form "al11|rl11|az11"
@@ -870,7 +860,7 @@ else
 fi
 
 # Normalize arch names to the repo-canonical set (x86_64, aarch64):
-# pingjvm/versions.json, integration-tests.json and image tags use those,
+# ci_scripts/jvms.json, integration-tests.json and image tags use those,
 # while mac uname -m and Docker platforms use arm64/amd64.
 _normalizeArch() {
     case "${1}" in
