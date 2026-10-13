@@ -215,8 +215,16 @@ else
         fi
     else
         if test -n "${jvmsToBuild}"; then
+            # JVM ids encode their shim in the prefix: al* is alpine/musl,
+            # rl* is ubi9/glibc (matches pingjvm/versions.json shims[] pre-
+            # catalog and _getV2BaseImageForJVM's case blocks). Union across
+            # the -j list, same as the old _getShimsToBuildForJVM loop.
             for _jvm in ${jvmsToBuild}; do
-                _shims="${_shims:+${_shims} }$(_getShimsToBuildForJVM "${_jvm}")"
+                case "${_jvm}" in
+                    rl*) _shims="${_shims:+${_shims} }redhat/ubi9-minimal:9.8-1790754119" ;;
+                    al*) _shims="${_shims:+${_shims} }alpine" ;;
+                    *) echo_red "ERROR: Cannot map JVM id ${_jvm} to a shim (unknown prefix)." && exit 1 ;;
+                esac
             done
             shims=$(echo "${_shims}" | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
         else

@@ -43,8 +43,8 @@ Product schema — `versions[]`, each entry with `version`, `preferredShim`, `sh
 
 `preferredShim`/`preferredJVM` are the defaults for automated builds.
 
-`pingjvm/versions.json` has a different schema: `versions[]` of
-`{id, version, shims[], archs[]}`. Its `id` values are the JVM ids products reference.
+`ci_scripts/jvms.json` is the jvm catalog: `jvms[]` of `{id, archs[]}` plus
+`default_major`. Its `id` values are the JVM ids products reference.
 `ci_scripts/ci_tools.lib.sh` `_getAllJVMs` validates any `--jvm` against this file, so an
 id used anywhere else must exist here.
 

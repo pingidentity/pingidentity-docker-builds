@@ -92,6 +92,18 @@ intel.i.checks:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
       when: on_success
 
+intel.i.jvmdrift:
+  stage: initialization
+  # PDI-2521: jvms.json archs must not drift from the published v2 base tags.
+  # Cheap (manifest GETs only). Non-blocking: drift is a supply-chain signal,
+  # not a build breaker — fix forward when it fires.
+  allow_failure: true
+  script:
+    - ci_scripts/check_jvm_arch_drift.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
+      when: on_success
+
 intel.i.unmerged:
   stage: initialization
   script:
