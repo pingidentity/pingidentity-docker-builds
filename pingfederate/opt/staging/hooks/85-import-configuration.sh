@@ -4,7 +4,7 @@
 #
 # Ping Identity DevOps - Docker Build Hooks
 
-# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
+# shellcheck source=../../../../runtime/common/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 pf_admin_password="$(get_value PING_IDENTITY_PASSWORD true)"

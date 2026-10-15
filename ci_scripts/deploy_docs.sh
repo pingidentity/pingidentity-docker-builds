@@ -121,7 +121,7 @@ append_env_table_header() {
         append_doc "[#devops-environment-variables]"
         append_doc "== Environment Variables"
         append_doc ""
-        append_doc "The following environment \`ENV\` variables can be used with this image, in addition to any inherited from parent images."
+        append_doc "The following environment \`ENV\` variables can be used with this image."
         append_doc ""
         append_doc '[cols="1,2,4", options="header"]'
         append_doc "|==="
@@ -310,7 +310,6 @@ parse_hooks() {
     if test -z "${_hookFiles}"; then
         append_doc "There are no default hooks defined for the \`${_dockerImage}\` image."
         append_doc ""
-        append_doc "Hooks defined by parent images (i.e. pingcommon/pingdatacommon) will be inherited by this image."
         append_footer "${_dockerImage}/Dockerfile"
     else
         append_doc "List of available hooks:"
@@ -319,7 +318,6 @@ parse_hooks() {
             append_doc "* xref:./${_hookFile}.adoc[${_hookFile}]"
         done
         append_doc ""
-        append_doc "These hooks will replace hooks defined by parent images (i.e. pingcommon/pingdatacommon)"
         append_footer "${_dockerImage}/opt/staging/hooks"
     fi
 }
@@ -771,7 +769,6 @@ asciidoc_anchor_id() {
 # main
 #
 dockerImages="pingaccess pingfederate pingdirectory pingdatasync
-pingbase pingcommon pingdatacommon
 pingdataconsole ldap-sdk-tools pingtoolkit
 pingdirectoryproxy pingdelegator apache-jmeter pingcentral pingauthorize pingauthorizepap"
 #

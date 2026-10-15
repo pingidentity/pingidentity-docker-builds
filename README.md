@@ -27,6 +27,14 @@ done
 `ci_scripts/build_custom_image.sh` builds a single product at a fixed
 product/JVM/shim/sprint combination.
 
+## Base images
+
+Every product image is a thin final stage over a Ping-provided base image —
+`pingbase-java` for JVM products, `pingbase` for non-JVM (see
+[`pingidentity/pingbase-java`](https://hub.docker.com/r/pingidentity/pingbase-java)).
+The shared runtime scaffold those images run on lives in `runtime/` in this
+repository and is COPY'd into each product build from the root context.
+
 ## Troubleshooting
 
 If you experience issues with this project, please see details on contributing feedback at [Contributing](CONTRIBUTING.md).

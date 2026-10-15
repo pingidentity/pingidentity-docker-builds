@@ -389,7 +389,7 @@ _getTargetRegistriesForProductVersionShimJVM() {
 _getAllJVMsToBuildForShim() {
     test -z "${1}" && echo_red "ERROR: The function _getAllJVMsToBuildForShim requires a shim input." && exit 1
 
-    find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json > version_files
+    find "${CI_PROJECT_DIR}" -type f -name versions.json > version_files
     while IFS= read -r version_file; do
         new_ids="$(jq -r --arg regex "$(_getJVMFilterRegex)" \
             --arg shim "${1}" \
@@ -417,7 +417,7 @@ _getDependenciesForProductVersion() {
 
 # get the the shims (from versions.json)
 _getAllShims() {
-    find "${CI_PROJECT_DIR}" -type f -not -path "${CI_PROJECT_DIR}/pingjvm/*" -name versions.json > version_files
+    find "${CI_PROJECT_DIR}" -type f -name versions.json > version_files
     while IFS= read -r version_file; do
         new_shims="$(jq -r '[.versions[] | .shims[] | .shim] | unique | .[]' "${version_file}")"
         shims="${shims}${shims:+\n}${new_shims}"

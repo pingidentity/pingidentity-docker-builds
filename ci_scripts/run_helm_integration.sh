@@ -288,23 +288,6 @@ for _productName in ${products}; do
     _create_helm_values
 done
 
-if test "${platform}" = "openshift"; then
-    echo "This is an integration-test on an openshift cluster"
-    # Switch to openshift cluster context in order to run integration tests on redhat images
-    kubectl config set-cluster "${RH_CLUSTER}" --server="${RH_CLUSTER_SERVER}"
-    kubectl config set "clusters.${RH_CLUSTER}.certificate-authority-data" "${RH_CLUSTER_CERT}"
-    kubectl config set-context "${_namespace_to_use}/${RH_CLUSTER}/system:admin" --cluster="${RH_CLUSTER}" --namespace="${_namespace_to_use}" --user="system:admin/${RH_CLUSTER}"
-    kubectl config set "users.system:admin/${RH_CLUSTER}.client-certificate-data" "${RH_CLUSTER_CLIENT_CERT}"
-    kubectl config set "users.system:admin/${RH_CLUSTER}.client-key-data" "${RH_CLUSTER_CLIENT_KEY}"
-    kubectl config use-context "${_namespace_to_use}/${RH_CLUSTER}/system:admin"
-
-    # Unset fsGroup and runAsUser on pod and container level
-    _addl_helm_set_values=("${_addl_helm_set_values[@]}" --helm-set-values "global.workload.securityContext.fsGroup=null")
-    _addl_helm_set_values=("${_addl_helm_set_values[@]}" --helm-set-values "global.workload.securityContext.runAsUser=null")
-    _addl_helm_set_values=("${_addl_helm_set_values[@]}" --helm-set-values "global.externalImage.pingtoolkit.securityContext.runAsUser=null")
-    _addl_helm_set_values=("${_addl_helm_set_values[@]}" --helm-set-values "global.externalImage.pingaccess.securityContext.runAsUser=null")
-fi
-
 # Create result file information/patterns
 _totalStart=$(date '+%s')
 _resultsFile="/tmp/$$.results"
@@ -341,13 +324,6 @@ test -n "${_post_renderer_script}" && POST_RENDERER_OPT=(--post-renderer "${_pos
 _exitCode=${?}
 _stop=$(date '+%s')
 _duration=$((_stop - _start))
-
-# Unset openshift cluster context
-if test "${platform}" = "openshift"; then
-    kubectl config unset "contexts.redhat-cluster/${RH_CLUSTER}/system:admin"
-    kubectl config unset "clusters.${RH_CLUSTER}"
-    kubectl config unset "users.system:admin/${RH_CLUSTER}"
-fi
 
 # Remove daemonSet
 if kubectl get daemonsets.apps haveged --namespace default > /dev/null 2>&1; then

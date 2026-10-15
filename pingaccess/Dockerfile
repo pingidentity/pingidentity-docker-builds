@@ -7,7 +7,6 @@
 #- ## Related Docker Images
 #-
 #- - `pingbase-java` (Ping-provided base image) - Parent Image
-#- - `pingcommon` - Common Ping files (i.e. hook scripts)
 
 #################################################################################
 
@@ -40,9 +39,9 @@ ARG VERSION
 # Get libxml2-utils for get-product-bits.sh
 RUN apk --no-cache --update add libxml2-utils
 
-# Get Ping-wide common scripts from the build context (PDI-2523 carrier
-# elimination: pingcommon is no longer built as an image).
-COPY ["pingcommon/opt/get-product-bits.sh","/opt/get-product-bits.sh"]
+# Get Ping-wide common scripts from the build context (the old
+# pingcommon carrier image is retired — plain build inputs now).
+COPY ["runtime/common/get-product-bits.sh","/opt/get-product-bits.sh"]
 
 # Get local filesystem product bits if present
 COPY ["pingaccess/tmp/", "/tmp/"]
@@ -74,7 +73,7 @@ COPY --from=product-staging ["/opt/","/opt/"]
 # get Ping-wide common scripts
 #   this needs to happen after the bits have been laid down
 #   so they can be patched
-COPY ["pingcommon/opt/","/opt/"]
+COPY ["runtime/common/","/opt/"]
 
 # apply product-specific hooks and patches
 COPY ["pingaccess/opt","/opt"]
@@ -308,7 +307,7 @@ WORKDIR ${BASE}
 COPY --from=final-staging "/licenses/" "/licenses/"
 # Legal pointer (was shipped by the v1 pingbase carrier as /licenses/license.txt;
 # re-homed to the build context for the Ping-provided base image, which ships no /licenses).
-COPY ["pingbase/license.txt", "/licenses/license.txt"]
+COPY ["legal/license.txt", "/licenses/license.txt"]
 
 ENTRYPOINT [ "/sbin/tini", "--", "/opt/bootstrap.sh" ]
 CMD [ "start-server" ]

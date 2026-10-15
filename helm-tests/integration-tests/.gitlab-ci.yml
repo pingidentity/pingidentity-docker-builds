@@ -27,12 +27,10 @@ intel.pd-repl.v1:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/pd-replicated/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
+        - runtime/**
+        - legal/**
         - pingdirectory/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
@@ -71,12 +69,10 @@ arm.pd-repl.v2:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/pd-replicated/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
+        - runtime/**
+        - legal/**
         - pingdirectory/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
@@ -114,14 +110,12 @@ intel.pa-pf-pd-fips.v1:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/pa-pf-pd-fips/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
+        - runtime/**
+        - legal/**
         - pingaccess/**/*
         - pingdirectory/**/*
         - pingfederate/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
@@ -159,63 +153,16 @@ intel.pa-pf-pd-fips.v2:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/pa-pf-pd-fips/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
+        - runtime/**
+        - legal/**
         - pingaccess/**/*
         - pingdirectory/**/*
         - pingfederate/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
-
-################################################
-# The purpose of the integration test below is
-# to verify PingAccess, PingFederate and PingDirectory
-# integrate together into an end to end test
-# for the openshift platform on a RHEL shim in
-# FIPS mode
-##### REMOVING OPENSHIFT REFERENCE DUE TO APRIL 12 CLUSTER SHUTDOWN
-#intel.pa-pf-pd-fips.v3:
-#  stage: test.integration
-#  script:
-#    - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd-fips --variation 3
-#  retry: 1
-#  variables:
-#    KUBERNETES_CPU_REQUEST: 2850m
-#    KUBERNETES_CPU_LIMIT: 2850m
-#    KUBERNETES_MEMORY_REQUEST: 1960000000
-#    KUBERNETES_MEMORY_LIMIT: 1960000000
-#    KUBERNETES_POLL_TIMEOUT: 25m
-#  rules:
-#    - if: $ARCHIVE_PIPELINE == "true"
-#      when: never
-#    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
-#      when: never
-#    - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
-#      when: on_success
-#    - if: '$BUILD_PRODUCT != null'
-#      when: never
-#    - if: '$PING_IDENTITY_SNAPSHOT =~ /--snapshot/'
-#      when: never
-#    - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
-#      changes:
-#        - helm-tests/integration-tests/pa-pf-pd-fips/*
-#        - pingbase/**/*
-#        - pingcommon/**/*
-#        - pingdatacommon/**/*
-#        - pingaccess/**/*
-#        - pingdirectory/**/*
-#        - pingfederate/**/*
-#        - ci_scripts/*
-#        - pingjvm/*
-#        - .gitlab-ci.yml
-#      when: on_success
-#    - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
-#      when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -246,14 +193,12 @@ intel.pa-pf-pd.v1:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/pa-pf-pd/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
+        - runtime/**
+        - legal/**
         - pingaccess/**/*
         - pingdirectory/**/*
         - pingfederate/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
@@ -288,14 +233,12 @@ intel.pa-pf-pd.v2:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/pa-pf-pd/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
+        - runtime/**
+        - legal/**
         - pingaccess/**/*
         - pingdirectory/**/*
         - pingfederate/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
@@ -334,61 +277,16 @@ arm.pa-pf-pd.v3:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/pa-pf-pd/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
+        - runtime/**
+        - legal/**
         - pingaccess/**/*
         - pingdirectory/**/*
         - pingfederate/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
       when: on_success
-
-################################################
-# The purpose of the integration test below is
-# to verify PingAccess, PingFederate and PingDirectory
-# integrate together into an end to end test
-# for the openshift platform 
-##### REMOVING OPENSHIFT REFERENCE DUE TO APRIL 12 CLUSTER SHUTDOWN
-# intel.pa-pf-pd.v4:
-#   stage: test.integration
-#   script:
-#     - ci_scripts/run_helm_integration.sh --integration-test pa-pf-pd --variation 4
-#   retry: 1
-#   variables:
-#     KUBERNETES_CPU_REQUEST: 2850m
-#     KUBERNETES_CPU_LIMIT: 2850m
-#     KUBERNETES_MEMORY_REQUEST: 3920000000
-#     KUBERNETES_MEMORY_LIMIT: 3920000000
-#   rules:
-#     - if: $ARCHIVE_PIPELINE == "true"
-#       when: never
-#     - if: $CUSTOM_IMAGE_PIPELINE == "true"
-#       when: never
-#     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]|\[skip products\]|\[skip tests\]|\[skip integration\]/i'
-#       when: never
-#     - if: '$BUILD_PRODUCT != null && $BUILD_PRODUCT =~ /(?:^|,)pingaccess(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingdirectory(?:$|,)/i && $BUILD_PRODUCT =~ /(?:^|,)pingfederate(?:$|,)/i'
-#       when: on_success
-#     - if: '$BUILD_PRODUCT != null'
-#       when: never
-#     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
-#       changes:
-#         - helm-tests/integration-tests/pa-pf-pd/*
-#         - pingbase/**/*
-#         - pingcommon/**/*
-#         - pingdatacommon/**/*
-#         - pingaccess/**/*
-#         - pingdirectory/**/*
-#         - pingfederate/**/*
-#         - ci_scripts/*
-#         - pingjvm/*
-#         - .gitlab-ci.yml
-#       when: on_success
-#     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
-#       when: on_success
 
 ################################################
 # The purpose of the integration test below is
@@ -419,13 +317,11 @@ intel.pds-pd.v1:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/pds-pd/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
+        - runtime/**
+        - legal/**
         - pingdirectory/**/*
         - pingdatasync/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
@@ -465,13 +361,11 @@ arm.pds-pd.v2:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/pds-pd/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
+        - runtime/**
+        - legal/**
         - pingdirectory/**/*
         - pingdatasync/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
@@ -506,13 +400,11 @@ intel.pdp-pd.v1:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/pdp-pd/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
+        - runtime/**
+        - legal/**
         - pingdirectory/**/*
         - pingdirectoryproxy/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
@@ -551,13 +443,11 @@ arm.pdp-pd.v2:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/pdp-pd/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
+        - runtime/**
+        - legal/**
         - pingdirectory/**/*
         - pingdirectoryproxy/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
@@ -592,13 +482,11 @@ intel.paz-pd.v1:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/paz-pd/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
+        - runtime/**
+        - legal/**
         - pingdirectory/**/*
         - pingauthorize/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
@@ -637,13 +525,11 @@ arm.paz-pd.v2:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/paz-pd/*
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
+        - runtime/**
+        - legal/**
         - pingdirectory/**/*
         - pingauthorize/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
@@ -679,11 +565,10 @@ intel.pf-multi-admin.v1:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/pf-multi-admin/*
-        - pingbase/**/*
-        - pingcommon/**/*
+        - runtime/**
+        - legal/**
         - pingfederate/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
@@ -723,11 +608,10 @@ arm.pf-multi-admin.v2:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - helm-tests/integration-tests/pf-multi-admin/*
-        - pingbase/**/*
-        - pingcommon/**/*
+        - runtime/**
+        - legal/**
         - pingfederate/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'

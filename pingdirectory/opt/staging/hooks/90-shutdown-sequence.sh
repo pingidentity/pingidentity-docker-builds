@@ -8,10 +8,10 @@
 #
 test "${VERBOSE}" = "true" && set -x
 
-# shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
+# shellcheck source=../../../../runtime/pingdata/staging/hooks/pingdata.lib.sh
 . "${HOOKS_DIR}/pingdata.lib.sh"
 
-# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
+# shellcheck source=../../../../runtime/common/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 # shellcheck source=./pingdirectory.lib.sh

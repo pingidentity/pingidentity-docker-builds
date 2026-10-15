@@ -9,7 +9,7 @@
 #
 test "${VERBOSE}" = "true" && set -x
 
-# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
+# shellcheck source=../../../../runtime/common/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 if test ! -f "${SERVER_ROOT_DIR}/config/server.uuid"; then

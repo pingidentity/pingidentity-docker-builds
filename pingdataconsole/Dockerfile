@@ -5,7 +5,6 @@
 #-
 #- ## Related Docker Images
 #- - `pingbase-java` (Ping-provided base image) - Parent Image
-#- - `pingcommon`/`pingdatacommon` - Common Ping files (i.e. hook scripts)
 #-
 
 #################################################################################
@@ -44,9 +43,9 @@ RUN apk --no-cache --update add gnupg libxml2-utils
 # Get public signing keys for Apache Tomcat
 COPY ["pingdataconsole/keys.gpg", "/tmp"]
 
-# Get Ping-wide common scripts from the build context (PDI-2523 carrier
-# elimination: pingcommon/pingdatacommon are no longer built as images).
-COPY ["pingcommon/opt/get-product-bits.sh","/opt/get-product-bits.sh"]
+# Get Ping-wide common scripts from the build context (the old
+# pingcommon/pingdatacommon carrier images are retired — plain build inputs now).
+COPY ["runtime/common/get-product-bits.sh","/opt/get-product-bits.sh"]
 
 # Get local filesystem product bits if present
 COPY ["pingdataconsole/tmp/", "/tmp/"]
@@ -103,9 +102,9 @@ COPY --from=product-staging ["/opt/","/opt/"]
 # get Ping-wide common scripts
 #   this needs to happen after the bits have been laid down
 #   so they can be patched
-COPY ["pingcommon/opt/","/opt/"]
-# No pingdatacommon: the console is a Tomcat webapp with no data-server
-# setup, and pingdatacommon's 183-run-setup.sh requires KEYSTORE_PIN_FILE
+COPY ["runtime/common/","/opt/"]
+# No runtime/pingdata/ overlay: the console is a Tomcat webapp with no
+# data-server setup, and the overlay's 183-run-setup.sh requires KEYSTORE_PIN_FILE
 # whenever the console's profile hook exports KEYSTORE_FILE (v1 never
 # included it either).
 
@@ -334,7 +333,7 @@ CMD ["start-server"]
 
 # Legal pointer (was shipped by the v1 pingbase carrier as /licenses/license.txt;
 # re-homed to the build context for the Ping-provided base image, which ships no /licenses).
-COPY ["pingbase/license.txt", "/licenses/license.txt"]
+COPY ["legal/license.txt", "/licenses/license.txt"]
 
 COPY --from=final-staging ["/","/"]
 

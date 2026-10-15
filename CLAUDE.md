@@ -9,15 +9,24 @@ Lives on GitLab (`devops-program/docker-builds`); mirrored to GitHub
 
 - `ci_scripts/` — CI helpers, build entry points, integration test runners.
 - `helm-tests/` — `integration-tests/`, `smoke-tests/`, `_global/`, `bruno/`.
-- `pingbase`, `pingcommon`, `pingdatacommon`, `pingjvm` — foundation layers.
+- `runtime/` — image runtime scaffold (plain build inputs, no images built):
+  `runtime/common/` (entrypoint chain, hook framework, install_deps — COPY'd to
+  `/opt/` by every product) + `runtime/pingdata/` (PD-family overlay, applied
+  second). Legacy names `pingcommon`/`pingdatacommon` referred to these trees
+  when they were image layers; the layers are retired.
+- `legal/` — `license.txt`, shared license pointer COPY'd to `/licenses/` by
+  every product.
 - `ping*`, `ldap-sdk-tools/`, `apache-jmeter/`, `pingtoolkit/` — product build contexts.
 - `shared-configs/` — submodule (`ping-internal/cdi-shared-configs`), pinned to a release
   tag. Provides release-note tooling only. Do not edit in place.
 
 ## Product architecture
 
-Foundation layers are dependencies of product images; changes to them affect all
-downstream products. Build order is foundation → products.
+Every product image is a thin final stage over a Ping-provided base image
+(`pingbase-java` for JVM products, `pingbase` for non-JVM) shipped by the base
+image pipeline; products share the `runtime/` scaffold via root-context COPYs
+(see `.dockerignore` for what reaches the daemon). Changes to `runtime/` affect
+all downstream products.
 
 Standard product directory: `Dockerfile`, `versions.json`, `README.md`, `opt/`, `tmp/`,
 optional `tests/`.
@@ -45,10 +54,11 @@ Product schema — `versions[]`, each entry with `version`, `preferredShim`, `sh
 `ci_scripts/ci_tools.lib.sh` `_getAllJVMs` validates any `--jvm` against this file, so an
 id used anywhere else must exist here.
 
-JDK tracks (`pingjvm/build-jvm.sh` case blocks): 17, 21, 25. **25 is the default and
-every shipping product uses `al25`/`rl25`.** 17 and 21 exist for `CUSTOM_JVM_ID` builds
-only — no product `versions.json` or `helm-tests/integration-tests/integration-tests.json`
-references them.
+JVM tracks (JDK 17, 21, 25 — see `ci_scripts/jvms.json` `default_major`): **25 is the
+default and every shipping product uses `al25`/`rl25`.** 17 and 21 exist for
+`CUSTOM_JVM_ID` builds only — no product `versions.json` or
+`helm-tests/integration-tests/integration-tests.json` references them. The JDK patch
+level inside the base images is base-pipeline-managed (weekly rebuild, floating tags).
 
 Shim base images are pinned in the product `versions.json` `shims[]` entries
 (`alpine:3.24.2`, `redhat/ubi9-minimal:9.8-...`) and in each product Dockerfile's
@@ -58,7 +68,7 @@ supply-chain posture; keep pins explicit and never use `latest`.
 
 ## Shell script conventions
 
-- 24 of 28 `ci_scripts/*.sh` are `#!/usr/bin/env bash`; 4 are `#!/usr/bin/env sh`
+- 26 of 30 `ci_scripts/*.sh` are `#!/usr/bin/env bash`; 4 are `#!/usr/bin/env sh`
   (POSIX — no bashisms). Match the file you are editing.
 - These scripts do **not** use `set -euo pipefail` as a rule; they check return codes
   explicitly and use `test x && cmd` chains. Do not add `set -e` to an existing script.
