@@ -9,7 +9,7 @@
 #- >Note: The PingData (i.e. Directory, DataSync, PingAuthorize, DirectoryProxy)
 #- products will all provide this
 
-# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
+# shellcheck source=../../../../runtime/common/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 #

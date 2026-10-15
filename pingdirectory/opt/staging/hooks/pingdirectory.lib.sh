@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 # Copyright © 2026 Ping Identity Corporation
 
-# shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
+# shellcheck source=../../../../runtime/pingdata/staging/hooks/pingdata.lib.sh
 . "${HOOKS_DIR}/pingdata.lib.sh"
 
 # Append ldif template files in the pd.profile to the variables-ignore.txt file

@@ -39,7 +39,7 @@ $(cd "${_helm_tests_dir}" && find ./* -type d -maxdepth 2 | grep "\/" | sed 's/^
         Namespace suffix to be appended to namespace
 
     --platform {platform}
-        platform for test (openshift vs EKS)
+        platform for test (EKS)
 
     --helm-file-values {helm-values-yaml}
         Additional helm values files to be added to helm-test.
@@ -143,6 +143,9 @@ while test -n "${1}"; do
         --platform)
             test -z "${2}" && usage "You must specify a platform to use if you specify the ${1} option"
             shift
+            # Accepted for caller compatibility (run_helm_integration.sh passes it);
+            # all remaining platforms are EKS, so the value is unused here.
+            # shellcheck disable=SC2034
             platform="${1}"
             ;;
         --verbose)
@@ -531,8 +534,8 @@ for _helmTest in ${_helmTests}; do
     # shellcheck disable=SC2016
     envsubst '${DEPS_REGISTRY}' < "${_helmTest}" > "${_substHelmTest}"
 
-    # Deploy daemonSet with haveged to create more entropy on openshift/fips testing
-    if test "${platform}" = "openshift" || [[ "${_helmTest}" == *"fips"* ]]; then
+    # Deploy daemonSet with haveged to create more entropy on fips testing
+    if [[ "${_helmTest}" == *"fips"* ]]; then
         if ! kubectl get daemonsets.apps haveged --namespace default > /dev/null 2>&1; then
             kubectl apply -n default -f "${_helm_tests_dir}/integration-tests/haveged.yaml"
         fi

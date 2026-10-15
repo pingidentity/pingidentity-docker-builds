@@ -7,10 +7,10 @@
 #- This script is used to import any configurations that are
 #- needed after PingAuthorize Policy Editor starts
 
-# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
+# shellcheck source=../../../../runtime/common/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
-# shellcheck source=../../../../pingdatacommon/opt/staging/hooks/pingdata.lib.sh
+# shellcheck source=../../../../runtime/pingdata/staging/hooks/pingdata.lib.sh
 . "${HOOKS_DIR}/pingdata.lib.sh"
 
 # shellcheck source=./pingauthorizepap.lib.sh

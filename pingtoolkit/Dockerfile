@@ -7,7 +7,6 @@
 #-
 #- ## Related Docker Images
 #- - `pingbase-java` (Ping-provided base image) - Parent Image
-#- - `pingcommon` - Common Ping files (i.e. hook scripts)
 #-
 
 #################################################################################
@@ -33,9 +32,9 @@ ARG JAVA_LINK
 # target lives inside the Ping-provided base image.
 RUN if test -n "${JAVA_LINK}"; then ln -s "${JAVA_LINK}" /opt/java; fi
 
-# get Ping-wide common scripts from the build context (PDI-2523 carrier
-# elimination: pingcommon is no longer built as an image)
-COPY ["pingcommon/opt/","/opt/"]
+# get Ping-wide common scripts from the build context (the old
+# pingcommon carrier image is retired — plain build inputs now)
+COPY ["runtime/common/","/opt/"]
 
 # apply product-specific hooks and patches
 COPY ["pingtoolkit/opt","/opt"]
@@ -197,6 +196,6 @@ CMD ["start-server"]
 # Legal pointer (was shipped by the v1 pingbase carrier as /licenses/license.txt;
 # re-homed to the build context for the Ping-provided base image, which ships no /licenses).
 # Same source as the other products — avoid a per-product fork drifting.
-COPY ["pingbase/license.txt", "/licenses/license.txt"]
+COPY ["legal/license.txt", "/licenses/license.txt"]
 
 COPY --from=final-staging ["/","/"]

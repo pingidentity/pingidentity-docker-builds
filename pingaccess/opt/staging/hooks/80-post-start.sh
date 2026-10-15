@@ -7,7 +7,7 @@
 #- This script is used to import any configurations that are
 #- needed after PingAccess starts
 
-# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
+# shellcheck source=../../../../runtime/common/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 if test "${OPERATIONAL_MODE}" = "CLUSTERED_CONSOLE" || test "${OPERATIONAL_MODE}" = "STANDALONE"; then

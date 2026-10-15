@@ -41,95 +41,52 @@ docs_image_info() {
         pingaccess)
             IMG_DESCRIPTION="Reference environment variables, ports, and run commands for the pingaccess Docker image that runs PingAccess admin and engine nodes"
             IMG_INTRO_PROSE="This docker image includes the Ping Identity PingAccess product binaries and associated hook scripts to create and run both PingAccess Admin and Engine nodes."
-            IMG_RELATED='* `pingidentity/pingbase` - Parent Image
-+
-> This image inherits, and can use, Environment Variables from https://devops.pingidentity.com/docker-images/pingbase/[pingidentity/pingbase]
-* `pingidentity/pingcommon` - Common Ping files (i.e. hook scripts)'
+            IMG_RELATED='* `pingidentity/pingbase-java` - Parent Image'
             ;;
         pingfederate)
             IMG_DESCRIPTION="Reference environment variables, ports, and run commands for the pingfederate Docker image that runs PingFederate admin and engine nodes"
             IMG_INTRO_PROSE="This docker image includes the Ping Identity PingFederate product binaries and associated hook scripts to create and run both PingFederate Admin and Engine nodes."
-            IMG_RELATED='* `pingidentity/pingbase` - Parent Image
-+
-> This image inherits, and can use, Environment Variables from https://devops.pingidentity.com/docker-images/pingbase/[pingidentity/pingbase]
-* `pingidentity/pingcommon` - Common Ping files (i.e. hook scripts)'
+            IMG_RELATED='* `pingidentity/pingbase-java` - Parent Image'
             ;;
         pingdirectory)
             IMG_DESCRIPTION="Reference environment variables, ports, and run commands for the pingdirectory Docker image that runs a PingDirectory instance"
             IMG_INTRO_PROSE="This docker image includes the Ping Identity PingDirectory product binaries and associated hook scripts to create and run a PingDirectory instance or instances."
-            IMG_RELATED='* `pingidentity/pingbase` - Parent Image
-+
-> This image inherits, and can use, Environment Variables from https://devops.pingidentity.com/docker-images/pingbase/[pingidentity/pingbase]
-* `pingidentity/pingdatacommon` - Common Ping files (i.e. hook scripts)'
+            IMG_RELATED='* `pingidentity/pingbase-java` - Parent Image'
             ;;
         pingdatasync)
             IMG_DESCRIPTION="Reference environment variables, ports, and run commands for the pingdatasync Docker image that runs a PingDataSync instance"
             IMG_INTRO_PROSE="This docker image includes the Ping Identity PingDataSync product binaries and associated hook scripts to create and run a PingDataSync instance."
-            IMG_RELATED='* `pingidentity/pingbase` - Parent Image
-+
-> This image inherits, and can use, Environment Variables from https://devops.pingidentity.com/docker-images/pingbase/[pingidentity/pingbase]
-* `pingidentity/pingdatacommon` - Common Ping files (i.e. hook scripts)'
+            IMG_RELATED='* `pingidentity/pingbase-java` - Parent Image'
             ;;
         pingdirectoryproxy)
             IMG_DESCRIPTION="Reference environment variables, ports, and run commands for the pingdirectoryproxy Docker image that runs a PingDirectoryProxy instance"
             IMG_INTRO_PROSE="This docker image includes the Ping Identity PingDirectoryProxy product binaries and associated hook scripts to create and run a PingDirectoryProxy instance or instances."
-            IMG_RELATED='* `pingidentity/pingbase` - Parent Image
-+
-> This image inherits, and can use, Environment Variables from https://devops.pingidentity.com/docker-images/pingbase/[pingidentity/pingbase]
-* `pingidentity/pingdatacommon` - Common Ping files (i.e. hook scripts)'
+            IMG_RELATED='* `pingidentity/pingbase-java` - Parent Image'
             ;;
         pingauthorize)
             IMG_DESCRIPTION="Reference environment variables, ports, and run commands for the pingauthorize Docker image that runs a PingAuthorize instance"
             IMG_INTRO_PROSE="This docker image includes the Ping Identity PingAuthorize product binaries and associated hook scripts to create and run a PingAuthorize instance or instances."
-            IMG_RELATED='* `pingidentity/pingbase` - Parent Image
-+
-> This image inherits, and can use, Environment Variables from https://devops.pingidentity.com/docker-images/pingbase/[pingidentity/pingbase]
-* `pingidentity/pingdatacommon` - Common Ping files (i.e. hook scripts)'
+            IMG_RELATED='* `pingidentity/pingbase-java` - Parent Image'
             ;;
         pingauthorizepap)
             IMG_DESCRIPTION="Reference environment variables, ports, and run commands for the pingauthorizepap Docker image that runs the PingAuthorize Policy Editor"
             IMG_INTRO_PROSE="This docker image includes the Ping Identity PingAuthorize Policy Editor product binaries and associated hook scripts to create and run a PingAuthorize Policy Editor instance."
-            IMG_RELATED='* `pingidentity/pingbase` - Parent Image
-+
-> This image inherits, and can use, Environment Variables from https://devops.pingidentity.com/docker-images/pingbase/[pingidentity/pingbase]
-* `pingidentity/pingdatacommon` - Common Ping files (i.e. hook scripts)'
+            IMG_RELATED='* `pingidentity/pingbase-java` - Parent Image'
             ;;
         pingcentral)
             IMG_DESCRIPTION="Reference environment variables, ports, and run commands for the pingcentral Docker image that runs PingCentral"
             IMG_INTRO_PROSE="This docker image includes the Ping Identity PingCentral product binaries and associated hook scripts to create and run PingCentral in a container."
-            IMG_RELATED='* `pingidentity/pingbase` - Parent Image
-+
-> This image inherits, and can use, Environment Variables from https://devops.pingidentity.com/docker-images/pingbase/[pingidentity/pingbase]
-* `pingidentity/pingcommon` - Common Ping files (i.e. hook scripts)'
+            IMG_RELATED='* `pingidentity/pingbase-java` - Parent Image'
             ;;
         pingdelegator)
             IMG_DESCRIPTION="Reference environment variables and run commands for the pingdelegator Docker image, an NGINX-hosted app for administering PingDirectory users and groups"
             IMG_INTRO_PROSE="This docker image provides an NGINX instance with PingDelegator that can be used in administering PingDirectory Users/Groups."
-            IMG_RELATED='* `pingidentity/pingbase` - Parent Image
-+
-> This image inherits, and can use, Environment Variables from https://devops.pingidentity.com/docker-images/pingbase/[pingidentity/pingbase]
-* `pingidentity/pingcommon` - Common Ping files (i.e. hook scripts)'
+            IMG_RELATED='* `pingidentity/pingbase` - Parent Image'
             ;;
         pingtoolkit)
             IMG_DESCRIPTION="Reference environment variables for the pingtoolkit Docker image, used as an init or sidecar container to run server-profile scripts"
             IMG_INTRO_PROSE="This docker image includes the Ping Identity PingToolkit and associated hook scripts to create a container that can pull in a SERVER_PROFILE run scripts.  The typical use case of this image would be an init container or a pod/container to perform tasks aside a running set of pods/containers."
-            IMG_RELATED='* `pingidentity/pingbase` - Parent Image
-+
-> This image inherits, and can use, Environment Variables from https://devops.pingidentity.com/docker-images/pingbase/[pingidentity/pingbase]
-* `pingidentity/pingcommon` - Common Ping files (i.e. hook scripts)'
-            ;;
-        pingbase)
-            IMG_DESCRIPTION="Reference the base environment variables inherited by all Ping Identity DevOps Docker product images from the pingbase image"
-            IMG_INTRO_PROSE="This docker image provides a base image for all Ping Identity DevOps product images."
-            ;;
-        pingcommon)
-            IMG_DESCRIPTION="Reference the pingcommon Docker image, a busybox base image with shared hook scripts and default entrypoint for Ping Identity DevOps product images"
-            IMG_INTRO_PROSE="This docker image provides a busybox image to house the base hook scripts and default entrypoint.sh used throughout the Ping Identity DevOps product images."
-            ;;
-        pingdatacommon)
-            IMG_DESCRIPTION="Reference the pingdatacommon Docker image, which houses shared hook scripts used across Ping Identity DevOps PingData product images"
-            IMG_INTRO_PROSE="This docker image provides a busybox image based off of \`pingidentity/pingcommon\` to house the base hook scripts used throughout the Ping Identity DevOps PingData product images."
-            IMG_RELATED='* `pingidentity/pingcommon` - Parent Image'
+            IMG_RELATED='* `pingidentity/pingbase-java` - Parent Image'
             ;;
         pingdataconsole)
             IMG_DESCRIPTION="Reference environment variables, ports, and run commands for the pingdataconsole Docker image that serves the PingDataConsole administration UI"
@@ -145,10 +102,7 @@ docs_image_info() {
         apache-jmeter)
             IMG_DESCRIPTION="Reference environment variables for the apache-jmeter Docker image used to run Apache JMeter load tests against Ping Identity products"
             IMG_INTRO_PROSE="This docker image provides an alpine image with the Apache JMeter load testing tool for use against Ping Identity product instances."
-            IMG_RELATED='* `pingidentity/pingbase` - Parent Image
-+
-> This image inherits, and can use, Environment Variables from https://devops.pingidentity.com/docker-images/pingbase/[pingidentity/pingbase]
-* `pingidentity/pingcommon` - Common Ping files (i.e. hook scripts)'
+            IMG_RELATED='* `pingidentity/pingbase-java` - Parent Image'
             ;;
         *)
             echo_red "ERROR: No docs image info for '${_img}'. Add an entry to ci_scripts/docs_image_info.lib.sh."

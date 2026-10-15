@@ -13,7 +13,7 @@
 #- For example, enabling replication in PingDirectory, initializing Sync
 #- Pipes in PingDataSync or issuing admin API calls to PingFederate or PingAccess
 
-# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
+# shellcheck source=../../../../runtime/common/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 api_output_file=$(mktemp)

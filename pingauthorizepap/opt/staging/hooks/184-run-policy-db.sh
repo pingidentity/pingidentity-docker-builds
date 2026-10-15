@@ -6,7 +6,7 @@
 #
 test "${VERBOSE}" = "true" && set -x
 
-# shellcheck source=../../../../pingcommon/opt/staging/hooks/pingcommon.lib.sh
+# shellcheck source=../../../../runtime/common/staging/hooks/pingcommon.lib.sh
 . "${HOOKS_DIR}/pingcommon.lib.sh"
 
 #
