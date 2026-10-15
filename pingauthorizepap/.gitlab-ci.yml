@@ -20,11 +20,7 @@ intel.b.pingauthorizepap:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - pingauthorizepap/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingauthorizepap/*
         - helm-tests/integration-tests/**/*
@@ -54,11 +50,7 @@ arm.b.pingauthorizepap:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - pingauthorizepap/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingauthorizepap/*
         - helm-tests/integration-tests/**/*
@@ -88,12 +80,8 @@ intel.t.pingauthorizepap:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - pingauthorizepap/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingauthorizepap/*
       when: on_success
@@ -122,12 +110,8 @@ arm.t.pingauthorizepap:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - pingauthorizepap/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingauthorizepap/*
       when: on_success
@@ -159,11 +143,7 @@ d.pingauthorizepap:
     - if: '$CI_COMMIT_REF_NAME =~ /^master$/'
       changes:
         - pingauthorizepap/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_COMMIT_TAG =~ /^\d{4}\.?\d*/'

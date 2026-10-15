@@ -19,14 +19,10 @@ intel.b.pingdirectoryproxy:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - pingdirectory/**/*
         - pingdirectoryproxy/**/*
         - integration_tests/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingdirectoryproxy/*
         - helm-tests/integration-tests/**/*
@@ -55,14 +51,10 @@ arm.b.pingdirectoryproxy:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - pingdirectory/**/*
         - pingdirectoryproxy/**/*
         - integration_tests/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingdirectoryproxy/*
         - helm-tests/integration-tests/**/*
@@ -92,12 +84,8 @@ intel.t.pingdirectoryproxy:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
         - pingdirectoryproxy/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingdirectoryproxy/*
       when: on_success
@@ -126,12 +114,8 @@ arm.t.pingdirectoryproxy:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
         - pingdirectoryproxy/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingdirectoryproxy/*
       when: on_success
@@ -163,11 +147,7 @@ d.pingdirectoryproxy:
     - if: '$CI_COMMIT_REF_NAME =~ /^master$/'
       changes:
         - pingdirectoryproxy/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_COMMIT_TAG =~ /^\d{4}\.?\d*/'

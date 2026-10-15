@@ -5,7 +5,7 @@
 #- instances.
 #-
 #- ## Related Docker Images
-#- - `pingbase-java` (v2 base) - Parent Image
+#- - `pingbase-java` (Ping-provided base image) - Parent Image
 #- - `pingcommon`/`pingdatacommon` - Common Ping files (i.e. hook scripts)
 #-
 
@@ -16,10 +16,10 @@ ARG ARCH
 # Keep DEPS: the alpine product-staging stage downloads product bits through
 # the deps pull-through registry.
 ARG DEPS
-# v2 base adoption: CI passes V2_BASE_IMAGE (+ JAVA_LINK for JVM
+# Base image adoption: CI passes BASE_IMAGE (+ JAVA_LINK for JVM
 # products). Production CI fail-fasts on unmapped jvm ids before ever
 # reaching here.
-ARG V2_BASE_IMAGE
+ARG BASE_IMAGE
 ARG JAVA_LINK
 
 #################################################################################
@@ -55,15 +55,15 @@ RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
 
 #################################################################################
 
-FROM ${V2_BASE_IMAGE} AS final-staging
+FROM ${BASE_IMAGE} AS final-staging
 
-# v2 base images end at USER 9031:0; staging RUN steps run as root.
+# Ping-provided base images end at USER 9031:0; staging RUN steps run as root.
 USER 0:0
-# v2 alpine base ships tini at /sbin/tini (same path the ENTRYPOINT uses).
+# The Ping-provided alpine base ships tini at /sbin/tini (same path the ENTRYPOINT uses).
 # Re-declared: top-level ARGs are not inherited into stage RUN scope.
 ARG JAVA_LINK
 # Preserve the JAVA_HOME=/opt/java contract (pingbase env + PATH); the link
-# target lives inside the v2 base image.
+# target lives inside the Ping-provided base image.
 RUN if test -n "${JAVA_LINK}"; then ln -s "${JAVA_LINK}" /opt/java; fi
 
 # get the product bits FIRST
@@ -87,10 +87,10 @@ RUN ["/opt/build.sh"]
 
 #################################################################################
 
-# The final image (v2 base — PDI-2523 final-stage unification; the v1
+# The final image (Ping-provided base image — PDI-2523 final-stage unification; the v1
 # pingbase env-carrier stage is retired, so the env vars it used to supply
 # to the hook framework are re-declared below).
-FROM ${V2_BASE_IMAGE}
+FROM ${BASE_IMAGE}
 
 # from pingbase
 ARG BASE
@@ -396,7 +396,7 @@ ENV IMAGE_VERSION=${IMAGE_VERSION} \
 #-- Sets the number of columns in PingDirectoryProxy command-line tool output
     COLUMNS=120
 
-# WORKDIR parity with the v1 env-carrier (WORKDIR /opt): the v2 base sets /
+# WORKDIR parity with the v1 env-carrier (WORKDIR /opt): the Ping-provided base sets /
 # (PDI-2523 unification). ENTRYPOINT below is absolute either way, but
 # exec/interactive sessions kept the /opt default (PF precedent).
 WORKDIR ${BASE}
@@ -415,13 +415,13 @@ EXPOSE ${LDAP_PORT} ${LDAPS_PORT} ${HTTPS_PORT} ${JMX_PORT}
 
 # Explicit entrypoint chain (PDI-2523 unification): the v1 pingbase
 # env-carrier stage used to supply `ENTRYPOINT ["./bootstrap.sh"]`. Absolute
-# paths — the v2 base's WORKDIR is /, not /opt. /sbin/tini (0.19.0) ships in
-# the v2 base itself.
+# paths — the Ping-provided base's WORKDIR is /, not /opt. /sbin/tini (0.19.0) ships in
+# the Ping-provided base itself.
 ENTRYPOINT ["/sbin/tini", "--", "/opt/bootstrap.sh"]
 CMD ["start-server"]
 
 # Legal pointer (was shipped by the v1 pingbase carrier as /licenses/license.txt;
-# re-homed to the build context for the v2 base, which ships no /licenses).
+# re-homed to the build context for the Ping-provided base image, which ships no /licenses).
 COPY ["pingbase/license.txt", "/licenses/license.txt"]
 
 COPY --from=final-staging ["/","/"]

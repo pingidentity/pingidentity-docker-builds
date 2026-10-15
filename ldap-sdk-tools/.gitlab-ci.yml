@@ -23,7 +23,6 @@ intel.b.ldap-sdk-tools:
       changes:
         - ldap-sdk-tools/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
@@ -54,7 +53,6 @@ arm.b.ldap-sdk-tools:
       changes:
         - ldap-sdk-tools/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_PIPELINE_SOURCE =~ /^schedule$|^web$/'
@@ -85,7 +83,6 @@ intel.t.ldap-sdk-tools:
       changes:
         - ldap-sdk-tools/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/ldap-sdk-tools/*
       when: on_success
@@ -117,7 +114,6 @@ arm.t.ldap-sdk-tools:
       changes:
         - ldap-sdk-tools/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/ldap-sdk-tools/*
       when: on_success
@@ -150,7 +146,6 @@ d.ldap-sdk-tools:
       changes:
         - ldap-sdk-tools/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_COMMIT_TAG =~ /^\d{4}\.?\d*/'

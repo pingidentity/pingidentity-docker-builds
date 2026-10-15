@@ -19,9 +19,6 @@ intel.b.pingdelegator:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
         - pingdirectory/**/*
         - pingdelegator/**/*
         - ci_scripts/*
@@ -53,9 +50,6 @@ arm.b.pingdelegator:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
         - pingdirectory/**/*
         - pingdelegator/**/*
         - ci_scripts/*
@@ -88,9 +82,6 @@ intel.t.pingdelegator:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
         - pingdirectory/**/*
         - pingdelegator/**/*
         - ci_scripts/*
@@ -122,9 +113,6 @@ arm.t.pingdelegator:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingbase/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
         - pingdirectory/**/*
         - pingdelegator/**/*
         - ci_scripts/*
@@ -159,8 +147,6 @@ d.pingdelegator:
     - if: '$CI_COMMIT_REF_NAME =~ /^master$/'
       changes:
         - pingdelegator/**/*
-        - pingbase/**/*
-        - pingcommon/**/*
         - ci_scripts/*
         - .gitlab-ci.yml
       when: on_success

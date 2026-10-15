@@ -20,10 +20,7 @@ intel.b.pingcentral:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - pingcentral/**/*
-        - pingcommon/**/*
-        - pingbase/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingcentral/*
         - helm-tests/integration-tests/**/*
@@ -53,10 +50,7 @@ arm.b.pingcentral:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - pingcentral/**/*
-        - pingcommon/**/*
-        - pingbase/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingcentral/*
         - helm-tests/integration-tests/**/*
@@ -86,10 +80,7 @@ intel.t.pingcentral:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - pingcentral/**/*
-        - pingcommon/**/*
-        - pingbase/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingcentral/*
       when: on_success
@@ -118,10 +109,7 @@ arm.t.pingcentral:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - pingcentral/**/*
-        - pingcommon/**/*
-        - pingbase/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingcentral/*
       when: on_success
@@ -153,10 +141,7 @@ d.pingcentral:
     - if: '$CI_COMMIT_REF_NAME =~ /^master$/'
       changes:
         - pingcentral/**/*
-        - pingcommon/**/*
-        - pingbase/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_COMMIT_TAG =~ /^\d{4}\.?\d*/'

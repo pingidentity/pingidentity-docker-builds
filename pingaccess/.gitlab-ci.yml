@@ -19,15 +19,10 @@ intel.b.pingaccess:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - pingaccess/**/*
         - pingdirectory/**/*
-        - pingintelligence/**/*
         - pingfederate/**/*
         - integration_tests/**/*
-        - pingjvm/*
         - ci_scripts/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingaccess/*
@@ -57,15 +52,10 @@ arm.b.pingaccess:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - pingaccess/**/*
         - pingdirectory/**/*
-        - pingintelligence/**/*
         - pingfederate/**/*
         - integration_tests/**/*
-        - pingjvm/*
         - ci_scripts/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingaccess/*
@@ -96,11 +86,7 @@ intel.t.pingaccess:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - pingaccess/**/*
-        - pingjvm/*
         - ci_scripts/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingaccess/*
@@ -130,11 +116,7 @@ arm.t.pingaccess:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - pingaccess/**/*
-        - pingjvm/*
         - ci_scripts/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingaccess/*
@@ -160,11 +142,7 @@ intel.t.pingaccess-cluster:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - pingaccess/**/*
-        - pingjvm/*
         - ci_scripts/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingaccess/*
@@ -194,11 +172,7 @@ arm.t.pingaccess-cluster:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - pingaccess/**/*
-        - pingjvm/*
         - ci_scripts/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingaccess/*
@@ -231,10 +205,7 @@ d.pingaccess:
     - if: '$CI_COMMIT_REF_NAME =~ /^master$/'
       changes:
         - pingaccess/**/*
-        - pingcommon/**/*
-        - pingbase/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_COMMIT_TAG =~ /^\d{4}\.?\d*/'
