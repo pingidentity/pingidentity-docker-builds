@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# PDI-2521 AC: assert every jvm id in ci_scripts/jvms.json publishes v2 base
+# PDI-2521 AC: assert every jvm id in ci_scripts/jvms.json publishes base
 # images for all the archs the catalog claims. Drift check — run manually or
 # from CI; exits non-zero when the catalog claims an arch the registry does
 # not serve for that id.
 #
-# The v2 image mapping is single-sourced from ci_tools.lib.sh
-# _getV2BaseImageForJVM (sourced below) — this checker cannot drift from it.
+# The base image mapping is single-sourced from ci_tools.lib.sh
+# _getBaseImageForJVM (sourced below) — this checker cannot drift from it.
 # Talks to the registry's v2 API directly (token auth + manifest index GET):
 # docker manifest inspect also follows blobs, and the registry intermittently
 # drops those connections, which makes the docker CLI path flaky.
@@ -27,7 +27,7 @@ _registry="${1:-${ARTIFACTORY_REGISTRY:-docker.corp.pingidentity.com:5300}}"
 _catalog="${CI_PROJECT_DIR}/ci_scripts/jvms.json"
 _manifestFile="${TMPDIR:-/tmp}/$$.jvm-arch-drift-manifest.json"
 
-# Single source of truth for the v2 mapping. _getV2BaseImageForJVM echoes
+# Single source of truth for the base image mapping. _getBaseImageForJVM echoes
 # [registry/]repo:tag and exits non-zero for unmapped ids (fail closed).
 # Sourced before the catalog check so echo_red is available for it.
 # shellcheck source=ci_tools.lib.sh
@@ -35,9 +35,9 @@ _manifestFile="${TMPDIR:-/tmp}/$$.jvm-arch-drift-manifest.json"
 
 ! test -f "${_catalog}" && echo_red "ERROR: File ${_catalog} not found." && exit 1
 
-# Extract the registry-less repo and tag from _getV2BaseImageForJVM's output.
-_v2RepoTagForJVM() {
-    _rt_image="$(_getV2BaseImageForJVM "${1}")" || return 1
+# Extract the registry-less repo and tag from _getBaseImageForJVM's output.
+_baseRepoTagForJVM() {
+    _rt_image="$(_getBaseImageForJVM "${1}")" || return 1
     _rt_image="${_rt_image#"${ARTIFACTORY_REGISTRY}"/}"
     printf "%s" "${_rt_image}"
 }
@@ -93,8 +93,8 @@ _normalize_manifest() {
 
 _returnCode=0
 while IFS=$'\t' read -r jvm_id arch; do
-    if ! _rt="$(_v2RepoTagForJVM "${jvm_id}")"; then
-        echo_red "FAIL: ${jvm_id} has no v2 base mapping (catalog id out of sync with _getV2BaseImageForJVM)."
+    if ! _rt="$(_baseRepoTagForJVM "${jvm_id}")"; then
+        echo_red "FAIL: ${jvm_id} has no base image mapping (catalog id out of sync with _getBaseImageForJVM)."
         _returnCode=1
         continue
     fi

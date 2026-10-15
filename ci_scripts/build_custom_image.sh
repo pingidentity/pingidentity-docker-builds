@@ -22,6 +22,10 @@ Usage: ${0} {options}
     -o, --os-shim
         Required. The docker image tagged name of the operating system for which to build a custom docker image.
         Ex: alpine:3.23.3
+        NOTE: this no longer selects the build's base image — the JVM id maps to
+        its Ping-provided base image (base OS or base Java) regardless. The shim
+        only formats the image tag (via _getLongTag); a custom os-shim value
+        builds on the mapped base image.
     -j, --jvm
         Required. The id of the jvm to build
         Ex: al11
@@ -115,8 +119,8 @@ fi
 # git checkout the specified git tag for building the image with a specified sprint's hook scripts
 # If no sprint version is specified, build will be on master branch
 if test -n "${sprint_git_tag}"; then
-    # The requested --jvm is a caller-supplied pipeline variable, validated later by
-    # serial_build.sh against the checked-out ci_scripts/jvms.json catalog. A sprint tag cut
+    # The requested --jvm is a caller-supplied pipeline variable, validated below
+    # against the checked-out ci_scripts/jvms.json catalog. A sprint tag cut
     # while a JVM id was absent from that catalog cannot validate it (e.g. al17 was
     # dropped before SPRINT-2605 and restored afterward in ed1d5ef5). Capture the
     # invoking ref's catalog now so we can fall back only in that case. Refs cut
@@ -151,9 +155,15 @@ if test -n "${zip_download_url}"; then
     echo "Successfully retrieved zip file from ${zip_download_url}."
 fi
 
-# From here, simply allow ci_scripts/serial_build.sh to handle the build with the provided build configuration.
-"${CI_SCRIPTS_DIR}"/serial_build.sh --product "${product_name}" --version "${product_version}" --shim "${os_image_tagged_name}" --jvm "${jvm_id}"
-test "${?}" != "0" && echo "ERROR: Failed to run serial_build.sh and build the custom image" && exit 1
+# Clean up local docker caches, then build the product image directly
+# (inlined from the retired ci_scripts/serial_build.sh, PDI-2524).
+"${CI_SCRIPTS_DIR}/cleanup_docker.sh" full
+test "${?}" -ne 0 && echo "ERROR: cleanup_docker.sh failed" && exit 1
+
+# Word-split is expected behavior for $buildOptions. Disable shellcheck.
+# shellcheck disable=SC2086
+"${CI_SCRIPTS_DIR}"/build_product.sh -p "${product_name}" -v "${product_version}" -s "${os_image_tagged_name}" -j "${jvm_id}"
+test "${?}" != "0" && echo "ERROR: Failed to run build_product.sh and build the custom image" && exit 1
 
 # Get this built docker image ID, tag the image and publish to Artifactory
 # When a zip file was downloaded, build_product.sh appends -fsoverride to the image tag

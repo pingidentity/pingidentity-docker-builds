@@ -232,17 +232,18 @@ for _version in ${versionsToBuild}; do
             imageVersion="${_buildVersion}-${_shimLongTag}-${_jvm}"
             licenseVersion="$(_getLicenseVersion "${_version}")"
 
-            # Resolve the v2 base image args for this jvm id. Fail-fast on any
-            # unmapped id: a product must not silently build without its v2 base.
-            _v2_base_image=""
-            _v2_java_link=""
-            _v2_stop=$(date '+%s')
-            _v2_duration=$((_v2_stop - _start))
-            if ! _v2_base_image="$(_getV2BaseImageForJVM "${_jvm}")" ||
-                ! _v2_java_link="$(_getV2JavaLinkForJVM "${_jvm}")"; then
-                echo_red "ERROR: No v2 mapping for jvm ID ${_jvm}; refusing to build ${productToBuild} ${_buildVersion} ${_shim} without it."
+            # Resolve the Ping-provided base image args for this jvm id. Fail-fast
+            # on any unmapped id: a product must not silently build without its
+            # base image.
+            _base_image=""
+            _java_link=""
+            _base_stop=$(date '+%s')
+            _base_duration=$((_base_stop - _start))
+            if ! _base_image="$(_getBaseImageForJVM "${_jvm}")" ||
+                ! _java_link="$(_getJavaLinkForJVM "${_jvm}")"; then
+                echo_red "ERROR: No base image mapping for jvm ID ${_jvm}; refusing to build ${productToBuild} ${_buildVersion} ${_shim} without it."
                 _result=FAIL
-                append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${productToBuild}" "${_buildVersion}" "${_shim}" "${_jvm}" "${_v2_duration}" "${_result}"
+                append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "${productToBuild}" "${_buildVersion}" "${_shim}" "${_jvm}" "${_base_duration}" "${_result}"
                 exit 1
             fi
 
@@ -273,8 +274,8 @@ for _version in ${versionsToBuild}; do
                 --build-arg IMAGE_GIT_REV="${GIT_REV_MED}"
                 --build-arg LICENSE_VERSION="${licenseVersion}"
             )
-            test -n "${_v2_base_image}" && _buildArgs+=(--build-arg V2_BASE_IMAGE="${_v2_base_image}")
-            test -n "${_v2_java_link}" && _buildArgs+=(--build-arg JAVA_LINK="${_v2_java_link}")
+            test -n "${_base_image}" && _buildArgs+=(--build-arg BASE_IMAGE="${_base_image}")
+            test -n "${_java_link}" && _buildArgs+=(--build-arg JAVA_LINK="${_java_link}")
             test -n "${VERBOSE}" && _buildArgs+=(--build-arg VERBOSE="true")
             test -n "${PING_IDENTITY_SNAPSHOT}" && _buildArgs+=(--build-arg SNAPSHOT_URL="${snapshot_url}")
             # Word-split is expected behavior for $_dependencies (list of

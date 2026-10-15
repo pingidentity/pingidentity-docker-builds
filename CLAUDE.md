@@ -24,10 +24,7 @@ optional `tests/`.
 
 Entry points:
 
-- `ci_scripts/build_foundation.sh` — base layers (`pingbase`/`pingcommon`/
-  `pingdatacommon`/`pingjvm`).
 - `ci_scripts/build_product.sh` — single product.
-- `ci_scripts/serial_build.sh` — sequenced builds.
 - `ci_scripts/build_custom_image.sh` — one-off custom product/JVM/shim builds.
 
 ## Version management
@@ -53,8 +50,10 @@ every shipping product uses `al25`/`rl25`.** 17 and 21 exist for `CUSTOM_JVM_ID`
 only — no product `versions.json` or `helm-tests/integration-tests/integration-tests.json`
 references them.
 
-Shim base images are pinned in `ci_scripts/build_foundation.sh`
-(`LATEST_ALPINE_VERSION`, the `redhat/ubi9-minimal:` tag). Changing a shim affects
+Shim base images are pinned in the product `versions.json` `shims[]` entries
+(`alpine:3.24.2`, `redhat/ubi9-minimal:9.8-...`) and in each product Dockerfile's
+product-staging `FROM`. The Ping-provided base OS and base Java images themselves
+ship via the base image pipeline (floating OS-major tags). Changing a shim affects
 supply-chain posture; keep pins explicit and never use `latest`.
 
 ## Shell script conventions

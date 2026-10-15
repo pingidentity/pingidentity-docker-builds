@@ -16,7 +16,6 @@ include:
 
 stages:
   - initialization
-  - foundation
   - products
   - test.smoke
   - test.integration
@@ -94,7 +93,7 @@ intel.i.checks:
 
 intel.i.jvmdrift:
   stage: initialization
-  # PDI-2521: jvms.json archs must not drift from the published v2 base tags.
+  # PDI-2521: jvms.json archs must not drift from the published base image tags.
   # Cheap (manifest GETs only). Non-blocking: drift is a supply-chain signal,
   # not a build breaker — fix forward when it fires.
   allow_failure: true
@@ -129,49 +128,6 @@ intel.i.shfmt:
   script:
     - ci_scripts/shfmt.sh --diff
   rules:
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]/i'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
-      when: on_success
-
-#####################################################################
-#   ______ ____  _    _ _   _ _____       _______ _____ ____  _   _
-#  |  ____/ __ \| |  | | \ | |  __ \   /\|__   __|_   _/ __ \| \ | |
-#  | |__ | |  | | |  | |  \| | |  | | /  \  | |    | || |  | |  \| |
-#  |  __|| |  | | |  | | . ` | |  | |/ /\ \ | |    | || |  | | . ` |
-#  | |   | |__| | |__| | |\  | |__| / ____ \| |   _| || |__| | |\  |
-#  |_|    \____/ \____/|_| \_|_____/_/    \_\_|  |_____\____/|_| \_|
-#
-#####################################################################
-intel.f.pingfoundation:
-  stage: foundation
-  script:
-    - ci_scripts/cleanup_docker.sh full
-    - ci_scripts/build_foundation.sh
-  rules:
-    - if: $ARCHIVE_PIPELINE == "true"
-      when: never
-    - if: $CUSTOM_IMAGE_PIPELINE == "true"
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]/i'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'
-      when: on_success
-
-arm.f.pingfoundation:
-  stage: foundation
-  image: $RUNNER_IMAGE_AARCH64
-  #image: $RUNNER_IMAGE_AARCH64_TEST
-  tags:
-    - platform=aarch64
-  script:
-    - ci_scripts/cleanup_docker.sh full
-    - ci_scripts/build_foundation.sh
-  rules:
-    - if: $ARCHIVE_PIPELINE == "true"
-      when: never
-    - if: $CUSTOM_IMAGE_PIPELINE == "true"
-      when: never
     - if: '$CI_COMMIT_MESSAGE =~ /\[skip build\]/i'
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$|^schedule$|^web$/'

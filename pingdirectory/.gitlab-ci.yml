@@ -19,9 +19,6 @@ intel.b.pingdirectory:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - pingaccess/**/*
         - pingdatasync/**/*
         - pingdirectoryproxy/**/*
@@ -30,7 +27,6 @@ intel.b.pingdirectory:
         - pingauthorize/**/*
         - integration_tests/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingdirectory/*
         - helm-tests/integration-tests/**/*
@@ -59,9 +55,6 @@ arm.b.pingdirectory:
       when: never
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - pingaccess/**/*
         - pingdatasync/**/*
         - pingdirectoryproxy/**/*
@@ -70,7 +63,6 @@ arm.b.pingdirectory:
         - pingauthorize/**/*
         - integration_tests/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingdirectory/*
         - helm-tests/integration-tests/**/*
@@ -101,11 +93,7 @@ intel.t.pingdirectory:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - pingdirectory/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingdirectory/*
       when: on_success
@@ -135,11 +123,7 @@ arm.t.pingdirectory:
     - if: '$CI_PIPELINE_SOURCE =~ /^push$/'
       changes:
         - pingdirectory/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
         - helm-tests/smoke-tests/pingdirectory/*
       when: on_success
@@ -171,11 +155,7 @@ d.pingdirectory:
     - if: '$CI_COMMIT_REF_NAME =~ /^master$/'
       changes:
         - pingdirectory/**/*
-        - pingcommon/**/*
-        - pingdatacommon/**/*
-        - pingbase/**/*
         - ci_scripts/*
-        - pingjvm/*
         - .gitlab-ci.yml
       when: on_success
     - if: '$CI_COMMIT_TAG =~ /^\d{4}\.?\d*/'

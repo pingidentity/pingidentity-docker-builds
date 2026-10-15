@@ -228,7 +228,8 @@ _getShimsToDeployForProductVersion() {
         "${product_versions_file}"
 }
 
-# Echo the v2 base image for a jvm id, or nothing (exit 1) if unmapped.
+# Echo the Ping-provided base image (base OS or base Java) for a jvm id, or
+# nothing (exit 1) if unmapped.
 # Floating OS-major tags: alpine pins 3.24, redhat pins ubi9;
 # patch level floats on weekly rebuilds.
 # al25 -> pingbase-java:alpine3.24-jdk25
@@ -239,41 +240,41 @@ _getShimsToDeployForProductVersion() {
 # default_major) so a new track requires a conscious mapping change.
 # default_major is consumed by the release skill until we move away from
 # sprint releases; it is not consumed by any script.
-# V2 base images are published by the v2 base pipeline to the artifactory
+# Base images are published by the base image pipeline to the artifactory
 # registry (ARTIFACTORY_REGISTRY, e.g. docker.corp.pingidentity.com:5300), NOT
 # to the deps pull-through registry (PIPELINE_DEPS_REGISTRY, :5700) which only
 # proxies hub library images.
-_getV2BaseImageForJVM() {
-    test -z "${1}" && echo_red "ERROR: The function _getV2BaseImageForJVM requires a jvm ID input." && exit 1
+_getBaseImageForJVM() {
+    test -z "${1}" && echo_red "ERROR: The function _getBaseImageForJVM requires a jvm ID input." && exit 1
 
     case "${1}" in
         alnoj) echo "${ARTIFACTORY_REGISTRY}/pingbase:alpine3.24" ;;
         al17 | al21 | al25) echo "${ARTIFACTORY_REGISTRY}/pingbase-java:alpine3.24-jdk${1#al}" ;;
         rl17 | rl21 | rl25) echo "${ARTIFACTORY_REGISTRY}/pingbase-java:ubi9-jdk${1#rl}" ;;
-        *) echo_red "ERROR: No v2 base image mapping for jvm ID ${1}." && exit 1 ;;
+        *) echo_red "ERROR: No base image mapping for jvm ID ${1}." && exit 1 ;;
     esac
 }
 
 # Echo the in-image JAVA_HOME symlink target for a jvm id, or nothing (rc 0) for
 # alnoj (mapped but non-JVM: no java to link). Exits 1 for any other unmapped id.
-# Must stay consistent with _getV2BaseImageForJVM: alnoj is the only mapped
+# Must stay consistent with _getBaseImageForJVM: alnoj is the only mapped
 # non-JVM id; JDK tracks mirror the same explicit list.
 # rl ids are arch-suffixed in bellsoft's UBI install path (verified 2026-10-08:
 # amd64 -> bellsoft-javaNN-lite.x86_64, arm64 -> bellsoft-javaNN-lite.aarch64,
 # matching JAVA_ARCH_SUFFIX in the published pingbase-java configs). Alpine
 # installs are suffix-free on both arches. Requires ${ARCH} (set+validated on
 # lib source).
-_getV2JavaLinkForJVM() {
-    test -z "${1}" && echo_red "ERROR: The function _getV2JavaLinkForJVM requires a jvm ID input." && exit 1
+_getJavaLinkForJVM() {
+    test -z "${1}" && echo_red "ERROR: The function _getJavaLinkForJVM requires a jvm ID input." && exit 1
 
     case "${1}" in
         alnoj) ;;
         al17 | al21 | al25) echo "/usr/lib/jvm/bellsoft-java${1#al}-lite" ;;
         rl17 | rl21 | rl25)
-            test -z "${ARCH}" && echo_red "ERROR: _getV2JavaLinkForJVM requires ARCH for rl ids." && exit 1
+            test -z "${ARCH}" && echo_red "ERROR: _getJavaLinkForJVM requires ARCH for rl ids." && exit 1
             echo "/usr/lib/jvm/bellsoft-java${1#rl}-lite.${ARCH}"
             ;;
-        *) echo_red "ERROR: No v2 java link mapping for jvm ID ${1}." && exit 1 ;;
+        *) echo_red "ERROR: No java home link mapping for jvm ID ${1}." && exit 1 ;;
     esac
 }
 
@@ -767,7 +768,7 @@ elif test -n "${CI_COMMIT_REF_NAME}"; then
 
     if test -n "${CUSTOM_IMAGE_PIPELINE}"; then
         # Trick the pipeline to think local. This removes the need to push to ECR for build process,
-        # and keeps the images around after serial_build.sh is finished.
+        # and keeps the images around after the custom-image build is finished.
         IS_LOCAL_BUILD=true
         export IS_LOCAL_BUILD
         # keep local foundation registry if set
