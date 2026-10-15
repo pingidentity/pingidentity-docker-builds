@@ -25,10 +25,9 @@ else
     echo "###     group: ${_effectiveGroupName} (id: ${_groupID})"
 fi
 
-# if the current process id is not 1, tini needs to register as sub-reaper
-if test $$ -ne 1; then
-    _subReaper="-s"
-fi
-
+# exec straight into the entrypoint: the base image's /sbin/tini runs as pid 1
+# and covers reaping (the -s sub-reaper flag existed for the v1 foundation,
+# which had no pid-1 tini; the /opt/tini binary came from the retired
+# pingcommon carrier image and no longer exists).
 # shellcheck disable=SC2086,SC2048
-exec "${BASE}/tini" ${_subReaper} -- "${BASE}/entrypoint.sh" ${*}
+exec "${BASE}/entrypoint.sh" ${*}
