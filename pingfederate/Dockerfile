@@ -5,33 +5,29 @@
 #- Engine nodes.
 #-
 #- ## Related Docker Images
-#- - `pingidentity/pingbase` - Parent Image
-#- > This image inherits, and can use, Environment Variables from [pingidentity/pingbase](https://devops.pingidentity.com/docker-images/pingbase/)
-#- - `pingidentity/pingcommon` - Common Ping files (i.e. hook scripts)
+#- - `pingbase-java` (v2 base) - Parent Image
+#- - `pingcommon` - Common Ping files (i.e. hook scripts)
 
 #################################################################################
 
 # Top level ARGS used in all FROM commands
 ARG ARCH
+# Keep DEPS: the alpine product-staging stage downloads product bits through
+# the deps pull-through registry.
 ARG DEPS
-ARG GIT_TAG
-ARG LATEST_ALPINE_VERSION
-ARG REGISTRY
-ARG SHIM
 # v2 base adoption: CI passes V2_BASE_IMAGE (+ JAVA_LINK for JVM
-# products). Empty V2_BASE_IMAGE falls back to the v1 shim for review builds;
-# production CI fail-fasts on unmapped jvm ids before ever reaching here.
+# products). Production CI fail-fasts on unmapped jvm ids before ever
+# reaching here.
 ARG V2_BASE_IMAGE
 ARG JAVA_LINK
 
 #################################################################################
 
-FROM ${REGISTRY}/pingcommon:${GIT_TAG}-${ARCH} AS common
-
-#################################################################################
-
-# Always use alpine to download product bits
-FROM ${DEPS}alpine:${LATEST_ALPINE_VERSION} AS product-staging
+# Always use alpine to download product bits (pinned here: the
+# LATEST_ALPINE_VERSION build-arg was retired with the carrier-image
+# mechanics in PDI-2523 — keep this pin in sync with build_foundation.sh
+# and the alpine shim pins in the versions.json files).
+FROM ${DEPS}alpine:3.24.2 AS product-staging
 
 # ARGS used in get-product-bits.sh RUN command
 ARG ARTIFACTORY_URL
@@ -40,12 +36,15 @@ ARG SNAPSHOT_URL
 ARG VERBOSE
 ARG VERSION
 
+# Get Ping-wide common scripts from the build context (PDI-2523 carrier
+# elimination: pingcommon is no longer built as an image).
+COPY ["pingcommon/opt/get-product-bits.sh","/opt/get-product-bits.sh"]
+
 # Get local filesystem product bits if present
-COPY ["tmp/", "/tmp/"]
+COPY ["pingfederate/tmp/", "/tmp/"]
 
 # Download the product bits
 # TODO Remove the `-x` options in the unzip commands after PF 11.2 GA and use of min zip files.
-COPY --from=common ["/opt/get-product-bits.sh","/opt/get-product-bits.sh"]
 RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
     && unzip -q /tmp/product.zip -d /tmp/ \
         -x */pingfederate-service-installer.jar \
@@ -58,16 +57,14 @@ RUN /opt/get-product-bits.sh --product ${PRODUCT} --version ${VERSION} \
 
 #################################################################################
 
-FROM ${V2_BASE_IMAGE:-${DEPS}${SHIM}} AS final-staging
+FROM ${V2_BASE_IMAGE} AS final-staging
 
-# v2 base images end at USER 9031:0; staging RUN steps run as root (v1 built
-# from a root shim).
+# v2 base images end at USER 9031:0; staging RUN steps run as root.
 USER 0:0
 # Re-declared: top-level ARGs are not inherited into stage RUN scope.
 ARG JAVA_LINK
 # Preserve the JAVA_HOME=/opt/java contract (pingbase env + PATH); the link
-# target lives inside the v2 base image. Empty JAVA_LINK (v1 fallback) leaves
-# /opt/java to the common scripts as today.
+# target lives inside the v2 base image.
 RUN if test -n "${JAVA_LINK}"; then ln -s "${JAVA_LINK}" /opt/java; fi
 
 # get the product bits FIRST
@@ -76,10 +73,10 @@ COPY --from=product-staging ["/opt/","/opt/"]
 # get Ping-wide common scripts
 #   this needs to happen after the bits have been laid down
 #   so they can be patched
-COPY --from=common ["/opt/","/opt/"]
+COPY ["pingcommon/opt/","/opt/"]
 
 # apply product-specific hooks and patches
-COPY ["/opt","/opt"]
+COPY ["pingfederate/opt","/opt"]
 
 # add legal information in licenses directory
 COPY --from=product-staging ["/opt/server/legal/","/licenses/"]
@@ -89,10 +86,10 @@ RUN ["/opt/build.sh"]
 
 #################################################################################
 
-FROM ${REGISTRY}/pingbase:${GIT_TAG}-${ARCH} AS base
-
-# The final image
-FROM ${V2_BASE_IMAGE:-${DEPS}${SHIM}}
+# The final image (v2 base — PDI-2523 final-stage unification; the v1
+# pingbase env-carrier stage is retired, so the env vars it used to supply
+# to the hook framework are re-declared below).
+FROM ${V2_BASE_IMAGE}
 
 # from pingbase
 ARG BASE
@@ -293,8 +290,7 @@ ARG DATE
 ARG VERSION
 ARG LICENSE_VERSION
 
-ENV SHIM=${SHIM} \
-    IMAGE_VERSION=${IMAGE_VERSION} \
+ENV IMAGE_VERSION=${IMAGE_VERSION} \
     IMAGE_GIT_REV=${IMAGE_GIT_REV} \
     DATE=${DATE} \
     PING_PRODUCT_VERSION=${VERSION} \
@@ -528,28 +524,25 @@ EXPOSE 9031 9999
 
 WORKDIR ${BASE}
 
-ENTRYPOINT [ "./bootstrap.sh" ]
+ENTRYPOINT [ "/sbin/tini", "--", "/opt/bootstrap.sh" ]
 CMD [ "start-server" ]
 
 COPY --from=final-staging "/licenses/" "/licenses/"
-COPY --from=base "/licenses/" "/licenses/"
+# Legal pointer (was shipped by the v1 pingbase carrier as /licenses/license.txt;
+# re-homed to the build context for the v2 base, which ships no /licenses).
+COPY ["pingbase/license.txt", "/licenses/license.txt"]
 
 # get the staged bits
 COPY --from=final-staging ["/opt","/opt"]
 COPY --from=final-staging ["/etc/motd","/etc/motd"]
 
 # install_deps needs root (apk/yum); the v2 base image ends at USER 9031:0,
-# the v1 shim at root — force root for the run either way.
+# force root for the run.
 USER 0:0
-
-# The v2 pingbase-java:ubi9 image ships the JDK's bellsoft.repo (enabled,
-# priority=1). Nothing downstream needs it, and if yum.bell-sw.com's
-# repodata is mid-rotation during a build, microdnf refuses to run at all
-# (any failing enabled repo aborts) — observed 2026-10-06 as a silent
-# install_deps skip (no error handling) producing an image without jq/
-# gettext, caught only by the pa-cluster smoke test. The JDK is already
-# baked into the base; drop the repo.
-RUN rm -f /etc/yum.repos.d/bellsoft.repo
+# The alpine v2 base ships tini at /sbin/tini; the ubi9 base ships it at
+# /usr/local/bin/tini. Normalize so the absolute
+# ENTRYPOINT ["/sbin/tini",...] works on both (no-op on alpine).
+RUN test -x /sbin/tini || ln -s /usr/local/bin/tini /sbin/tini
 
 RUN ["/opt/install_deps.sh"]
 

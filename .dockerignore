@@ -1,0 +1,60 @@
+# Root .dockerignore for repo-root build contexts (PDI-2523).
+#
+# All standard-product images build with `-f <product>/Dockerfile .` so the
+# product Dockerfiles can COPY pingcommon/opt/, pingdatacommon/opt/ and
+# pingbase/license.txt from the build context. With the whole repo as
+# context, exclusions here are the supply-chain surface: everything not
+# needed by a build must be out.
+#
+# Build inputs that DO go to the daemon: <product>/Dockerfile,
+# <product>/opt/, <product>/tmp/ (bits override), <product>/keys.gpg,
+# pingcommon/opt/, pingdatacommon/opt/, pingbase/license.txt,
+# ldap-sdk-tools/wait-for, pingdelegator/nginx.conf.
+
+# Secrets and local env — never enter the build cache/layers.
+.env
+**/.env
+**/*.env
+**/*.pem
+**/*.key
+**/id_rsa*
+# Tracked exception: delegator's DH params are a deliberate build input
+# (COPYied via pingdelegator/opt; build.sh.pre unconditionally enables
+# ssl_dhparam pointing at it) — without this negation **/*.pem silently
+# drops it from the context and the shipped image cannot start nginx.
+!pingdelegator/opt/staging/instance/etc/certs/dhparam.pem
+
+# VCS and CI internals.
+.git
+.gitlab-ci.yml
+.github
+.claude
+.polaris
+.playwright*
+
+# Local scratch, editor and OS droppings.
+scratch/
+**/.DS_Store
+**/*.swp
+
+# Docs and tests never reach a build (pingcommon's server README must
+# stay: it is COPYied into images as /opt/server/README.md and hook
+# 06-copy-product-bits.sh copies /opt/server/* at startup; pingbase/
+# license.txt needs no negation — nothing excludes .txt).
+helm-tests
+**/tests/
+**/versions.json
+**/*.md
+!pingcommon/opt/server/README.md
+
+# Shared-configs submodule (release-note tooling only).
+shared-configs
+
+# Non-product directories (nothing in a product build copies from these).
+ci_scripts
+pingjvm
+
+# Product tmp/ dirs are NOT excluded: they are build inputs — local
+# product.zip bits overrides for get-product-bits.sh, copied via
+# COPY ["<product>/tmp/", "/tmp/"]. Per-product .gitignore files already
+# keep actual zips out of git; untracked local zips stay a local-only risk.

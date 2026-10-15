@@ -139,62 +139,13 @@ _reportPattern='%-52s| %10s| %7s'
 printf ' %-53s| %10s| %7s\n' "IMAGE" "DURATION" "RESULT" > ${_resultsFile}
 
 #build foundation and push to gcr for use in subsequent jobs.
-banner Building PING COMMON
-_start=$(date '+%s')
-_image="${FOUNDATION_REGISTRY}/pingcommon:${CI_TAG}-${ARCH}"
-
-# Word-Split is expected behavior for $progress. Disable shellcheck.
-# shellcheck disable=SC2086
-DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
-    ${progress} ${noCache} \
-    --build-arg DEPS="${DEPS_REGISTRY}" \
-    --build-arg ARTIFACTORY_URL="${ARTIFACTORY_URL}" \
-    --build-arg LATEST_ALPINE_VERSION="3.24.2" \
-    ${VERBOSE:+--build-arg VERBOSE="true"} \
-    -t "${_image}" "${CI_PROJECT_DIR}/pingcommon"
-_returnCode=${?}
-_stop=$(date '+%s')
-_duration=$((_stop - _start))
-if test ${_returnCode} -ne 0; then
-    returnCode=${_returnCode}
-    _result="FAIL"
-else
-    _result="PASS"
-    if test -z "${IS_LOCAL_BUILD}"; then
-        banner "Pushing ${_image}"
-        exec_cmd_or_fail docker push "${_image}"
-    fi
-    append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingcommon" "${_duration}" "${_result}"
-fi
-imagesToCleanup="${imagesToCleanup} ${_image}"
-
-banner Building PING DATA COMMON
-_start=$(date '+%s')
-_image="${FOUNDATION_REGISTRY}/pingdatacommon:${CI_TAG}-${ARCH}"
-
-# Word-Split is expected behavior for $progress. Disable shellcheck.
-# shellcheck disable=SC2086
-DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
-    ${progress} ${noCache} \
-    --build-arg REGISTRY="${FOUNDATION_REGISTRY}" \
-    --build-arg GIT_TAG="${CI_TAG}" \
-    --build-arg ARCH="${ARCH}" \
-    -t "${_image}" "${CI_PROJECT_DIR}/pingdatacommon"
-_returnCode=${?}
-_stop=$(date '+%s')
-_duration=$((_stop - _start))
-if test ${_returnCode} -ne 0; then
-    returnCode=${_returnCode}
-    _result="FAIL"
-else
-    _result="PASS"
-    if test -z "${IS_LOCAL_BUILD}"; then
-        banner "Pushing ${_image}"
-        exec_cmd_or_fail docker push "${_image}"
-    fi
-    append_status "${_resultsFile}" "${_result}" "${_reportPattern}" "pingdatacommon" "${_duration}" "${_result}"
-fi
-imagesToCleanup="${imagesToCleanup} ${_image}"
+# pingcommon/pingdatacommon carrier images are no longer built or pushed
+# (PDI-2523 carrier elimination): zero Dockerfile references remain — every
+# product COPYs pingcommon/opt/ and pingdatacommon/opt/ straight from the
+# repo-root build context. The images were internal-only transient artifacts
+# (never published to customer registries). The Dockerfiles remain until the
+# PDI-2524 carrier retirement deletes them.
+echo_yellow "Skipping pingcommon/pingdatacommon: carrier images have no consumers (products COPY opt/ from the root build context); scheduled for PDI-2524 retirement."
 
 if test -n "${PING_IDENTITY_SNAPSHOT}"; then
     # TODO: Fix artifactory caching issue. Shim is hardcoded to avoid incorrect arch pull from artifactory.

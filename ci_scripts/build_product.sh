@@ -263,20 +263,15 @@ for _version in ${versionsToBuild}; do
             done
             _buildArgs+=(
                 --build-arg PRODUCT="${productToBuild}"
-                --build-arg REGISTRY="${FOUNDATION_REGISTRY}"
                 --build-arg DEPS="${DEPS_REGISTRY}"
                 --build-arg ARTIFACTORY_URL="${ARTIFACTORY_URL}"
-                --build-arg GIT_TAG="${CI_TAG}"
                 --build-arg JVM="${_jvm}"
                 --build-arg ARCH="${ARCH}"
-                --build-arg SHIM="${_shim}"
-                --build-arg SHIM_TAG="${_shimLongTag}"
                 --build-arg VERSION="${_buildVersion}"
                 --build-arg DATE="${_date}"
                 --build-arg IMAGE_VERSION="${imageVersion}"
                 --build-arg IMAGE_GIT_REV="${GIT_REV_MED}"
                 --build-arg LICENSE_VERSION="${licenseVersion}"
-                --build-arg LATEST_ALPINE_VERSION="3.24.2"
             )
             test -n "${_v2_base_image}" && _buildArgs+=(--build-arg V2_BASE_IMAGE="${_v2_base_image}")
             test -n "${_v2_java_link}" && _buildArgs+=(--build-arg JAVA_LINK="${_v2_java_link}")
@@ -288,7 +283,8 @@ for _version in ${versionsToBuild}; do
             ${dryRun} env DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker image build \
                 "${_buildArgs[@]}" \
                 ${_dependencies} \
-                "${CI_PROJECT_DIR}/${productToBuild}"
+                -f "${CI_PROJECT_DIR}/${productToBuild}/Dockerfile" \
+                "${CI_PROJECT_DIR}"
 
             _returnCode=${?}
             _stop=$(date '+%s')

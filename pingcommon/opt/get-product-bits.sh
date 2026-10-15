@@ -206,20 +206,6 @@ case "${product_name}" in
         bits_file_name="pi-api-ase-rhel-${product_version}.tar.gz"
         bits_download_url="${ARTIFACTORY_URL}/installs/com/pingidentity/${product_name}/kits/pingintelligence_ase_for_rhel/${product_version}/${bits_file_name}"
         ;;
-    tini)
-        case "$(uname -m)" in
-            x86_64)
-                bits_file_name="tini-static-amd64"
-                ;;
-            aarch64)
-                bits_file_name="tini-static-arm64"
-                ;;
-            *)
-                usage "Unrecognized Architecture $(uname -m) for ${product_name} ${product_version}."
-                ;;
-        esac
-        bits_download_url="https://github.com/krallin/tini/releases/download/v${product_version}/${bits_file_name}"
-        ;;
     *)
         usage "Unrecognized product name: ${product_name}"
         ;;
@@ -277,29 +263,6 @@ elif test "${product_name}" = "apache-jmeter" || test "${product_name}" = "apach
     gpg --verify "/tmp/${output_file}.asc" "/tmp/${output_file}"
     test $? -ne 0 && echo "Error: The signature verification failed for the artifact ${bits_file_name} from ${bits_download_url}." && exit 1
     rm -f "/tmp/keys.gpg"
-    rm -f "/tmp/${output_file}.asc"
-
-    echo "Successfully verified artifact ${bits_file_name}."
-
-elif test "${product_name}" = "tini"; then
-    # Perform a SHA-256 check
-    echo "Verifying Tini product bits ${bits_file_name}..."
-    wget -T 20 -O "/tmp/${output_file}.sha256sum" "${bits_download_url}.sha256sum"
-    test $? -ne 0 && echo "Error: Could not retrieve sha256 of artifact ${bits_file_name} from ${bits_download_url}.sha256sum" && exit 1
-    echo "$(awk 'FNR == 1 {print $1}' "/tmp/${output_file}.sha256sum")  /tmp/${output_file}" | sha256sum -c -s -
-    test $? -ne 0 && echo "Error: The SHA-256 check failed for the artifact ${bits_file_name} from ${bits_download_url}." && exit 1
-    rm "/tmp/${output_file}.sha256sum"
-
-    # Perform a gpg signature verification. GPG should be installed in pingcommon's Dockerfile.
-    command -v gpg > /dev/null
-    test $? -ne 0 && echo "Error: Command gpg not found." && exit 1
-    gpg --import "/tmp/key.gpg"
-    test $? -ne 0 && echo "Error: Public key import of Tini signing key failed." && exit 1
-    wget -T 20 -O "/tmp/${output_file}.asc" "${bits_download_url}.asc"
-    test $? -ne 0 && echo "Error: Could not retrieve asc of artifact ${bits_file_name} from ${bits_download_url}.asc" && exit 1
-    gpg --verify "/tmp/${output_file}.asc" "/tmp/${output_file}"
-    test $? -ne 0 && echo "Error: The signature verification failed for the artifact ${bits_file_name} from ${bits_download_url}." && exit 1
-    rm -f "/tmp/key.gpg"
     rm -f "/tmp/${output_file}.asc"
 
     echo "Successfully verified artifact ${bits_file_name}."
