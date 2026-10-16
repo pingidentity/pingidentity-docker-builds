@@ -11,7 +11,9 @@
 # drops those connections, which makes the docker CLI path flaky.
 #
 # Usage: ci_scripts/check_jvm_arch_drift.sh [registry]
-#   registry defaults to ${ARTIFACTORY_REGISTRY:-docker.corp.pingidentity.com:5300}
+#   registry defaults to ${BASE_REGISTRY}; fails if unset. CI always sets
+#   ARTIFACTORY_REGISTRY (the registry-of-record mirror); for local runs,
+#   pass the base image pipeline's registry.
 # Requires: curl, jq, and network access to the registry.
 
 test "${VERBOSE}" = "true" && set -x
@@ -23,7 +25,18 @@ if test -z "${CI_PROJECT_DIR}"; then
     )"
 fi
 
-_registry="${1:-${ARTIFACTORY_REGISTRY:-docker.corp.pingidentity.com:5300}}"
+# Default the registry BEFORE sourcing ci_tools.lib.sh, which otherwise
+# defaults BASE_REGISTRY to the public Hub namespace. This check reads the
+# base image pipeline's registry-of-record, not the Hub mirror, and must
+# keep its own default. Fail closed: without a registry this check has
+# nothing meaningful to query, and silently querying Hub would give the
+# drift check a false PASS.
+if test -z "${BASE_REGISTRY}" && test -z "${ARTIFACTORY_REGISTRY}" && test -z "${1}"; then
+    echo "ERROR: Set BASE_REGISTRY (or the CI-injected ARTIFACTORY_REGISTRY) or pass a registry argument (the base image pipeline's registry-of-record)." >&2
+    exit 1
+fi
+BASE_REGISTRY="${BASE_REGISTRY:-${ARTIFACTORY_REGISTRY}}"
+_registry="${1:-${BASE_REGISTRY}}"
 _catalog="${CI_PROJECT_DIR}/ci_scripts/jvms.json"
 _manifestFile="${TMPDIR:-/tmp}/$$.jvm-arch-drift-manifest.json"
 
@@ -38,7 +51,7 @@ _manifestFile="${TMPDIR:-/tmp}/$$.jvm-arch-drift-manifest.json"
 # Extract the registry-less repo and tag from _getBaseImageForJVM's output.
 _baseRepoTagForJVM() {
     _rt_image="$(_getBaseImageForJVM "${1}")" || return 1
-    _rt_image="${_rt_image#"${ARTIFACTORY_REGISTRY}"/}"
+    _rt_image="${_rt_image#"${BASE_REGISTRY}"/}"
     printf "%s" "${_rt_image}"
 }
 

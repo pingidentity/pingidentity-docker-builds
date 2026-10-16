@@ -240,17 +240,21 @@ _getShimsToDeployForProductVersion() {
 # default_major) so a new track requires a conscious mapping change.
 # default_major is consumed by the release skill until we move away from
 # sprint releases; it is not consumed by any script.
-# Base images are published by the base image pipeline to the artifactory
-# registry (ARTIFACTORY_REGISTRY, e.g. docker.corp.pingidentity.com:5300), NOT
-# to the deps pull-through registry (PIPELINE_DEPS_REGISTRY, :5700) which only
-# proxies hub library images.
+# Base images are published by the base image pipeline to Docker Hub
+# (pingidentity/pingbase, pingbase-java) and mirrored to the internal
+# artifactory registry that CI injects as ARTIFACTORY_REGISTRY. BASE_REGISTRY
+# is the base-pull knob (external/local surface): it defaults to the public
+# Hub namespace so local builds pull the parents without extra setup, and
+# falls back to ARTIFACTORY_REGISTRY when CI sets that. ARTIFACTORY_REGISTRY
+# itself remains the push-target name used by the pipeline scripts.
+BASE_REGISTRY="${BASE_REGISTRY:-${ARTIFACTORY_REGISTRY:-docker.io/pingidentity}}"
 _getBaseImageForJVM() {
     test -z "${1}" && echo_red "ERROR: The function _getBaseImageForJVM requires a jvm ID input." && exit 1
 
     case "${1}" in
-        alnoj) echo "${ARTIFACTORY_REGISTRY}/pingbase:alpine3.24" ;;
-        al17 | al21 | al25) echo "${ARTIFACTORY_REGISTRY}/pingbase-java:alpine3.24-jdk${1#al}" ;;
-        rl17 | rl21 | rl25) echo "${ARTIFACTORY_REGISTRY}/pingbase-java:ubi9-jdk${1#rl}" ;;
+        alnoj) echo "${BASE_REGISTRY}/pingbase:alpine3.24" ;;
+        al17 | al21 | al25) echo "${BASE_REGISTRY}/pingbase-java:alpine3.24-jdk${1#al}" ;;
+        rl17 | rl21 | rl25) echo "${BASE_REGISTRY}/pingbase-java:ubi9-jdk${1#rl}" ;;
         *) echo_red "ERROR: No base image mapping for jvm ID ${1}." && exit 1 ;;
     esac
 }
