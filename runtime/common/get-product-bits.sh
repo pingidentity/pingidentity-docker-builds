@@ -167,7 +167,20 @@ case "${product_name}" in
             product_version_metadata_url="${SNAPSHOT_URL}/com/unboundid/product/ds/directory/${product_version}/maven-metadata.xml"
             product_snapshot_id="$(wget -T 20 -q -O - "${product_version_metadata_url}" | xmllint --xpath 'string(//snapshotVersion[extension="zip"]/value)' -)"
 
-            bits_file_name="directory-${product_snapshot_id}-docker-image.zip"
+            # DS-51945: the directory -docker-image.zip no longer bundles the
+            # admin console. pingdataconsole therefore pulls the full -image.zip
+            # (which still contains PingDirectory/resource/admin-console.zip);
+            # pingdirectory keeps the smaller -docker-image.zip.
+            case "${product_name}" in
+                pingdataconsole)
+                    bits_classifier="image"
+                    ;;
+                *)
+                    bits_classifier="docker-image"
+                    ;;
+            esac
+
+            bits_file_name="directory-${product_snapshot_id}-${bits_classifier}.zip"
             bits_download_url="${SNAPSHOT_URL}/com/unboundid/product/ds/directory/${product_version}/${bits_file_name}"
         else
             bits_file_name="PingDirectory-${product_version}.zip"
