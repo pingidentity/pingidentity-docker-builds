@@ -1,11 +1,13 @@
 name: kaniko probe (daemonless builder, no userns)
 
-# Final self-service check after buildah died on userns=0 (run 42896796432).
-# Kaniko executes RUN steps as plain processes in its own rootfs — no runtime,
-# no user namespace, no cgroups. If this works on the ARC pods, a fully
-# daemonless interim build path exists (kaniko build + skopeo copy + crane
-# manifests) with no SREOP dependency.
-# Dispatch-only; no secrets; public base image.
+# Attempt 4 verdict: kaniko unpacks the base image rootfs into / of the
+# running process ("unlinkat //bin: permission denied" as the runner user).
+# It expects to be root inside its own container. userns is dead on these
+# nodes (user.max_user_namespaces=0), but a root MOUNT namespace needs no
+# userns — only CAP_SYS_ADMIN. This probe: dump caps, test `sudo unshare -m`,
+# and if allowed run the executor as root in a private mount+pid namespace —
+# builds into /, runner's real rootfs untouched (namespace discarded on exit).
+# Dispatch-only; no secrets; public base images.
 
 on:
   workflow_dispatch:
@@ -18,23 +20,20 @@ jobs:
     name: kaniko probe (x86_64)
     runs-on: ping-internal-x86
     environment: docker-builds-test
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with: {fetch-depth: 1}
 
-      - name: Sanity — kaniko RUN executes on this pod
+      - name: Extract kaniko executor + capability/unshare discovery
         run: |
           set -euo pipefail
-          # kaniko executor is itself an image — we need SOME way to run it.
-          # No docker daemon on the pod → run the executor binary directly
-          # (it's a static binary; extract from the kaniko image with skopeo,
-          # which is daemonless too).
+          # kaniko executor is itself an image — no docker daemon on the pod →
+          # extract the binary with skopeo (daemonless) and run it directly.
           sudo apt-get update -qq && sudo apt-get install -qq -y skopeo jq >/dev/null
           skopeo copy docker://gcr.io/kaniko-project/executor:debug dir:/tmp/kaniko-img
-          # unpack the rootfs
-          mkdir -p /tmp/kaniko-rootfs
           # skopeo 'dir' transport: bare files named by layer digest (no .tar ext)
+          mkdir -p /tmp/kaniko-rootfs
           cd /tmp/kaniko-rootfs
           for l in $(jq -r '.layers[].digest' /tmp/kaniko-img/manifest.json | sed 's/sha256://'); do
             tar -xf /tmp/kaniko-img/"$l"
@@ -44,38 +43,57 @@ jobs:
           # kaniko's home in its own image is /kaniko — it copies the dockerfile
           # there. Recreate it when running the binary bare on the runner.
           sudo mkdir -p /kaniko && sudo chmod 777 /kaniko
-          # Sanity: run it with a tiny Dockerfile
+          echo "== capabilities of root inside this pod =="
+          CAPS=$(sudo awk '/CapEff/{print $2}' /proc/self/status)
+          echo "CapEff=$CAPS"
+          sudo capsh --decode="$CAPS" 2>/dev/null || echo "(capsh not present — decode manually)"
+          echo "== unshare -m (mount ns, no userns needed) as root =="
+          if sudo unshare -m true 2>/tmp/unshare.err; then
+            echo "MOUNT NAMESPACE AVAILABLE"
+          else
+            echo "unshare -m FAILED even as root (no CAP_SYS_ADMIN):"
+            cat /tmp/unshare.err
+            echo "=> kaniko unusable bare (rootfs unpack needs /) AND dockerd/buildah unusable; all local builder paths dead"
+            exit 1
+          fi
+
+      - name: Sanity — kaniko RUN in root mount+pid namespace
+        run: |
+          set -euo pipefail
           cd /tmp
           cat > Dockerfile.sanity <<'EOF'
           FROM ubuntu:24.04
           RUN echo hello-from-kaniko
           EOF
-          /tmp/kaniko-rootfs/kaniko/executor \
+          sudo unshare -m --fork --pid \
+            /tmp/kaniko-rootfs/kaniko/executor \
             --dockerfile=/tmp/Dockerfile.sanity \
             --context=/tmp \
             --no-push \
-            --tar-path=/tmp/sanity.tar \
+            --tar-path="${RUNNER_TEMP}/sanity.tar" \
             --destination=sanity:probe \
+            --ignore-path=/proc --ignore-path=/sys --ignore-path=/dev --ignore-path=/run \
             --force
           echo "=== kaniko RUN executed on this pod ==="
-          ls -la /tmp/sanity.tar
+          sudo chown "$(id -u):$(id -g)" "${RUNNER_TEMP}/sanity.tar"
+          ls -la "${RUNNER_TEMP}/sanity.tar"
 
       - name: Extract + verify sanity image from tar (skopeo)
         run: |
           set -euo pipefail
           sudo apt-get update -qq && sudo apt-get install -qq -y skopeo >/dev/null
-          skopeo inspect oci-archive:/tmp/sanity.tar | jq -r '.Architecture, .Os'
+          skopeo inspect oci-archive:"${RUNNER_TEMP}/sanity.tar" | jq -r '.Architecture, .Os'
           echo "skopeo reads kaniko output"
 
       - name: Build pingtoolkit with kaniko (real product Dockerfile)
         run: |
           set -euo pipefail
           cd "${GITHUB_WORKSPACE}"
-          # Executor binary already extracted in the sanity step.
           # Mirror build_product.sh's inputs: BASE_IMAGE public alpine keeps the
           # probe registry-independent; the rest of the ARGs match the build
           # invocation in the workflows.
-          /tmp/kaniko-rootfs/kaniko/executor \
+          sudo unshare -m --fork --pid \
+            /tmp/kaniko-rootfs/kaniko/executor \
             --dockerfile=pingtoolkit/Dockerfile \
             --context="${GITHUB_WORKSPACE}" \
             --build-arg=ARCH=x86_64 \
@@ -87,16 +105,18 @@ jobs:
             --build-arg=DATE=20261110 \
             --build-arg=VERSION=1.0 \
             --no-push \
-            --tar-path=/tmp/pingtoolkit-probe.tar \
+            --tar-path="${RUNNER_TEMP}/pingtoolkit-probe.tar" \
             --destination=pingtoolkit:probe \
+            --ignore-path=/proc --ignore-path=/sys --ignore-path=/dev --ignore-path=/run \
             --force
           echo "=== pingtoolkit built by kaniko ==="
-          ls -la /tmp/pingtoolkit-probe.tar
+          sudo chown "$(id -u):$(id -g)" "${RUNNER_TEMP}/pingtoolkit-probe.tar"
+          ls -la "${RUNNER_TEMP}/pingtoolkit-probe.tar"
 
       - name: Verify built image (skopeo inspect + config check)
         run: |
           set -euo pipefail
-          skopeo inspect oci-archive:/tmp/pingtoolkit-probe.tar | jq -r '.Architecture, .Os, .Env[] | select(test("BASE|JAVA_HOME"))' | head -5
+          skopeo inspect oci-archive:"${RUNNER_TEMP}/pingtoolkit-probe.tar" | jq -r '.Architecture, .Os, .Env[] | select(test("BASE|JAVA_HOME"))' | head -5
           echo "=== built image structurally valid ==="
 
       - name: Manifest assembly shape (crane, deploy_manifests parity)
