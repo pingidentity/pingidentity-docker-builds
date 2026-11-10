@@ -26,21 +26,28 @@ jobs:
       - name: Sanity — kaniko RUN executes on this pod
         run: |
           set -euo pipefail
+          # kaniko executor is itself an image — we need SOME way to run it.
+          # No docker daemon on the pod → run the executor binary directly
+          # (it's a static binary; extract from the kaniko image with skopeo,
+          # which is daemonless too).
+          sudo apt-get update -qq && sudo apt-get install -qq -y skopeo jq >/dev/null
+          skopeo copy docker://gcr.io/kaniko-project/executor:debug dir:/tmp/kaniko-img
+          # unpack the rootfs
+          mkdir -p /tmp/kaniko-rootfs
+          tar -C /tmp/kaniko-rootfs -xf /tmp/kaniko-img/$(jq -r '.layers[0].digest' /tmp/kaniko-img/manifest.json 2>/dev/null | sed 's/sha256://').tar 2>/dev/null || \
+            { cd /tmp/kaniko-rootfs && for l in $(jq -r '.layers[].digest' /tmp/kaniko-img/manifest.json | sed 's/sha256://'); do tar -xf /tmp/kaniko-img/$l.tar; done; }
+          ls /tmp/kaniko-rootfs/kaniko/executor && echo "kaniko executor binary extracted"
+          # Sanity: run it with a tiny Dockerfile
           cd /tmp
           cat > Dockerfile.sanity <<'EOF'
           FROM ubuntu:24.04
           RUN echo hello-from-kaniko
           EOF
-          # kaniko needs a push destination for cache; use tar with --no-push
-          # and --tar-path to keep everything local.
-          docker run --rm \
-            -v /tmp:/workspace-out \
-            -v "$PWD":/workspace \
-            gcr.io/kaniko-project/executor:latest \
-            --dockerfile=Dockerfile.sanity \
-            --context=/workspace \
+          /tmp/kaniko-rootfs/kaniko/executor \
+            --dockerfile=/tmp/Dockerfile.sanity \
+            --context=/tmp \
             --no-push \
-            --tar-path=/workspace-out/sanity.tar \
+            --tar-path=/tmp/sanity.tar \
             --destination=sanity:probe \
             --force
           echo "=== kaniko RUN executed on this pod ==="
@@ -57,15 +64,13 @@ jobs:
         run: |
           set -euo pipefail
           cd "${GITHUB_WORKSPACE}"
+          # Executor binary already extracted in the sanity step.
           # Mirror build_product.sh's inputs: BASE_IMAGE public alpine keeps the
           # probe registry-independent; the rest of the ARGs match the build
           # invocation in the workflows.
-          docker run --rm \
-            -v "$PWD":/workspace \
-            -v /tmp:/workspace-out \
-            gcr.io/kaniko-project/executor:latest \
+          /tmp/kaniko-rootfs/kaniko/executor \
             --dockerfile=pingtoolkit/Dockerfile \
-            --context=/workspace \
+            --context="${GITHUB_WORKSPACE}" \
             --build-arg=ARCH=x86_64 \
             --build-arg=BASE_IMAGE=alpine:3.24 \
             --build-arg=JAVA_LINK= \
@@ -75,7 +80,7 @@ jobs:
             --build-arg=DATE=20261110 \
             --build-arg=VERSION=1.0 \
             --no-push \
-            --tar-path=/workspace-out/pingtoolkit-probe.tar \
+            --tar-path=/tmp/pingtoolkit-probe.tar \
             --destination=pingtoolkit:probe \
             --force
           echo "=== pingtoolkit built by kaniko ==="
