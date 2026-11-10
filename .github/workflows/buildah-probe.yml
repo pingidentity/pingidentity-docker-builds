@@ -1,0 +1,79 @@
+name: buildah probe (no SREOP dependency)
+
+# One-shot probe: can buildah build a real product Dockerfile on the ARC
+# runner pods WITHOUT any docker daemon? Answers the buildah/skopeo interim
+# question (dependency doc #12b) with the real target environment.
+# Dispatch-only; no secrets needed beyond a public base image.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: buildah probe (x86_64)
+    runs-on: ping-internal-x86
+    environment: docker-builds-test
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1}
+
+      - name: Install buildah + skopeo
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install --no-install-recommends -qq -y buildah skopeo
+          buildah --version
+          skopeo --version
+
+      - name: Sanity — buildah RUN works natively on the pod
+        run: |
+          set -euo pipefail
+          cd /tmp
+          cat > Dockerfile.sanity <<'EOF'
+          FROM ubuntu:24.04
+          RUN echo hello-from-buildah
+          EOF
+          buildah build --isolation chroot -t sanity -f Dockerfile.sanity .
+          echo "buildah RUN works on this pod"
+
+      - name: Build pingtoolkit with buildah (chroot isolation)
+        run: |
+          set -euo pipefail
+          cd "${GITHUB_WORKSPACE}"
+          # Mirror build_product.sh's invocation shape (args from .env values;
+          # BASE_IMAGE=public alpine keeps this probe registry-independent).
+          buildah build --isolation chroot \
+            --build-arg ARCH=x86_64 \
+            --build-arg BASE_IMAGE=alpine:3.24 \
+            --build-arg JAVA_LINK= \
+            --build-arg IMAGE_VERSION=probe \
+            --build-arg IMAGE_GIT_REV=${GITHUB_SHA::8} \
+            --build-arg BASE=/opt \
+            --build-arg DATE=20261110 \
+            --build-arg VERSION=1.0 \
+            -t pingtoolkit:probe \
+            -f pingtoolkit/Dockerfile .
+
+      - name: Skopeo inspect the built image (daemonless, local storage)
+        run: |
+          set -euo pipefail
+          skopeo inspect --config containers-storage:pingtoolkit:probe | jq -r '.architecture, .os'
+          echo "skopeo can read buildah output from containers-storage"
+
+      - name: Skopeo copy containers-storage → oci archive (push-path shape)
+        run: |
+          set -euo pipefail
+          skopeo copy containers-storage:pingtoolkit:probe oci-archive:/tmp/pingtoolkit-probe.tar
+          ls -la /tmp/pingtoolkit-probe.tar
+          echo "push-path transport verified (would be docker://<registry> in CI)"
+
+      - name: buildah manifest smoke (deploy_manifests_to_registry parity)
+        run: |
+          set -euo pipefail
+          buildah manifest create probe-list pingtoolkit:probe
+          buildah manifest inspect probe-list | jq -r '.manifests[].digest' | head -2
+          echo "manifest create/inspect verified (push to registry pending 48266-free path)"
