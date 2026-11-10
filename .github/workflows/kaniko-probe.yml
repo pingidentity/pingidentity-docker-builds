@@ -41,6 +41,9 @@ jobs:
           done
           cd /tmp
           ls /tmp/kaniko-rootfs/kaniko/executor && echo "kaniko executor binary extracted"
+          # kaniko's home in its own image is /kaniko — it copies the dockerfile
+          # there. Recreate it when running the binary bare on the runner.
+          sudo mkdir -p /kaniko && sudo chmod 777 /kaniko
           # Sanity: run it with a tiny Dockerfile
           cd /tmp
           cat > Dockerfile.sanity <<'EOF'
