@@ -34,8 +34,12 @@ jobs:
           skopeo copy docker://gcr.io/kaniko-project/executor:debug dir:/tmp/kaniko-img
           # unpack the rootfs
           mkdir -p /tmp/kaniko-rootfs
-          tar -C /tmp/kaniko-rootfs -xf /tmp/kaniko-img/$(jq -r '.layers[0].digest' /tmp/kaniko-img/manifest.json 2>/dev/null | sed 's/sha256://').tar 2>/dev/null || \
-            { cd /tmp/kaniko-rootfs && for l in $(jq -r '.layers[].digest' /tmp/kaniko-img/manifest.json | sed 's/sha256://'); do tar -xf /tmp/kaniko-img/$l.tar; done; }
+          # skopeo 'dir' transport: bare files named by layer digest (no .tar ext)
+          cd /tmp/kaniko-rootfs
+          for l in $(jq -r '.layers[].digest' /tmp/kaniko-img/manifest.json | sed 's/sha256://'); do
+            tar -xf /tmp/kaniko-img/"$l"
+          done
+          cd /tmp
           ls /tmp/kaniko-rootfs/kaniko/executor && echo "kaniko executor binary extracted"
           # Sanity: run it with a tiny Dockerfile
           cd /tmp
