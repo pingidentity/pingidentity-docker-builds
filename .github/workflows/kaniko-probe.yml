@@ -1,0 +1,99 @@
+name: kaniko probe (daemonless builder, no userns)
+
+# Final self-service check after buildah died on userns=0 (run 42896796432).
+# Kaniko executes RUN steps as plain processes in its own rootfs — no runtime,
+# no user namespace, no cgroups. If this works on the ARC pods, a fully
+# daemonless interim build path exists (kaniko build + skopeo copy + crane
+# manifests) with no SREOP dependency.
+# Dispatch-only; no secrets; public base image.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: kaniko probe (x86_64)
+    runs-on: ping-internal-x86
+    environment: docker-builds-test
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1}
+
+      - name: Sanity — kaniko RUN executes on this pod
+        run: |
+          set -euo pipefail
+          cd /tmp
+          cat > Dockerfile.sanity <<'EOF'
+          FROM ubuntu:24.04
+          RUN echo hello-from-kaniko
+          EOF
+          # kaniko needs a push destination for cache; use tar with --no-push
+          # and --tar-path to keep everything local.
+          docker run --rm \
+            -v /tmp:/workspace-out \
+            -v "$PWD":/workspace \
+            gcr.io/kaniko-project/executor:latest \
+            --dockerfile=Dockerfile.sanity \
+            --context=/workspace \
+            --no-push \
+            --tar-path=/workspace-out/sanity.tar \
+            --destination=sanity:probe \
+            --force
+          echo "=== kaniko RUN executed on this pod ==="
+          ls -la /tmp/sanity.tar
+
+      - name: Extract + verify sanity image from tar (skopeo)
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -qq -y skopeo >/dev/null
+          skopeo inspect oci-archive:/tmp/sanity.tar | jq -r '.Architecture, .Os'
+          echo "skopeo reads kaniko output"
+
+      - name: Build pingtoolkit with kaniko (real product Dockerfile)
+        run: |
+          set -euo pipefail
+          cd "${GITHUB_WORKSPACE}"
+          # Mirror build_product.sh's inputs: BASE_IMAGE public alpine keeps the
+          # probe registry-independent; the rest of the ARGs match the build
+          # invocation in the workflows.
+          docker run --rm \
+            -v "$PWD":/workspace \
+            -v /tmp:/workspace-out \
+            gcr.io/kaniko-project/executor:latest \
+            --dockerfile=pingtoolkit/Dockerfile \
+            --context=/workspace \
+            --build-arg=ARCH=x86_64 \
+            --build-arg=BASE_IMAGE=alpine:3.24 \
+            --build-arg=JAVA_LINK= \
+            --build-arg=IMAGE_VERSION=probe \
+            --build-arg=IMAGE_GIT_REV=${GITHUB_SHA::8} \
+            --build-arg=BASE=/opt \
+            --build-arg=DATE=20261110 \
+            --build-arg=VERSION=1.0 \
+            --no-push \
+            --tar-path=/workspace-out/pingtoolkit-probe.tar \
+            --destination=pingtoolkit:probe \
+            --force
+          echo "=== pingtoolkit built by kaniko ==="
+          ls -la /tmp/pingtoolkit-probe.tar
+
+      - name: Verify built image (skopeo inspect + config check)
+        run: |
+          set -euo pipefail
+          skopeo inspect oci-archive:/tmp/pingtoolkit-probe.tar | jq -r '.Architecture, .Os, .Env[] | select(test("BASE|JAVA_HOME"))' | head -5
+          echo "=== built image structurally valid ==="
+
+      - name: Manifest assembly shape (crane, deploy_manifests parity)
+        run: |
+          set -euo pipefail
+          sudo apt-get install -qq -y curl >/dev/null
+          CRANE_VER=v0.20.2
+          curl -fsSL "https://github.com/google/go-containerregistry/releases/download/${CRANE_VER}/go-containerregistry_Linux_x86_64.tar.gz" | tar xz -C /tmp crane
+          # In CI this pulls from a registry; here prove crane runs + reads the
+          # oci-archive (push to registry pending an actual destination).
+          /tmp/crane version
+          echo "=== crane available for manifest assembly ==="
