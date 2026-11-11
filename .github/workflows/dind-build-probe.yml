@@ -30,11 +30,13 @@ jobs:
           # DEPS registry :5700 (artifactory) NOT needed for a toolkit build.
           BASE_REGISTRY: docker.io/pingidentity
           ARTIFACTORY_REGISTRY: docker.io/pingidentity
+          # build_product.sh skips docker push/cosign entirely when set (checked
+          # against IS_LOCAL_BUILD before the push block) — probe stays local.
+          IS_LOCAL_BUILD: "true"
         run: |
           chmod +x ci_scripts/*.sh
           ci_scripts/build_product.sh \
             --product pingtoolkit --jvm al25 --no-cache --fail-fast 2>&1 | tail -40
-          # build_product.sh pushes on success — capture tags it tried
       - name: Result images
         run: |
           docker images | grep -E "pingtoolkit|REPOSITORY" | head -10
