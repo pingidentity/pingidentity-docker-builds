@@ -1,0 +1,85 @@
+name: docs generation (drift smoke)
+
+# Port of the GitLab publish-stage docs step (p.github job running
+# ci_scripts/deploy_docs.sh, .gitlab-ci.yml:147). Parity per PDI-2517: CI runs
+# generation only — parse every product Dockerfile + hook and stage the adoc
+# pages, catching parser breakage on Dockerfile/hook changes. Output is
+# discarded; there is NO comparison target in CI (the portal repo
+# ping-rocks/docs-devops-getting-started is private, and syncing to it is
+# engineer-run via ci_scripts/sync_portal_docs.sh --dry-run /
+# publish_portal_docs.sh). Renamed "docs generation" rather than "deploy
+# docs" for exactly that reason (PDI-2408).
+#
+# Triggers: master push + tags (GitLab p.github rules: master or
+# YYYY.?-style release tag), manual dispatch, and a weekly schedule (the
+# GitLab job rode the per-push pipeline; standalone scheduling keeps a
+# periodic signal without full product builds).
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'ci_scripts/deploy_docs.sh'
+      - 'ci_scripts/docs_image_info.lib.sh'
+      - 'ping*/Dockerfile'
+      - 'ping*/opt/**'
+      - 'ping*/tmp/**'
+      - 'ldap-sdk-tools/**'
+      - 'apache-jmeter/**'
+      - '.github/workflows/docs-drift.yml'
+  schedule:
+    # Weekly Monday 17:00 UTC (off-peak; generation is CPU-only, ~5 min)
+    - cron: '0 17 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-drift-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    name: deploy_docs.sh (all products)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      # deploy_docs.sh needs only bash/awk/sed/find/coreutils (ubuntu-24.04
+      # stock). No setup-tools, no docker tools — generation never builds.
+      # DOCS_OUTPUT_DIR stages into the workspace so the artifact path is
+      # workspace-relative (the script default ${TMPDIR:-/tmp} is outside it).
+      - name: Generate docs for all products
+        env:
+          DOCS_OUTPUT_DIR: ${{ github.workspace }}/docs-output
+        run: ci_scripts/deploy_docs.sh
+
+      - name: Verify staged pages
+        run: |
+          set -euo pipefail
+          page_count=$(find docs-output/docker-images -name '*.adoc' | wc -l)
+          echo "Staged ${page_count} adoc pages"
+          # 13 products (deploy_docs.sh main list); every product must emit
+          # its README.adoc or a parse silently produced nothing.
+          missing=0
+          for image in pingaccess pingfederate pingdirectory pingdatasync \
+              pingdataconsole ldap-sdk-tools pingtoolkit pingdirectoryproxy \
+              pingdelegator apache-jmeter pingcentral pingauthorize \
+              pingauthorizepap; do
+            if test ! -s "docs-output/docker-images/${image}/README.adoc"; then
+              echo "::error::no README.adoc generated for ${image}"
+              missing=1
+            fi
+          done
+          test "${missing}" -eq 0
+          test "${page_count}" -ge 79
+
+      - name: Upload generated pages (inspection only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: generated-docs
+          path: docs-output/docker-images
+          retention-days: 7
