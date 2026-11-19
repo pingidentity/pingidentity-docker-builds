@@ -57,9 +57,12 @@ jobs:
 
       - name: Materialize DOCKER_CONFIG_JSON secret
         # Same shape as docker-builds-ci.yml build jobs: raw JSON or base64.
-        # The docker/oras/buildx/curl calls below all auth from this one
-        # store: docker+oras read ${DOCKER_CONFIG}/config.json natively;
-        # curl extracts the same entry's basic-auth credential.
+        # The docker/oras/buildx calls below all auth from this one store
+        # (they read ${DOCKER_CONFIG}/config.json natively). curl-based
+        # checks source /tmp/docker-config/creds.sh — a shell file, NOT
+        # GITHUB_ENV: derived credentials are not masked by Actions, and a
+        # GITHUB_ENV value echoes in every later step's env block (that is
+        # how the first live run leaked the artifactory token into the log).
         run: |
           set -euo pipefail
           mkdir -p "${DOCKER_CONFIG}"
@@ -75,13 +78,14 @@ jobs:
             exit 1
           fi
           BASIC_AUTH=$(printf '%s' "${AUTH_ENTRY}" | base64 -d)
-          # Split on first colon only (token passwords contain no colon; usernames could).
-          CURL_USER="${BASIC_AUTH%%:*}"
-          CURL_PASS="${BASIC_AUTH#*:}"
+          # Split on first colon only (identity-token passwords contain no colon).
+          # add-mask so any accidental echo is redacted; values stay out of env.
+          printf '::add-mask::%s\n' "${BASIC_AUTH#*:}"
+          umask 077
           {
-            echo "CURL_USER=${CURL_USER}"
-            echo "CURL_PASS=${CURL_PASS}"
-          } >> "${GITHUB_ENV}"
+            printf 'CURL_USER=%q\n' "${BASIC_AUTH%%:*}"
+            printf 'CURL_PASS=%q\n' "${BASIC_AUTH#*:}"
+          } > "${DOCKER_CONFIG}/creds.sh"
           jq -r '.auths | keys[]' "${DOCKER_CONFIG}/config.json" | sed 's/^/auths entry: /'
         env:
           DOCKER_CONFIG_JSON_VALUE: ${{ secrets.DOCKER_CONFIG_JSON }}
@@ -116,6 +120,7 @@ jobs:
       - name: Preflight (daemon, TLS, auth, Artifactory version)
         run: |
           set -euo pipefail
+          . "${DOCKER_CONFIG}/creds.sh"
           docker version
           echo "=== daemon storage driver (containerd store would enable the plain docker driver) ==="
           docker info -f 'storage driver: {{.Driver}}'
@@ -157,6 +162,7 @@ jobs:
       - name: Build + push scratch image with --sbom=true
         run: |
           set -euo pipefail
+          . "${DOCKER_CONFIG}/creds.sh"
           REF="${REG}/${REPO}:run-${GITHUB_RUN_ID}"
           echo "REF=${REF}" >> "${GITHUB_ENV}"
           mkdir -p /tmp/probe-ctx
@@ -170,6 +176,12 @@ jobs:
           # docker-container first (nested dind may refuse — bootstrap needs
           # mount caps); on failure, fall back to the docker driver when the
           # daemon reports containerd storage, else record the limitation.
+          # Bootstrap pulls moby/buildkit from Docker Hub: anonymous pulls
+          # now require auth (live run 44635234137), so log in first with
+          # the staged DOCKER_USERNAME/DOCKER_ACCESS_TOKEN.
+          docker login --username "${DOCKER_USERNAME_VALUE}" --password-stdin <<< "${DOCKER_ACCESS_TOKEN_VALUE}" || {
+            echo "::warning::docker hub login failed — buildkit bootstrap pull may be rejected"
+          }
           DRIVER=docker-container
           docker buildx rm "pdi2391-${GITHUB_RUN_ID}" >/dev/null 2>&1 || true
           if ! docker buildx create --name "pdi2391-${GITHUB_RUN_ID}" \
@@ -194,10 +206,14 @@ jobs:
             /tmp/probe-ctx
           echo "pushed ${REF} (builder driver: ${DRIVER})"
           echo "BUILDER_DRIVER=${DRIVER}" >> "${GITHUB_ENV}"
+        env:
+          DOCKER_USERNAME_VALUE: ${{ vars.DOCKER_USERNAME }}
+          DOCKER_ACCESS_TOKEN_VALUE: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
       - name: Verify referrers survived the round trip
         run: |
           set -euo pipefail
+          . "${DOCKER_CONFIG}/creds.sh"
           NOTES=/tmp/probe-notes.md
           : > "${NOTES}"
           note(){ echo "$*" >> "${NOTES}"; }
