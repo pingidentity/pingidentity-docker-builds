@@ -86,12 +86,10 @@ jobs:
         env:
           DOCKER_CONFIG_JSON_VALUE: ${{ secrets.DOCKER_CONFIG_JSON }}
 
-      - name: Set up tools (cosign; docker CLI already on dind runner)
-        uses: ./.github/actions/setup-tools
-        with:
-          install-docker-tools: 'false'
-
-      - name: Install buildx + oras
+      - name: Install buildx + oras + cosign
+        # Self-contained installs (no ./.github/actions/setup-tools): that
+        # composite action is not on master, and this probe must dispatch
+        # from the default branch. Mirrors setup-tools' cosign install.
         run: |
           set -euo pipefail
           if ! docker buildx version >/dev/null 2>&1; then
@@ -106,6 +104,14 @@ jobs:
           tar -xzf /tmp/oras.tgz -C /tmp oras
           sudo install -m 0755 /tmp/oras /usr/local/bin/oras
           oras version
+          COSIGN_VERSION=3.0.6
+          arch=$(uname -m); case "${arch}" in x86_64) carch=amd64;; aarch64) carch=arm64;; *) carch=amd64;; esac
+          if ! command -v cosign >/dev/null 2>&1; then
+            curl -fsSL --retry 3 -o /tmp/cosign \
+              "https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-linux-${carch}"
+            sudo install -m 0755 /tmp/cosign /usr/local/bin/cosign
+          fi
+          cosign version
 
       - name: Preflight (daemon, TLS, auth, Artifactory version)
         run: |
