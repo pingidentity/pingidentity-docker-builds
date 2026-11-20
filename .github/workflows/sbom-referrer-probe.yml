@@ -266,28 +266,39 @@ jobs:
           #    manifest (index entries + referrers results, deduped) and its
           #    in-toto/spdx/cyclonedx layer blob. Blobs are fetched to files:
           #    in-toto SBOM layers are gzipped (binary) — command substitution
-          #    chokes on the null bytes (live run 44635590010).
+          #    chokes on the null bytes (live run 44635590010). Every jq call
+          #    in the loop is guarded with `|| true`: the loop also walks the
+          #    BASE image manifests (alpine layer blobs are gzip'd tar, not
+          #    JSON), and jq exits 5 on parse errors — under `set -e` an
+          #    unguarded assignment there kills the whole step with exit 5
+          #    (live run 44635958815, reproduced locally). Only the
+          #    spdx/cyclonedx predicateType sets SBOM_FOUND, so a base-image
+          #    manifest failing to parse cannot mask an SBOM verdict.
           SBOM_FOUND=no
           for RDIG in $(jq -r '.manifests[]?.digest // empty' /tmp/index.json /tmp/referrers.json 2>/dev/null | sort -u); do
             curl -sS "${CRED[@]}" \
               -H 'Accept: application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json' \
               -o /tmp/ref-manifest.json \
               "https://${REG}/v2/${REPO}/manifests/${RDIG}" 2>/dev/null || continue
-            LAYER=$(jq -r '.layers[0].digest // empty' /tmp/ref-manifest.json 2>/dev/null)
-            MEDIA=$(jq -r '.layers[0].mediaType // "?"' /tmp/ref-manifest.json 2>/dev/null)
+            LAYER=$(jq -r '.layers[0].digest // empty' /tmp/ref-manifest.json 2>/dev/null || true)
+            MEDIA=$(jq -r '.layers[0].mediaType // "?"' /tmp/ref-manifest.json 2>/dev/null || true)
             if test -z "${LAYER}"; then
               note "manifest ${RDIG}: layer NOT retrievable (image layer or dropped attestation)"
               continue
             fi
             curl -sS "${CRED[@]}" -o /tmp/ref-payload.bin \
               "https://${REG}/v2/${REPO}/blobs/${LAYER}" 2>/dev/null || true
-            # gzip layers are the norm for attestation blobs; decompress by magic
-            if head -c2 /tmp/ref-payload.bin | grep -q $'\x1f\x8b' 2>/dev/null; then
+            # gzip layers are the norm for attestation blobs; decompress by
+            # magic (od+grep, not `grep $'\x1f\x8b'` — BSD grep matches
+            # inconsistently on binary). Decompressed output of a BASE image
+            # layer is a tar, not JSON — that is fine: jq will fail to parse
+            # it and the guarded calls below just record <unreadable>.
+            if test "$(head -c2 /tmp/ref-payload.bin | od -An -tx1 | tr -d ' \n')" = "1f8b"; then
               gunzip -c /tmp/ref-payload.bin > /tmp/ref-payload.json 2>/dev/null || cp /tmp/ref-payload.bin /tmp/ref-payload.json
             else
               cp /tmp/ref-payload.bin /tmp/ref-payload.json
             fi
-            PT=$(jq -r '.predicateType // empty' /tmp/ref-payload.json 2>/dev/null)
+            PT=$(jq -r '.predicateType // empty' /tmp/ref-payload.json 2>/dev/null || true)
             note "manifest ${RDIG}: layer ${MEDIA}, predicateType=${PT:-<unreadable>}"
             case "${PT}" in
               *spdx*|*cyclonedx*) SBOM_FOUND=yes ;;
