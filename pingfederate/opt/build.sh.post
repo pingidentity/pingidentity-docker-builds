@@ -17,6 +17,24 @@ fi
 #- results in them being owned by root. This can lead to issues during 06-copy-product-bits.sh.
 mkdir -p /opt/out/instance/server/default/conf
 
+# Stamp the stock data tree to the epoch so hook 06's `cp -Ru` can never
+# consider image stock files newer than files already on a persisted volume
+# (e.g. data/ mounted separately on EFS, PDI-2554 / NatWest finding). Stock
+# files still copy when MISSING from the volume (first start, new files in a
+# newer PF version); PF's performDataUpgradeIfNeeded governs upgrades, not
+# mtimes. Scoped to data/ so bin/, lib/, conf/ keep upgrade-on-newer behavior.
+_data_dir=/opt/server/server/default/data
+touch -h -t 197001010000 "$(find "${_data_dir}" -mindepth 0)"
+# shellcheck disable=SC2034  # _ref only used as -newer comparison anchor
+_ref="$(mktemp)"
+touch -t 197001020000 "${_ref}"
+if test -n "$(find "${_data_dir}" -newer "${_ref}")"; then
+    echo "ERROR: build.sh.post: data/ mtime normalisation failed" >&2
+    exit 1
+fi
+rm -f "${_ref}"
+echo "data/ mtime normalisation applied"
+
 # Copy the default run.properties into the /opt/staging directory to serve as a default when
 # no server profile is provided. Variable values will be inserted to allow configuration to be
 # pulled from environment variables when there is no server profile.
