@@ -19,6 +19,7 @@ ARG DEPS
 # reaching here.
 ARG BASE_IMAGE
 ARG JAVA_LINK
+ARG TARGETARCH
 
 #################################################################################
 
@@ -65,9 +66,32 @@ USER 0:0
 # The Ping-provided alpine base ships tini at /sbin/tini (same path the ENTRYPOINT uses).
 # Re-declared: top-level ARGs are not inherited into stage RUN scope.
 ARG JAVA_LINK
+# Multi-arch (PDI-2551): buildx populates TARGETARCH per platform; used to
+# resolve the arch-suffixed Bellsoft JVM dir in UBI bases when JAVA_LINK is
+# unsuffixed. Re-declared: top-level ARGs are not inherited into stage scope.
+ARG TARGETARCH
 # Preserve the JAVA_HOME=/opt/java contract (pingbase env + PATH); the link
-# target lives inside the Ping-provided base image.
-RUN if test -n "${JAVA_LINK}"; then ln -s "${JAVA_LINK}" /opt/java; fi
+# target lives inside the Ping-provided base image. JAVA_LINK may be
+# unsuffixed (multi-arch buildx: PDI-2551) or arch-suffixed for UBI bases
+# (bellsoft-javaNN-lite.x86_64/.aarch64; alpine is suffix-free). With
+# TARGETARCH set and the plain path missing, the arch suffix is appended.
+# A wrong link still fails the build.
+RUN if test -n "${JAVA_LINK}"; then \
+        _link="${JAVA_LINK}"; \
+        if ! test -d "${_link}" && test -n "${TARGETARCH}"; then \
+            case "${TARGETARCH}" in \
+                amd64) _suffix=x86_64 ;; \
+                arm64) _suffix=aarch64 ;; \
+                *) _suffix="${TARGETARCH}" ;; \
+            esac; \
+            test -d "${_link}.${_suffix}" && _link="${_link}.${_suffix}"; \
+        fi; \
+        if test -d "${_link}"; then \
+            ln -s "${_link}" /opt/java; \
+        else \
+            echo "ERROR: JAVA_LINK target '${JAVA_LINK}' (or arch variant) not found in base image" >&2; exit 1; \
+        fi; \
+    fi
 
 # get the product bits FIRST
 COPY --from=product-staging ["/opt/","/opt/"]
