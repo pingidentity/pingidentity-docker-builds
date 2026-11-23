@@ -24,7 +24,9 @@ mkdir -p /opt/out/instance/server/default/conf
 # performDataUpgradeIfNeeded governs upgrades, not mtimes. Scoped to data/
 # so bin/, lib/, conf/ keep upgrade-on-newer behavior.
 _data_dir=/opt/server/server/default/data
-touch -h -t 197001010000 "$(find "${_data_dir}" -mindepth 0)"
+# find -exec ... + (not "$(find ...)"): busybox touch rejects the multi-line
+# single-argument form, and -exec + also preserves symlink targets (-h).
+find "${_data_dir}" -mindepth 0 -exec touch -h -t 197001010000 {} +
 # shellcheck disable=SC2034  # _ref only used as -newer comparison anchor
 _ref="$(mktemp)"
 touch -t 197001020000 "${_ref}"
