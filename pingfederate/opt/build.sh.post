@@ -19,9 +19,9 @@ mkdir -p /opt/out/instance/server/default/conf
 
 # Stamp the stock data tree to the epoch so hook 06's `cp -Ru` can never
 # consider image stock files newer than files already on a persisted volume
-# (e.g. data/ mounted separately). Stock files still copy when MISSING from 
+# (e.g. data/ mounted separately). Stock files still copy when MISSING from
 # the volume (first start, new files in a newer PF version); PF's
-# performDataUpgradeIfNeeded governs upgrades, not mtimes. Scoped to data/ 
+# performDataUpgradeIfNeeded governs upgrades, not mtimes. Scoped to data/
 # so bin/, lib/, conf/ keep upgrade-on-newer behavior.
 _data_dir=/opt/server/server/default/data
 touch -h -t 197001010000 "$(find "${_data_dir}" -mindepth 0)"
