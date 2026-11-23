@@ -62,6 +62,10 @@ FROM ${BASE_IMAGE} AS final-staging
 USER 0:0
 # Re-declared: top-level ARGs are not inherited into stage RUN scope.
 ARG JAVA_LINK
+# build.sh.post branches on VERSION (pre-12.2 PF zips ship a bash-shebang
+# run.sh that the current alpine base cannot execute; the POSIX
+# pre-12.2-run.sh override must replace it at build time).
+ARG VERSION
 # Preserve the JAVA_HOME=/opt/java contract (pingbase env + PATH); the link
 # target lives inside the Ping-provided base image.
 RUN if test -n "${JAVA_LINK}"; then ln -s "${JAVA_LINK}" /opt/java; fi
