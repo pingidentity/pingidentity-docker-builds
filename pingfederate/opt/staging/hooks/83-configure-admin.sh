@@ -34,7 +34,19 @@ case "${_acceptLicenseAgreement}" in
         # Toggle on debug logging if DEBUG=true is set
         start_debug_logging
         # Set script vars
-        admin_roles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR","DATA_COLLECTION_ADMINISTRATOR"]'
+        # DATA_COLLECTION_ADMINISTRATOR does not exist in the PF 12.0/12.1
+        # AdministrativeRoleType enum (roles[4] rejected as invalid_enum);
+        # include it only from 12.2 on (mirrors the build.sh.post 12.1 gating).
+        # PING_PRODUCT_VERSION is the runtime ENV carrying the build VERSION
+        # (Dockerfile line ~299); the build ARG is not present at runtime.
+        case "${PING_PRODUCT_VERSION}" in
+            12.0* | 12.1*)
+                admin_roles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR"]'
+                ;;
+            *)
+                admin_roles='["ADMINISTRATOR","USER_ADMINISTRATOR","CRYPTO_ADMINISTRATOR","EXPRESSION_ADMINISTRATOR","DATA_COLLECTION_ADMINISTRATOR"]'
+                ;;
+        esac
         _createAdminUser=$(
             curl \
                 --insecure \
